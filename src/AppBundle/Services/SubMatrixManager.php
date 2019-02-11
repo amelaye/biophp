@@ -1,11 +1,11 @@
 <?php
 
-namespace AppBundle;
+namespace AppBundle\Services;
 
 /**
  * This class allows the use of customized substitution matrices.  See tech doc for details.
  */
-class SubMatrix
+class SubMatrixManager
 {
     var $rules;
 

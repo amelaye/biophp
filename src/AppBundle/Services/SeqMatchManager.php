@@ -1,13 +1,15 @@
 <?php
 
-class SeqMatch
+namespace AppBundle\Services;
+
+class SeqMatchManager
 {
     var $result;
     var $hamdist;
     var $levdist;
 
     /**
-     * hamdist() computes the Hamming Distance between two strings or Seq objects 
+     * Computes the Hamming Distance between two strings or Seq objects 
      * of equal length.  For more information, consult the technical reference.
      * @param type $seq1
      * @param type $seq2

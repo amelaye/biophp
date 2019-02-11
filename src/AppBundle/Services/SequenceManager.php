@@ -2,7 +2,7 @@
 
 namespace AppBundle\Services;
 
-class Sequence
+class SequenceManager
 {
     private $moltype;
     
