@@ -2,7 +2,7 @@
 
 namespace AppBundle\Services;
 
-class protein
+class ProteinManager
 {
     var $id;
     var $name;
