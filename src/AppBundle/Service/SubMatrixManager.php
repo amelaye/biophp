@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Services;
+namespace AppBundle\Service;
 
 /**
  * This class allows the use of customized substitution matrices.  See tech doc for details.

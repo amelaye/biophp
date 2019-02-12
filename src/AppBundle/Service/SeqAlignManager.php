@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Services;
+namespace AppBundle\Service;
 
 /* SeqAlign - represents the result of an alignment performed by various third-party 
         software such as ClustalW.  The alignment is usually found in a file that uses

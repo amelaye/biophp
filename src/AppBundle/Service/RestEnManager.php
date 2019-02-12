@@ -1,8 +1,8 @@
 <?php
 
-namespace AppBundle\Services;
+namespace AppBundle\Service;
 
-class RestEn
+class RestEnManager
 {
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
