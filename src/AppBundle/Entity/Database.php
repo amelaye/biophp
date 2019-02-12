@@ -1,7 +1,7 @@
 <?php
 
 class Database {
-    
+
     private $dbname;
     private $data_fn;
     private $data_fp;
@@ -32,33 +32,33 @@ class Database {
      */
     function __construct()
     {
-	// Get all the arguments passed to this function.
-	$args = func_get_args();		
-	$dbname = $args[0];
-	$dbformat = strtoupper($args[1]);		
-	
+        // Get all the arguments passed to this function.
+        $args = func_get_args();
+        $dbname = $args[0];
+        $dbformat = strtoupper($args[1]);
+
         if (strlen($dbformat) == 0) {
             $dbformat = "GENBANK";
         }
-	$this->dbformat = $dbformat;
+        $this->dbformat = $dbformat;
 
-	$datafile = array();
-	for($i = 2; $i < count($args); $i++) {
+        $datafile = array();
+        for($i = 2; $i < count($args); $i++) {
             $datafile[] = $args[$i];
         }
-		
 
-	/* db exists   fileX args   ACTION   TESTED
-			Y            Y        create   okay
-			Y            N        use
-			N            Y        create    okay
-			N            N        create    okay
-	*/
-	// if user provided specific values for $file1, $file2, ... parameters.
-	if ((file_exists($dbname)) and (count($datafile) > 0)) {
+
+        /* db exists   fileX args   ACTION   TESTED
+            Y            Y        create   okay
+            Y            N        use
+            N            Y        create    okay
+            N            N        create    okay
+        */
+        // if user provided specific values for $file1, $file2, ... parameters.
+        if ((file_exists($dbname)) and (count($datafile) > 0)) {
             // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
             $this->open($dbname);
-	} else {
+        } else {
             $fp = fopen($dbname . ".idx", "w+");
             $fpdir = fopen($dbname . ".dir", "w+");
 
@@ -73,34 +73,34 @@ class Database {
             $temp_r = array();
             // Build our *.DIR file
             foreach($datafile as $fileno=>$filename) {
-		$outline = "$fileno $filename\n";
-		fputs($fpdir, $outline);
+                $outline = "$fileno $filename\n";
+                fputs($fpdir, $outline);
 
-		// Automatically create an index file containing info across all data files.
-		$flines = file($filename);
-		$totlines = count($flines);
+                // Automatically create an index file containing info across all data files.
+                $flines = file($filename);
+                $totlines = count($flines);
 
-		while(list($lineno, $linestr) = each($flines)) {
+                while(list($lineno, $linestr) = each($flines)) {
                     if (at_entrystart($linestr, $dbformat)) {
                         $current_id =  get_entryid($flines, $linestr, $dbformat);
                         $outline = "$current_id $fileno $lineno\n";
                         // Put entries in an array first, sort them, then write to *.IDX file.
-			$temp_r[$current_id] = array($current_id, $fileno, $lineno);
+                        $temp_r[$current_id] = array($current_id, $fileno, $lineno);
                     }
-		}
-		ksort($temp_r);
+                }
+                ksort($temp_r);
             }
             // Build our *.IDX array.
             $this->seqcount = count($temp_r);
             foreach($temp_r as $seqid => $line_r) {
-		$outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n";
-		$fio = fputs($fp, $outline);
+                $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n";
+                $fio = fputs($fp, $outline);
             }
-	}
+        }
         fclose($fp);
-	fclose($fpdir);
+        fclose($fpdir);
     }
-	
+
 
     public function getDbname()
     {
