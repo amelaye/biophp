@@ -33,7 +33,7 @@ class Sequence
     private $end;
 		
     // Used when DBFORMAT is "SWISSPROT"
-    private $swissprot;    		// array
+    private $swissprot;    // array
 
     public function getId()
     {
@@ -73,11 +73,11 @@ class Sequence
     
     public function getDivision()
     {
-        return $this->definition;
+        return $this->division;
     }
-    public function setDivision($definition)
+    public function setDivision($division)
     {
-        $this->definition = $definition;
+        $this->division = $division;
     }
     
     public function getDate()
