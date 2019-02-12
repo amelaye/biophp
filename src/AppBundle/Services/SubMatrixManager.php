@@ -9,13 +9,15 @@ class SubMatrixManager
 {
     var $rules;
 
+
     /**
      * submatrix simply initializes the rules property to the empty array.
      */
     function submatrix()
     {
-	$this->rules = array();
+        $this->rules = [];
     }
+
 
     /**
      * addrule() adds a rule to the substitution matrix.
@@ -23,7 +25,7 @@ class SubMatrixManager
      */
     function addrule($x)
     {
-	$x = func_get_args();
-	array_push($this->rules, $x);
+        $x = func_get_args();
+        array_push($this->rules, $x);
     }
 }

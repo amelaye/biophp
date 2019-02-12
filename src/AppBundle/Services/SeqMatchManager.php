@@ -18,7 +18,7 @@ class SeqMatchManager
     function hamdist($seq1, $seq2)
     {
         // If $seq1 is a Seq object, we use its sequence property to compute Hamming Distance.
-        if (gettype($seq1) == "object") { 
+        if (gettype($seq1) == "object") {
             $string1 = $seq1->sequence;
         } elseif (gettype($seq1) == "string") {
             $string1 = $seq1;
@@ -103,73 +103,52 @@ class SeqMatchManager
      */
     function xlevdist($s, $t)
     {
-	$n = strlen($s);
-	$m = strlen($t);
+        $n = strlen($s);
+        $m = strlen($t);
 
-	if (($n > 1024) or ($m > 1024)) {
-            throw new Exception("String length must not exceed 1024 characters");
+        if (($n > 1024) or ($m > 1024)) {
+            throw new \Exception("String length must not exceed 1024 characters");
         }
 
-	// initialize the array
-	$values = array();
-	$temp = array();
-	$temp[0] = 0;
+        // initialize the array
+        $values  = [];
+        $temp    = [];
+        $temp[0] = 0;
 
-	for($j = 1; $j <= $m; $j++) {
+        for($j = 1; $j <= $m; $j++) {
             $temp[$j] = 0;
         }
-	
-	$values[0] = $temp;
-	for($i = 1; $i <= $n; $i++) {
+
+        $values[0] = $temp;
+        for($i = 1; $i <= $n; $i++) {
             $values[$i] = $temp;
         }
-		
-	for($i = 1; $i <= $n; $i++) {
+
+        for($i = 1; $i <= $n; $i++) {
             $lets = substr($s, $i-1, 1);
-            for($j = 1; $j <= $m; $j++) { 
-		$lett = substr($t, $j-1, 1);
-	        if ($lets == $lett) {
-                    $cost = 0;
-                } else {
-                    $cost = 1;
-                }
+            for($j = 1; $j <= $m; $j++) {
+                $lett = substr($t, $j-1, 1);
+                $cost = ($lets == $lett) ? 0 : 1;
 
-	        // "normal" values of $up, $left, and $upleft
-		if ($j > 1) {
-                    $up = $values[$i][$j-1];
-                } else {
-                    $up = FALSE;
-                }
-			
-                if ($i > 1) {
-                    $left = $values[$i-1][$j];
-                } else {
-                    $left = FALSE;
-                }
-			
-                if (($i > 1) and ($j > 1)) {
-                    $upleft = $values[$i-1][$j-1];
-                } else {
-                    $upleft = FALSE;
-                }
+                // "normal" values of $up, $left, and $upleft
+                $up     = ($j > 1) ? $values[$i][$j-1] : false;
+                $left   = ($i > 1) ? $values[$i-1][$j] : false;
+                $upleft = (($i > 1) && ($j > 1)) ? $values[$i-1][$j-1] : false;
 
-	        if ($i == 1) {
-                    if ($j == 1) $value = $cost;
-		    elseif ($cost == 0) $value = $cost;
-		    else $value = $up + 1;
-	        } else {
-		    // if at the first or topmost row, there is no upleft and above.
-		    if ($j == 1) {
-			if ($cost == 0) $value = $cost;
-			else $value = $left + 1;
+                if ($i == 1) {
+                    $value = ($j == 1 || $cost == 0) ? $cost : $up + 1;
+                } else {
+                    // if at the first or topmost row, there is no upleft and above.
+                    if ($j == 1) {
+                        $value = ($cost == 0) ? $cost : $left + 1;
                     } else {
                         $value = getmin($up + 1, $left + 1, $upleft + $cost);
                     }
                 }
-                $values[$i][$j] = $value;			
+                $values[$i][$j] = $value;
             } 
-	}
-	return $values[$n][$m];
+        }
+        return $values[$n][$m];
     }
 
     /**
@@ -189,30 +168,34 @@ class SeqMatchManager
      */
     function match($str1, $str2, $matrix, $equal, $partial = "+", $nomatch = ".")
     {
-	global $chemgrp_matrix;
+        global $chemgrp_matrix;
 
-	// if the user chose not to use a custom submatrix, use the default one.
-	if (isset($matrix) == FALSE) $matrix = $chemgrp_matrix->rules;
-	
-	// if the strings differ in length, terminate code execution.
-	if (strlen($str1) != strlen($str2))
-		die("Cannot match sequences with unequal lengths");
-	$resultstr = "";
-	$seqlength = strlen($str1);
-	
+        // if the user chose not to use a custom submatrix, use the default one.
+        if (!isset($matrix)) {
+            $matrix = $chemgrp_matrix->rules;
+        }
+
+        // if the strings differ in length, terminate code execution.
+        if (strlen($str1) != strlen($str2)) {
+            throw new \Exception("Cannot match sequences with unequal lengths !");
+        }
+
+        $resultstr = "";
+        $seqlength = strlen($str1);
+
         // Match the two strings, character by character.  Each call to compare_letter()
-	// function returns a "result character" which is appended to a "result string".
-	for($i = 0; $i < $seqlength; $i++) {
-	    $let1 = substr($str1, $i, 1);
+        // function returns a "result character" which is appended to a "result string".
+        for($i = 0; $i < $seqlength; $i++) {
+            $let1 = substr($str1, $i, 1);
             $let2 = substr($str2, $i, 1);
-	    $resultstr = $resultstr . compare_letter($let1, $let2, $matrix, $equal, $partial, $nomatch);
-	}
-		
+            $resultstr = $resultstr . compare_letter($let1, $let2, $matrix, $equal, $partial, $nomatch);
+        }
+
         // Assign "result string" to the result property of the calling SeqMatch object. 
-	$this->result = $resultstr;
-	
-	// Return the result string.  While this line and the line above seems redundant, their
-	// presense here actually permits programmers to write more compact code.
-	return $resultstr;
+        $this->result = $resultstr;
+
+        // Return the result string.  While this line and the line above seems redundant, their
+        // presense here actually permits programmers to write more compact code.
+        return $resultstr;
     }
 }
