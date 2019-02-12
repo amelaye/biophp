@@ -1,5 +1,7 @@
 <?php
 
+namespace AppBundle\Entity;
+
 class RestEn 
 {
     private $name;
