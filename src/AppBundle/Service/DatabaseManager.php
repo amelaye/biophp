@@ -74,9 +74,8 @@ class DatabaseManager
     /**
      * Retrieves all data from the specified sequence record and returns them in the 
      * form of a Seq object.  This method invokes one of several parser methods.
-     * @return  Sequence    $myseq
+     * @return      Sequence    $oMySequence
      * @todo Dependency injection for seqdb : bsrch_tabfile
-     * @todo Why such implementation for $myseq ?
      */
     public function fetch()
     {
@@ -106,25 +105,24 @@ class DatabaseManager
         fseekline($fpseq, $idx_r[2]);
         $flines = line2r($fpseq);
 
-        $myseq = new Sequence(); // ???
         if ($this->databse->getDbformat() == "GENBANK") {
-            $myseq = $this->parse_id($flines); // ???
+            $oMySequence = $this->parse_id($flines);
         } elseif ($this->databse->getDbformat() == "SWISSPROT") {
-            $myseq = $this->parse_swissprot($flines); // ???
+            $oMySequence = $this->parse_swissprot($flines);
         }
 
         fclose($fp);
         fclose($fpdir);
         fclose($fpseq);
 
-        return $myseq;
+        return $oMySequence;
     }
 
 
     /**
      * Parses a Swissprot data file and returns a Seq object containing parsed data.
-     * @param type $flines
-     * @return \AppBundle\Service\seq
+     * @param   type        $flines
+     * @return  Sequence    $oSequence
      */
     public function parse_swissprot($flines)
     {
@@ -286,7 +284,7 @@ class DatabaseManager
                 $db_name = $dr_line[0];
                 $db_pid = $dr_line[1];
                 $db_sid = $dr_line[2];
-                $db_r[] = array($db_name, $db_pid, $db_sid);
+                $db_r[] = [$db_name, $db_pid, $db_sid];
             }
             if ($linelabel == "RN") {
                 // Remove the [ and ] between the reference number.
@@ -294,8 +292,9 @@ class DatabaseManager
 
                 $rc_ctr = 0;
                 $rc_str = "";
-                $rc_flag = FALSE;
-                $inner_r = array();
+                $rc_flag = false;
+                $inner_r = [];
+                
                 while (list($no, $linestr) = each($flines)) {
                     $linelabel = left($linestr, 2);
                     $linedata = trim(substr($linestr, 5));
@@ -452,19 +451,19 @@ class DatabaseManager
             }
         }
 
-        $seqobj = new Sequence();
-        $seqobj->setId($protein_name);
-        $seqobj->setSeqlength($length);
-        $seqobj->setMoltype($moltype);
-        $seqobj->setDate($create_date);
-        $seqobj->setAccession($accession[0]);
+        $oSequence = new Sequence();
+        $oSequence->setId($protein_name);
+        $oSequence->setSeqlength($length);
+        $oSequence->setMoltype($moltype);
+        $oSequence->setDate($create_date);
+        $oSequence->setAccession($accession[0]);
         array_shift($accession);
-        $seqobj->setSecAccession($accession);
-        $seqobj->setSource($os_line);
-        $seqobj->setOrganism($oc_line);
-        $seqobj->setSequence($sequence);
-        $seqobj->setDefinition($desc);
-        $seqobj->setKeywords($kw_r);
+        $oSequence->setSecAccession($accession);
+        $oSequence->setSource($os_line);
+        $oSequence->setOrganism($oc_line);
+        $oSequence->setSequence($sequence);
+        $oSequence->setDefinition($desc);
+        $oSequence->setKeywords($kw_r);
 
         $genbank_ref_r = [];
         $inner_r = [];
@@ -479,7 +478,7 @@ class DatabaseManager
             $inner_r["AUTHORS"] = $value["RA"];
             $genbank_ref_r[]    = $inner_r;
         }
-        $seqobj->setReference($genbank_ref_r);
+        $oSequence->setReference($genbank_ref_r);
 
         $aSwiss = [];
         $aSwiss["ID"]            = $protein_name;
@@ -519,15 +518,15 @@ class DatabaseManager
         // REFERENCE is an ARRAY.
         $aSwiss["REFERENCE"]     = $ref_r;
 
-        $seqobj->setSwissprot($aSwiss);
-        return $seqobj;
+        $oSequence->setSwissprot($aSwiss);
+        return $oSequence;
     }
 
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
-     * @param type $flines
-     * @return \AppBundle\Service\seq
+     * @param   type        $flines
+     * @return  Sequence    $oSequence
      */
     public function parse_id($flines)
     {
@@ -552,44 +551,44 @@ class DatabaseManager
                 // This is the beginning of a SEQUENCE ENTRY.
                 $seqdata = "";
 
-                $seqobj = new Sequence();
-                $seqobj->setId(trim(substr($linestr, 12, 16)));
-                $seqobj->setSeqlength(trim(substr($linestr, 29, 11)) * 1);
-                $tot_seqlength += $seqobj->getSeqlength();
+                $oSequence = new Sequence();
+                $oSequence->setId(trim(substr($linestr, 12, 16)));
+                $oSequence->setSeqlength(trim(substr($linestr, 29, 11)) * 1);
+                $tot_seqlength += $oSequence->getSeqlength();
 
-                if ($seqobj->getSeqlength() > $maxlength) {
-                    $maxlength = $seqobj->getSeqlength();
+                if ($oSequence->getSeqlength() > $maxlength) {
+                    $maxlength = $oSequence->getSeqlength();
                 }
-                if ($seqobj->getSeqlength() < $minlength) {
-                    $minlength = $seqobj->getSeqlength();
+                if ($oSequence->getSeqlength() < $minlength) {
+                    $minlength = $oSequence->getSeqlength();
                 }
 
-                $seqobj->setMoltype(substr($linestr, 47, 6));
+                $oSequence->setMoltype(substr($linestr, 47, 6));
                 if (substr($linestr, 44, 3) == "ss-") {
-                    $seqobj->setStrands("SINGLE");
+                    $oSequence->setStrands("SINGLE");
                 }   elseif (substr($linestr, 44, 3) == "ds-") {
-                    $seqobj->setStrands("DOUBLE");
+                    $oSequence->setStrands("DOUBLE");
                 }  elseif (substr($linestr, 44, 3) == "ms-") {
-                    $seqobj->setStrands("MIXED");
+                    $oSequence->setStrands("MIXED");
                 }
 
-                $seqobj->setTopology(strtoupper(substr($linestr, 55, 8)));
-                $seqobj->setDivision(strtoupper(substr($linestr, 64, 3)));
-                $seqobj->setDate(strtoupper(substr($linestr, 68, 11)));
+                $oSequence->setTopology(strtoupper(substr($linestr, 55, 8)));
+                $oSequence->setDivision(strtoupper(substr($linestr, 64, 3)));
+                $oSequence->setDate(strtoupper(substr($linestr, 68, 11)));
 
                 $inseq_flag = true;
             }
 
             if (trim(substr($linestr,0,10)) == "BASE COUNT") {
                 if (count($feat_r) > 0) {
-                    $seqobj->setFeatures($feat_r);
+                    $oSequence->setFeatures($feat_r);
                 }
             }
 
             if (trim(substr($linestr,0,12)) == "FEATURES") {
                 // The REFERENCE section was present for this SEQUENCE ENTRY so we set REFERENCE attribute.
                 if (count($ref_array) > 0) {
-                    $seqobj->setReference($ref_array);
+                    $oSequence->setReference($ref_array);
                 }
                 $lastsubkey = "";
 
@@ -664,7 +663,7 @@ class DatabaseManager
             if (substr($linestr,0,10) == "DEFINITION") {
                 $wordarray = explode(" ", $linestr);
                 array_shift($wordarray);
-                $seqobj->setDefinition(implode(" ", $wordarray));
+                $oSequence->setDefinition(implode(" ", $wordarray));
             }
 
             if ($inseq_flag) {
@@ -706,11 +705,7 @@ class DatabaseManager
                                         $newarray[] = $authname;
                                     }
                                 }
-                                if ($subkey_lnctr == 1) {
-                                    $ref_rec["AUTHORS"] = $newarray;
-                                } else {
-                                    $ref_rec["AUTHORS"] = array_merge($ref_rec["AUTHORS"], $newarray);
-                                }
+                                $ref_rec["AUTHORS"] = ($subkey_lnctr == 1) ? $newarray : array_merge($ref_rec["AUTHORS"], $newarray);
                                 break;
                             case "TITLE":
                                 $subkey_lnctr++;
@@ -765,13 +760,13 @@ class DatabaseManager
                 }
                 if (trim(substr($linestr, 0, 12)) == "SOURCE") {
                     // For now, assume a single-line SOURCE field.
-                    $seqobj->setSource(substr($linestr, 12));
+                    $oSequence->setSource(substr($linestr, 12));
                 }
                 if (trim(substr($linestr, 0, 12)) == "SEGMENT") {
-                    $seqobj->setSegment(substr($linestr, 12));
+                    $oSequence->setSegment(substr($linestr, 12));
                     $wordarray = preg_split("/\s+/", trim(substr($linestr,12)));
-                    $seqobj->setSegmentNo($wordarray[0]);
-                    $seqobj->setSegmentCount($wordarray[2]);
+                    $oSequence->setSegmentNo($wordarray[0]);
+                    $oSequence->setSegmentCount($wordarray[2]);
                 }
 
                 // For now, assume that KEYWORDS field consists of exactly one line.
@@ -780,15 +775,15 @@ class DatabaseManager
                     array_shift($wordarray);
                     $wordarray = preg_split("/;+/", implode(" ", $wordarray));
                     if ($wordarray[0] != ".") {
-                        $seqobj->setKeywords($wordarray);
+                        $oSequence->setKeywords($wordarray);
                     }
                 }
                 if (substr($linestr, 0, 7) == "VERSION") {
                     // Assume that VERSION line is made up of exactly 2 or 3 tokens.
                     $wordarray = preg_split("/\s+/", trim($linestr));
-                    $seqobj->setVersion($wordarray[1]);
+                    $oSequence->setVersion($wordarray[1]);
                     if (count($wordarray) == 3) {
-                        $seqobj->setNcbiGiId($wordarray[2]);
+                        $oSequence->setNcbiGiId($wordarray[2]);
                     }
                     $accession_flag = false;
                 }
@@ -796,18 +791,18 @@ class DatabaseManager
                     // 2nd, 3rd, etc. line of ACCESSION field.
                     $wordarray = preg_split("/\s+/", trim($linestr));
                     //$this->sec_accession = array_merge($this->sec_accession, $wordarray); -> mistake ?
-                    $seqobj->setSecAccession(array_merge($seqobj->getSecAccession(), $wordarray));
+                    $oSequence->setSecAccession(array_merge($oSequence->getSecAccession(), $wordarray));
                 }
                 if (substr($linestr,0,9) == "ACCESSION") {
                     $wordarray = preg_split("/\s+/", trim($linestr));
-                    $seqobj->setAccession($wordarray[1]);
+                    $oSequence->setAccession($wordarray[1]);
                     array_shift($wordarray);
                     array_shift($wordarray);
-                    $seqobj->setAccession($wordarray);
+                    $oSequence->setAccession($wordarray);
                     $accession_flag = true;
                 }
                 if (substr($linestr,0,10) == "  ORGANISM") {
-                    $seqobj->setOrganism(substr($linestr,12));
+                    $oSequence->setOrganism(substr($linestr,12));
                 }
                 if (($seqdata_flag == true) && (substr($linestr,0,2) != "//")) {
                     $wordarray = explode(" ", trim($linestr));
@@ -819,7 +814,7 @@ class DatabaseManager
                     $seqdata_flag = true;
                 }
                 if (substr($linestr,0,2) == "//") {
-                    $seqobj->setSequence($seqdata);
+                    $oSequence->setSequence($seqdata);
                     $seqarr[$this->database->getId()] = $this;
                     $seqdata_flag = false;
                     $inseq_flag = false;
@@ -828,7 +823,7 @@ class DatabaseManager
             }
         }
         //$seqobj->seqarray = $seqarr; -> what for ? seqarray property does not exists
-        return $seqobj;
+        return $oSequence;
     }
 
 
@@ -864,5 +859,10 @@ class DatabaseManager
         $this->database->setDataFn("");
         $this->database->setDirFn("");
         $this->database->setSeqptr(-1);
+    }
+    
+    private function makeSwissProtArray()
+    {
+        
     }
 } 
