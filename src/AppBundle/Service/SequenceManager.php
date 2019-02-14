@@ -18,12 +18,17 @@ class SequenceManager
     public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, 
             $aElements, $aChemicalGroups, $aCodons)
     {
+        $this->sequence = $oSequence;
         $this->aDnaComplements = $aDnaComplements;
         $this->aRnaComplements = $aRnaComplements;
-        $this->sequence = $oSequence;
         $this->aElements = $aElements;
         $this->aChemicalGroups = $aChemicalGroups;
         $this->aCodons = $aCodons;
+    }
+    
+    public function setSequence($oSequence)
+    {
+        $this->sequence = $oSequence;
     }
     /**
      * Gets the genetic complement of a DNA or RNA sequence.
@@ -34,7 +39,7 @@ class SequenceManager
     public function complement($seq, $sMoltypeUnfrmtd)
     {
         if (!isset($sMoltypeUnfrmtd)) {
-            $sMoltypeUnfrmtd = (isset($this->sequence->getMoltype())) ? $this->sequence->getMoltype() : "DNA";
+            $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
         }
 
         $sMoltype = strtoupper($sMoltypeUnfrmtd);

@@ -1,0 +1,11 @@
+<h1>List of mirrors found</h1>
+
+{% for mirror_length, mirror_same_length in mirrors %}
+    Of Length {{mirror_length}}
+    {% for key, mirror in mirror_same_length %}
+            <br /><br />
+            Mirror String: {{ mirror }} Position Index: {{ key }}
+            <br />
+        }
+    {% endfor %}  
+{% endfor %}    
