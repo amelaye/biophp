@@ -25,6 +25,22 @@ parameters:
         U: A
         G: C
         C: G
+        
+    chemical_groups:
+        S: H
+        T: H
+        N: M
+        Q: M
+        C: S
+        M: S
+        P: I
+        D: A
+        E: A
+        K: C
+        R: C
+        H: C
+        *: *
+        X: X
 
     wts:
         A:
@@ -146,3 +162,4 @@ services:
             - %dna_complements%
             - %rna_complements%
             - %elements%
+            - %chemical_groups%
