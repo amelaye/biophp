@@ -1,8 +1,14 @@
 <?php
-
+/**
+ * Database Managing
+ * @author Amélie DUVERNET
+ * Freely nspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 namespace AppBundle\Entity;
 
-class RestEn 
+class RestrictionEnzime 
 {
     private $name;
     private $pattern;
