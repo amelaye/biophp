@@ -2,41 +2,40 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Protein;
+
 class SequenceManager
 {
-    private $moltype;
-
+    private $aDnaComplements;
+    private $aRnaComplements;
+    private $aElements;
+    private $sequence;
+    
+    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, $aElements)
+    {
+        $this->aDnaComplements = $aDnaComplements;
+        $this->aRnaComplements = $aRnaComplements;
+        $this->sequence = $oSequence;
+        $this->aElements = $aElements;
+    }
     /**
      * Gets the genetic complement of a DNA or RNA sequence.
-     * @param type $seq
+     * @param Sequence $seq (or array ?)
      * @param type $moltype
      * @return string
      */
     public function complement($seq, $moltype)
     {
         if (!isset($moltype)) {
-            $moltype = (isset($this->moltype)) ? $this->moltype : "DNA";
+            $moltype = (isset($this->sequence->getMoltype())) ? $this->sequence->getMoltype() : "DNA";
         }
-
-        $dna_complements = [
-            "A" => "T",
-            "T" => "A",
-            "G" => "C",
-            "C" => "G"
-        ];
-
-        $rna_complements = [
-            "A" => "U",
-            "U" => "A",
-            "G" => "C",
-            "C" => "G"
-        ];
 
         $moltype = strtoupper($moltype);
         if ($moltype == "DNA") {
-            $comp_r = $dna_complements;
+            $comp_r = $this->aDnaComplements;
         } elseif ($moltype == "RNA") {
-            $comp_r = $rna_complements;
+            $comp_r = $this->aRnaComplements;
         }
         $seqlen = strlen($seq);
         $compseq = "";
@@ -132,21 +131,21 @@ class SequenceManager
     public function molwt()
     {
         // Check if characters outside our 20-letter amino alphabet is included in the sequence.
-        if ($this->moltype == "DNA") {
-            preg_match_all("/[^ACGTMRWSYKVHDBXN]/", $this->sequence, $match);
+        if ($this->sequence->getMoltype() == "DNA") {
+            preg_match_all("/[^ACGTMRWSYKVHDBXN]/", $this->sequence->getSequence(), $match);
             // If there are unknown characters, then do not compute molwt and instead return FALSE.
             if (count($match[0]) > 0) {
                 return FALSE;
             }
-        } elseif ($this->moltype == "RNA") {
-            preg_match_all("/[^ACGUMRWSYKVHDBXN]/", $this->sequence, $match);
+        } elseif ($this->sequence->getMoltype() == "RNA") {
+            preg_match_all("/[^ACGUMRWSYKVHDBXN]/", $this->sequence->getSequence(), $match);
             // If there are unknown characters, then do not compute molwt and instead return FALSE.
             if (count($match[0]) > 0) {
                 return FALSE;
             }
-        } elseif ($this->moltype == "PROTEIN") { // sequence is a protein, so invoke the Protein class' molwt() method.       
+        } elseif ($this->sequence->getMoltype() == "PROTEIN") { // sequence is a protein, so invoke the Protein class' molwt() method.       
             $prot = new Protein();
-            $prot->sequence = $this->sequence;
+            $prot->setSequence($this->sequence->getSequence());
             return $prot->molwt();
         } else {
             return FALSE; // return FALSE when encountering unknown molecule types		
@@ -155,33 +154,19 @@ class SequenceManager
         $lowerlimit = 0;
         $upperlimit = 1;
 
-        $Car = 12.01;
-        $Oxy = 16.00;
-        $Nit = 14.01;
-        $Hyd = 1.01;
-        $Pho = 30.97;
-        $water = 18.015;
-
-        $adenine = (5 * $Car) + (5 * $Nit) + (5 * $Hyd);
-        $guanine = (5 * $Car) + (5 * $Nit) + (1 * $Oxy) + (5 * $Hyd);
-        $cytosine = (4 * $Car) + (3 * $Nit) + (1 * $Oxy) + (5 * $Hyd);
-        $thymine = (5 * $Car) + (2 * $Nit) + (2 * $Oxy) + (6 * $Hyd);
-        $uracil = (4 * $Car) + (2 * $Nit) + (2 * $Oxy) + (4 * $Hyd);
-
-        // neutral (unionized) form
-        $ribo_pho = (5 * $Car) + (7 * $Oxy) + (9 * $Hyd) + (1 * $Pho);
-        $deoxy_pho = (5 * $Car) + (6 * $Oxy) + (9 * $Hyd) + (1 * $Pho);
+        $aMolecules = $this->getTotalmolecules(); // Array with ATGCU nb molecules
+        $aPho       = $this->getPho();
 
         // the following are single strand molecular weights / base
-        $rna_A_wt = $adenine + $ribo_pho - $water;
-        $rna_C_wt = $cytosine + $ribo_pho - $water;
-        $rna_G_wt = $guanine + $ribo_pho - $water;
-        $rna_U_wt = $uracil + $ribo_pho - $water;
+        $rna_A_wt = $aMolecules["adenine"] + $aPho["ribo_pho"] - $this->aElements["water"];
+        $rna_C_wt = $aMolecules["cytosine"] + $aPho["ribo_pho"] - $this->aElements["water"];
+        $rna_G_wt = $aMolecules["guanine"] + $aPho["ribo_pho"] - $this->aElements["water"];
+        $rna_U_wt = $aMolecules["uracil"] + $aPho["ribo_pho"] - $this->aElements["water"];
 
-        $dna_A_wt = $adenine + $deoxy_pho - $water;
-        $dna_C_wt = $cytosine + $deoxy_pho - $water;
-        $dna_G_wt = $guanine + $deoxy_pho - $water;
-        $dna_T_wt = $thymine + $deoxy_pho - $water;
+        $dna_A_wt = $aMolecules["adenine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
+        $dna_C_wt = $aMolecules["cytosine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
+        $dna_G_wt = $aMolecules["guanine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
+        $dna_T_wt = $aMolecules["thymine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
 
         $dna_wts = [
             'A' => [$dna_A_wt, $dna_A_wt],          // Adenine
@@ -222,7 +207,7 @@ class SequenceManager
         ];
 
         $all_na_wts = array("DNA" => $dna_wts, "RNA" => $rna_wts);
-        $na_wts = $all_na_wts[$this->moltype];
+        $na_wts = $all_na_wts[$this->sequence->getMoltype()];
 
         $weight_lower_bound += $water;
         $weight_upper_bound += $water;
@@ -230,7 +215,7 @@ class SequenceManager
         $mwt = array(0, 0);
         $NA_len = $this->seqlen();
         for($i = 0; $i < $NA_len; $i++) {
-            $NA_base = substr($this->sequence, $i, 1);
+            $NA_base = substr($this->sequence->getSequence(), $i, 1);
             $mwt[$lowerlimit] += $na_wts[$NA_base][$lowerlimit];
             $mwt[$upperlimit] += $na_wts[$NA_base][$upperlimit];
         }
@@ -247,21 +232,22 @@ class SequenceManager
      */
     public function count_codons()
     {
-        $codstart = (isset($this->features["CDS"]["/codon_start"])) ? $this->features["CDS"]["/codon_start"] : 1;
+        $aFeatures = $this->sequence->getFeatures();
+        $codstart = (isset($aFeatures["CDS"]["/codon_start"])) ? $aFeatures["CDS"]["/codon_start"] : 1;
         $codcount = (int) (($this->seqlen() - $codstart + 1)/3);
         return $codcount;
     }
 
 
     /**
-     * @param type $start
-     * @param type $count
-     * @return \AppBundle\Entity\seq
+     * @param int $start
+     * @param int $count
+     * @return Sequence
      */
     public function subseq($start, $count)
     {
-        $newseq = new seq();
-        $newseq->sequence = substr($this->sequence, $start, $count);
+        $newseq = new Sequence();
+        $newseq->setSequence(substr($this->sequence->getSequence(), $start, $count));
         return $newseq;
     }
 
@@ -279,7 +265,7 @@ class SequenceManager
     {
         $outer = array();
         $pf = $this->patfreq($pattern, $options);
-        $haystack = $this->sequence;
+        $haystack = $this->sequence->getSequence();
         if (strtoupper($options) == "I") {
             $haystack = strtoupper($haystack);
         }
@@ -313,7 +299,7 @@ class SequenceManager
     public function patposo($pattern, $options = "I", $cutpos = 1)
     {
         $outer = array();
-        $haystack = $this->sequence;
+        $haystack = $this->sequence->getSequence();
         if (strtoupper($options) == "I") {
             $haystack = strtoupper($haystack);
         }
@@ -384,9 +370,9 @@ class SequenceManager
         }
 
         if (strtoupper($options) == "I") {
-            preg_match_all("/" . expand_na(strtoupper($pattern)) . "/", strtoupper($this->sequence), $match);
+            preg_match_all("/" . expand_na(strtoupper($pattern)) . "/", strtoupper($this->sequence->getSequence()), $match);
         } else {
-            preg_match_all("/" . expand_na($pattern) . "/", $this->sequence, $match);
+            preg_match_all("/" . expand_na($pattern) . "/", $this->sequence->getSequence(), $match);
         }
         return $match;
     }
@@ -398,7 +384,7 @@ class SequenceManager
      */
     public function seqlen()
     {
-        return strlen($this->sequence);
+        return strlen($this->sequence->getSequence());
     }
 
 
@@ -411,8 +397,8 @@ class SequenceManager
      */
     public function symfreq($symbol)
     {
-        $symtally = count_chars(strtoupper($this->sequence), 1);
-        if ($symtally[ord($symbol)] == NULL) {
+        $symtally = count_chars(strtoupper($this->sequence->getSequence()), 1);
+        if (is_null($symtally[ord($symbol)])) {
             return 0;
         } else {
             return $symtally[ord($symbol)];
@@ -428,7 +414,7 @@ class SequenceManager
      */
     public function getcodon($index, $readframe = 0)
     {
-        return strtoupper(substr($this->sequence, ($index * 3) + $readframe, 3));
+        return strtoupper(substr($this->sequence->getSequence(), ($index * 3) + $readframe, 3));
     }
 
 
@@ -827,7 +813,7 @@ class SequenceManager
      */
     public function trunc($start, $count)
     {
-        return substr($this->sequence, $start, $count);
+        return substr($this->sequence->getSequence(), $start, $count);
     }
 
 
@@ -845,7 +831,7 @@ class SequenceManager
     public function is_mirror($string = "")
     {
         if (strlen($string) == 0) {
-            $string = $this->sequence;
+            $string = $this->sequence->getSequence();
         }
         if ($string == strrev($string)) {
             return true;
@@ -867,7 +853,7 @@ class SequenceManager
     {
         $haylen = strlen($haystack);
         if ($haylen == 0) {
-            $haystack = $this->sequence;
+            $haystack = $this->sequence->getSequence();
             $haylen = strlen($haystack);
             if ($haylen == 0) {
                 return false;
@@ -900,10 +886,10 @@ class SequenceManager
 
         $outer_r = array();
         for($currlen = $pallen1; $currlen <= $pallen2; $currlen++) {
-            if (($options == "E") && (is_odd($currlen) == TRUE)) {
+            if (($options == "E") && (is_odd($currlen))) {
                 continue;
             }
-            if (($options == "O") && (is_even($currlen) == TRUE)) {
+            if (($options == "O") && (is_even($currlen))) {
                 continue;
             }
             $string_count = $haylen - $currlen + 1;
@@ -1016,7 +1002,7 @@ class SequenceManager
             $string_count = ($haylen - $pallen + 1) - $pallen;
             $middle_r = array();
             $outer_r = array();
-            $newseq = new seq();
+            $newseq = new Sequence();
 
             for($j = 0; $j < $string_count; $j++) {
                 $whole = substr($haystack, $j);
@@ -1024,7 +1010,7 @@ class SequenceManager
                 $tail = substr($whole, $pallen);
                 $tail_len = strlen($tail);
                 $needle = complement(strrev($head), "DNA");
-                $newseq->sequence = $tail;
+                $newseq->setSequence($tail);
                 $pos_r = $newseq->patposo($needle, "I");
                 if (count($pos_r) == 0) {
                     continue;
@@ -1038,5 +1024,57 @@ class SequenceManager
             }
         }
         return $outer_r;
+    }
+    
+    /**
+     * For each nucleotide, finds the number of molecules
+     * @return array
+     */
+    private function getTotalmolecules()
+    {
+        $aMolecules = [];
+        $aMolecules["adenine"] = (5 * $this->aElements["carbone"]) 
+                + (5 * $this->aElements["nitrate"]) 
+                + (5 * $this->aElements["hydrogene"]);
+        $aMolecules["guanine"] = (5 * $this->aElements["carbone"]) 
+                + (5 * $this->aElements["nitrate"]) 
+                + (1 * $this->aElements["oxygene"]) 
+                + (5 * $this->aElements["hydrogene"]);
+        $aMolecules["cytosine"] = (4 * $this->aElements["carbone"]) 
+                + (3 * $this->aElements["nitrate"]) 
+                + (1 * $this->aElements["oxygene"]) 
+                + (5 * $this->aElements["hydrogene"]);
+        $aMolecules["thymine"] = (5 * $this->aElements["carbone"]) 
+                + (2 * $this->aElements["nitrate"]) 
+                + (2 * $this->aElements["oxygene"]) 
+                + (6 * $this->aElements["hydrogene"]);
+        $aMolecules["uracil"] = (4 * $this->aElements["carbone"]) 
+                + (2 * $this->aElements["nitrate"]) 
+                + (2 * $this->aElements["oxygene"]) 
+                + (4 * $this->aElements["hydrogene"]);
+        return $aMolecules;
+    }
+    
+    /**
+     * For each component, finds the number of molecules
+     * @return array
+     */
+    private function getPho()
+    {
+        $aMolecules = [];
+        
+        $aMolecules["ribo_pho"] = 
+                (5 * $this->aElements["carbone"]) 
+                + (7 * $this->aElements["oxygene"]) 
+                + (9 * $this->aElements["hydrogene"]) 
+                + (1 * $this->aElements["phosphore"]);
+        
+        $aMolecules["deoxy_pho"] = 
+                (5 * $this->aElements["carbone"]) 
+                + (6 * $this->aElements["oxygene"]) 
+                + (9 * $this->aElements["hydrogene"]) 
+                + (1 * $this->aElements["phosphore"]);
+        
+        return $aMolecules;
     }
 }

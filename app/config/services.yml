@@ -1,15 +1,30 @@
 # Learn more about services, parameters and containers at
 # https://symfony.com/doc/current/service_container.html
 parameters:
-    lowerlimit: 0
-    upperlimit: 1
+    
+    limits:
+        lowerlimit: 0
+        upperlimit: 1
 
-    carbone: 12.01
-    oxygene: 16.00
-    nitrate: 14.01
-    hydrogene: 1.01
-    phosphore: 30.97
-    water: 18.015
+    elements:
+        carbone: 12.01
+        oxygene: 16.00
+        nitrate: 14.01
+        hydrogene: 1.01
+        phosphore: 30.97
+        water: 18.015
+
+    dna_complements:
+        A: T
+        T: A
+        G: C
+        C: G
+
+    rna_complements:
+        A: U
+        U: A
+        G: C
+        C: G
 
     wts:
         A:
@@ -113,8 +128,21 @@ services:
         arguments:
             - '@AppBundle\Entity\Database'
 
-    AppBundle\Service\proteinManager:
+    AppBundle\Service\ProteinManager:
         autowire: false
         arguments: 
             - '@AppBundle\Entity\Protein'
             - %wts%
+    
+    AppBundle\Service\RestrictionEnzymeManager:
+        autowire: false
+        arguments:
+            - '@AppBundle\Entity\RestrictionEnzyme'
+
+    AppBundle\Service\SequenceManager:
+        autowire: false
+        arguments:
+            - '@AppBundle\Entity\Sequence'
+            - %dna_complements%
+            - %rna_complements%
+            - %elements%
