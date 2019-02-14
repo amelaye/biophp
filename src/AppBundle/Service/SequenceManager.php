@@ -27,27 +27,27 @@ class SequenceManager
     }
     /**
      * Gets the genetic complement of a DNA or RNA sequence.
-     * @param Sequence $seq (or array ?)
-     * @param type $moltype
-     * @return string
+     * @param   Sequence  $seq (or array ?)
+     * @param   string    $sMoltypeUnfrmtd
+     * @return  string
      */
-    public function complement($seq, $moltype)
+    public function complement($seq, $sMoltypeUnfrmtd)
     {
-        if (!isset($moltype)) {
-            $moltype = (isset($this->sequence->getMoltype())) ? $this->sequence->getMoltype() : "DNA";
+        if (!isset($sMoltypeUnfrmtd)) {
+            $sMoltypeUnfrmtd = (isset($this->sequence->getMoltype())) ? $this->sequence->getMoltype() : "DNA";
         }
 
-        $moltype = strtoupper($moltype);
-        if ($moltype == "DNA") {
-            $comp_r = $this->aDnaComplements;
-        } elseif ($moltype == "RNA") {
-            $comp_r = $this->aRnaComplements;
+        $sMoltype = strtoupper($sMoltypeUnfrmtd);
+        if ($sMoltype == "DNA") {
+            $aComplements = $this->aDnaComplements;
+        } elseif ($sMoltype == "RNA") {
+            $aComplements = $this->aRnaComplements;
         }
         $seqlen = strlen($seq);
         $compseq = "";
         for($i = 0; $i < $seqlen; $i++) {
             $symbol = substr($seq, $i, 1);
-            $compseq .= $comp_r[$symbol];
+            $compseq .= $aComplements[$symbol];
         }
         return $compseq;
     }
@@ -174,43 +174,8 @@ class SequenceManager
         $dna_G_wt = $aMolecules["guanine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
         $dna_T_wt = $aMolecules["thymine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
 
-        $dna_wts = [
-            'A' => [$dna_A_wt, $dna_A_wt],          // Adenine
-            'C' => [$dna_C_wt, $dna_C_wt],          // Cytosine
-            'G' => [$dna_G_wt, $dna_G_wt],          // Guanine
-            'T' => [$dna_T_wt, $dna_T_wt],          // Thymine
-            'M' => [$dna_C_wt, $dna_A_wt],          // A or C
-            'R' => [$dna_A_wt, $dna_G_wt],          // A or G
-            'W' => [$dna_T_wt, $dna_A_wt],          // A or T
-            'S' => [$dna_C_wt, $dna_G_wt],          // C or G
-            'Y' => [$dna_C_wt, $dna_T_wt],          // C or T
-            'K' => [$dna_T_wt, $dna_G_wt],          // G or T
-            'V' => [$dna_C_wt, $dna_G_wt],          // A or C or G
-            'H' => [$dna_C_wt, $dna_A_wt],          // A or C or T
-            'D' => [$dna_T_wt, $dna_G_wt],          // A or G or T
-            'B' => [$dna_C_wt, $dna_G_wt],          // C or G or T
-            'X' => [$dna_C_wt, $dna_G_wt],          // G or A or T or C
-            'N' => [$dna_C_wt, $dna_G_wt]           // G or A or T or C
-        ];
-
-        $rna_wts = [
-            'A' => [$rna_A_wt, $rna_A_wt],      // Adenine
-            'C' => [$rna_C_wt, $rna_C_wt],       // Cytosine
-            'G' => [$rna_G_wt, $rna_G_wt],       // Guanine
-            'U' => [$rna_U_wt, $rna_U_wt],       // Uracil
-            'M' => [$rna_C_wt, $rna_A_wt],       // A or C
-            'R' => [$rna_A_wt, $rna_G_wt],       // A or G
-            'W' => [$rna_U_wt, $rna_A_wt],       // A or U
-            'S' => [$rna_C_wt, $rna_G_wt],       // C or G
-            'Y' => [$rna_C_wt, $rna_U_wt],       // C or U
-            'K' => [$rna_U_wt, $rna_G_wt],       // G or U
-            'V' => [$rna_C_wt, $rna_G_wt],       // A or C or G
-            'H' => [$rna_C_wt, $rna_A_wt],       // A or C or U
-            'D' => [$rna_U_wt, $rna_G_wt],       // A or G or U
-            'B' => [$rna_C_wt, $rna_G_wt],       // C or G or U
-            'X' => [$rna_C_wt, $rna_G_wt],       // G or A or U or C
-            'N' => [$rna_C_wt, $rna_G_wt]        // G or A or U or C
-        ];
+        $dna_wts = $this->dnaWts($dna_A_wt, $dna_C_wt, $dna_G_wt, $dna_T_wt);
+        $rna_wts = $this->rnaWts($rna_A_wt, $rna_C_wt, $rna_G_wt, $rna_U_wt);
 
         $all_na_wts = array("DNA" => $dna_wts, "RNA" => $rna_wts);
         $na_wts = $all_na_wts[$this->sequence->getMoltype()];
@@ -398,57 +363,57 @@ class SequenceManager
      * Note legacy
      *  // Apr 10, 2003 - This now returns 0 instead of NULL when
      *  // $symbol is not found.  0 is the preferred return value.
-     * @param type $symbol
-     * @return int
+     * @param   string $sSymbol
+     * @return  int
      */
-    public function symfreq($symbol)
+    public function symfreq($sSymbol)
     {
         $symtally = count_chars(strtoupper($this->sequence->getSequence()), 1);
-        if (is_null($symtally[ord($symbol)])) {
+        if (is_null($symtally[ord($sSymbol)])) {
             return 0;
         } else {
-            return $symtally[ord($symbol)];
+            return $symtally[ord($sSymbol)];
         }
     }
 
 
     /**
      * 
-     * @param type $index
-     * @param type $readframe
-     * @return type
+     * @param   int    $iIndex
+     * @param   int    $iReadFrame
+     * @return  string
      */
-    public function getcodon($index, $readframe = 0)
+    public function getCodon($iIndex, $iReadFrame = 0)
     {
-        return strtoupper(substr($this->sequence->getSequence(), ($index * 3) + $readframe, 3));
+        return strtoupper(substr($this->sequence->getSequence(), ($iIndex * 3) + $iReadFrame, 3));
     }
 
 
     /**
      * 
-     * @param type $readframe
-     * @param type $format
-     * @return string
+     * @param   int     $iReadFrame
+     * @param   int     $iFormat
+     * @return  string  $sResult
      */
-    public function translate($readframe = 0, $format = 3)
+    public function translate($iReadFrame = 0, $iFormat = 3)
     {
-        $codon_index = 0;
-        $result = "";
+        $iCodonIndex = 0;
+        $sResult = "";
         while(1) {
-            $codon = $this->getcodon($codon_index, $readframe);
-            if ($codon == "") {
+            $sCodon = $this->getCodon($iCodonIndex, $iReadFrame);
+            if ($sCodon == "") {
                 break;
             }
-            if ($format == 1) {
-                $result .= $this->translate_codon($codon, $format);
-            } elseif ($format == 3) {
-                $result .= " " . $this->translate_codon($codon, $format);
+            if ($iFormat == 1) {
+                $sResult .= $this->translateCodon($sCodon, $iFormat);
+            } elseif ($iFormat == 3) {
+                $sResult .= " " . $this->translateCodon($sCodon, $iFormat);
             } else {
                 throw new \Exception("Invalid format parameter");
             }
-            $codon_index++;
+            $iCodonIndex++;
         }
-        return $result;
+        return $sResult;
     }
 
 
@@ -456,36 +421,36 @@ class SequenceManager
      * Function charge() accepts a string of amino acids in single-letter format and outputs
      * a string of charges in single-letter format also.  A for acidic, C for basic, and N
      * for neutral.
-     * @param type $amino_seq
-     * @return string
+     * @param   string  $sAminoSeq
+     * @return  string
      */
-    public function charge($amino_seq)
+    public function charge($sAminoSeq)
     {
-        $charge_seq = "";
+        $sChargedSequence = "";
         $ctr = 0;
         while(1) {
-            $amino_letter = substr($amino_seq, $ctr, 1);
-            switch($amino_letter) {
+            $sAminoLetter = substr($sAminoSeq, $ctr, 1);
+            switch($sAminoLetter) {
                 case "":
                     break;
                 case "D":
                 case "E":
-                    $charge_seq .= "A";
+                    $sChargedSequence .= "A";
                     break;
                 case "K":
                 case "R":
                 case "H":
-                    $charge_seq .= "C";
+                    $sChargedSequence .= "C";
                     break;
                 case "*":
-                    $charge_seq .= "*";
+                    $sChargedSequence .= "*";
                     break;
                 case "X":
-                    $charge_seq .= "X";
+                    $sChargedSequence .= "X";
                     break;
                 default:
-                    if (substr_count("GAVLISTNQFYWCMP", $amino_letter) >= 1) {
-                        $charge_seq .= "N";
+                    if (substr_count("GAVLISTNQFYWCMP", $sAminoLetter) >= 1) {
+                        $sChargedSequence .= "N";
                     } else {
                         throw new \Exception("Invalid amino acid symbol in input sequence.");
                     }
@@ -493,45 +458,45 @@ class SequenceManager
             }
             $ctr++;
         }
-        return $charge_seq;
+        return $sChargedSequence;
     }
 
 
     /**
      * Chemical groups: L - GAVLI, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *, X - X
-     * @param type $amino_seq
-     * @return string
+     * @param   string  $sAminoSeq
+     * @return  string
      */
-    public function chemgrp($amino_seq)
+    public function chemicalGroup($sAminoSeq)
     {
-        $chemgrp_seq = "";
+        $sChemgrpSeq = "";
         $ctr = 0;
         while(1) {
-            $amino_letter = substr($amino_seq, $ctr, 1);       
-            if ($amino_letter != "") {
-                if(isset($this->aChemicalGroups[$amino_letter])) {
-                    $chemgrp_seq .= $this->aChemicalGroups[$amino_letter];
-                } elseif (substr_count("GAVLI", $amino_letter) == 1) {
-                    $chemgrp_seq .= "L";
-                } elseif (substr_count("FYW", $amino_letter) == 1) {
-                    $chemgrp_seq .= "R";
+            $sAminoLetter = substr($sAminoSeq, $ctr, 1);       
+            if ($sAminoLetter != "") {
+                if(isset($this->aChemicalGroups[$sAminoLetter])) {
+                    $sChemgrpSeq .= $this->aChemicalGroups[$sAminoLetter];
+                } elseif (substr_count("GAVLI", $sAminoLetter) == 1) {
+                    $sChemgrpSeq .= "L";
+                } elseif (substr_count("FYW", $sAminoLetter) == 1) {
+                    $sChemgrpSeq .= "R";
                 } else {
                      throw new \Exception("Invalid amino acid symbol in input sequence.");
                 }
             }   
             $ctr++;
         }
-        return $chemgrp_seq;
+        return $sChemgrpSeq;
     }
 
 
     /**
-     * Tranlates string to codon
+     * Tranlates string to RNA codon
      * @param   string  $sCodon
      * @param   int    $iFormat
      * @return  string
      */
-    public function translate_codon($sCodon, $iFormat = 3)
+    public function translateCodon($sCodon, $iFormat = 3)
     {
         if (($iFormat != 3) && ($iFormat != 1)) {
             throw new \Exception("Invalid format parameter.");
@@ -570,13 +535,13 @@ class SequenceManager
 
     /**
      * 
-     * @param   string  $start
-     * @param   int     $count
+     * @param   int     $iStart
+     * @param   int     $iCount
      * @return  string
      */
-    public function trunc($start, $count)
+    public function trunc($iStart, $iCount)
     {
-        return substr($this->sequence->getSequence(), $start, $count);
+        return substr($this->sequence->getSequence(), $iStart, $iCount);
     }
 
 
@@ -772,7 +737,7 @@ class SequenceManager
                 $head = substr($whole, 0, $pallen);
                 $tail = substr($whole, $pallen);
                 $tail_len = strlen($tail);
-                $needle = complement(strrev($head), "DNA");
+                $needle = $this->complement(strrev($head), "DNA");
                 $newseq->setSequence($tail);
                 $pos_r = $newseq->patposo($needle, "I");
                 if (count($pos_r) == 0) {
@@ -788,7 +753,8 @@ class SequenceManager
         }
         return $outer_r;
     }
-    
+
+
     /**
      * For each nucleotide, finds the number of molecules
      * @return array
@@ -817,7 +783,8 @@ class SequenceManager
                 + (4 * $this->aElements["hydrogene"]);
         return $aMolecules;
     }
-    
+
+
     /**
      * For each component, finds the number of molecules
      * @return array
@@ -840,7 +807,8 @@ class SequenceManager
         
         return $aMolecules;
     }
-    
+
+
     /**
      * Codons beginning with G
      * @param   string  $letter2
@@ -868,7 +836,8 @@ class SequenceManager
                 return $this->aCodons["Glycine"][$format]; // GG*
         }
     }
-    
+
+
     /**
      * Codons beginning with A
      * @param   string  $letter2
@@ -908,7 +877,8 @@ class SequenceManager
                 }
         }
     }
-    
+
+
     /**
      * Codons beginning with C
      * @param   string  $letter2
@@ -936,7 +906,8 @@ class SequenceManager
                 return $this->aCodons["Arginine"][$format]; // CG*
         }
     }
-    
+
+
     /**
      * Codons beginning with U
      * @param   string    $letter2
@@ -978,5 +949,52 @@ class SequenceManager
                         return $this->aCodons["Tryptophan"][$format]; // UGG
                 }
         }
+    }
+    
+    private function dnaWts($dna_A_wt, $dna_C_wt, $dna_G_wt, $dna_T_wt)
+    {
+        $dna_wts = [
+            'A' => [$dna_A_wt, $dna_A_wt],          // Adenine
+            'C' => [$dna_C_wt, $dna_C_wt],          // Cytosine
+            'G' => [$dna_G_wt, $dna_G_wt],          // Guanine
+            'T' => [$dna_T_wt, $dna_T_wt],          // Thymine
+            'M' => [$dna_C_wt, $dna_A_wt],          // A or C
+            'R' => [$dna_A_wt, $dna_G_wt],          // A or G
+            'W' => [$dna_T_wt, $dna_A_wt],          // A or T
+            'S' => [$dna_C_wt, $dna_G_wt],          // C or G
+            'Y' => [$dna_C_wt, $dna_T_wt],          // C or T
+            'K' => [$dna_T_wt, $dna_G_wt],          // G or T
+            'V' => [$dna_C_wt, $dna_G_wt],          // A or C or G
+            'H' => [$dna_C_wt, $dna_A_wt],          // A or C or T
+            'D' => [$dna_T_wt, $dna_G_wt],          // A or G or T
+            'B' => [$dna_C_wt, $dna_G_wt],          // C or G or T
+            'X' => [$dna_C_wt, $dna_G_wt],          // G or A or T or C
+            'N' => [$dna_C_wt, $dna_G_wt]           // G or A or T or C
+        ];   
+        return $dna_wts;
+    }
+    
+    private function rnaWts($rna_A_wt, $rna_C_wt, $rna_G_wt, $rna_U_wt)
+    {
+        $rna_wts = [
+            'A' => [$rna_A_wt, $rna_A_wt],      // Adenine
+            'C' => [$rna_C_wt, $rna_C_wt],       // Cytosine
+            'G' => [$rna_G_wt, $rna_G_wt],       // Guanine
+            'U' => [$rna_U_wt, $rna_U_wt],       // Uracil
+            'M' => [$rna_C_wt, $rna_A_wt],       // A or C
+            'R' => [$rna_A_wt, $rna_G_wt],       // A or G
+            'W' => [$rna_U_wt, $rna_A_wt],       // A or U
+            'S' => [$rna_C_wt, $rna_G_wt],       // C or G
+            'Y' => [$rna_C_wt, $rna_U_wt],       // C or U
+            'K' => [$rna_U_wt, $rna_G_wt],       // G or U
+            'V' => [$rna_C_wt, $rna_G_wt],       // A or C or G
+            'H' => [$rna_C_wt, $rna_A_wt],       // A or C or U
+            'D' => [$rna_U_wt, $rna_G_wt],       // A or G or U
+            'B' => [$rna_C_wt, $rna_G_wt],       // C or G or U
+            'X' => [$rna_C_wt, $rna_G_wt],       // G or A or U or C
+            'N' => [$rna_C_wt, $rna_G_wt]        // G or A or U or C
+        ];
+        
+        return $rna_wts;
     }
 }
