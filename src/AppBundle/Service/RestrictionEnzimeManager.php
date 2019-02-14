@@ -1,20 +1,35 @@
 <?php
-
+/**
+ * Database Managing
+ * @author Amélie DUVERNET
+ * Freely inspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 namespace AppBundle\Service;
 
-class RestEnManager
+use AppBundle\Entity\Sequence;
+use AppBundle\Entity\RestrictionEnzime;
+
+class RestrictionEnzimeManager
 {
+    private $resten;
+    
+    public function __construct(RestrictionEnzime $oRestEn) {
+        $this->resten = $oRestEn;
+    }
+    
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
-     * @param type $seq
-     * @param type $options
+     * @param   Sequence    $oSequence
+     * @param   string      $options
      * @return type
      */
-    public function CutSeq($seq, $options = "N")
+    public function CutSeq(Sequence $oSequence, $options = "N")
     {
         if ($options == "N") {
             // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-            $patpos_r = $seq->patpos($this->pattern, "I");
+            $patpos_r = $oSequence->patpos($this->resten->getPattern(), "I");
             $frag = array();
             foreach($patpos_r as $patkey => $pos_r) {
                 $ctr = 0;
@@ -22,42 +37,42 @@ class RestEnManager
                     $ctr++;
                     if ($ctr == 1) {
                         // 1st fragment is everything to the left of the 1st occurrence of pattern
-                        $frag[] = substr($seq->sequence, 0, $currindex + $this->cutpos);
+                        $frag[] = substr($oSequence->getSequence(), 0, $currindex + $this->resten->getCutpos());
                         $previndex = $currindex;
                         continue;
                     }
-                    if (($currindex - $previndex) >= $this->cutpos) {
+                    if (($currindex - $previndex) >= $this->resten->getCutpos()) {
                         $newcount = $currindex - $previndex;
-                        $frag[] = substr($seq->sequence, $previndex + $this->cutpos, $newcount);
+                        $frag[] = substr($oSequence->getSequence(), $previndex + $this->resten->getCutpos(), $newcount);
                         $previndex = $currindex;
                     } else {
                         continue;
                     }
                 }
                 // The last (right-most) fragment.
-                $frag[] = substr($seq->sequence, $previndex + $this->cutpos);
+                $frag[] = substr($oSequence->getSequence(), $previndex + $this->resten->getCutpos());
             } 
             return $frag;
         } elseif ($options == "O") {
-            $pos_r = $seq->patposo($this->pattern, "I", $this->cutpos);
+            $pos_r = $oSequence->patposo($this->resten->getPattern(), "I", $this->resten->getCutpos());
             $ctr = 0;
             foreach($pos_r as $currindex) {
                 $ctr++;
                 if ($ctr == 1) {
-                    $frag[] = substr($seq->sequence, 0, $currindex + $this->cutpos);
+                    $frag[] = substr($oSequence->getSequence(), 0, $currindex + $this->resten->getCutpos());
                     $previndex = $currindex;
                     continue;
                 }
-                if (($currindex - $previndex) >= $this->cutpos) {
+                if (($currindex - $previndex) >= $this->resten->getCutpos()) {
                     $newcount = $currindex - $previndex;
-                    $frag[] = substr($seq->sequence, $previndex + $this->cutpos, $newcount);
+                    $frag[] = substr($oSequence->getSequence(), $previndex + $this->resten->getCutpos(), $newcount);
                     $previndex = $currindex;
                 } else {
                     continue;
                 }
             }
             // The last (right-most) fragment.
-            $frag[] = substr($seq->sequence, $previndex + $this->cutpos);
+            $frag[] = substr($oSequence->getSequence(), $previndex + $this->resten->getCutpos());
             return $frag;
         }
     } 
@@ -100,7 +115,7 @@ class RestEnManager
         global $RestEn_DB;
 
         if ($RestEn_Name == "") {
-            return strlen($this->pattern);
+            return strlen($this->resten->getPattern());
         } else {
             return strlen($RestEn_DB[$RestEn_Name][0]);
         }
@@ -122,7 +137,7 @@ class RestEnManager
 
         // 5 Cases: pattern only, cutpos only, patternlength only
         //          pattern and cutpos, cutpos and patternlength
-        $RestEn_List = array();
+        $RestEn_List = [];
 
         // Case 1: Pattern only
         if (($pattern != "") && ($cutpos == "") && ($plen == "")) {
@@ -138,7 +153,7 @@ class RestEnManager
         if (($pattern == "") && ($cutpos != "") && ($plen == "")) {
             $firstchar = substr($cutpos, 0, 1);
             $first2chars = substr($cutpos, 0, 2);
-            if (gettype($cutpos) == "string") {
+            if (is_string($cutpos)) {
             if (preg_match("/^<\d+$/", $cutpos)) {
                     foreach($RestEn_DB as $key => $value) {
                         if ($value[1] < (int) substr($cutpos,1)) {
@@ -175,9 +190,9 @@ class RestEnManager
                     }
                     return $RestEn_List;
                 } else {
-                    die("Malformed cutpos parameter.");
+                    throw new \Exception("Malformed cutpos parameter.");
                 }
-            } elseif (gettype($cutpos) == "integer") {
+            } elseif (is_int($cutpos)) {
                 foreach($RestEn_DB as $key => $value)
                     if ($value[1] == $cutpos) {
                         $RestEn_List[] = $key;
