@@ -12,7 +12,7 @@ class SequenceManager
      * @param type $moltype
      * @return string
      */
-    function complement($seq, $moltype)
+    public function complement($seq, $moltype)
     {
         if (!isset($moltype)) {
             $moltype = (isset($this->moltype)) ? $this->moltype : "DNA";
@@ -54,7 +54,7 @@ class SequenceManager
      * @param type $moltype
      * @return type
      */
-    function revcomp($seq, $moltype)
+    public function revcomp($seq, $moltype)
     {
         return strrev($this->complement($seq, $moltype));
     }
@@ -66,7 +66,7 @@ class SequenceManager
      * @param type $no
      * @return type
      */
-    function halfstr($string, $no)
+    public function halfstr($string, $no)
     {
         // for now, this holds for mirror repeats.
         if(strlen($string) % 2 != 0) { //odd
@@ -93,7 +93,7 @@ class SequenceManager
      * @param type $string
      * @return string
      */
-    function get_bridge($string)
+    public function get_bridge($string)
     {
         if(strlen($string) % 2 != 0) { // odd
             $comp_len = (int) (strlen($string)/2);
@@ -110,7 +110,7 @@ class SequenceManager
      * @param type $string
      * @return type
      */
-    function expand_na($string)
+    public function expand_na($string)
     {
         $patterns = [
             "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", 
@@ -129,7 +129,7 @@ class SequenceManager
      * Calculates the molecular weight of a sequence.
      * @return boolean|real
      */
-    function molwt()
+    public function molwt()
     {
         // Check if characters outside our 20-letter amino alphabet is included in the sequence.
         if ($this->moltype == "DNA") {
@@ -245,7 +245,7 @@ class SequenceManager
      * Counts the number of codons (trios of base-pairs) in a DNA/RNA sequence.
      * @return int
      */
-    function count_codons()
+    public function count_codons()
     {
         $codstart = (isset($this->features["CDS"]["/codon_start"])) ? $this->features["CDS"]["/codon_start"] : 1;
         $codcount = (int) (($this->seqlen() - $codstart + 1)/3);
@@ -258,7 +258,7 @@ class SequenceManager
      * @param type $count
      * @return \AppBundle\Entity\seq
      */
-    function subseq($start, $count)
+    public function subseq($start, $count)
     {
         $newseq = new seq();
         $newseq->sequence = substr($this->sequence, $start, $count);
@@ -275,7 +275,7 @@ class SequenceManager
      * @param type $options
      * @return array  - value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      */
-    function patpos($pattern, $options = "I")
+    public function patpos($pattern, $options = "I")
     {
         $outer = array();
         $pf = $this->patfreq($pattern, $options);
@@ -310,7 +310,7 @@ class SequenceManager
      * @param type $cutpos
      * @return type
      */
-    function patposo($pattern, $options = "I", $cutpos = 1)
+    public function patposo($pattern, $options = "I", $cutpos = 1)
     {
         $outer = array();
         $haystack = $this->sequence;
@@ -364,7 +364,7 @@ class SequenceManager
      * @param type $options
      * @return type
      */
-    function patfreq($pattern, $options = "I")
+    public function patfreq($pattern, $options = "I")
     {
         $match = $this->findpattern($pattern, $options);
         return array_count_values($match[0]);
@@ -377,7 +377,7 @@ class SequenceManager
      * @param type $options
      * @return type
      */
-    function findpattern($pattern, $options = "I")
+    public function findpattern($pattern, $options = "I")
     {
         if (firstChar($pattern) == "_") {
             $pattern = getpattern($pattern);
@@ -396,7 +396,7 @@ class SequenceManager
      * 
      * @return int
      */
-    function seqlen()
+    public function seqlen()
     {
         return strlen($this->sequence);
     }
@@ -409,7 +409,7 @@ class SequenceManager
      * @param type $symbol
      * @return int
      */
-    function symfreq($symbol)
+    public function symfreq($symbol)
     {
         $symtally = count_chars(strtoupper($this->sequence), 1);
         if ($symtally[ord($symbol)] == NULL) {
@@ -426,7 +426,7 @@ class SequenceManager
      * @param type $readframe
      * @return type
      */
-    function getcodon($index, $readframe = 0)
+    public function getcodon($index, $readframe = 0)
     {
         return strtoupper(substr($this->sequence, ($index * 3) + $readframe, 3));
     }
@@ -438,7 +438,7 @@ class SequenceManager
      * @param type $format
      * @return string
      */
-    function translate($readframe = 0, $format = 3)
+    public function translate($readframe = 0, $format = 3)
     {
         $codon_index = 0;
         $result = "";
@@ -467,7 +467,7 @@ class SequenceManager
      * @param type $amino_seq
      * @return string
      */
-    function charge($amino_seq)
+    public function charge($amino_seq)
     {
         $charge_seq = "";
         $ctr = 0;
@@ -510,7 +510,7 @@ class SequenceManager
      * @param type $amino_seq
      * @return string
      */
-    function chemgrp($amino_seq)
+    public function chemgrp($amino_seq)
     {
         $chemgrp_seq = "";
         $ctr = 0;
@@ -571,7 +571,7 @@ class SequenceManager
      * @param type $format
      * @return string
      */
-    function translate_codon($codon, $format = 3)
+    public function translate_codon($codon, $format = 3)
     {
         if (($format != 3) && ($format != 1)) {
             throw new \Exception("Invalid format parameter.");
@@ -825,7 +825,7 @@ class SequenceManager
      * @param type $count
      * @return type
      */
-    function trunc($start, $count)
+    public function trunc($start, $count)
     {
         return substr($this->sequence, $start, $count);
     }
@@ -842,7 +842,7 @@ class SequenceManager
      * @param type $string
      * @return boolean
      */
-    function is_mirror($string = "")
+    public function is_mirror($string = "")
     {
         if (strlen($string) == 0) {
             $string = $this->sequence;
@@ -863,7 +863,7 @@ class SequenceManager
      * @param type $options
      * @return boolean
      */
-    function find_mirror($haystack, $pallen1, $pallen2 = "", $options = "E")
+    public function find_mirror($haystack, $pallen1, $pallen2 = "", $options = "E")
     {
         $haylen = strlen($haystack);
         if ($haylen == 0) {
@@ -928,7 +928,7 @@ class SequenceManager
      * @param type $string
      * @return boolean
      */
-    function is_palindrome($string = "")
+    public function is_palindrome($string = "")
     {
         if (strlen($string) == 0) {
             $string = $this->sequence;
@@ -960,7 +960,7 @@ class SequenceManager
      * @param type $pallen
      * @return boolean|array|int
      */
-    function find_palindrome($haystack, $seqlen = "", $pallen = "")
+    public function find_palindrome($haystack, $seqlen = "", $pallen = "")
     {
         // CASE 1) seqlen is not set, pallen is not set. - return FALSE (function error)
         if (is_blankstr($seqlen) and is_blankstr($pallen)) {

@@ -4,36 +4,94 @@ namespace AppBundle\Entity;
 
 class Sequence
 {
+    /**
+     * @var string
+     */
     private $id;
+
+    /**
+     * @var string
+     */
     private $strands;
+
+    /**
+     * @var string
+     */
     private $moltype;
+
+    /**
+     * @var string
+     */
     private $topology;
+
+    /**
+     * @var string
+     */
     private $division;
+
+    /**
+     * @var date
+     */
     private $date;
+
+    /**
+     * @var string
+     */
     private $definition;
     private $seqlength;
 
+    /**
+     * @var int
+     */
+    private $seqlength;
     private $accession;
-    private $secAccession;      // array
+
+    /**
+     * @var array
+     */
+    private $secAccession;
     private $version;
     private $ncbiGiId;
+
+    /**
+     * @var array
+     */
     private $keywords;
+
+    /**
+     * @var int
+     */
     private $segmentNo;
+
+    /**
+     * @var int
+     */
     private $segmentCount;
     private $segment;
     private $source;
 
     private $organism;
     private $sequence;
-    private $reference;          // array
-    private $features;           // array
-	
+
+    /**
+     * @var array
+     */
+    private $reference;
+
+    /**
+     * @var array
+     */
+    private $features;
+
     // Used by SeqAlign class
     private $start;
     private $end;
-		
-    // Used when DBFORMAT is "SWISSPROT"
-    private $swissprot;    // array
+
+    /**
+     * Used when DBFORMAT is "SWISSPROT"
+     * @var array
+     */
+    private $swissprot;
 
     public function getId()
     {
@@ -43,7 +101,7 @@ class Sequence
     {
         $this->id = $id;
     }
-    
+
     public function getStrands()
     {
         return $this->strands;
@@ -52,7 +110,7 @@ class Sequence
     {
         $this->strands = $strands;
     }
-    
+
     public function getMoltype()
     {
         return $this->moltype;
@@ -61,7 +119,7 @@ class Sequence
     {
         $this->moltype = $moltype;
     }
-    
+
     public function getTopology()
     {
         return $this->topology;
@@ -70,7 +128,7 @@ class Sequence
     {
         $this->topology = $topology;
     }
-    
+
     public function getDivision()
     {
         return $this->division;
@@ -79,7 +137,7 @@ class Sequence
     {
         $this->division = $division;
     }
-    
+
     public function getDate()
     {
         return $this->date;
@@ -88,7 +146,7 @@ class Sequence
     {
         $this->date = $date;
     }
-    
+
     public function getDefinition()
     {
         return $this->definition;
@@ -97,7 +155,7 @@ class Sequence
     {
         $this->definition = $definition;
     }
-    
+
     public function getSeqlength()
     {
         return $this->seqlength;
@@ -115,7 +173,7 @@ class Sequence
     {
         $this->accession = $accession;
     }
-    
+
     public function getSecAccession()
     {
         return $this->secAccession;
@@ -124,7 +182,7 @@ class Sequence
     {
         $this->secAccession = $secAccession;
     }
-    
+
     public function getVersion()
     {
         return $this->version;
@@ -133,7 +191,7 @@ class Sequence
     {
         $this->version = $version;
     }
-    
+
     public function getNcbiGiId()
     {
         return $this->ncbiGiId;
@@ -142,7 +200,7 @@ class Sequence
     {
         $this->ncbiGiId = $ncbiGiId;
     }
-    
+
     public function getKeywords()
     {
         return $this->keywords;
@@ -151,7 +209,7 @@ class Sequence
     {
         $this->keywords = $keywords;
     }
-    
+
     public function getSegmentNo()
     {
         return $this->segmentNo;
@@ -160,7 +218,7 @@ class Sequence
     {
         $this->segmentNo = $segmentNo;
     }
-    
+
     public function getSegmentCount()
     {
         return $this->segmentCount;
@@ -169,7 +227,7 @@ class Sequence
     {
         $this->segmentCount = $segmentCount;
     }
-    
+
     public function getSegment()
     {
         return $this->segment;
@@ -178,7 +236,7 @@ class Sequence
     {
         $this->segment = $segment;
     }
-    
+
     public function getSource()
     {
         return $this->source;
@@ -196,7 +254,7 @@ class Sequence
     {
         $this->organism = $organism;
     }
-    
+
     public function getSequence()
     {
         return $this->sequence;
@@ -205,7 +263,7 @@ class Sequence
     {
         $this->sequence = $sequence;
     }
-    
+
     public function getReference()
     {
         return $this->reference;
@@ -214,7 +272,7 @@ class Sequence
     {
         $this->reference = $reference;
     }
-    
+
     public function getFeatures()
     {
         return $this->features;
@@ -232,7 +290,7 @@ class Sequence
     {
         $this->start = $start;
     }
-    
+
     public function getEnd()
     {
         return $this->end;
@@ -241,7 +299,7 @@ class Sequence
     {
         $this->end = $end;
     }
-		
+
     public function getSwissprot()
     {
         return $this->swissprot;

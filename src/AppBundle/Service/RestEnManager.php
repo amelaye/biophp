@@ -10,7 +10,7 @@ class RestEnManager
      * @param type $options
      * @return type
      */
-    function CutSeq($seq, $options = "N")
+    public function CutSeq($seq, $options = "N")
     {
         if ($options == "N") {
             // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
@@ -69,7 +69,7 @@ class RestEnManager
      * @param type $RestEn_Name
      * @return \AppBundle\Services\type
      */
-    function GetPattern($RestEn_Name) 
+    public function GetPattern($RestEn_Name)
     {
         global $RestEn_DB;
         return $RestEn_DB[$RestEn_Name][0];
@@ -82,7 +82,7 @@ class RestEnManager
      * @param type $RestEn_Name
      * @return \AppBundle\Services\type
      */
-    function GetCutPos($RestEn_Name)
+    public function GetCutPos($RestEn_Name)
     {
         global $RestEn_DB;
         return $RestEn_DB[$RestEn_Name][1];
@@ -95,7 +95,7 @@ class RestEnManager
      * @param type $RestEn_Name
      * @return type
      */
-    function GetLength($RestEn_Name = "")
+    public function GetLength($RestEn_Name = "")
     {
         global $RestEn_DB;
 
@@ -116,7 +116,7 @@ class RestEnManager
      * @param type $plen
      * @return type
      */
-    function FindRestEn($pattern = "", $cutpos = "", $plen = "")
+    public function FindRestEn($pattern = "", $cutpos = "", $plen = "")
     {
         global $RestEn_DB;
 

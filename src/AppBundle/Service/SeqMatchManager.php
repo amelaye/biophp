@@ -15,7 +15,7 @@ class SeqMatchManager
      * @param type $seq2
      * @return int
      */
-    function hamdist($seq1, $seq2)
+    public function hamdist($seq1, $seq2)
     {
         // If $seq1 is a Seq object, we use its sequence property to compute Hamming Distance.
         if (gettype($seq1) == "object") {
@@ -65,7 +65,7 @@ class SeqMatchManager
      * @param type $cost_del
      * @return type
      */
-    function levdist($seq1, $seq2, $cost_ins = 1, $cost_rep = 1, $cost_del = 1)
+    public function levdist($seq1, $seq2, $cost_ins = 1, $cost_rep = 1, $cost_del = 1)
     {
         // If $seq1 is a Seq object, we use its sequence property to compute Levenshtein Distance.
         if (gettype($seq1) == "object") {
@@ -101,7 +101,7 @@ class SeqMatchManager
      * @param type $t
      * @return type
      */
-    function xlevdist($s, $t)
+    public function xlevdist($s, $t)
     {
         $n = strlen($s);
         $m = strlen($t);
@@ -166,7 +166,7 @@ class SeqMatchManager
      * @param type $nomatch
      * @return string
      */
-    function match($str1, $str2, $matrix, $equal, $partial = "+", $nomatch = ".")
+    public function match($str1, $str2, $matrix, $equal, $partial = "+", $nomatch = ".")
     {
         global $chemgrp_matrix;
 

@@ -18,7 +18,7 @@ class SeqAlignManager
      * In addition, you can specify if you wish it be in ascending or descending order via $option.
      * @param type $option
      */
-    function sort_alpha($option = "ASC")
+    public function sort_alpha($option = "ASC")
     {
         $temp = [];
         foreach($this->seqset as $seqitem)
@@ -47,7 +47,7 @@ class SeqAlignManager
     /**
      * Moves the sequence pointer to the first sequence in the alignment set.
      */
-    function first()
+    public function first()
     {
         $this->seqptr = 0;
     }
@@ -56,7 +56,7 @@ class SeqAlignManager
     /**
      * Moves the sequence pointer to the last sequence in the alignment set.
      */
-    function last()
+    public function last()
     {
         $this->seqptr = $this->seq_count - 1;
     }
@@ -65,7 +65,7 @@ class SeqAlignManager
     /**
      * Moves the sequence pointer to the sequence before the current one.
      */
-    function prev()
+    public function prev()
     {
         if ($this->seqptr > 0) {
             $this->seqptr--;
@@ -76,7 +76,7 @@ class SeqAlignManager
     /**
      * Moves the sequence pointer to the sequence after the current one.
      */
-    function next()
+    public function next()
     {
         if ($this->seqptr < $this->seq_count-1) {
             $this->seqptr++;
@@ -89,7 +89,7 @@ class SeqAlignManager
      * @param type $index
      * @return type
      */
-    function fetch($index = "")
+    public function fetch($index = "")
     {
         if (strlen($index) == 0) {
             $index = $this->seqptr;
@@ -102,7 +102,7 @@ class SeqAlignManager
      * Returns the lenght of the longest sequence in an alignment set.
      * @return type
      */
-    function get_length()
+    public function get_length()
     {
         $maxlen = 0;
         foreach($this->seqset as $seqitem) {
@@ -118,7 +118,7 @@ class SeqAlignManager
      * Counts the number of gaps ("-") found in all sequences in an alignment set.
      * @return type
      */
-    function get_gap_count()
+    public function get_gap_count()
     {
         $gapctr = 0;
         foreach($this->seqset as $seqitem) {
@@ -132,7 +132,7 @@ class SeqAlignManager
      * Tests if all the sequences in an alignment set have the same length.
      * @return boolean
      */
-    function get_is_flush()
+    public function get_is_flush()
     {
         $samelength = TRUE;
         $ctr = 0;
@@ -159,7 +159,7 @@ class SeqAlignManager
      * @param type $res
      * @return boolean
      */
-    function char_at_res($seqidx, $res)
+    public function char_at_res($seqidx, $res)
     {
         $seqobj = $this->seqset[$seqidx];
         if ($res > $seqobj->end) {
@@ -193,7 +193,7 @@ class SeqAlignManager
      * @param type $res_end
      * @return boolean
      */
-    function substr_bw_res($seqidx, $res_beg, $res_end = "")
+    public function substr_bw_res($seqidx, $res_beg, $res_end = "")
     {
         $seqobj = $this->seqset[$seqidx];
         // Later, you can return a code which identifies the type of error.
@@ -234,7 +234,7 @@ class SeqAlignManager
      * @param type $col
      * @return boolean|string
      */
-    function col2res($seqidx, $col)
+    public function col2res($seqidx, $col)
     {
         $seqobj = $this->seqset[$seqidx];
         // Later, you can return a code which identifies the type of error.
@@ -266,7 +266,7 @@ class SeqAlignManager
      * @param type $res
      * @return boolean|int
      */
-    function res2col($seqidx, $res)
+    public function res2col($seqidx, $res)
     {
         $seqobj = $this->seqset[$seqidx];
         // Later, you can return a code which identifies the type of error.
@@ -300,7 +300,7 @@ class SeqAlignManager
      * @param type $end
      * @return \AppBundle\Services\SeqAlign
      */
-    function subalign($beg, $end)
+    public function subalign($beg, $end)
     {
         if (($beg < 0) or ($end < 0)) {
             throw new \Exception("Invalid argument passed to SUBALIGN() method!");
@@ -325,7 +325,7 @@ class SeqAlignManager
      * Returns a set of (possibly non-consecutive) sequences in an alignment set.
      * @return \AppBundle\Services\SeqAlign
      */
-    function select()
+    public function select()
     {
         $arglist = func_get_args();
         if (count($arglist) == 0) {
@@ -354,7 +354,7 @@ class SeqAlignManager
      * @param type $threshold
      * @return array
      */
-    function res_var($threshold = 100)
+    public function res_var($threshold = 100)
     {
         // for now, assume all the sequences are equal in length.
         $alphabet = [
@@ -401,7 +401,7 @@ class SeqAlignManager
      * @param type $threshold
      * @return string
      */
-    function consensus($threshold = 100)
+    public function consensus($threshold = 100)
     {
         // for now, assume all the sequences are equal in length.
         $alphabet = [
@@ -444,7 +444,7 @@ class SeqAlignManager
      * @param type $seqobj
      * @return type
      */
-    function add_seq($seqobj)
+    public function add_seq($seqobj)
     {
         if (gettype($seqobj) == "object") {
             array_push($this->seqset, $seqobj);
@@ -478,7 +478,7 @@ class SeqAlignManager
      * @param type $seqobj
      * @return type
      */
-    function del_seq($seqobj)
+    public function del_seq($seqobj)
     {
         $seqid = $seqobj;
         $tempset = array();
