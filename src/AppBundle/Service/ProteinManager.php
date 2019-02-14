@@ -1,19 +1,37 @@
 <?php
+/**
+ * Protein Managing
+ * @author Amélie DUVERNET
+ * Inspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 namespace AppBundle\Service;
+
+use AppBundle\Entity\Protein;
 
 class ProteinManager
 {
-    var $id;
-    var $name;
-    var $sequence;
+    private $protein;
+    private $wts;
 
+    /**
+     * Constructor
+     * @param Protein $oProtein
+     * @param array $aWts
+     */
+    public function __construct(Protein $oProtein, $aWts)
+    {
+        $this->protein  = $oProtein;
+        $this->wts      = $aWts;
+    }
 
     /**
      * Returns the length of a protein sequence().
      * @return int
      */
     public function seqlen() {
-        return strlen($this->sequence);
+        return strlen($this->protein->getSequence());
     }
 
 
@@ -25,50 +43,25 @@ class ProteinManager
     {
         $lowerlimit = 0;
         $upperlimit = 1;
-        $wts = [
-            "A" => [89.09, 89.09],
-            "B" => [132.12, 133.1],
-            "C" => [121.15, 121.15],
-            "D" => [133.1, 133.1],
-            "E" => [147.13, 147.13],
-            "F" => [165.19, 165.19],
-            "G" => [75.07, 75.07],
-            "H" => [155.16, 155.16],
-            "I" => [131.18, 131.18],
-            "K" => [146.19, 146.19],
-            "L" => [131.18, 131.18],
-            "M" => [149.22, 149.22],
-            "N" => [132.12, 132.12],
-            "P" => [115.13, 115.13],
-            "Q" => [146.15, 146.15],
-            "R" => [174.21, 174.21],
-            "S" => [105.09, 105.09],
-            "T" => [119.12, 119.12],
-            "V" => [117.15, 117.15],
-            "W" => [204.22, 204.22],
-            "X" => [75.07, 204.22],
-            "Y" => [181.19, 181.19],
-            "Z" => [146.15, 147.13]
-        ];
 
         // Check if characters outside our 20-letter amino alphabet is included in the sequence.
-        preg_match_all("/[^GAVLIPFYWSTCMNQDEKRHBXZ]/", $this->sequence, $match);
+        preg_match_all("/[^GAVLIPFYWSTCMNQDEKRHBXZ]/", $this->protein->getSequence(), $match);
         // If there are unknown characters, then do not compute molwt and instead return FALSE.
         if (count($match[0]) > 0) {
-            return FALSE;
+            return false;
         }
 
         // Otherwise, continue and calculate molecular weight of amino acid chain.
-        $mwt = array(0, 0);
+        $aMolecularWeight = [0, 0];
         $amino_len = $this->seqlen();
         for($i = 0; $i < $amino_len; $i++) {
-            $amino = substr($this->sequence, $i, 1);
-            $mwt[$lowerlimit] += $wts[$amino][$lowerlimit];
-            $mwt[$upperlimit] += $wts[$amino][$upperlimit];
+            $amino = substr($this->protein->getSequence(), $i, 1);
+            $aMolecularWeight[$lowerlimit] += $this->wts[$amino][$lowerlimit];
+            $aMolecularWeight[$upperlimit] += $this->wts[$amino][$upperlimit];
         }
         $mwt_water = 18.015;
-        $mwt[$lowerlimit] = $mwt[$lowerlimit] - (($this->seqlen() - 1) * $mwt_water);
-        $mwt[$upperlimit] = $mwt[$upperlimit] - (($this->seqlen() - 1) * $mwt_water);
-        return $mwt;
+        $aMolecularWeight[$lowerlimit] = $aMolecularWeight[$lowerlimit] - (($this->seqlen() - 1) * $mwt_water);
+        $aMolecularWeight[$upperlimit] = $aMolecularWeight[$upperlimit] - (($this->seqlen() - 1) * $mwt_water);
+        return $aMolecularWeight;
     }
 }
