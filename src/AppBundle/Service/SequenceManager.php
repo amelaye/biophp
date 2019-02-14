@@ -11,15 +11,19 @@ class SequenceManager
     private $aRnaComplements;
     private $aElements;
     private $aChemicalGroups;
+    private $aCodons;
     private $sequence;
     
-    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, $aElements, $aChemicalGroups)
+    
+    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, 
+            $aElements, $aChemicalGroups, $aCodons)
     {
         $this->aDnaComplements = $aDnaComplements;
         $this->aRnaComplements = $aRnaComplements;
         $this->sequence = $oSequence;
         $this->aElements = $aElements;
         $this->aChemicalGroups = $aChemicalGroups;
+        $this->aCodons = $aCodons;
     }
     /**
      * Gets the genetic complement of a DNA or RNA sequence.
@@ -522,42 +526,42 @@ class SequenceManager
 
 
     /**
-     * 
-     * @param type $codon
-     * @param type $format
-     * @return string
+     * Tranlates string to codon
+     * @param   string  $sCodon
+     * @param   int    $iFormat
+     * @return  string
      */
-    public function translate_codon($codon, $format = 3)
+    public function translate_codon($sCodon, $iFormat = 3)
     {
-        if (($format != 3) && ($format != 1)) {
+        if (($iFormat != 3) && ($iFormat != 1)) {
             throw new \Exception("Invalid format parameter.");
         }
-        if (strlen($codon) < 3) {
-            if ($format == 3) {
+        if (strlen($sCodon) < 3) {
+            if ($iFormat == 3) {
                 return "XXX";
             }
         } else {
             return "X";
         }
 
-        $codon = strtoupper($codon);
-        $codon = ereg_replace("T", "U", $codon);
-        $letter1 = substr($codon, 0, 1);
-        $letter2 = substr($codon, 1, 1);
-        $letter3 = substr($codon, 2, 1);
+        $sUpperCodon = strtoupper($sCodon);
+        $sFormtdCodon = ereg_replace("T", "U", $sUpperCodon);
+        $sLetter1 = substr($sFormtdCodon, 0, 1);
+        $sLetter2 = substr($sFormtdCodon, 1, 1);
+        $sLetter3 = substr($sFormtdCodon, 2, 1);
 
-        switch($letter1) {
+        switch($sLetter1) {
             case "U":
-                $this->uracileLetters($letter2, $letter3, $format);
+                $this->uracileLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "C":
-                $this->cytosineLetters($letter2, $letter3, $format);
+                $this->cytosineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "A":
-                $this->arginineLetters($letter2, $letter3, $format);
+                $this->adenineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "G":
-                $this->guanineLetters($letter2, $letter3, $format);
+                $this->guanineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
         }        
         return "X";  
@@ -566,9 +570,9 @@ class SequenceManager
 
     /**
      * 
-     * @param type $start
-     * @param type $count
-     * @return type
+     * @param   string  $start
+     * @param   int     $count
+     * @return  string
      */
     public function trunc($start, $count)
     {
@@ -584,8 +588,8 @@ class SequenceManager
      * MIRROR SEQUENCE: seq1-[X]-seq2, where X is an optional nucleotide base (A, G, C, or T).
      * Seq1 and Seq2 are called the complementary sequences or halves.
      * For our purposes, we shall call [X] as the "bridge".
-     * @param type $string
-     * @return boolean
+     * @param   string  $string
+     * @return  boolean
      */
     public function is_mirror($string = "")
     {
@@ -602,11 +606,11 @@ class SequenceManager
 
     /**
      * Returns 3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
-     * @param type $haystack
-     * @param type $pallen1
-     * @param type $pallen2
-     * @param type $options
-     * @return boolean
+     * @param   type $haystack
+     * @param   type $pallen1
+     * @param   type $pallen2
+     * @param   type $options
+     * @return  boolean
      */
     public function find_mirror($haystack, $pallen1, $pallen2 = "", $options = "E")
     {
@@ -627,13 +631,13 @@ class SequenceManager
         if ($pallen1 > $haylen) {
             return false;
         }
-        if (gettype($pallen1) != "integer") {
+        if (!is_int($pallen1)) {
             return false;
         }
         // if third parameter (representing upper palindrome length) is missing
-        if ((gettype($pallen2) == "string") && ($pallen2 == "")) {
+        if ((is_string($pallen2)) && ($pallen2 == "")) {
             $pallen2 = $pallen1;
-        } elseif (gettype($pallen2) != "integer") {
+        } elseif (is_int($pallen2)) {
             return false;
         } elseif ($pallen2 < $pallen1) {
             return false;
@@ -676,7 +680,7 @@ class SequenceManager
     public function is_palindrome($string = "")
     {
         if (strlen($string) == 0) {
-            $string = $this->sequence;
+            $string = $this->sequence->getSequence();
         }
         // By definition, odd-lengthed strings cannot be a palindrome.
         if (is_odd(strlen($string))) {
@@ -708,7 +712,7 @@ class SequenceManager
     public function find_palindrome($haystack, $seqlen = "", $pallen = "")
     {
         // CASE 1) seqlen is not set, pallen is not set. - return FALSE (function error)
-        if (is_blankstr($seqlen) and is_blankstr($pallen)) {
+        if (is_blankstr($seqlen) && is_blankstr($pallen)) {
             return FALSE;
         }
 
@@ -837,98 +841,109 @@ class SequenceManager
         return $aMolecules;
     }
     
+    /**
+     * Codons beginning with G
+     * @param   string  $letter2
+     * @param   string  $letter3
+     * @param   int     $format
+     * @return  string
+     */
     private function guanineLetters($letter2, $letter3, $format)
     {
        switch($letter2) {
             case "U":
-                if($format == 3) return "Val";
-                if($format == 1) return "V";
+                return $this->aCodons["Valine"][$format]; // GU*
             case "C":
-                if($format == 3) return "Ala";
-                if($format == 1) return "A";
+                return $this->aCodons["Alanine"][$format]; // GC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "Asp";
-                        if($format == 1) return "D";
+                        return $this->aCodons["Aspartic_acid"][$format]; // GAU or GAC
                     case "A":
                     case "G":
-                        if($format == 3) return "Glu";
-                        if($format == 1) return "E";
+                        return $this->aCodons["Glutamic_acid"][$format]; // GAA or GAG
                 }
             case "G":
-                if($format == 3) return "Gly";
-                if($format == 1) return "G";
+                return $this->aCodons["Glycine"][$format]; // GG*
         }
     }
     
-    private function arginineLetters($letter2, $letter3, $format)
+    /**
+     * Codons beginning with A
+     * @param   string  $letter2
+     * @param   string  $letter3
+     * @param   int     $format
+     * @return  string
+     */
+    private function adenineLetters($letter2, $letter3, $format)
     {
         switch($letter2) {
             case "U":
                 switch($letter3) {
                     case "G":
-                        if($format == 3) return "Met"; 
-                        if($format == 1) return "M"; 
+                        return $this->aCodons["Methionine"][$format]; // AUG
                     default:
-                        if($format == 3) return "Ile"; 
-                        if($format == 1) return "I";
+                        return $this->aCodons["Isoleucine"][$format]; // AU* - G
                 }
             case "C":
-                if($format == 3) return "Thr";
-                if($format == 1) return "T";
+                return $this->aCodons["Threonine"][$format]; // AC*
             case "A":
                 switch($letter3) {
                 case "U":
                 case "C":
-                    if($format == 3) return "Asn";
-                    if($format == 1) return "N";
+                    return $this->aCodons["Asparagine"][$format]; // AAU / AAC
                 case "A":
                 case "G":
-                    if($format == 3) return "Lys";
-                    if($format == 1) return "K";
+                    return $this->aCodons["Lysine"][$format]; // AAA / AAG
             }
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "Ser";
-                        if($format == 1) return "S";
+                        return $this->aCodons["Serine"][$format]; // AGU / AGC
                     case "A":
                     case "G":
-                        if($format == 3) return "Arg";
-                        if($format == 1) return "R";
+                        return $this->aCodons["Arginine"][$format]; // AGA / AGG
                 }
         }
     }
     
+    /**
+     * Codons beginning with C
+     * @param   string  $letter2
+     * @param   string  $letter3
+     * @param   int     $format
+     * @return  string
+     */
     private function cytosineLetters($letter2, $letter3, $format)
     {
         switch($letter2) {
             case "U":
-                if($format == 3) return "Leu";
-                if($format == 1) return "L";
+                return $this->aCodons["Leucine"][$format]; // CU*
             case "C":
-                if($format == 3) return "Pro";
-                if($format == 1) return "P";
+                return $this->aCodons["Proline"][$format]; // CC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "His";
-                        if($format == 1) return "H";
+                        return $this->aCodons["Histidine"][$format]; // CAU / CAC
                     case "A":
                     case "G":
-                        if($format == 3) return "Gln";
-                        if($format == 1) return "Q";
+                        return $this->aCodons["Glutamine"][$format]; // CAA / CAG
                 }
             case "G":
-                if($format == 3) return "Arg";
-                if($format == 1) return "R";
+                return $this->aCodons["Arginine"][$format]; // CG*
         }
     }
     
+    /**
+     * Codons beginning with U
+     * @param   string    $letter2
+     * @param   string    $letter3
+     * @param   int       $format
+     * @return  string
+     */
     private function uracileLetters($letter2, $letter3, $format)
     {
         switch($letter2) {
@@ -936,39 +951,31 @@ class SequenceManager
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "Phe";
-                        if($format == 1) return "F";
+                        return $this->aCodons["Phenylalanine"][$format]; // UUU / UUC
                     case "A":
                     case "G":
-                        if($format == 3) return "Leu";
-                        if($format == 1) return "L";
+                        return $this->aCodons["Leucine"][$format]; // UUA / UUG
                 }
             case "C":
-                if($format == 3) return "Ser";
-                if($format == 1) return "S";
+                return $this->aCodons["Serine"][$format]; // UC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "Tyr";
-                        if($format == 1) return "Y";
+                        return $this->aCodons["Tyrosine"][$format]; // UAU / UAC
                     case "A":
                     case "G":
-                        if($format == 3) return "STP";
-                        if($format == 1) return "*";
+                        return $this->aCodons["STOP"][$format]; // UAA / UAG
                 }
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        if($format == 3) return "Cys";
-                        if($format == 1) return "C";
+                        return $this->aCodons["Cysteine"][$format]; // UGU / UGC
                     case "A":
-                        if($format == 3) return "STP";
-                        if($format == 1) return "*";
+                        return $this->aCodons["STOP"][$format]; // UGA
                     case "G":
-                        if($format == 3) return "Trp";
-                        if($format == 1) return "W";
+                        return $this->aCodons["Tryptophan"][$format]; // UGG
                 }
         }
     }
