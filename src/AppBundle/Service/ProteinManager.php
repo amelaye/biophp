@@ -12,7 +12,7 @@ class ProteinManager
      * Returns the length of a protein sequence().
      * @return int
      */
-    function seqlen() { 
+    public function seqlen() {
         return strlen($this->sequence);
     }
 
@@ -21,7 +21,7 @@ class ProteinManager
      * Computes the molecular weight of a protein sequence.
      * @return boolean
      */
-    function molwt()
+    public function molwt()
     {
         $lowerlimit = 0;
         $upperlimit = 1;

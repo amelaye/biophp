@@ -16,7 +16,7 @@ trait SwissprotTrait {
      * @param array $swiss
      * @param type $ft_r
      */
-    function process_ft(&$swiss, $ft_r)
+    public function process_ft(&$swiss, $ft_r)
     {
 	foreach($ft_r as $element) {
             $index = "FT_" . $element[0];
@@ -36,7 +36,7 @@ trait SwissprotTrait {
      * @param type $dbformat
      * @return type
      */
-    function at_entrystart($linestr, $dbformat) {
+    public function at_entrystart($linestr, $dbformat) {
 	if ($dbformat == "GENBANK") {
             return (substr($linestr,0,5) == "LOCUS");
         } elseif ($dbformat == "SWISSPROT") {
@@ -53,7 +53,7 @@ trait SwissprotTrait {
      * @param type $dbformat
      * @return type
      */
-    function get_entryid(&$flines, $linestr, $dbformat)
+    public function get_entryid(&$flines, $linestr, $dbformat)
     {
         if ($dbformat == "GENBANK") {
             return trim(substr($linestr, 12, 16));
@@ -73,7 +73,7 @@ trait SwissprotTrait {
      * @param type $fpseq
      * @return boolean
      */
-    function line2r($fpseq)
+    public function line2r($fpseq)
     {
         $flines = array();
         while(1) {
@@ -93,7 +93,7 @@ trait SwissprotTrait {
      * @param type $str
      * @return boolean
      */
-    function isa_qualifier($str)
+    public function isa_qualifier($str)
     {
         if (firstchar($str) == '/') {
             return true;
@@ -110,7 +110,7 @@ trait SwissprotTrait {
      * @param type $lineno
      * @return type
      */
-    function fseekline($fp, $lineno)
+    public function fseekline($fp, $lineno)
     {
         $linectr = 0;
         fseek($fp, 0);
@@ -134,7 +134,7 @@ trait SwissprotTrait {
      * @param type $seqid
      * @return boolean
      */
-    function bsrch_tabfile($fp, $col, $seqid)
+    public function bsrch_tabfile($fp, $col, $seqid)
     {
         $linectr = 0;
         fseek($fp, 0);

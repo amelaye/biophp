@@ -1,27 +1,60 @@
 <?php
-
+/**
+ * Database Entity
+ * @author Amélie DUVERNET
+ * Inspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 class Database {
 
+    /**
+     * @var string
+     */
     private $dbname;
+
+    /**
+     * @var string
+     */
     private $data_fn;
     private $data_fp;
+
+    /**
+     * @var string
+     */
     private $dir_fn;
     private $dir_fp;
+
+    /**
+     * @var int
+     */
     private $seqptr;
+
+    /**
+     * @var int
+     */
     private $seqcount;
     private $dbformat;
+
+    /**
+     * @var int
+     */
     private $bof;
+
+    /**
+     * @var int
+     */
     private $eof;
-    
+
 
     /**
      * 
      * SeqDB() is the constructor method for the SeqDB class.  It does many things like create
      * and/or read a database's index files, initialize certain SeqDB properties, etc.
      * Syntax: $seqdb = new seqdb($dbname, $dbformat, $file1, $file2, ...);
-     * Behavior: if $dbname exists and user gave no specific values for $file1, $file2, ...
+     * Behavior: if $dbname exists and user gave no specific values for $file1, $file2,
      * then seqdb() object USES/OPENS existing database (index files)
-     * if $dbname exists and user gave specific values for $file1, $file2, ...
+     * if $dbname exists and user gave specific values for $file1, $file2,
      * then seqdb() object OVERWRITES existing database (index files).
      * if $dbname does not exist, then seqdb() object CREATES new database.
      * even if $file1, $file2, ... are not specified.
