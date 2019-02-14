@@ -5,11 +5,12 @@ namespace AppBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
 
-class DefaultController extends Controller
+class DemoController extends Controller
 {
     /**
      * @Route("/", name="homepage")
@@ -24,20 +25,19 @@ class DefaultController extends Controller
     
     /**
      * @route("/sequence-analysis", name="sequence_analysis")
-     * @todo : correct error 
-     * The service "AppBundle\Service\SequenceManager" has a dependency on a 
-     * non-existent service "AppBundle\Entity\Sequence".
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function sequenceanalysisAction(SequenceManager $sequenceManager)
     {
-        $seq_obj = new Sequence();
-        $seq_obj->setSequence("AGGGAATTAAGTAAATGGTAGTGG");
+        $oSequence = new Sequence();
+        $oSequence->setSequence("AGGGAATTAAGTAAATGGTAGTGG");
+        $sequenceManager->setSequence($oSequence);
         
-        $sequenceManager->setSequence($seq_obj);
-        $mirrors = $sequenceManager->find_mirror($seq_obj->getSequence(), 6, 8, "E");
+        $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
+        dump($aMirrors);
         
-        return $this->render('Default/sequenceanalysis.html.twig', 
-                array('mirrors' => $mirrors)
+        return $this->render('@App/Default/sequenceanalysis.html.twig', 
+                array('mirrors' => $aMirrors)
         );
     }
 }

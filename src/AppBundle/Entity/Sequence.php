@@ -38,7 +38,6 @@ class Sequence
      * @var string
      */
     private $definition;
-    private $seqlength;
 
     /**
      * @var int
