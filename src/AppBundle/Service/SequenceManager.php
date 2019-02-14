@@ -10,14 +10,16 @@ class SequenceManager
     private $aDnaComplements;
     private $aRnaComplements;
     private $aElements;
+    private $aChemicalGroups;
     private $sequence;
     
-    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, $aElements)
+    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, $aElements, $aChemicalGroups)
     {
         $this->aDnaComplements = $aDnaComplements;
         $this->aRnaComplements = $aRnaComplements;
         $this->sequence = $oSequence;
         $this->aElements = $aElements;
+        $this->aChemicalGroups = $aChemicalGroups;
     }
     /**
      * Gets the genetic complement of a DNA or RNA sequence.
@@ -501,50 +503,18 @@ class SequenceManager
         $chemgrp_seq = "";
         $ctr = 0;
         while(1) {
-        $amino_letter = substr($amino_seq, $ctr, 1);
-            switch($amino_letter) {
-                case "":
-                    break;
-                case "S":
-                case "T":
-                    $chemgrp_seq .= "H";
-                    break;
-                case "N":
-                case "Q":
-                    $chemgrp_seq .= "M";
-                    break;
-                case "C":
-                case "M":
-                    $chemgrp_seq .= "S";
-                    break;
-                case "P":
-                    $chemgrp_seq .= "I";
-                    break;
-                case "D":
-                case "E":
-                    $chemgrp_seq .= "A";
-                    break;
-                case "K":
-                case "R":
-                case "H":
-                    $chemgrp_seq .= "C";
-                    break;
-                case "*":
-                    $chemgrp_seq .= "*";
-                    break;
-                case "X":
-                    $chemgrp_seq .= "X";
-                    break;
-                default:
-                    if (substr_count("GAVLI", $amino_letter) == 1) {
-                        $charge_seq .= "L";
-                    } elseif (substr_count("FYW", $amino_letter) == 1) {
-                        $chemgrp_seq .= "R";
-                    } else {
-                        throw new \Exception("Invalid amino acid symbol in input sequence.");
-                    }
-                    break;
-            }
+            $amino_letter = substr($amino_seq, $ctr, 1);       
+            if ($amino_letter != "") {
+                if(isset($this->aChemicalGroups[$amino_letter])) {
+                    $chemgrp_seq .= $this->aChemicalGroups[$amino_letter];
+                } elseif (substr_count("GAVLI", $amino_letter) == 1) {
+                    $chemgrp_seq .= "L";
+                } elseif (substr_count("FYW", $amino_letter) == 1) {
+                    $chemgrp_seq .= "R";
+                } else {
+                     throw new \Exception("Invalid amino acid symbol in input sequence.");
+                }
+            }   
             $ctr++;
         }
         return $chemgrp_seq;
@@ -578,92 +548,15 @@ class SequenceManager
 
         if ($format == 3) {
             if ($letter1 == "U") {
-                switch($letter2) {
-                    case "U":
-                        switch($letter3) {
-                            case "U":
-                            case "C":
-                                return "Phe";
-                            case "A":
-                            case "G":
-                                return "Leu";
-                        }
-                    case "C":
-                        return "Ser";
-                    case "A":
-                        switch($letter3) {
-                            case "U":
-                            case "C":
-                                return "Tyr";
-                            case "A":
-                            case "G":
-                                return "STP";
-                        }
-                    case "G":
-                        switch($letter3) {
-                            case "U":
-                            case "C":
-                                return "Cys";
-                            case "A":
-                                return "STP";
-                            case "G":
-                                return "Trp";
-                        }
-                }
+                $this->uracileLetters($letter2, $letter3);
             }
 
             if ($letter1 == "C") {
-                switch($letter2) {
-                    case "U":
-                        return "Leu";
-                    case "C":
-                        return "Pro";
-                    case "A":
-                        switch($letter3) {
-                            case "U":
-                            case "C":
-                                return "His";
-                                break;
-                            case "A":
-                            case "G":
-                                return "Gln";
-                        }
-                    case "G":
-                        return "Arg";
-                }
+                $this->cytosineLetters($letter2, $letter3);
             }
 
             if ($letter1 == "A") {
-                if ($letter2 == "U") {
-                    if ($letter3 == "G") { 
-                        return "Met"; 
-                    } else { 
-                        return "Ile"; 
-                    }
-                }
-                if ($letter2 == "C") {
-                    return "Thr";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "Asn";
-                        case "A":
-                        case "G":
-                            return "Lys";
-                    }
-                }
-                if ($letter2 == "G") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "Ser";
-                        case "A":
-                        case "G":
-                            return "Arg";
-                    }
-                }
+                $this->arginineLetters($letter2, $letter3);
             }
 
             if ($letter1 == "G") {
@@ -1076,5 +969,96 @@ class SequenceManager
                 + (1 * $this->aElements["phosphore"]);
         
         return $aMolecules;
+    }
+    
+    private function arginineLetters($letter2, $letter3)
+    {
+        if ($letter2 == "U") {
+            if ($letter3 == "G") { 
+                return "Met"; 
+            } else { 
+                return "Ile"; 
+            }
+        }
+        if ($letter2 == "C") {
+            return "Thr";
+        }
+        if ($letter2 == "A") {
+            switch($letter3) {
+                case "U":
+                case "C":
+                    return "Asn";
+                case "A":
+                case "G":
+                    return "Lys";
+            }
+        }
+        if ($letter2 == "G") {
+            switch($letter3) {
+                case "U":
+                case "C":
+                    return "Ser";
+                case "A":
+                case "G":
+                    return "Arg";
+            }
+        }
+    }
+    
+    private function cytosineLetters($letter2, $letter3)
+    {
+        switch($letter2) {
+            case "U":
+                return "Leu";
+            case "C":
+                return "Pro";
+            case "A":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        return "His";
+                    case "A":
+                    case "G":
+                        return "Gln";
+                }
+            case "G":
+                return "Arg";
+        }
+    }
+    
+    private function uracileLetters($letter2, $letter3)
+    {
+        switch($letter2) {
+            case "U":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        return "Phe";
+                    case "A":
+                    case "G":
+                        return "Leu";
+                }
+            case "C":
+                return "Ser";
+            case "A":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        return "Tyr";
+                    case "A":
+                    case "G":
+                        return "STP";
+                }
+            case "G":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        return "Cys";
+                    case "A":
+                        return "STP";
+                    case "G":
+                        return "Trp";
+                }
+        }
     }
 }
