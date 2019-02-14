@@ -212,7 +212,6 @@ services:
 
     AppBundle\Service\SequenceManager:
         arguments:
-            - '@AppBundle\Entity\Sequence'
             - %dna_complements%
             - %rna_complements%
             - %elements%

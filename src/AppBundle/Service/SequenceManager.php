@@ -15,10 +15,8 @@ class SequenceManager
     private $sequence;
     
     
-    public function __construct(Sequence $oSequence, $aDnaComplements, $aRnaComplements, 
-            $aElements, $aChemicalGroups, $aCodons)
+    public function __construct($aDnaComplements, $aRnaComplements, $aElements, $aChemicalGroups, $aCodons)
     {
-        $this->sequence = $oSequence;
         $this->aDnaComplements = $aDnaComplements;
         $this->aRnaComplements = $aRnaComplements;
         $this->aElements = $aElements;
@@ -607,7 +605,7 @@ class SequenceManager
         // if third parameter (representing upper palindrome length) is missing
         if ((is_string($pallen2)) && ($pallen2 == "")) {
             $pallen2 = $pallen1;
-        } elseif (is_int($pallen2)) {
+        } elseif (!is_int($pallen2)) {
             return false;
         } elseif ($pallen2 < $pallen1) {
             return false;
@@ -619,10 +617,10 @@ class SequenceManager
 
         $outer_r = array();
         for($currlen = $pallen1; $currlen <= $pallen2; $currlen++) {
-            if (($options == "E") && (is_odd($currlen))) {
+            if (($options == "E") && ($currlen % 2 != 0)) { // odd
                 continue;
             }
-            if (($options == "O") && (is_even($currlen))) {
+            if (($options == "O") && ($currlen % 2 == 0)) { // even
                 continue;
             }
             $string_count = $haylen - $currlen + 1;
