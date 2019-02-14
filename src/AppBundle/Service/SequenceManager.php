@@ -546,155 +546,21 @@ class SequenceManager
         $letter2 = substr($codon, 1, 1);
         $letter3 = substr($codon, 2, 1);
 
-        if ($format == 3) {
-            if ($letter1 == "U") {
-                $this->uracileLetters($letter2, $letter3);
-            }
-
-            if ($letter1 == "C") {
-                $this->cytosineLetters($letter2, $letter3);
-            }
-
-            if ($letter1 == "A") {
-                $this->arginineLetters($letter2, $letter3);
-            }
-
-            if ($letter1 == "G") {
-                if ($letter2 == "U") {
-                    return "Val";
-                }
-                if ($letter2 == "C") {
-                    return "Ala";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "Asp";
-                        case "A":
-                        case "G":
-                            return "Glu";
-                    }
-                }
-                if ($letter2 == "G") {
-                    return "Gly";
-                }
-            }
-        } elseif ($format == 1) { 
-            if ($letter1 == "U") {
-                if ($letter2 == "U") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "F";
-                        case "A":
-                        case "G":
-                            return "L";
-                    }
-                }
-                if ($letter2 == "C") {
-                    return "S";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "Y";
-                        case "A":
-                        case "G":
-                            return "*";
-                    }
-                }
-                if ($letter2 == "G") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "C";
-                        case "A":
-                            return "*";
-                        case "G":
-                            return "W";
-                            
-                    }
-                }
-            }
-            if ($letter1 == "C") { 
-                if ($letter2 == "U") {
-                    return "L";
-                }
-                if ($letter2 == "C") {
-                    return "P";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "H";
-                        case "A":
-                        default:
-                            return "Q";
-                    }
-                }
-                if ($letter2 == "G") {
-                    return "R";
-                }
-            }
-            if ($letter1 == "A") {
-                if ($letter2 == "U") {
-                    if ($letter3 == "G") { 
-                        return "M"; 
-                    } else { 
-                        return "I"; 
-                    }
-                }
-                if ($letter2 == "C") {
-                    return "T";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "N";
-                        case "A":
-                        case "G":
-                            return "K";
-                    }
-                }
-                if ($letter2 == "G") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "S";
-                        case "A":
-                        case "G":
-                            return "R";
-                    }
-                }
-            }
-
-            if ($letter1 == "G") {
-                if ($letter2 == "U") {
-                    return "V";
-                }
-                if ($letter2 == "C") {
-                    return "A";
-                }
-                if ($letter2 == "A") {
-                    switch($letter3) {
-                        case "U":
-                        case "C":
-                            return "D";
-                        case "A":
-                        case "G":
-                            return "E";
-                    }
-                }
-                if ($letter2 == "G") {
-                    return "G";
-                }
-            }
-        }
-        return "X";
+        switch($letter1) {
+            case "U":
+                $this->uracileLetters($letter2, $letter3, $format);
+                break;
+            case "C":
+                $this->cytosineLetters($letter2, $letter3, $format);
+                break;
+            case "A":
+                $this->arginineLetters($letter2, $letter3, $format);
+                break;
+            case "G":
+                $this->guanineLetters($letter2, $letter3, $format);
+                break;
+        }        
+        return "X";  
     }
 
 
@@ -971,93 +837,138 @@ class SequenceManager
         return $aMolecules;
     }
     
-    private function arginineLetters($letter2, $letter3)
+    private function guanineLetters($letter2, $letter3, $format)
     {
-        if ($letter2 == "U") {
-            if ($letter3 == "G") { 
-                return "Met"; 
-            } else { 
-                return "Ile"; 
-            }
-        }
-        if ($letter2 == "C") {
-            return "Thr";
-        }
-        if ($letter2 == "A") {
-            switch($letter3) {
-                case "U":
-                case "C":
-                    return "Asn";
-                case "A":
-                case "G":
-                    return "Lys";
-            }
-        }
-        if ($letter2 == "G") {
-            switch($letter3) {
-                case "U":
-                case "C":
-                    return "Ser";
-                case "A":
-                case "G":
-                    return "Arg";
-            }
-        }
-    }
-    
-    private function cytosineLetters($letter2, $letter3)
-    {
-        switch($letter2) {
+       switch($letter2) {
             case "U":
-                return "Leu";
+                if($format == 3) return "Val";
+                if($format == 1) return "V";
             case "C":
-                return "Pro";
+                if($format == 3) return "Ala";
+                if($format == 1) return "A";
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return "His";
+                        if($format == 3) return "Asp";
+                        if($format == 1) return "D";
                     case "A":
                     case "G":
-                        return "Gln";
+                        if($format == 3) return "Glu";
+                        if($format == 1) return "E";
                 }
             case "G":
-                return "Arg";
+                if($format == 3) return "Gly";
+                if($format == 1) return "G";
         }
     }
     
-    private function uracileLetters($letter2, $letter3)
+    private function arginineLetters($letter2, $letter3, $format)
+    {
+        switch($letter2) {
+            case "U":
+                switch($letter3) {
+                    case "G":
+                        if($format == 3) return "Met"; 
+                        if($format == 1) return "M"; 
+                    default:
+                        if($format == 3) return "Ile"; 
+                        if($format == 1) return "I";
+                }
+            case "C":
+                if($format == 3) return "Thr";
+                if($format == 1) return "T";
+            case "A":
+                switch($letter3) {
+                case "U":
+                case "C":
+                    if($format == 3) return "Asn";
+                    if($format == 1) return "N";
+                case "A":
+                case "G":
+                    if($format == 3) return "Lys";
+                    if($format == 1) return "K";
+            }
+            case "G":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        if($format == 3) return "Ser";
+                        if($format == 1) return "S";
+                    case "A":
+                    case "G":
+                        if($format == 3) return "Arg";
+                        if($format == 1) return "R";
+                }
+        }
+    }
+    
+    private function cytosineLetters($letter2, $letter3, $format)
+    {
+        switch($letter2) {
+            case "U":
+                if($format == 3) return "Leu";
+                if($format == 1) return "L";
+            case "C":
+                if($format == 3) return "Pro";
+                if($format == 1) return "P";
+            case "A":
+                switch($letter3) {
+                    case "U":
+                    case "C":
+                        if($format == 3) return "His";
+                        if($format == 1) return "H";
+                    case "A":
+                    case "G":
+                        if($format == 3) return "Gln";
+                        if($format == 1) return "Q";
+                }
+            case "G":
+                if($format == 3) return "Arg";
+                if($format == 1) return "R";
+        }
+    }
+    
+    private function uracileLetters($letter2, $letter3, $format)
     {
         switch($letter2) {
             case "U":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return "Phe";
+                        if($format == 3) return "Phe";
+                        if($format == 1) return "F";
                     case "A":
                     case "G":
-                        return "Leu";
+                        if($format == 3) return "Leu";
+                        if($format == 1) return "L";
                 }
             case "C":
-                return "Ser";
+                if($format == 3) return "Ser";
+                if($format == 1) return "S";
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return "Tyr";
+                        if($format == 3) return "Tyr";
+                        if($format == 1) return "Y";
                     case "A":
                     case "G":
-                        return "STP";
+                        if($format == 3) return "STP";
+                        if($format == 1) return "*";
                 }
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return "Cys";
+                        if($format == 3) return "Cys";
+                        if($format == 1) return "C";
                     case "A":
-                        return "STP";
+                        if($format == 3) return "STP";
+                        if($format == 1) return "*";
                     case "G":
-                        return "Trp";
+                        if($format == 3) return "Trp";
+                        if($format == 1) return "W";
                 }
         }
     }
