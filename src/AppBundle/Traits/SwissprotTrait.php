@@ -3,32 +3,6 @@
 namespace AppBundle\Traits;
 
 trait SwissprotTrait {
-    /*
-    We begin by describing parse_swissprot() first.
-    parse_swissprot() parses the Feature Table lines (those that begin with FT) in a Swissprot
-    data file, extracts the feature key name, from endpoint, to endpoint, and description, and
-    stores them in a (simple) array.
-    */
-    /**
-     * Then pushes this array into a larger associative array, called $swiss, which is
-     * also an attribute of the Seq object. It is assigned a key of the form: FT_<feature_key_name>.
-     * Examples are: FT_PEPTIDE, FT_DISULFID.
-     * @param array $swiss
-     * @param type $ft_r
-     */
-    public function process_ft(&$swiss, $ft_r)
-    {
-	foreach($ft_r as $element) {
-            $index = "FT_" . $element[0];
-            array_shift($element);					
-            if (count($swiss[$index]) == 0) {
-		$swiss[$index] = array();
-		array_push($swiss[$index], $element);
-            } else {
-                array_push($swiss[$index], $element);
-            }
-	}
-    }
 
     /**
      * Tests if the file pointer is at the start of a new sequence entry.
@@ -87,20 +61,7 @@ trait SwissprotTrait {
     }
 
 
-    /**
-     * Tests if the file pointer is at a line containing a feature qualifier.
-     * This applies only to GenBank sequence files.
-     * @param type $str
-     * @return boolean
-     */
-    public function isa_qualifier($str)
-    {
-        if (firstchar($str) == '/') {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    
 
     
     /**

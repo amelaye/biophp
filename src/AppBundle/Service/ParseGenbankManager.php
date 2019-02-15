@@ -2,6 +2,35 @@
 
 class ParseGenbankManager 
 {
+    private $seqarr;
+    private $inseq_flag;
+    private $seqdata_flag;
+    private $accession_flag;
+    private $ref_array;
+    private $feature_array;
+    private $entry_ctr;
+    private $ref_ctr;
+    private $maxlength;
+    private $minlength;
+    private $tot_seqlength;
+    private $seqdata;
+        
+    public function __construct()
+    {
+        $this->seqarr         = [];
+        $this->inseq_flag     = false;
+        $this->seqdata_flag   = false;
+        $this->accession_flag = false;
+        $this->ref_array      = [];
+        $this->feature_array  = [];
+        $this->entry_ctr      = 0;
+        $this->ref_ctr        = 0;
+        $this->maxlength      = 0;
+        $this->minlength      = 999999;
+        $this->tot_seqlength  = 0;
+        $this->seqdata        = "";
+    }
+    
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
      * @param   type        $flines
@@ -9,53 +38,9 @@ class ParseGenbankManager
      */
     public function parse_id($flines)
     {
-        $seqarr         = [];
-        $inseq_flag     = false;
-        $seqdata_flag   = false;
-        $accession_flag = false;
-        $ref_array      = [];
-        $feature_array  = [];
-        $entry_ctr      = 0;
-        $ref_ctr        = 0;
-        $maxlength      = 0;
-        $minlength      = 999999;
-        $tot_seqlength  = 0;
-
         while(list($lineno, $linestr) = each($flines)) {
             if (substr($linestr,0,5) == "LOCUS") {
-                $entry_ctr++;
-                $ref_ctr = 0;
-                $ref_array = array();
-
-                // This is the beginning of a SEQUENCE ENTRY.
-                $seqdata = "";
-
-                $oSequence = new Sequence();
-                $oSequence->setId(trim(substr($linestr, 12, 16)));
-                $oSequence->setSeqlength(trim(substr($linestr, 29, 11)) * 1);
-                $tot_seqlength += $oSequence->getSeqlength();
-
-                if ($oSequence->getSeqlength() > $maxlength) {
-                    $maxlength = $oSequence->getSeqlength();
-                }
-                if ($oSequence->getSeqlength() < $minlength) {
-                    $minlength = $oSequence->getSeqlength();
-                }
-
-                $oSequence->setMoltype(substr($linestr, 47, 6));
-                if (substr($linestr, 44, 3) == "ss-") {
-                    $oSequence->setStrands("SINGLE");
-                }   elseif (substr($linestr, 44, 3) == "ds-") {
-                    $oSequence->setStrands("DOUBLE");
-                }  elseif (substr($linestr, 44, 3) == "ms-") {
-                    $oSequence->setStrands("MIXED");
-                }
-
-                $oSequence->setTopology(strtoupper(substr($linestr, 55, 8)));
-                $oSequence->setDivision(strtoupper(substr($linestr, 64, 3)));
-                $oSequence->setDate(strtoupper(substr($linestr, 68, 11)));
-
-                $inseq_flag = true;
+                $oSequence = $this->beginSequence($linestr);
             }
 
             if (trim(substr($linestr,0,10)) == "BASE COUNT") {
@@ -66,8 +51,8 @@ class ParseGenbankManager
 
             if (trim(substr($linestr,0,12)) == "FEATURES") {
                 // The REFERENCE section was present for this SEQUENCE ENTRY so we set REFERENCE attribute.
-                if (count($ref_array) > 0) {
-                    $oSequence->setReference($ref_array);
+                if (count($this->ref_array) > 0) {
+                    $oSequence->setReference($this->ref_array);
                 }
                 $lastsubkey = "";
 
@@ -101,14 +86,14 @@ class ParseGenbankManager
                             list($lineno, $linestr) = each($flines);
                             $label = trim(substr($linestr,0,21));
                             $data = trim(substr($linestr,21));
-                        } while (is_blank($label) && !(isa_qualifier($data)));
+                        } while (is_blank($label) && !($this->isa_qualifier($data)));
 
                         if (!(is_blank($label))) {
                             $lastsubkey = $subkey;
                             $subkey = $label;
                         }
                     } else { // we are inside a subkey section but on the 2nd, 3rd, nth line which have blank LABELS.
-                        if (isa_qualifier($data)) {
+                        if ($this->isa_qualifier($data)) {
                             $wordarray = preg_split("/=/", $data);
                             $qual = $wordarray[0];
                             $data = $wordarray[1];
@@ -121,7 +106,7 @@ class ParseGenbankManager
                                 list($lineno, $linestr) = each($flines);
                                 $label = trim(substr($linestr,0,21));
                                 $data = trim(substr($linestr,21));
-                            } while(is_blank($label) && !(isa_qualifier($data)));
+                            } while(is_blank($label) && !($this->isa_qualifier($data)));
 
                             if (!(is_blank($label))) {
                                 $lastsubkey = $subkey;
@@ -145,7 +130,7 @@ class ParseGenbankManager
                 $oSequence->setDefinition(implode(" ", $wordarray));
             }
 
-            if ($inseq_flag) {
+            if ($this->inseq_flag) {
                 if (trim(substr($linestr, 0, 12)) == "REFERENCE") {
                     // at this point, we are at the line with REFERENCE x (base y of z) in it.
                     $wordarray = preg_split("/\s+/", trim(substr($linestr,12)));
@@ -229,13 +214,13 @@ class ParseGenbankManager
                             break;
                         }
                         if ($subkey == "REFERENCE") {
-                            $ref_ctr++;
+                            $this->ref_ctr++;
                             prev($flines);
                             break;
                         }
                         $lastsubkey = $subkey;
                     }
-                    array_push($ref_array, $ref_rec);
+                    array_push($this->ref_array, $ref_rec);
                 }
                 if (trim(substr($linestr, 0, 12)) == "SOURCE") {
                     // For now, assume a single-line SOURCE field.
@@ -264,9 +249,9 @@ class ParseGenbankManager
                     if (count($wordarray) == 3) {
                         $oSequence->setNcbiGiId($wordarray[2]);
                     }
-                    $accession_flag = false;
+                    $this->accession_flag = false;
                 }
-                if ($accession_flag) {
+                if ($this->accession_flag) {
                     // 2nd, 3rd, etc. line of ACCESSION field.
                     $wordarray = preg_split("/\s+/", trim($linestr));
                     //$this->sec_accession = array_merge($this->sec_accession, $wordarray); -> mistake ?
@@ -278,30 +263,87 @@ class ParseGenbankManager
                     array_shift($wordarray);
                     array_shift($wordarray);
                     $oSequence->setAccession($wordarray);
-                    $accession_flag = true;
+                    $this->accession_flag = true;
                 }
                 if (substr($linestr,0,10) == "  ORGANISM") {
                     $oSequence->setOrganism(substr($linestr,12));
                 }
-                if (($seqdata_flag == true) && (substr($linestr,0,2) != "//")) {
+                if (($this->seqdata_flag == true) && (substr($linestr,0,2) != "//")) {
                     $wordarray = explode(" ", trim($linestr));
                     array_shift($wordarray);
                     $seqline = implode("", $wordarray);
-                    $seqdata .= $seqline;
+                    $this->seqdata .= $seqline;
                 }
                 if (substr($linestr,0,6) == "ORIGIN") {
-                    $seqdata_flag = true;
+                    $this->seqdata_flag = true;
                 }
                 if (substr($linestr,0,2) == "//") {
-                    $oSequence->setSequence($seqdata);
-                    $seqarr[$this->database->getId()] = $this;
-                    $seqdata_flag = false;
-                    $inseq_flag = false;
+                    $oSequence->setSequence($this->seqdata);
+                    $this->seqarr[$this->database->getId()] = $this;
+                    $this->seqdata_flag = false;
+                    $this->inseq_flag = false;
                     break;
                 }
             }
         }
-        //$seqobj->seqarray = $seqarr; -> what for ? seqarray property does not exists
+        $oSequence->setSequence($this->seqarr);
+        return $oSequence;
+    }
+    
+    /**
+     * Tests if the file pointer is at a line containing a feature qualifier.
+     * This applies only to GenBank sequence files.
+     * @param type $str
+     * @return boolean
+     */
+    private function isa_qualifier($str)
+    {
+        if (firstchar($str) == '/') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    private function beginSequence($linestr)
+    {
+        $this->entry_ctr++;
+        $this->ref_ctr = 0;
+        $this->ref_array = array();
+        $this->seqdata = ""; // This is the beginning of a SEQUENCE ENTRY.
+
+        $oSequence = new Sequence($linestr);
+        $oSequence->setId(trim(substr($linestr, 12, 16)));
+        $oSequence->setSeqlength(trim(substr($linestr, 29, 11)) * 1);
+        $this->tot_seqlength += $oSequence->getSeqlength();
+
+        if ($oSequence->getSeqlength() > $this->maxlength) {
+            $this->maxlength = $oSequence->getSeqlength();
+        }
+        if ($oSequence->getSeqlength() < $this->minlength) {
+            $this->minlength = $oSequence->getSeqlength();
+        }
+
+        $oSequence->setMoltype(substr($linestr, 47, 6));
+
+        switch(substr($linestr, 44, 3)) {
+            case "ss-":
+                $oSequence->setStrands("SINGLE");
+                break;
+            case "ds-":
+                $oSequence->setStrands("DOUBLE");
+                break;
+            case "ms-":
+                $oSequence->setStrands("MIXED");
+                break;
+        }
+            
+        $oSequence->setTopology(strtoupper(substr($linestr, 55, 8)));
+        $oSequence->setDivision(strtoupper(substr($linestr, 64, 3)));
+        $oSequence->setDate(strtoupper(substr($linestr, 68, 11)));
+
+        $this->inseq_flag = true;
+        
         return $oSequence;
     }
 }

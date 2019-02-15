@@ -15,4 +15,9 @@ trait FormatsTrait
     {
 	return substr($str, strlen($str)-$numchars);
     }
+    
+    function rem_right($str, $charcount = 1)
+    {
+	return substr($str, 0, strlen($str)-$charcount);
+    }
 }
