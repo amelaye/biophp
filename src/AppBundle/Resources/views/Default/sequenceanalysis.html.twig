@@ -2,9 +2,9 @@
 
 {% for mirror_length, mirror_same_length in mirrors %}
     Of Length {{mirror_length}}
+    <ul>
     {% for key, mirror in mirror_same_length %}
-            <br /><br />
-            Mirror String: {{ mirror[0] }} - position Index: {{ mirror[1] }}
-            <br />
-    {% endfor %}  
+        <li>Mirror String: {{ mirror[0] }} - position Index: {{ mirror[1] }}</li>         
+    {% endfor %}
+    </ul>
 {% endfor %}    

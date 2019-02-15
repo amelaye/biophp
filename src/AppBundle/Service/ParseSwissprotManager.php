@@ -8,7 +8,7 @@
  */
 namespace AppBundle\Service;
 
-class ParseSwissProtManager
+class ParseSwissprotManager
 {
     private $accession;
     private $date_r;

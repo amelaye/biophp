@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
+use AppBundle\Entity\Database;
+use AppBundle\Service\DatabaseManager;
+
 
 class DemoController extends Controller
 {
@@ -23,7 +26,7 @@ class DemoController extends Controller
      */
     public function indexAction(Request $request)
     {
-        // Prévoir menu et sommaire
+        return $this->render('@App/Default/index.html.twig');
     }
     
     /**
@@ -42,5 +45,20 @@ class DemoController extends Controller
         return $this->render('@App/Default/sequenceanalysis.html.twig', 
                 array('mirrors' => $aMirrors)
         );
+    }
+    
+    /**
+     * Read a sequence from a database
+     * Generates .idx and .dir files
+     * @route("/read-sequence-genbank", name="read_sequence_genbank")
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function parseaseqdbAction(DatabaseManager $databaseManager)
+    {
+        $database = new Database("myfirstdb", "", "demo.seq"); // GENBANK
+        $databaseManager->setDatabase($database);
+        $databaseManager->buffering();
+        
+        return $this->render('@App/Default/parseseqdb.html.twig');
     }
 }

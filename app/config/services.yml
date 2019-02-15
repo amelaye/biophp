@@ -197,10 +197,16 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
+    AppBundle\Service\ParseGenbankManager:
+        arguments: []
+    
+    AppBundle\Service\ParseSwissprotManager:
+        arguments: []
+    
     AppBundle\Service\DatabaseManager:
         arguments:
             - '@AppBundle\Service\ParseGenbankManager'
-            - '@AppBundle\Service\ParseSwissProtManager'
+            - '@AppBundle\Service\ParseSwissprotManager'
 
     AppBundle\Service\ProteinManager:
         arguments: 
