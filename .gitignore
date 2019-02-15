@@ -16,3 +16,7 @@
 /vendor/
 /web/bundles/
 /nbproject/*
+*.dir
+*.idx
+*.seq
+*.db

@@ -6,12 +6,16 @@
  * Created 11 february 2019
  * Last modified 14 february 2019
  */
+namespace AppBundle\Entity;
+
 class Database {
 
     /**
      * @var string
      */
     private $dbname;
+    
+    private $datafile;
 
     /**
      * @var string
@@ -65,7 +69,6 @@ class Database {
      */
     function __construct()
     {
-        // Get all the arguments passed to this function.
         $args = func_get_args();
         $dbname = $args[0];
         $dbformat = strtoupper($args[1]);
@@ -79,59 +82,8 @@ class Database {
         for($i = 2; $i < count($args); $i++) {
             $datafile[] = $args[$i];
         }
-
-
-        /* db exists   fileX args   ACTION   TESTED
-            Y            Y        create   okay
-            Y            N        use
-            N            Y        create    okay
-            N            N        create    okay
-        */
-        // if user provided specific values for $file1, $file2, ... parameters.
-        if ((file_exists($dbname)) and (count($datafile) > 0)) {
-            // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
-            $this->open($dbname);
-        } else {
-            $fp = fopen($dbname . ".idx", "w+");
-            $fpdir = fopen($dbname . ".dir", "w+");
-
-            // Creates blank data and directory index files, and sets seqptr to 0, etc.
-            $this->open($dbname);
-
-            // if user did not provide any datafile name.
-            if (count($datafile) == 0) {
-                return;
-            }
-
-            $temp_r = array();
-            // Build our *.DIR file
-            foreach($datafile as $fileno=>$filename) {
-                $outline = "$fileno $filename\n";
-                fputs($fpdir, $outline);
-
-                // Automatically create an index file containing info across all data files.
-                $flines = file($filename);
-                $totlines = count($flines);
-
-                while(list($lineno, $linestr) = each($flines)) {
-                    if (at_entrystart($linestr, $dbformat)) {
-                        $current_id =  get_entryid($flines, $linestr, $dbformat);
-                        $outline = "$current_id $fileno $lineno\n";
-                        // Put entries in an array first, sort them, then write to *.IDX file.
-                        $temp_r[$current_id] = array($current_id, $fileno, $lineno);
-                    }
-                }
-                ksort($temp_r);
-            }
-            // Build our *.IDX array.
-            $this->seqcount = count($temp_r);
-            foreach($temp_r as $seqid => $line_r) {
-                $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n";
-                $fio = fputs($fp, $outline);
-            }
-        }
-        fclose($fp);
-        fclose($fpdir);
+        $this->datafile = $datafile;
+        $this->dbname   = $dbname;
     }
 
 
@@ -142,6 +94,15 @@ class Database {
     public function setDbname($dbname)
     {
         $this->dbname = $dbname;
+    }
+    
+    public function getDatafile()
+    {
+        return $this->datafile;
+    }
+    public function setDatafile($datafile)
+    {
+        $this->datafile = $datafile;
     }
     
     public function getDataFn()
