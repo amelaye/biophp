@@ -199,7 +199,8 @@ services:
 
     AppBundle\Service\DatabaseManager:
         arguments:
-            - '@AppBundle\Entity\Database'
+            - '@AppBundle\Service\ParseGenbankManager'
+            - '@AppBundle\Service\ParseSwissProtManager'
 
     AppBundle\Service\ProteinManager:
         arguments: 
