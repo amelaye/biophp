@@ -67,21 +67,9 @@ class Database {
      * 
      * @return type
      */
-    function __construct()
+    function __construct($dbname, $dbformat, $datafile)
     {
-        $args = func_get_args();
-        $dbname = $args[0];
-        $dbformat = strtoupper($args[1]);
-
-        if (strlen($dbformat) == 0) {
-            $dbformat = "GENBANK";
-        }
         $this->dbformat = $dbformat;
-
-        $datafile = array();
-        for($i = 2; $i < count($args); $i++) {
-            $datafile[] = $args[$i];
-        }
         $this->datafile = $datafile;
         $this->dbname   = $dbname;
     }
