@@ -87,55 +87,5 @@ trait SwissprotTrait {
     }
 
 
-    /**
-     * Searches for a particular sequence id ($seqid) within an *.IDX file
-     * (identified by $fp file pointer), and returns data located in its $col-th column.
-     * @param type $fp
-     * @param type $col
-     * @param type $seqid
-     * @return boolean
-     */
-    public function bsrch_tabfile($fp, $col, $seqid)
-    {
-        $linectr = 0;
-        fseek($fp, 0);
-        while(!feof($fp)) {
-            fgets($fp, 41);
-            $linectr++;
-        }
-        $lastline = $linectr;
-        rewind($fp);
-
-        if (!$fp) {
-            throw new \Exception("CANT OPEN FILE");
-        }
-
-        $searchspace = $lastline;
-        $floor = 0;
-        $ceiling = $lastline - 1;
-
-        while(1) {
-            $offset = ((int) ($searchspace/2));
-            $lineno = $floor + $offset;
-
-            fseekline($fp, $lineno);
-            $word = preg_split("/\s+/", trim(fgets($fp,81)));
-            if ($word[$col] == $seqid) {
-                $word[] = $lineno;
-                return $word;
-            } elseif ($seqid > $word[$col]) {
-                $floor = $lineno + 1;
-                $searchspace = $ceiling - $floor + 1;
-                if ($searchspace <= 0) {
-                    return FALSE;
-                }
-            } else {
-                $ceiling = $lineno - 1;
-                $searchspace = $ceiling - $floor + 1;
-                if ($searchspace <= 0) {
-                    return FALSE;
-                }
-            }
-        }
-    }
+    
 } 

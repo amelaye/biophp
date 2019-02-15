@@ -1,4 +1,12 @@
 <?php
+/**
+ * Swissprot database parsing
+ * @author Amélie DUVERNET akka Amelaye
+ * Freely inspired by BioPHP's project biophp.org
+ * Created 15 february 2019
+ * Last modified 15 february 2019
+ */
+namespace AppBundle\Service;
 
 class ParseSwissProtManager
 {

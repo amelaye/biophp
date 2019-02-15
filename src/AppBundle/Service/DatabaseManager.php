@@ -4,23 +4,30 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
+ * Last modified 15 february 2019
  */
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Database;
 use AppBundle\Entity\Sequence;
-use AppBundle\Traits\FormatsTrait;
+use AppBundle\Service\ParseGenbankManager;
+use AppBundle\Service\ParseSwissprotManager;
 
 class DatabaseManager
 {
-
     private $database;
+    private $swissprot;
+    private $genbank;
 
-
-    public function __construct(Database $database) {
-        $this->database = $database;
+    public function __construct(ParseGenbankManager $oGenbank, ParseSwissprotManager $oSwissprot) {
+        $this->genbank      = $oGenbank;
+        $this->swissprot    = $oSwissprot;
     }
+    
+    public function setDatabase($database)
+    {
+        $this->database     = $database;
+    }
+    
     /**
      * We need the functions bof() and eof() to determine if we've reached the end of
      * file or not.
@@ -75,7 +82,6 @@ class DatabaseManager
      * Retrieves all data from the specified sequence record and returns them in the 
      * form of a Seq object.  This method invokes one of several parser methods.
      * @return      Sequence    $oMySequence
-     * @todo Dependency injection for seqdb : bsrch_tabfile
      */
     public function fetch()
     {
@@ -89,7 +95,7 @@ class DatabaseManager
         $fpdir = fopen($this->database->getDirFn(), "r");
 
         if ($seqid) {
-            $idx_r = bsrch_tabfile($fp, 0, $seqid);
+            $idx_r = $this->bsrch_tabfile($fp, 0, $seqid);
             if (!$idx_r) {
                 return false;
             } else {
@@ -100,15 +106,15 @@ class DatabaseManager
             fseekline($fp, $this->database->getSeqptr());
             $idx_r = preg_split("/\s+/", trim(fgets($fp, 81)));
         }
-        $dir_r = bsrch_tabfile($fpdir, 0, $idx_r[1]);
+        $dir_r = $this->bsrch_tabfile($fpdir, 0, $idx_r[1]);
         $fpseq = fopen($dir_r[1], "r");
         fseekline($fpseq, $idx_r[2]);
         $flines = line2r($fpseq);
 
         if ($this->databse->getDbformat() == "GENBANK") {
-            $oMySequence = $this->parse_id($flines);
+            $oMySequence = $this->genbank->parse_id($flines);
         } elseif ($this->databse->getDbformat() == "SWISSPROT") {
-            $oMySequence = $this->parse_swissprot($flines);
+            $oMySequence = $this->swissprot->parse_swissprot($flines);
         }
 
         fclose($fp);
@@ -151,5 +157,57 @@ class DatabaseManager
         $this->database->setDataFn("");
         $this->database->setDirFn("");
         $this->database->setSeqptr(-1);
+    }
+    
+    /**
+     * Searches for a particular sequence id ($seqid) within an *.IDX file
+     * (identified by $fp file pointer), and returns data located in its $col-th column.
+     * @param type $fp
+     * @param type $col
+     * @param type $seqid
+     * @return boolean
+     */
+    private function bsrch_tabfile($fp, $col, $seqid)
+    {
+        $linectr = 0;
+        fseek($fp, 0);
+        while(!feof($fp)) {
+            fgets($fp, 41);
+            $linectr++;
+        }
+        $lastline = $linectr;
+        rewind($fp);
+
+        if (!$fp) {
+            throw new \Exception("CANT OPEN FILE");
+        }
+
+        $searchspace = $lastline;
+        $floor = 0;
+        $ceiling = $lastline - 1;
+
+        while(1) {
+            $offset = ((int) ($searchspace/2));
+            $lineno = $floor + $offset;
+
+            fseekline($fp, $lineno);
+            $word = preg_split("/\s+/", trim(fgets($fp,81)));
+            if ($word[$col] == $seqid) {
+                $word[] = $lineno;
+                return $word;
+            } elseif ($seqid > $word[$col]) {
+                $floor = $lineno + 1;
+                $searchspace = $ceiling - $floor + 1;
+                if ($searchspace <= 0) {
+                    return FALSE;
+                }
+            } else {
+                $ceiling = $lineno - 1;
+                $searchspace = $ceiling - $floor + 1;
+                if ($searchspace <= 0) {
+                    return false;
+                }
+            }
+        }
     }
 } 
