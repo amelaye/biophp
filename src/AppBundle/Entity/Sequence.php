@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Protein Managing
+ * @author Amélie DUVERNET akka Amelaye
+ * Inspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 namespace AppBundle\Entity;
 
 class Sequence
@@ -91,6 +97,11 @@ class Sequence
      * @var array
      */
     private $swissprot;
+    
+    
+    /*****************************
+     *****  GETTERS / SETTERS ****
+     *****************************/
 
     public function getId()
     {

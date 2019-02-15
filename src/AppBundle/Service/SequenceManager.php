@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Sequences Managing
+ * @author Amélie DUVERNET akka Amelaye
+ * Inspired by BioPHP's project biophp.org
+ * Created 11 february 2019
+ * Last modified 14 february 2019
+ */
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequence;
@@ -14,16 +20,27 @@ class SequenceManager
     private $aCodons;
     private $sequence;
     
-    
+    /**
+     * Constructor
+     * @param type $aDnaComplements
+     * @param type $aRnaComplements
+     * @param type $aElements
+     * @param type $aChemicalGroups
+     * @param type $aCodons
+     */
     public function __construct($aDnaComplements, $aRnaComplements, $aElements, $aChemicalGroups, $aCodons)
     {
-        $this->aDnaComplements = $aDnaComplements;
-        $this->aRnaComplements = $aRnaComplements;
-        $this->aElements = $aElements;
-        $this->aChemicalGroups = $aChemicalGroups;
-        $this->aCodons = $aCodons;
+        $this->aDnaComplements  = $aDnaComplements;
+        $this->aRnaComplements  = $aRnaComplements;
+        $this->aElements        = $aElements;
+        $this->aChemicalGroups  = $aChemicalGroups;
+        $this->aCodons          = $aCodons;
     }
     
+    /**
+     * Injection Sequence
+     * @param Sequence $oSequence
+     */
     public function setSequence($oSequence)
     {
         $this->sequence = $oSequence;
@@ -183,8 +200,8 @@ class SequenceManager
         $all_na_wts = array("DNA" => $dna_wts, "RNA" => $rna_wts);
         $na_wts = $all_na_wts[$this->sequence->getMoltype()];
 
-        $weight_lower_bound += $water;
-        $weight_upper_bound += $water;
+        $weight_lower_bound += $this->aElements["water"];
+        $weight_upper_bound += $this->aElements["water"];
 
         $mwt = array(0, 0);
         $NA_len = $this->seqlen();
