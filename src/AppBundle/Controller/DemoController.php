@@ -55,9 +55,10 @@ class DemoController extends Controller
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
-        $database = new Database("myfirstdb", "", "demo.seq"); // GENBANK
+        $database = new Database("myfirstdb", "GENBANK", "demo.seq"); // GENBANK
         $databaseManager->setDatabase($database);
-        $databaseManager->buffering();
+        $databaseManager->buffering(); // Creates the .IDX and .DIR
+        $databaseManager->fetch("AF177870");
         
         return $this->render('@App/Default/parseseqdb.html.twig');
     }
