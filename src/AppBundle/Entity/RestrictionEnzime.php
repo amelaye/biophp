@@ -14,21 +14,19 @@ class RestrictionEnzime
     private $pattern;
     private $cutpos;
     private $length;
+    private $aRestEnzimDB;
     
     /**
      * Constructor method for the RestEn class.  It creates a new
      * RestEn object and initializes its properties accordingly.
      * RestEn() behavior:
-     * If passed with make = 'custom', object will be added to RestEn_DB.
-     * If not, the function will attemp to retrieve data from RestEn_DB.
+     * If passed with make = 'custom', object will be added to aRestEnzimDB.
+     * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
-     * @global type $RestEn_DB
      * @param type $args
      */
     public function __constructor($args)
     {
-        global $RestEn_DB;
-
         $arguments = parse_args($args);
 
         if ($arguments["make"] == "custom") {
@@ -40,12 +38,12 @@ class RestrictionEnzime
             $inner = array();
             $inner[] = $arguments["pattern"];
             $inner[] = $arguments["cutpos"];
-            $RestEn_DB[$this->name] = $inner;
+            $this->aRestEnzimDB[$this->name] = $inner;
         } else {
-            // Look for given endonuclease in the RestEn_DB array.
+            // Look for given endonuclease in the aRestEnzimDB array.
             $this->name = $arguments["name"];
             $temp = $this->GetPattern($this->name);
-            if ($temp == FALSE) {
+            if (!$temp) {
                 throw new \Exception("Cannot find entry in restriction endonuclease database.");
             } else {
                 $this->pattern = $temp;
@@ -89,6 +87,15 @@ class RestrictionEnzime
     public function setLength($length)
     {
         $this->length = $length;
+    }
+    
+    public function getRestEnzimDB()
+    {
+        return $this->aRestEnzimDB;
+    }
+    public function setRestEnzimDB($aRestEnzimDB)
+    {
+        $this->aRestEnzimDB = $aRestEnzimDB;
     }
 }
 

@@ -14,9 +14,11 @@ use AppBundle\Entity\RestrictionEnzime;
 class RestrictionEnzimeManager
 {
     private $resten;
+    private $aRestEnzimDB;
     
     public function __construct(RestrictionEnzime $oRestEn) {
         $this->resten = $oRestEn;
+        $this->aRestEnzimDB = $oRestEn->getRestEnzimDB();
     }
     
     /**
@@ -80,44 +82,37 @@ class RestrictionEnzimeManager
 
     /**
      * returns the pattern associated with a given restriction endonuclease.
-     * @global \AppBundle\Services\type $RestEn_DB
      * @param type $RestEn_Name
      * @return \AppBundle\Services\type
      */
     public function GetPattern($RestEn_Name)
     {
-        global $RestEn_DB;
-        return $RestEn_DB[$RestEn_Name][0];
+        return $this->aRestEnzimDB[$RestEn_Name][0];
     }
 
 
     /**
      * Returns the cutting position of the restriction enzyme object.
-     * @global \AppBundle\Services\type $RestEn_DB
      * @param type $RestEn_Name
      * @return \AppBundle\Services\type
      */
     public function GetCutPos($RestEn_Name)
     {
-        global $RestEn_DB;
-        return $RestEn_DB[$RestEn_Name][1];
+        return $this->aRestEnzimDB[$RestEn_Name][1];
     }
 
 
     /**
      * Returns the length of the cutting pattern of the restriction enzyme object.
-     * @global \AppBundle\Services\type $RestEn_DB
      * @param type $RestEn_Name
      * @return type
      */
     public function GetLength($RestEn_Name = "")
     {
-        global $RestEn_DB;
-
         if ($RestEn_Name == "") {
             return strlen($this->resten->getPattern());
         } else {
-            return strlen($RestEn_DB[$RestEn_Name][0]);
+            return strlen($this->aRestEnzimDB[$RestEn_Name][0]);
         }
     }
 
@@ -125,7 +120,6 @@ class RestrictionEnzimeManager
     /**
      * Flexible method for searching the Restriction Enzyme database 
      * for entries meeting complex criteria.  It returns an array of RestEn objects.
-     * @global \AppBundle\Services\type $RestEn_DB
      * @param type $pattern
      * @param type $cutpos
      * @param type $plen
@@ -133,15 +127,13 @@ class RestrictionEnzimeManager
      */
     public function FindRestEn($pattern = "", $cutpos = "", $plen = "")
     {
-        global $RestEn_DB;
-
         // 5 Cases: pattern only, cutpos only, patternlength only
         //          pattern and cutpos, cutpos and patternlength
         $RestEn_List = [];
 
         // Case 1: Pattern only
         if (($pattern != "") && ($cutpos == "") && ($plen == "")) {
-            foreach($RestEn_DB as $key => $value) {
+            foreach($this->aRestEnzimDB as $key => $value) {
                 if ($value[0] == $pattern) {
                     $RestEn_List[] = $key;
                 }
@@ -155,35 +147,35 @@ class RestrictionEnzimeManager
             $first2chars = substr($cutpos, 0, 2);
             if (is_string($cutpos)) {
             if (preg_match("/^<\d+$/", $cutpos)) {
-                    foreach($RestEn_DB as $key => $value) {
+                    foreach($this->aRestEnzimDB as $key => $value) {
                         if ($value[1] < (int) substr($cutpos,1)) {
                             $RestEn_List[] = $key;
                         }
                     }
                     return $RestEn_List;
                 } elseif (preg_match("/^>\d+$/", $cutpos)) {
-                    foreach($RestEn_DB as $key => $value) {
+                    foreach($this->aRestEnzimDB as $key => $value) {
                         if ($value[1] > (int) substr($cutpos,1)) {
                             $RestEn_List[] = $key;
                         }
                     }
                     return $RestEn_List;
                 } elseif (preg_match("/^>=\d+$/", $cutpos)) {
-                    foreach($RestEn_DB as $key => $value) {
+                    foreach($this->aRestEnzimDB as $key => $value) {
                         if ($value[1] >= (int) substr($cutpos,2)) {
                             $RestEn_List[] = $key;
                         }
                     }
                     return $RestEn_List;
                 } elseif (preg_match("/^<=\d+$/", $cutpos)) {
-                    foreach($RestEn_DB as $key => $value) {
+                    foreach($this->aRestEnzimDB as $key => $value) {
                         if ($value[1] <= (int) substr($cutpos,2)) {
                             $RestEn_List[] = $key;
                         }
                     }
                     return $RestEn_List;
                 } elseif (preg_match("/^=\d+$/", $cutpos)) {
-                    foreach($RestEn_DB as $key => $value) {
+                    foreach($this->aRestEnzimDB as $key => $value) {
                         if ($value[1] == substr($cutpos,1)) {
                             $RestEn_List[] = $key;
                         }
@@ -193,7 +185,7 @@ class RestrictionEnzimeManager
                     throw new \Exception("Malformed cutpos parameter.");
                 }
             } elseif (is_int($cutpos)) {
-                foreach($RestEn_DB as $key => $value)
+                foreach($this->aRestEnzimDB as $key => $value)
                     if ($value[1] == $cutpos) {
                         $RestEn_List[] = $key;
                     }
@@ -203,7 +195,7 @@ class RestrictionEnzimeManager
 
         // Case 3: Patternlength only
         if (($pattern == "") && ($cutpos == "") && ($plen != "")) {
-            foreach($RestEn_DB as $key => $value) {
+            foreach($this->aRestEnzimDB as $key => $value) {
                 if (strlen($value[0]) == $plen) {
                     $RestEn_List[] = $key;
                 }
@@ -213,7 +205,7 @@ class RestrictionEnzimeManager
 
         // Case 4: Pattern and cutpos only
         if (($pattern != "") && ($cutpos != "") && ($plen == "")) {
-            foreach($RestEn_DB as $key => $value) {
+            foreach($this->aRestEnzimDB as $key => $value) {
                 if (($value[0] == $pattern) && ($value[1] == $cutpos)) {
                     $RestEn_List[] = $key;
                 }
@@ -223,7 +215,7 @@ class RestrictionEnzimeManager
 
         // Case 5: Cutpos and plen only.
         if (($pattern == "") && ($cutpos != "") && ($plen != "")) {
-            foreach($RestEn_DB as $key => $value) {
+            foreach($this->aRestEnzimDB as $key => $value) {
                 if (($value[1] == $cutpos) && (strlen($value[0]) == $plen)) {
                     $RestEn_List[] = $key;
                 }
