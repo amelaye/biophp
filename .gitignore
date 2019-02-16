@@ -20,3 +20,7 @@
 *.idx
 *.seq
 *.db
+/.idea/*
+web/code-coverage/*
+*.DS_STORE*
+*.DS_Store*
