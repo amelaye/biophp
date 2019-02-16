@@ -55,7 +55,7 @@
                 destdir="${project.basedir}/build/api"
                 sourcecode="false"
                 output="HTML:Smarty:PHP">
-            <fileset dir="${project.basedir}/${source}/www">
+            <fileset dir="${project.basedir}/${source}">
                 <include name="**/*.php"/>
             </fileset>
             <projdocfileset dir=".">
