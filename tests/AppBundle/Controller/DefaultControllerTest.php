@@ -16,7 +16,14 @@ class DemoControllerTest extends WebTestCase
     public function testSequenceanalysis()
     {
         $client = static::createClient();
-        $client->request('GET', '/');
+        $client->request('GET', '/sequence-analysis');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function testParseaseqdb()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/read-sequence-genbank');
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 }

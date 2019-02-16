@@ -31,7 +31,6 @@ class DatabaseManager
         $this->byteoff      = 0;
     }
 
-
     /**
      * Setting the database into the service
      * @param Database $database
