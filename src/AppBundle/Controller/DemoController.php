@@ -40,18 +40,18 @@ class DemoController extends Controller
         $sequenceManager->setSequence($oSequence);
         
         $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
-        dump($aMirrors);
         
         return $this->render('@App/Default/sequenceanalysis.html.twig', 
                 array('mirrors' => $aMirrors)
         );
     }
-    
+
     /**
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-genbank", name="read_sequence_genbank")
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
@@ -59,7 +59,7 @@ class DemoController extends Controller
         $databaseManager->setDatabase($database);
         $databaseManager->buffering(); // Creates the .IDX and .DIR
         $databaseManager->fetch("AF177870");
-        
+
         return $this->render('@App/Default/parseseqdb.html.twig');
     }
 }
