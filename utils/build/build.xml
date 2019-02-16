@@ -25,6 +25,7 @@
         <!--<phingcall target="phpmd" />-->
         <phingcall target="phpunit" />
         <phingcall target="phpmetrics" />
+        <phingcall target="phpdoc" />
     </target>
 
     <target name="phpmetrics">
@@ -47,6 +48,22 @@
         <phpmd file="${project.basedir}/${source}/www">
             <formatter type="xml" outfile="${project.basedir}/build/phpmd.xml" />
         </phpmd>
+    </target>
+
+    <target name="phpdoc">
+        <phpdoc title="API Documentation"
+                destdir="${project.basedir}/build/api"
+                sourcecode="false"
+                output="HTML:Smarty:PHP">
+            <fileset dir="${project.basedir}/${source}/www">
+                <include name="**/*.php"/>
+            </fileset>
+            <projdocfileset dir=".">
+                <include name="README"/>
+                <include name="INSTALL"/>
+                <include name="CHANGELOG"/>
+            </projdocfileset>
+        </phpdoc>
     </target>
 
 </project>
