@@ -52,8 +52,7 @@ class Database {
 
 
     /**
-     * 
-     * SeqDB() is the constructor method for the SeqDB class.  It does many things like create
+     * Constructor method for the SeqDB class.  It does many things like create
      * and/or read a database's index files, initialize certain SeqDB properties, etc.
      * Syntax: $seqdb = new seqdb($dbname, $dbformat, $file1, $file2, ...);
      * Behavior: if $dbname exists and user gave no specific values for $file1, $file2,
@@ -65,7 +64,7 @@ class Database {
      * We provide the create() method to explicitly create a new database.
      * We provide the use() or open() method to explicitly use an existing database.
      * 
-     * @return type
+     * @return void
      */
     function __construct($dbname, $dbformat, $datafile)
     {

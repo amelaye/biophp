@@ -10,10 +10,23 @@ namespace AppBundle\Entity;
 
 class Protein
 {
+    /**
+     * @var string
+     */
     private $id;
+
+    /**
+     * @var string
+     */
     private $name;
+
+    /**
+     * @var array
+     */
     private $sequence;
-    
+
+
+
     public function getId()
     {
         return $this->id;

@@ -24,6 +24,7 @@ class RestrictionEnzime
      * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
      * @param type $args
+     * @throws \Exception
      */
     public function __constructor($args)
     {
