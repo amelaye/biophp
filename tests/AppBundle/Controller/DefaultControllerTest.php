@@ -12,4 +12,11 @@ class DemoControllerTest extends WebTestCase
         $client->request('GET', '/');
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
+
+    public function testSequenceanalysis()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    }
 }

@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 15 february 2019
+ * Last modified 16 february 2019
  */
 namespace AppBundle\Service;
 
@@ -101,7 +101,9 @@ class DatabaseManager
      * Retrieves all data from the specified sequence record and returns them in the 
      * form of a Seq object.
      * This method invokes one of several parser methods.
+     * @param       string      $seqid
      * @return      Sequence    $oMySequence
+     * @throws      \Exception
      */
     public function fetch($seqid)
     {
@@ -137,8 +139,8 @@ class DatabaseManager
 
     /**
      * Creates .dir and .idx files
-     * @return type
-     * @throws Exception
+     * @return bool
+     * @throws \Exception
      * @todo buffer more than 1 DB in the files
      */
     public function buffering()
@@ -191,7 +193,8 @@ class DatabaseManager
 
     /**
      * Opens or prepares the SeqDB for processing.  Opposite of close().
-     * @param type $dbname
+     * @param  type $dbname
+     * @throws \Exception
      */
     public function open($dbname)
     {
@@ -297,7 +300,7 @@ class DatabaseManager
      * @param   string $linestr
      * @param   string $dbformat
      * @return  string
-     * @throws  Exception
+     * @throws  \Exception
      */
     private function checkFormat($linestr, $dbformat)
     {
@@ -308,8 +311,8 @@ class DatabaseManager
             } elseif ($dbformat == "SWISSPROT") {
                 return (substr($linestr,0,2) == "ID");
             } 
-        } catch (Exception $ex) {
-            throw new Exception($ex);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -342,7 +345,7 @@ class DatabaseManager
      * identified by $fp file pointer, while the line is identified by $lineno, which is zero-based.
      * @param   string $fp
      * @param   int $lineno
-     * @return  void
+     * @return  int
      */
     private function fseekline($fp, $lineno)
     {
