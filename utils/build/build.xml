@@ -24,6 +24,11 @@
     <target name="qa" description="Lance les outils d'analyse">
         <!--<phingcall target="phpmd" />-->
         <phingcall target="phpunit" />
+        <phingcall target="phpmetrics" />
+    </target>
+
+    <target name="phpmetrics">
+        <exec logoutput="true" command="phpmetrics --report-html='${project.basedir}/build/phpmetrics.html' ${project.basedir}/${source}" escape="false" />
     </target>
 
     <target name="pdepend">
