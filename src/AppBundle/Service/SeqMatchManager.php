@@ -15,11 +15,12 @@ class SeqMatchManager
     var $levdist;
 
     /**
-     * Computes the Hamming Distance between two strings or Seq objects 
+     * Computes the Hamming Distance between two strings or Seq objects
      * of equal length.  For more information, consult the technical reference.
      * @param type $seq1
      * @param type $seq2
      * @return int
+     * @throws \Exception
      */
     public function hamdist($seq1, $seq2)
     {
