@@ -120,13 +120,13 @@ class DatabaseManager
             if (!$idx_r) {
                 return false;
             } else {
-                $this->database->setSeqptr($idx_r[3]); // I got my id <3
+                $this->database->setSeqptr($idx_r[2]); // I got my id <3
             }
  
-            $dir_r = $this->getFileInDirWithIndex($this->database->getDirFn(), $idx_r[3]);
+            $dir_r = $this->getFileInDirWithIndex($this->database->getDirFn(), $idx_r[2]);
             $fpseq = fopen($dir_r, "r");
 
-            $this->fseekline($fpseq, $idx_r[2]);
+            $this->fseekline($fpseq, $idx_r[1]);
             $flines = $this->line2r($fpseq);
 
             $this->lauchParsing($flines);
@@ -147,7 +147,7 @@ class DatabaseManager
         try {
             $datafile = $this->database->getDatafile();
             if (count($datafile) == 0) {
-                throw new Exception("Database not specified !");
+                throw new \Exception("Database not specified !");
             }
 
             if (file_exists($this->database->getDbname())) {
@@ -165,11 +165,10 @@ class DatabaseManager
                 // Automatically create an index file containing info across all data files.
                 $flines = file($datafile);
                 $dbformat = $this->database->getDbformat();
-                    
-                while(list($lineno, $linestr) = each($flines)) {
+
+                foreach($flines as $lineno => $linestr) {
                     if ($this->checkFormat($linestr, $dbformat)) {
                         $current_id = $this->get_entryid($flines, $linestr, $dbformat);
-                        $outline = "$current_id 0 $lineno\n";
                         $temp_r[$current_id] = array($current_id, 0, $lineno);
                     }
                 }
@@ -177,15 +176,15 @@ class DatabaseManager
                 // Build our *.idx array.
                 $this->database->setSeqcount(count($temp_r));
                 foreach($temp_r as $seqid => $line_r) {
-                    $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n";
+                    $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n"; // id + idfile + idline
                     fputs($fp, $outline);
                 }
             }
             fclose($fp);
             fclose($fpdir);
             return true;
-        } catch (Exception $ex) {
-            throw new Exception($ex);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -210,8 +209,8 @@ class DatabaseManager
             $this->database->setDataFn($dbname . ".idx");
             $this->database->setDirFn($dbname . ".dir");
             $this->database->setSeqptr(0);
-        } catch (Exception $ex) {
-            throw new Exception($ex);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -228,8 +227,8 @@ class DatabaseManager
             $this->database->setDataFn("");
             $this->database->setDirFn("");
             $this->database->setSeqptr(-1);
-        } catch (Exception $ex) {
-            throw new Exception($ex);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -237,17 +236,22 @@ class DatabaseManager
     /**
      * Lauches the sequencing
      * @param array $flines
+     * @throws \Exception
      */
     private function lauchParsing($flines)
     {
-        if ($this->database->getDbformat() == "GENBANK") {
-            //$oMySequence = $this->genbank->parse_id($flines);
-            dump("Pour le moment c'est cool !");
-        } elseif ($this->database->getDbformat() == "SWISSPROT") {
-            //$oMySequence = $this->swissprot->parse_swissprot($flines);
-            dump("Pour le moment c'est cool !");
+        try {
+            if ($this->database->getDbformat() == "GENBANK") {
+                //$oMySequence = new Sequence();
+                $oMySequence = $this->genbank->parse_id($flines);
+            } elseif ($this->database->getDbformat() == "SWISSPROT") {
+                //$oMySequence = $this->swissprot->parse_swissprot($flines);
+                dump("Pour le moment c'est cool !");
+            }
+            //return $oMySequence;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-        //return $oMySequence;
     }
 
 
@@ -256,16 +260,21 @@ class DatabaseManager
      * @param   string $file
      * @param   int $index
      * @return  string
+     * @throws \Exception
      */
     private function getFileInDirWithIndex($file, $index)
     {
-        $fichier = $file;
-        $tabfich = file($fichier);
-        foreach($tabfich as $ligne) {
-            $aLine = explode(" ",$ligne);
-            if($aLine[0] == $index) {
-                return rtrim($aLine[1], "\n");
+        try {
+            $fichier = $file;
+            $tabfich = file($fichier);
+            foreach($tabfich as $ligne) {
+                $aLine = explode(" ",$ligne);
+                if($aLine[0] == $index) {
+                    return rtrim($aLine[1], "\n");
+                }
             }
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -275,21 +284,26 @@ class DatabaseManager
      * @param   string $file
      * @param   string $searchfor
      * @return  array
+     * @throws \Exception
      */
     private function searchIdInIdx($file, $searchfor)
     {
-        $contents = file_get_contents($file);
-        $pattern = preg_quote($searchfor, '/');
-        $pattern = "/^.*$pattern.*\$/m";
-        if(preg_match_all($pattern, $contents, $matches)){
-            $results = [];
-            $aMatches = explode(" ", $matches[0][0]);
-            foreach($aMatches as $field) {
-                if($field != "") {
-                    $aResults[] = $field;
-                }     
+        try {
+            $contents = file_get_contents($file);
+            $pattern = preg_quote($searchfor, '/');
+            $pattern = "/^.*$pattern.*\$/m";
+            if(preg_match_all($pattern, $contents, $matches)){
+                $results = [];
+                $aMatches = explode(" ", $matches[0][0]);
+                foreach($aMatches as $field) {
+                    if($field != "") {
+                        $aResults[] = $field;
+                    }
+                }
+                return $aResults;
             }
-            return $aResults;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -323,18 +337,23 @@ class DatabaseManager
      * @param   string $linestr
      * @param   string $dbformat
      * @return  int
+     * @throws \Exception
      */
     private function get_entryid(&$flines, $linestr, $dbformat)
     {
-        if ($dbformat == "GENBANK") {
-            return trim(substr($linestr, 12, 16));
-        } elseif ($dbformat == "SWISSPROT") {
-            list($lineno, $linestr) = each($flines);
-            if (substr($linestr,0,2) == "AC") {
-                $words = preg_split("/;/", intrim(substr($linestr,5)));
-                prev($flines);
-                return $words[0];
+        try {
+            if ($dbformat == "GENBANK") {
+                return trim(substr($linestr, 12, 16));
+            } elseif ($dbformat == "SWISSPROT") {
+                list($lineno, $linestr) = each($flines);
+                if (substr($linestr,0,2) == "AC") {
+                    $words = preg_split("/;/", intrim(substr($linestr,5)));
+                    prev($flines);
+                    return $words[0];
+                }
             }
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -345,19 +364,24 @@ class DatabaseManager
      * @param   string $fp
      * @param   int $lineno
      * @return  int
+     * @throws \Exception
      */
     private function fseekline($fp, $lineno)
     {
-        $linectr = 0;
-        fseek($fp, 0);
-        while(!feof($fp)) {
-            $linestr = fgets($fp,101);
-            if ($linectr == $lineno) {
-                fseek($fp, $this->byteoff);
-                return $this->byteoff;
+        try {
+            $linectr = 0;
+            fseek($fp, 0);
+            while(!feof($fp)) {
+                $linestr = fgets($fp,101);
+                if ($linectr == $lineno) {
+                    fseek($fp, $this->byteoff);
+                    return $this->byteoff;
+                }
+                $linectr++;
+                $this->byteoff = ftell($fp);
             }
-            $linectr++;
-            $this->byteoff = ftell($fp);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -366,17 +390,22 @@ class DatabaseManager
      * Copies the lines belonging to a single sequence entry into an array.
      * @param   type $fpseq
      * @return  boolean
+     * @throws \Exception
      */
     private function line2r($fpseq)
     {
-        $flines = array();
-        while(1) {
-            $linestr = fgets($fpseq, 101);
-            $flines[] = $linestr;
-            if(substr($linestr, 0, 2) == '//') {
-                return $flines;
+        try {
+            $flines = array();
+            while(1) {
+                $linestr = fgets($fpseq, 101);
+                $flines[] = $linestr;
+                if(substr($linestr, 0, 2) == '//') {
+                    return $flines;
+                }
             }
+            return false;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-        return false;
     }
 } 
