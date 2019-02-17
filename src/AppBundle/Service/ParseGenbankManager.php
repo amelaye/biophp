@@ -8,7 +8,9 @@
  */
 namespace AppBundle\Service;
 
-class ParseGenbankManager 
+use AppBundle\Entity\Sequence;
+
+class ParseGenbankManager
 {
     private $seqarr;
     private $inseq_flag;
@@ -46,12 +48,15 @@ class ParseGenbankManager
      */
     public function parse_id($flines)
     {
-        while(list($lineno, $linestr) = each($flines)) {
+        dump("ouiii");
+        $oSequence = new Sequence();
+        //while(list($lineno, $linestr) = each($flines)) {
+        foreach($flines as $lineno => $linestr) {
             if (substr($linestr,0,5) == "LOCUS") {
-                $oSequence = $this->beginSequence($linestr);
+                $oSequence = $this->beginSequence($linestr, $oSequence);
             }
 
-            if (trim(substr($linestr,0,10)) == "BASE COUNT") {
+            /*if (trim(substr($linestr,0,10)) == "BASE COUNT") {
                 if (count($feat_r) > 0) {
                     $oSequence->setFeatures($feat_r);
                 }
@@ -292,7 +297,7 @@ class ParseGenbankManager
                     $this->inseq_flag = false;
                     break;
                 }
-            }
+            }*/
         }
         $oSequence->setSequence($this->seqarr);
         return $oSequence;
@@ -313,16 +318,22 @@ class ParseGenbankManager
         }
     }
     
-    private function beginSequence($linestr)
+    private function beginSequence($linestr, $oSequence)
     {
         $this->entry_ctr++;
         $this->ref_ctr = 0;
         $this->ref_array = array();
         $this->seqdata = ""; // This is the beginning of a SEQUENCE ENTRY.
 
-        $oSequence = new Sequence($linestr);
-        $oSequence->setId(trim(substr($linestr, 12, 16)));
-        $oSequence->setSeqlength(trim(substr($linestr, 29, 11)) * 1);
+        //$oSequence = new Sequence($linestr);
+        $iId = trim(substr($linestr, 12, 16));
+        $oSequence->setId($iId);
+        $length = trim(substr($linestr, 29, 11));
+        dump($length);exit();
+        $oSequence->setSeqlength() * 1;
+
+
+
         $this->tot_seqlength += $oSequence->getSeqlength();
 
         if ($oSequence->getSeqlength() > $this->maxlength) {
@@ -332,6 +343,7 @@ class ParseGenbankManager
             $this->minlength = $oSequence->getSeqlength();
         }
 
+/*
         $oSequence->setMoltype(substr($linestr, 47, 6));
 
         switch(substr($linestr, 44, 3)) {
@@ -350,7 +362,7 @@ class ParseGenbankManager
         $oSequence->setDivision(strtoupper(substr($linestr, 64, 3)));
         $oSequence->setDate(strtoupper(substr($linestr, 68, 11)));
 
-        $this->inseq_flag = true;
+        $this->inseq_flag = true;*/
         
         return $oSequence;
     }
