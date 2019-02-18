@@ -25,7 +25,10 @@ class ParseGenbankManager
     private $tot_seqlength;
     private $seqdata;
     private $aLines;
-        
+
+    /**
+     * ParseGenbankManager constructor.
+     */
     public function __construct()
     {
         $this->seqarr         = [];
@@ -54,6 +57,7 @@ class ParseGenbankManager
         $oSequence = new Sequence();
 
         $this->aLines = new \ArrayIterator($flines);
+
 
         foreach($this->aLines as $lineno => $linestr) {
 
@@ -94,8 +98,81 @@ class ParseGenbankManager
                 case "FEATURES":
 
                     break;
-                case "REFERENCES":
+                case "REFERENCE":
+                    $wordarray = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
+                    $ref_rec = array();
+                    $ref_rec["REFNO"] = $wordarray[0];
+                    array_shift($wordarray);
+                    $ref_rec["BASERANGE"] = implode(" ", $wordarray);
+
+                    $sAuthors   = "";
+                    $sTitle     = "";
+                    $sJournal   = "";
+                    $sMedline   = "";
+                    $sPubmed    = "";
+                    $sRemark    = "";
+                    $sComment   = "";
+
+                    $this->aLines->next();
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "AUTHORS") {
+                        $this->seekReferences($sAuthors);
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "CONSRTM") {
+                        $this->aLines->next();
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "TITLE") {
+                        $this->seekReferences($sTitle);
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "JOURNAL") {
+                        $this->seekReferences($sJournal);
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "MEDLINE") {
+                        $this->seekReferences($sMedline);
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
+                        $pubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+                        $sPubmed = trim($sPubmed." ".implode(" ", $pubmed));
+                        // If reference following, don't jump line
+                        if(trim(substr($flines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
+                            $this->aLines->next();
+                        }
+                    }
+
+                    if(trim(substr($this->aLines->current(),0,12)) == "REMARK") {
+                        while(1) {
+                            $remark = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+                            $sRemark = trim($sRemark." ".implode(" ", $remark));
+                            // If reference following, don't jump line
+                            if(trim(substr($flines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
+                                $this->aLines->next();
+                                $head = trim(substr($this->aLines->current(), 0, 12));
+                                if ($head != "") {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    $ref_rec["AUTHORS"] = $sAuthors;
+                    $ref_rec["TITLE"]   = $sTitle;
+                    $ref_rec["JOURNAL"] = $sJournal;
+                    $ref_rec["MEDLINE"] = $sMedline;
+                    $ref_rec["PUBMED"]  = $sPubmed;
+                    $ref_rec["REMARK"]  = $sRemark;
+                    $ref_rec["COMMENT"] = $sComment;
+
+                    array_push($this->ref_array, $ref_rec);
+                    $oSequence->setReference($this->ref_array);
                     break;
+
                 case "SOURCE":
                     $oSequence->setSource(trim(substr($linestr, 12)));
                     break;
@@ -105,6 +182,26 @@ class ParseGenbankManager
 
         dump($oSequence);
     }
+
+    /**
+     * Parse every multi-line fields from REFERENCES
+     * @param $sReferenceProperty
+     * @return string
+     */
+    private function seekReferences(&$sReferenceProperty)
+    {
+        while(1) {
+            $referencePropertyLine = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+            $sReferenceProperty = trim($sReferenceProperty." ".implode(" ", $referencePropertyLine));
+            $this->aLines->next();
+            $head = trim(substr($this->aLines->current(), 0, 12));
+            if ($head != "") {
+                break;
+            }
+        }
+        return $sReferenceProperty;
+    }
+
     /*public function parse_id($flines)
     {
         $oSequence = new Sequence();
@@ -220,61 +317,8 @@ class ParseGenbankManager
                         if ($subkey != $lastsubkey) {
                             $subkey_lnctr = 0;
                         }
-                        
-                        switch ($subkey) {
-                            case "AUTHORS":
-                                $subkey_lnctr++;
-                                $wordarray = preg_split("/\s+/", trim(substr($linestr,12)));
-                                // we remove comma at the end of a name, and the element "and".
-                                $newarray = array();
-                                foreach($wordarray as $authname) {
-                                    if (strtoupper($authname) != "AND") {
-                                        if (substr($authname, strlen($authname)-1, 1) == ",") {
-                                            $authname = substr($authname, 0, strlen($authname)-1);
-                                        }
-                                        $newarray[] = $authname;
-                                    }
-                                }
-                                $ref_rec["AUTHORS"] = ($subkey_lnctr == 1) ? $newarray : array_merge($ref_rec["AUTHORS"], $newarray);
-                                break;
-                            case "TITLE":
-                                $subkey_lnctr++;
-                                if ($subkey_lnctr == 1) {
-                                    $ref_rec["TITLE"] = trim(substr($linestr,12));
-                                } else {
-                                    $ref_rec["TITLE"] .= " " . trim(substr($linestr,12));
-                                }
-                                break;
-                            case "JOURNAL":
-                                $subkey_lnctr++;
-                                if ($subkey_lnctr == 1) {
-                                    $ref_rec["JOURNAL"] = trim(substr($linestr,12));
-                                } else {
-                                    $ref_rec["JOURNAL"] .= " " . trim(substr($linestr,12));
-                                }
-                                break;
-                            case "MEDLINE":
-                                $ref_rec["MEDLINE"] = substr($linestr, 12, 8);
-                                break;
-                            case "PUBMED":
-                                $ref_rec["PUBMED"] = substr($linestr, 12, 8);
-                                break;
-                            case "REMARK":
-                                $subkey_lnctr++;
-                                if ($subkey_lnctr == 1) {
-                                    $ref_rec["REMARK"] = trim(substr($linestr,12));
-                                }
-                                else $ref_rec["REMARK"] .= " " . trim(substr($linestr,12));
-                                break;
-                            case "COMMENT":
-                                $subkey_lnctr++;
-                                if ($subkey_lnctr == 1) {
-                                    $ref_rec["COMMENT"] = trim(substr($linestr,12));
-                                } else {
-                                    $ref_rec["COMMENT"] .= " " . trim(substr($linestr,12));
-                                }
-                                break;
-                        }
+
+
                         if ($subkey == "FEATURES") {
                             prev($flines);
                             break;
@@ -325,22 +369,6 @@ class ParseGenbankManager
         $oSequence->setSequence($this->seqarr);
         return $oSequence;
     }*/
-    
-    /**
-     * @note OK
-     * Tests if the file pointer is at a line containing a feature qualifier.
-     * This applies only to GenBank sequence files.
-     * @param type $str
-     * @return boolean
-     */
-    private function isa_qualifier($str)
-    {
-        if (substr($str, 0, 1) == '/') {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 
     /**
