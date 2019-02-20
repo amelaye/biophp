@@ -35,15 +35,13 @@ class ParseGenbankManager
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
-     * @param   type        $flines
+     * @param   type        $aFlines
      * @return  Sequence    $oSequence
      */
-    public function parse_id($flines)
+    public function parse_id($aFlines)
     {
         $oSequence = new Sequence();
-
-        $this->aLines = new \ArrayIterator($flines);
-
+        $this->aLines = new \ArrayIterator($aFlines);
 
         foreach($this->aLines as $lineno => $linestr) {
 
@@ -57,7 +55,7 @@ class ParseGenbankManager
                     $this->parseLocus($oSequence);
                     break;
                 case "DEFINITION":
-                    $this->parseDefinition($oSequence, $flines);
+                    $this->parseDefinition($oSequence, $aFlines);
                     break;
                 case "ORGANISM":
                     $oSequence->setOrganism(trim(substr($linestr,12)));
@@ -75,101 +73,21 @@ class ParseGenbankManager
                     $aFeatures = array();
                     while(1) {
                         // Verify next line
-                        $head = trim(substr($flines[$this->aLines->key()+1],0, 20));
-                        if($head != "" && ($head !="source" && $head !="gene" && $head !="exon" && $head !="CDS" && $head !="misc_feature")) {
+                        $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
+                        $aFields = ["source", "gene", "exon", "CDS", "misc_feature"];
+                        if($sHead != "" && !in_array($sHead, $aFields)) {
                             break;
                         }
                         $this->aLines->next();
-                        switch (trim(substr($this->aLines->current(), 0, 20))) {
-                            case "source":
-                                $this->parseFeatures($aFeatures, $flines, "source");
-                                break;
-                            case "gene":
-                                $this->parseFeatures($aFeatures, $flines, "gene");
-                                break;
-                            case "exon":
-                                $this->parseFeatures($aFeatures, $flines, "exon");
-                                break;
-                            case "CDS":
-                                $this->parseFeatures($aFeatures, $flines, "CDS");
-                                break;
-                            case "misc_feature":
-                                $this->parseFeatures($aFeatures, $flines, "misc_feature");
-                                break;
+                        $sHead = trim(substr($this->aLines->current(), 0, 20));
+                        if(in_array($sHead, $aFields)) {
+                            $this->parseFeatures($aFeatures, $aFlines, $sHead);
                         }
                     }
                     $oSequence->setFeatures($aFeatures);
                     break;
                 case "REFERENCE":
-                    $wordarray = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
-                    $ref_rec = array();
-                    $ref_rec["REFNO"] = $wordarray[0];
-                    array_shift($wordarray);
-                    $ref_rec["BASERANGE"] = implode(" ", $wordarray);
-
-                    $sAuthors   = "";
-                    $sTitle     = "";
-                    $sJournal   = "";
-                    $sMedline   = "";
-                    $sPubmed    = "";
-                    $sRemark    = "";
-                    $sComment   = "";
-
-                    $this->aLines->next();
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "AUTHORS") {
-                        $this->seekReferences($sAuthors);
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "CONSRTM") {
-                        $this->aLines->next();
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "TITLE") {
-                        $this->seekReferences($sTitle);
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "JOURNAL") {
-                        $this->seekReferences($sJournal);
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "MEDLINE") {
-                        $this->seekReferences($sMedline);
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
-                        $pubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
-                        $sPubmed = trim($sPubmed." ".implode(" ", $pubmed));
-                        // If reference following, don't jump line
-                        if(trim(substr($flines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
-                            $this->aLines->next();
-                        }
-                    }
-
-                    if(trim(substr($this->aLines->current(),0,12)) == "REMARK") {
-                        while(1) {
-                            $remark = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
-                            $sRemark = trim($sRemark." ".implode(" ", $remark));
-                            // If reference following, don't jump line
-                            if(trim(substr($flines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
-                                $this->aLines->next();
-                                $head = trim(substr($this->aLines->current(), 0, 12));
-                                if ($head != "") {
-                                    break;
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-
-                    $ref_rec["AUTHORS"] = $sAuthors;
-                    $ref_rec["TITLE"]   = $sTitle;
-                    $ref_rec["JOURNAL"] = $sJournal;
-                    $ref_rec["MEDLINE"] = $sMedline;
-                    $ref_rec["PUBMED"]  = $sPubmed;
-                    $ref_rec["REMARK"]  = $sRemark;
-                    $ref_rec["COMMENT"] = $sComment;
+                    $ref_rec = $this->parseReferences($aFlines);
 
                     array_push($this->ref_array, $ref_rec);
                     $oSequence->setReference($this->ref_array);
@@ -183,6 +101,87 @@ class ParseGenbankManager
         }
 
         dump($oSequence);
+        return $oSequence;
+    }
+
+
+    /**
+     * @param   array $aFlines
+     * @return  array
+     */
+    private function parseReferences($aFlines)
+    {
+        $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
+        $aReferences = array();
+        $aReferences["REFNO"] = $aWords[0];
+        array_shift($aWords);
+        $aReferences["BASERANGE"] = implode(" ", $aWords);
+
+        $sAuthors   = "";
+        $sTitle     = "";
+        $sJournal   = "";
+        $sMedline   = "";
+        $sPubmed    = "";
+        $sRemark    = "";
+        $sComment   = "";
+
+        $this->aLines->next();
+
+        if(trim(substr($this->aLines->current(),0,12)) == "AUTHORS") {
+            $this->seekReferences($sAuthors);
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "CONSRTM") {
+            $this->aLines->next();
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "TITLE") {
+            $this->seekReferences($sTitle);
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "JOURNAL") {
+            $this->seekReferences($sJournal);
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "MEDLINE") {
+            $this->seekReferences($sMedline);
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
+            $aPubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+            $sPubmed = trim($sPubmed." ".implode(" ", $aPubmed));
+            // If reference following, don't jump line
+            if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
+                $this->aLines->next();
+            }
+        }
+
+        if(trim(substr($this->aLines->current(),0,12)) == "REMARK") {
+            while(1) {
+                $aRemark = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+                $sRemark = trim($sRemark." ".implode(" ", $aRemark));
+                // If reference following, don't jump line
+                if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
+                    $this->aLines->next();
+                    $sHead = trim(substr($this->aLines->current(), 0, 12));
+                    if ($sHead != "") {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        $aReferences["AUTHORS"] = $sAuthors;
+        $aReferences["TITLE"]   = $sTitle;
+        $aReferences["JOURNAL"] = $sJournal;
+        $aReferences["MEDLINE"] = $sMedline;
+        $aReferences["PUBMED"]  = $sPubmed;
+        $aReferences["REMARK"]  = $sRemark;
+        $aReferences["COMMENT"] = $sComment;
+
+        return $aReferences;
     }
 
     /**
@@ -242,10 +241,6 @@ class ParseGenbankManager
         $oSequence->setTopology(strtoupper(trim(substr($this->aLines->current(), 55, 8))));
         $oSequence->setDivision(strtoupper(trim(substr($this->aLines->current(), 64, 3))));
         $oSequence->setDate(strtoupper(trim(substr($this->aLines->current(), 68, 11))));
-
-        //$this->inseq_flag = true;
-        
-        return $oSequence;
     }
 
 
