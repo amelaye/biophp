@@ -38,17 +38,12 @@ class ParseGenbankManager
      * @param   type        $aFlines
      * @return  Sequence    $oSequence
      */
-    public function parse_id($aFlines)
+    public function parseSeqFile($aFlines)
     {
         $oSequence = new Sequence();
         $this->aLines = new \ArrayIterator($aFlines);
 
         foreach($this->aLines as $lineno => $linestr) {
-
-            if (substr($linestr,0,2) == "//") { // We are at the end ...
-                $oSequence->setSequence($this->seqdata);
-                break;
-            }
 
             switch(trim(substr($this->aLines->current(),0,12))) {
                 case "LOCUS":
@@ -92,11 +87,23 @@ class ParseGenbankManager
                     array_push($this->ref_array, $ref_rec);
                     $oSequence->setReference($this->ref_array);
                     break;
-
                 case "SOURCE":
                     $oSequence->setSource(trim(substr($linestr, 12)));
                     break;
-
+                case "ORIGIN":
+                    $aSequence = array();
+                    while(1) {
+                        $this->aLines->next();
+                        $key = trim(substr($this->aLines->current(), 0, 9));
+                        $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),9)));
+                        $aSequence[$key] = $aWords;
+                        $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
+                        if($sHead == '//') {
+                            break;
+                        }
+                    }
+                    $oSequence->setSequence($aSequence);
+                    break;
             }
         }
 
