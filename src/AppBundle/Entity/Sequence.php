@@ -76,6 +76,10 @@ class Sequence
     private $source;
 
     private $organism;
+
+    /**
+     * @var array
+     */
     private $sequence;
 
     /**

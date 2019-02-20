@@ -243,7 +243,7 @@ class DatabaseManager
         try {
             if ($this->database->getDbformat() == "GENBANK") {
                 //$oMySequence = new Sequence();
-                $oMySequence = $this->genbank->parse_id($flines);
+                $oMySequence = $this->genbank->parseSeqFile($flines);
             } elseif ($this->database->getDbformat() == "SWISSPROT") {
                 //$oMySequence = $this->swissprot->parse_swissprot($flines);
                 dump("Pour le moment c'est cool !");
