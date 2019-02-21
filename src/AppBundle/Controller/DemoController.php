@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
+ * Last modified 21 february 2019
  */
 namespace AppBundle\Controller;
 
@@ -44,7 +44,7 @@ class DemoController extends Controller
         $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
         
         return $this->render('@App/demo/sequenceanalysis.html.twig',
-                array('mirrors' => $aMirrors)
+            array('mirrors' => $aMirrors)
         );
     }
 
@@ -62,7 +62,9 @@ class DemoController extends Controller
         $databaseManager->buffering(); // Creates the .IDX and .DIR
         $oSequence = $databaseManager->fetch("NM_031438");
 
-        return $this->render('@App/demo/parseseqdb.html.twig', ["sequence" => $oSequence]);
+        return $this->render('@App/demo/parseseqdb.html.twig',
+            ["sequence" => $oSequence]
+        );
     }
 
     /**
@@ -74,7 +76,7 @@ class DemoController extends Controller
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        $database = new Database("humandbBis", "SWISSPROT", "human.seq"); // SWISSPROT
+        $database = new Database("humandbBis", "SWISSPROT", "Q5K4E3.txt"); // SWISSPROT
         $databaseManager->setDatabase($database);
         $databaseManager->buffering(); // Creates the .IDX and .DIR
         //$databaseManager->fetch("NM_031438");
