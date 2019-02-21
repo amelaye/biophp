@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 15 february 2019
+ * Last modified 21 february 2019
  */
 namespace AppBundle\Service;
 
@@ -13,10 +13,6 @@ use AppBundle\Entity\Sequence;
 class ParseGenbankManager
 {
     private $ref_array;
-    private $maxlength;
-    private $minlength;
-    private $tot_seqlength;
-    private $seqdata;
     private $aLines;
 
 
@@ -26,10 +22,6 @@ class ParseGenbankManager
     public function __construct()
     {
         $this->ref_array      = [];
-        $this->maxlength      = 0;
-        $this->minlength      = 999999;
-        $this->tot_seqlength  = 0;
-        $this->seqdata        = "";
     }
 
 
@@ -41,7 +33,7 @@ class ParseGenbankManager
     public function parseSeqFile($aFlines)
     {
         $oSequence = new Sequence();
-        $this->aLines = new \ArrayIterator($aFlines);
+        $this->aLines = new \ArrayIterator($aFlines); // <3
 
         foreach($this->aLines as $lineno => $linestr) {
 
@@ -65,7 +57,7 @@ class ParseGenbankManager
                     $this->parseAccession($oSequence);
                     break;
                 case "FEATURES":
-                    $aFeatures = array();
+                    $aFeatures = [];
                     while(1) {
                         // Verify next line
                         $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
@@ -83,7 +75,6 @@ class ParseGenbankManager
                     break;
                 case "REFERENCE":
                     $ref_rec = $this->parseReferences($aFlines);
-
                     array_push($this->ref_array, $ref_rec);
                     $oSequence->setReference($this->ref_array);
                     break;
@@ -91,7 +82,7 @@ class ParseGenbankManager
                     $oSequence->setSource(trim(substr($linestr, 12)));
                     break;
                 case "ORIGIN":
-                    $aSequence = array();
+                    $aSequence = [];
                     while(1) {
                         $this->aLines->next();
                         $key = trim(substr($this->aLines->current(), 0, 9));
@@ -119,7 +110,7 @@ class ParseGenbankManager
     private function parseReferences($aFlines)
     {
         $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
-        $aReferences = array();
+        $aReferences = [];
         $aReferences["REFNO"] = $aWords[0];
         array_shift($aWords);
         $aReferences["BASERANGE"] = implode(" ", $aWords);
@@ -155,7 +146,7 @@ class ParseGenbankManager
         }
 
         if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
-            $aPubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
+            $aPubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12)));
             $sPubmed = trim($sPubmed." ".implode(" ", $aPubmed));
             // If reference following, don't jump line
             if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
@@ -165,8 +156,7 @@ class ParseGenbankManager
 
         if(trim(substr($this->aLines->current(),0,12)) == "REMARK") {
             while(1) {
-                $aRemark = preg_split("/\s+/", trim(substr($this->aLines->current(), 12))); // AUTHORS
-                $sRemark = trim($sRemark." ".implode(" ", $aRemark));
+                $sRemark .= " ".trim(substr($this->aLines->current(), 12));
                 // If reference following, don't jump line
                 if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
                     $this->aLines->next();
@@ -180,13 +170,13 @@ class ParseGenbankManager
             }
         }
 
-        $aReferences["AUTHORS"] = $sAuthors;
-        $aReferences["TITLE"]   = $sTitle;
-        $aReferences["JOURNAL"] = $sJournal;
-        $aReferences["MEDLINE"] = $sMedline;
-        $aReferences["PUBMED"]  = $sPubmed;
-        $aReferences["REMARK"]  = $sRemark;
-        $aReferences["COMMENT"] = $sComment;
+        $aReferences["AUTHORS"] = trim($sAuthors);
+        $aReferences["TITLE"]   = trim($sTitle);
+        $aReferences["JOURNAL"] = trim($sJournal);
+        $aReferences["MEDLINE"] = trim($sMedline);
+        $aReferences["PUBMED"]  = trim($sPubmed);
+        $aReferences["REMARK"]  = trim($sRemark);
+        $aReferences["COMMENT"] = trim($sComment);
 
         return $aReferences;
     }
@@ -199,8 +189,7 @@ class ParseGenbankManager
     private function seekReferences(&$sReferenceProperty)
     {
         while(1) {
-            $referencePropertyLine = preg_split("/\s+/", trim(substr($this->aLines->current(), 12)));
-            $sReferenceProperty = trim($sReferenceProperty." ".implode(" ", $referencePropertyLine));
+            $sReferenceProperty .= " ".trim(substr($this->aLines->current(), 12));
             $this->aLines->next();
             $head = trim(substr($this->aLines->current(), 0, 12));
             if ($head != "") {
@@ -220,16 +209,6 @@ class ParseGenbankManager
     {
         $oSequence->setId(trim(substr($this->aLines->current(), 12, 16)));
         $oSequence->setSeqlength(trim(substr($this->aLines->current(), 29, 11)) * 1);
-
-        $this->tot_seqlength += $oSequence->getSeqlength();
-
-        if ($oSequence->getSeqlength() > $this->maxlength) {
-            $this->maxlength = $oSequence->getSeqlength();
-        }
-        if ($oSequence->getSeqlength() < $this->minlength) {
-            $this->minlength = $oSequence->getSeqlength();
-        }
-
         $oSequence->setMoltype(trim(substr($this->aLines->current(), 47, 6)));
 
         switch(substr($this->aLines->current(), 44, 3)) {
@@ -323,20 +302,20 @@ class ParseGenbankManager
      */
     private function parseFeatures(&$aFeatures, $aFlines, $sField)
     {
-        $sKey = $sField ." ". implode(" ", preg_split("/\s+/", trim(substr($this->aLines->current(), 20))));
-        $aMyFeature = array();
+        $sKey = $sField ." ". trim(substr($this->aLines->current(), 20));
+        $aMyFeature = [];
         $this->aLines->next();
-        $sLine = implode(" ", preg_split("/\s+/", trim(substr($this->aLines->current(), 20))));
+        $sLine = trim(substr($this->aLines->current(), 20));
         while (1) {
             // If line begins with  /
             // Adding line in array
-            if(substr(trim($aFlines[$this->aLines->key()+1]), 0, 1) == "/") {
+            if(trim($aFlines[$this->aLines->key()+1])[0] == "/") {
                 $aMyFeature[] = $sLine;
                 $sLine = ""; // RAZ
             }
 
             $this->aLines->next();
-            $sLine .= " ".implode(" ", preg_split("/\s+/", trim(substr($this->aLines->current(), 20))));
+            $sLine .= " ".trim(substr($this->aLines->current(), 20));
 
             $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 12));
             if($sHead != "") { // Stop if we change feature

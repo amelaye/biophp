@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 16 february 2019
+ * Last modified 20 february 2019
  */
 namespace AppBundle\Service;
 
