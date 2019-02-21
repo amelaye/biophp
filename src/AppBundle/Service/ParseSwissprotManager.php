@@ -4,11 +4,14 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 15 february 2019
+ * Last modified 21 february 2019
  */
 namespace AppBundle\Service;
 
-class ParseSwissprotManager
+use AppBundle\Entity\Sequence;
+use AppBundle\Interfaces\ParseDatabaseInterface;
+
+class ParseSwissprotManager implements ParseDatabaseInterface
 {
     private $accession;
     private $date_r;
@@ -29,7 +32,12 @@ class ParseSwissprotManager
     private $ft_r;
     private $kw_str;
     private $kw_r;
-        
+
+    private $aLines;
+
+    /**
+     * ParseSwissprotManager constructor.
+     */
     public function __construct()
     {
         $this->accession  = [];
@@ -52,7 +60,19 @@ class ParseSwissprotManager
         $this->kw_str     = "";
         $this->kw_r       = [];
     }
-    
+
+    public function parseDataFile($aFlines)
+    {
+        $oSequence = new Sequence();
+        $this->aLines = new \ArrayIterator($aFlines); // <3
+
+        foreach($this->aLines as $lineno => $linestr) {
+            dump($this->aLines->current());
+        }
+
+        dump($oSequence);
+    }
+
     /**
      * Parses a Swissprot data file and returns a Seq object containing parsed data.
      * Parses the Feature Table lines (those that begin with FT) in a Swissprot

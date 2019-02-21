@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
@@ -23,15 +24,16 @@ class DemoController extends Controller
 {
     /**
      * @Route("/", name="homepage")
+     * @Method("GET")
      */
     public function indexAction(Request $request)
     {
-        return $this->render('@App/Default/index.html.twig');
+        return $this->render('@App/demo/index.html.twig');
     }
     
     /**
      * @route("/sequence-analysis", name="sequence_analysis")
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @Method("GET")
      */
     public function sequenceanalysisAction(SequenceManager $sequenceManager)
     {
@@ -41,7 +43,7 @@ class DemoController extends Controller
         
         $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
         
-        return $this->render('@App/Default/sequenceanalysis.html.twig', 
+        return $this->render('@App/demo/sequenceanalysis.html.twig',
                 array('mirrors' => $aMirrors)
         );
     }
@@ -50,7 +52,7 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-genbank", name="read_sequence_genbank")
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @Method("GET")
      * @throws \Exception
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
@@ -58,8 +60,25 @@ class DemoController extends Controller
         $database = new Database("humandb", "GENBANK", "human.seq"); // GENBANK
         $databaseManager->setDatabase($database);
         $databaseManager->buffering(); // Creates the .IDX and .DIR
-        $databaseManager->fetch("NM_031438");
+        $oSequence = $databaseManager->fetch("NM_031438");
 
-        return $this->render('@App/Default/parseseqdb.html.twig');
+        return $this->render('@App/demo/parseseqdb.html.twig', ["sequence" => $oSequence]);
+    }
+
+    /**
+     * Read a sequence from a database
+     * Generates .idx and .dir files
+     * @route("/read-sequence-swissprot", name="read_sequence_swissprot")
+     * @Method("GET")
+     * @throws \Exception
+     */
+    public function parseaswissprotdbAction(DatabaseManager $databaseManager)
+    {
+        $database = new Database("humandbBis", "SWISSPROT", "human.seq"); // SWISSPROT
+        $databaseManager->setDatabase($database);
+        $databaseManager->buffering(); // Creates the .IDX and .DIR
+        //$databaseManager->fetch("NM_031438");
+
+        return $this->render('@App/demo/parseswissprotdb.html.twig');
     }
 }
