@@ -129,7 +129,8 @@ class DatabaseManager
             $this->fseekline($fpseq, $idx_r[1]);
             $flines = $this->line2r($fpseq);
 
-            $this->lauchParsing($flines);
+            $oMysequence = $this->launchParsing($flines);
+            return $oMysequence;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -235,20 +236,19 @@ class DatabaseManager
 
     /**
      * Lauches the sequencing
-     * @param array $flines
-     * @throws \Exception
+     * @param   array       $flines
+     * @return  Sequence    $oSequence
+     * @throws  \Exception
      */
-    private function lauchParsing($flines)
+    private function launchParsing($flines)
     {
         try {
             if ($this->database->getDbformat() == "GENBANK") {
-                //$oMySequence = new Sequence();
-                $oMySequence = $this->genbank->parseSeqFile($flines);
+                $oMySequence = $this->genbank->parseDataFile($flines);
             } elseif ($this->database->getDbformat() == "SWISSPROT") {
-                //$oMySequence = $this->swissprot->parse_swissprot($flines);
-                dump("Pour le moment c'est cool !");
+                $oMySequence = $this->swissprot->parseDataFile($flines);
             }
-            //return $oMySequence;
+            return $oMySequence;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }

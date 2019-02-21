@@ -1,0 +1,10 @@
+{% extends '@App/base.html.twig' %}
+{% block body %}
+    <h1>Amelaye's BioPHP demo</h1>
+
+    <ul>
+        <li><a href="{{ url('sequence_analysis') }}">Sequence analysis : mirrors in a chain</a></li>
+        <li><a href="{{ url('read_sequence_genbank') }}">Opening a SEQ (genbank) database</a></li>
+        <li><a href="{{ url('read_sequence_swissprot') }}">Opening a Swissprot database</a></li>
+    </ul>
+{% endblock %}

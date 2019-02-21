@@ -10,97 +10,37 @@ namespace AppBundle\Entity;
 
 class Sequence
 {
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $strands;
-
-    /**
-     * @var string
-     */
-    private $moltype;
-
-    /**
-     * @var string
-     */
-    private $topology;
-
-    /**
-     * @var string
-     */
-    private $division;
-
-    /**
-     * @var date
-     */
-    private $date;
-
-    /**
-     * @var string
-     */
-    private $definition;
-
-    /**
-     * @var int
-     */
-    private $seqlength;
-    private $accession;
-
-    /**
-     * @var array
-     */
-    private $secAccession;
-    private $version;
+    private $sId;
+    private $sStrands;
+    private $sMoltype;
+    private $sTopology;
+    private $sDivision;
+    private $sDate;
+    private $sDefinition;
+    private $iSeqlength;
+    private $sAccession;
+    private $aSecAccession;
+    private $sVersion;
     private $ncbiGiId;
-
-    /**
-     * @var array
-     */
-    private $keywords;
-
-    /**
-     * @var int
-     */
-    private $segmentNo;
-
-    /**
-     * @var int
-     */
-    private $segmentCount;
+    private $aKeywords;
+    private $iSegmentNo;
+    private $iSegmentCount;
     private $segment;
-    private $source;
-
-    private $organism;
-
-    /**
-     * @var array
-     */
-    private $sequence;
-
-    /**
-     * @var array
-     */
-    private $reference;
-
-    /**
-     * @var array
-     */
-    private $features;
+    private $sSource;
+    private $sOrganism;
+    private $aSequence;
+    private $aReference;
+    private $aFeatures;
 
     // Used by SeqAlign class
-    private $start;
-    private $end;
+    private $iStart;
+    private $iEnd;
 
     /**
      * Used when DBFORMAT is "SWISSPROT"
      * @var array
      */
-    private $swissprot;
+    private $aSwissprot;
     
     
     /*****************************
@@ -109,101 +49,101 @@ class Sequence
 
     public function getId()
     {
-        return $this->id;
+        return $this->sId;
     }
-    public function setId($id)
+    public function setId($sId)
     {
-        $this->id = $id;
+        $this->sId = $sId;
     }
 
     public function getStrands()
     {
-        return $this->strands;
+        return $this->sStrands;
     }
-    public function setStrands($strands)
+    public function setStrands($sStrands)
     {
-        $this->strands = $strands;
+        $this->sStrands = $sStrands;
     }
 
     public function getMoltype()
     {
-        return $this->moltype;
+        return $this->sMoltype;
     }
-    public function setMoltype($moltype)
+    public function setMoltype($sMoltype)
     {
-        $this->moltype = $moltype;
+        $this->sMoltype = $sMoltype;
     }
 
     public function getTopology()
     {
-        return $this->topology;
+        return $this->sTopology;
     }
-    public function setTopology($topology)
+    public function setTopology($sTopology)
     {
-        $this->topology = $topology;
+        $this->sTopology = $sTopology;
     }
 
     public function getDivision()
     {
-        return $this->division;
+        return $this->sDivision;
     }
-    public function setDivision($division)
+    public function setDivision($sDivision)
     {
-        $this->division = $division;
+        $this->sDivision = $sDivision;
     }
 
     public function getDate()
     {
-        return $this->date;
+        return $this->sDate;
     }
-    public function setDate($date)
+    public function setDate($sDate)
     {
-        $this->date = $date;
+        $this->sDate = $sDate;
     }
 
     public function getDefinition()
     {
-        return $this->definition;
+        return $this->sDefinition;
     }
-    public function setDefinition($definition)
+    public function setDefinition($sDefinition)
     {
-        $this->definition = $definition;
+        $this->sDefinition = $sDefinition;
     }
 
     public function getSeqlength()
     {
-        return $this->seqlength;
+        return $this->iSeqlength;
     }
-    public function setSeqlength($seqlength)
+    public function setSeqlength($iSeqlength)
     {
-        $this->seqlength = $seqlength;
+        $this->iSeqlength = $iSeqlength;
     }
 
     public function getAccession()
     {
-        return $this->accession;
+        return $this->sAccession;
     }
-    public function setAccession($accession)
+    public function setAccession($sAccession)
     {
-        $this->accession = $accession;
+        $this->sAccession = $sAccession;
     }
 
     public function getSecAccession()
     {
-        return $this->secAccession;
+        return $this->aSecAccession;
     }
-    public function setSecAccession($secAccession)
+    public function setSecAccession($aSecAccession)
     {
-        $this->secAccession = $secAccession;
+        $this->aSecAccession = $aSecAccession;
     }
 
     public function getVersion()
     {
-        return $this->version;
+        return $this->sVersion;
     }
-    public function setVersion($version)
+    public function setVersion($sVersion)
     {
-        $this->version = $version;
+        $this->sVersion = $sVersion;
     }
 
     public function getNcbiGiId()
@@ -217,29 +157,29 @@ class Sequence
 
     public function getKeywords()
     {
-        return $this->keywords;
+        return $this->aKeywords;
     }
-    public function setKeywords($keywords)
+    public function setKeywords($aKeywords)
     {
-        $this->keywords = $keywords;
+        $this->aKeywords = $aKeywords;
     }
 
     public function getSegmentNo()
     {
-        return $this->segmentNo;
+        return $this->iSegmentNo;
     }
-    public function setSegmentNo($segmentNo)
+    public function setSegmentNo($iSegmentNo)
     {
-        $this->segmentNo = $segmentNo;
+        $this->iSegmentNo = $iSegmentNo;
     }
 
     public function getSegmentCount()
     {
-        return $this->segmentCount;
+        return $this->iSegmentCount;
     }
-    public function setSegmentCount($segmentCount)
+    public function setSegmentCount($iSegmentCount)
     {
-        $this->segmentCount = $segmentCount;
+        $this->iSegmentCount = $iSegmentCount;
     }
 
     public function getSegment()
@@ -253,73 +193,73 @@ class Sequence
 
     public function getSource()
     {
-        return $this->source;
+        return $this->sSource;
     }
-    public function setSource($source)
+    public function setSource($sSource)
     {
-        $this->source = $source;
+        $this->sSource = $sSource;
     }
 
     public function getOrganism()
     {
-        return $this->organism;
+        return $this->sOrganism;
     }
-    public function setOrganism($organism)
+    public function setOrganism($sOrganism)
     {
-        $this->organism = $organism;
+        $this->sOrganism = $sOrganism;
     }
 
     public function getSequence()
     {
-        return $this->sequence;
+        return $this->aSequence;
     }
-    public function setSequence($sequence)
+    public function setSequence($aSequence)
     {
-        $this->sequence = $sequence;
+        $this->aSequence = $aSequence;
     }
 
     public function getReference()
     {
-        return $this->reference;
+        return $this->aReference;
     }
-    public function setReference($reference)
+    public function setReference($aReference)
     {
-        $this->reference = $reference;
+        $this->aReference = $aReference;
     }
 
     public function getFeatures()
     {
-        return $this->features;
+        return $this->aFeatures;
     }
-    public function setFeatures($features)
+    public function setFeatures($aFeatures)
     {
-        $this->features = $features;
+        $this->aFeatures = $aFeatures;
     }
 
     public function getStart()
     {
-        return $this->start;
+        return $this->iStart;
     }
-    public function setStart($start)
+    public function setStart($iStart)
     {
-        $this->start = $start;
+        $this->iStart = $iStart;
     }
 
     public function getEnd()
     {
-        return $this->end;
+        return $this->iEnd;
     }
-    public function setEnd($end)
+    public function setEnd($iEnd)
     {
-        $this->end = $end;
+        $this->iEnd = $iEnd;
     }
 
     public function getSwissprot()
     {
-        return $this->swissprot;
+        return $this->aSwissprot;
     }
-    public function setSwissprot($swissprot)
+    public function setSwissprot($aSwissprot)
     {
-        $this->swissprot = $swissprot;
+        $this->aSwissprot = $aSwissprot;
     }
 }

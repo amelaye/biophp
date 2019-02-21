@@ -9,8 +9,9 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequence;
+use AppBundle\Interfaces\ParseDatabaseInterface;
 
-class ParseGenbankManager
+class ParseGenbankManager implements ParseDatabaseInterface
 {
     private $ref_array;
     private $aLines;
@@ -30,7 +31,7 @@ class ParseGenbankManager
      * @param   type        $aFlines
      * @return  Sequence    $oSequence
      */
-    public function parseSeqFile($aFlines)
+    public function parseDataFile($aFlines)
     {
         $oSequence = new Sequence();
         $this->aLines = new \ArrayIterator($aFlines); // <3
