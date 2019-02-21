@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 20 february 2019
+ * Last modified 21 february 2019
  */
 namespace AppBundle\Service;
 
@@ -19,6 +19,7 @@ class DatabaseManager
     private $swissprot;
     private $genbank;
     public  $byteoff;
+    private $aLines;
 
     /**
      * Constructor
@@ -31,6 +32,7 @@ class DatabaseManager
         $this->byteoff      = 0;
     }
 
+
     /**
      * Setting the database into the service
      * @param Database $database
@@ -38,61 +40,6 @@ class DatabaseManager
     public function setDatabase(Database $database)
     {
         $this->database     = $database;
-    }
-
-
-    /**
-     * We need the functions bof() and eof() to determine if we've reached the end of
-     * file or not.
-     * Two ways of doing this: 1) examine value of seqptr, or 2) maintain boolean variables eof and bof
-     * first() positions the sequence pointer (i.e. the seqptr property of a Seq object) to 
-     * the first sequence in a database (SeqDB object).
-     */
-    public function first()
-    {
-        $this->database->setSeqptr(0);
-    }
-
-
-    /**
-     * Positions the sequence pointer (i.e. the seqptr property of a Seq object) to 
-     * the last sequence in a database (SeqDB object).
-     */
-    public function last()
-    {
-        $this->database->setSeqptr($this->database->getSeqcount() - 1);
-    }
-
-
-    /**
-     * (short for previous) positions the sequence pointer (i.e. the seqptr property of
-     * a Seq object) to the sequence that comes before the current sequence.  
-     */
-    public function prev()
-    {
-        if($this->database->getSeqptr() > 0) {
-            $this->database->setSeqptr($this->database->getSeqptr()-1);
-        } else {
-            $this->database->setBof(true);
-        }
-    }
-
-
-    /**
-     * Positions the sequence pointer (i.e. the seqptr property of a Seq object) to the
-     * sequence that comes after the current sequence.
-     */
-    public function next()
-    {
-        try {
-            if($this->database->getSeqptr() < ($this->database->getSeqcount()-1)) {
-                $this->database->setSeqptr($this->database->getSeqptr()+1);
-            } else {
-                $this->database->setEof(true);
-            }
-        } catch (Exception $ex) {
-            throw new Exception($ex);
-        }
     }
 
 
@@ -167,22 +114,26 @@ class DatabaseManager
                 $flines = file($datafile);
                 $dbformat = $this->database->getDbformat();
 
-                foreach($flines as $lineno => $linestr) {
-                    if ($this->checkFormat($linestr, $dbformat)) {
-                        $current_id = $this->get_entryid($flines, $linestr, $dbformat);
+                $this->aLines = new \ArrayIterator($flines);
+
+                foreach($this->aLines as $lineno => $linestr) {
+                    if ($this->checkFormat($dbformat)) {
+                        $current_id = $this->get_entryid($dbformat);
                         $temp_r[$current_id] = array($current_id, 0, $lineno);
                     }
-                }
+                };
 
                 // Build our *.idx array.
-                $this->database->setSeqcount(count($temp_r));
+                $this->database->setSeqcount($this->aLines->count());
                 foreach($temp_r as $seqid => $line_r) {
                     $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n"; // id + idfile + idline
                     fputs($fp, $outline);
                 }
+
+                fclose($fp);
+                fclose($fpdir);
             }
-            fclose($fp);
-            fclose($fpdir);
+
             return true;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
@@ -293,7 +244,7 @@ class DatabaseManager
             $pattern = preg_quote($searchfor, '/');
             $pattern = "/^.*$pattern.*\$/m";
             if(preg_match_all($pattern, $contents, $matches)){
-                $results = [];
+                $aResults = [];
                 $aMatches = explode(" ", $matches[0][0]);
                 foreach($aMatches as $field) {
                     if($field != "") {
@@ -310,19 +261,18 @@ class DatabaseManager
 
     /**
      * Checks the format within the file
-     * @param   string $linestr
      * @param   string $dbformat
      * @return  string
      * @throws  \Exception
      */
-    private function checkFormat($linestr, $dbformat)
+    private function checkFormat($dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
-                $locus = substr($linestr,0,5);
+                $locus = substr($this->aLines->current(),0,5);
                 return ($locus == "LOCUS");
             } elseif ($dbformat == "SWISSPROT") {
-                return (substr($linestr,0,2) == "ID");
+                return (substr($this->aLines->current(),0,2) == "ID");
             } 
         } catch (\Exception $ex) {
             throw new \Exception($ex);
@@ -333,24 +283,24 @@ class DatabaseManager
     /**
      * gets the primary accession number of the sequence entry which we are
      * currently processing.  This uniquely identifies a sequence entry.
-     * @param   string $flines
-     * @param   string $linestr
      * @param   string $dbformat
      * @return  int
      * @throws \Exception
      */
-    private function get_entryid(&$flines, $linestr, $dbformat)
+    private function get_entryid($dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
-                return trim(substr($linestr, 12, 16));
+                return trim(substr($this->aLines->current(), 12, 16));
             } elseif ($dbformat == "SWISSPROT") {
-                list($lineno, $linestr) = each($flines);
-                if (substr($linestr,0,2) == "AC") {
-                    $words = preg_split("/;/", intrim(substr($linestr,5)));
-                    prev($flines);
-                    return $words[0];
+                while(1) {
+                    $this->aLines->next();
+                    if (substr($this->aLines->current(),0,2) == "AC") {
+                        break;
+                    }
                 }
+                $words = preg_split("/;/", preg_replace('/\s/', '', substr($this->aLines->current(),5)));
+                return $words[0];
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex);
