@@ -143,7 +143,7 @@ class DatabaseManager
 
     /**
      * Opens or prepares the SeqDB for processing.  Opposite of close().
-     * @param  type $dbname
+     * @param  string $dbname
      * @throws \Exception
      */
     public function open($dbname)
@@ -208,10 +208,10 @@ class DatabaseManager
 
     /**
      * Gets the seq file with its id
-     * @param   string $file
-     * @param   int $index
+     * @param   string  $file
+     * @param   int     $index
      * @return  string
-     * @throws \Exception
+     * @throws  \Exception
      */
     private function getFileInDirWithIndex($file, $index)
     {
@@ -311,8 +311,8 @@ class DatabaseManager
     /**
      * Gets the byte offset (from beginning of file) of a particular line.  The file is
      * identified by $fp file pointer, while the line is identified by $lineno, which is zero-based.
-     * @param   string $fp
-     * @param   int $lineno
+     * @param   string  $fp
+     * @param   int     $lineno
      * @return  int
      * @throws \Exception
      */
@@ -338,9 +338,9 @@ class DatabaseManager
 
     /**
      * Copies the lines belonging to a single sequence entry into an array.
-     * @param   type $fpseq
+     * @param   string      $fpseq
      * @return  boolean
-     * @throws \Exception
+     * @throws  \Exception
      */
     private function line2r($fpseq)
     {

@@ -12,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
@@ -24,7 +23,6 @@ class DemoController extends Controller
 {
     /**
      * @Route("/", name="homepage")
-     * @Method("GET")
      */
     public function indexAction(Request $request)
     {
@@ -33,7 +31,6 @@ class DemoController extends Controller
     
     /**
      * @route("/sequence-analysis", name="sequence_analysis")
-     * @Method("GET")
      */
     public function sequenceanalysisAction(SequenceManager $sequenceManager)
     {
@@ -52,7 +49,6 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-genbank", name="read_sequence_genbank")
-     * @Method("GET")
      * @throws \Exception
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
@@ -71,7 +67,6 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-swissprot", name="read_sequence_swissprot")
-     * @Method("GET")
      * @throws \Exception
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
