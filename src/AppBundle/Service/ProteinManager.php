@@ -29,6 +29,7 @@ class ProteinManager
     /**
      * Returns the length of a protein sequence().
      * @return int
+     * @group Legacy
      */
     public function seqlen() {
         return strlen($this->protein->getSequence());
@@ -38,6 +39,7 @@ class ProteinManager
     /**
      * Computes the molecular weight of a protein sequence.
      * @return boolean
+     * @group Legacy
      */
     public function molwt()
     {

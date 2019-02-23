@@ -80,6 +80,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * stores them in a (simple) array.
      * @param   type        $flines
      * @return  Sequence    $oSequence
+     * @group   Legacy
      */
     public function parse_swissprot($flines)
     {
@@ -453,20 +454,21 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Then pushes this array into a larger associative array, called $swiss, which is
      * also an attribute of the Seq object. It is assigned a key of the form: FT_<feature_key_name>.
      * Examples are: FT_PEPTIDE, FT_DISULFID.
-     * @param array $swiss
+     * @param   array   $swiss
+     * @group   Legacy
      */
     private function process_ft(&$swiss)
     {
-	foreach($this->ft_r as $element) {
+        foreach($this->ft_r as $element) {
             $index = "FT_" . $element[0];
-            array_shift($element);					
+            array_shift($element);
             if (count($swiss[$index]) == 0) {
-		$swiss[$index] = array();
-		array_push($swiss[$index], $element);
+                $swiss[$index] = array();
+                array_push($swiss[$index], $element);
             } else {
                 array_push($swiss[$index], $element);
             }
-	}
+        }
     }
     
     private function makeRefArray()

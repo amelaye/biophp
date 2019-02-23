@@ -5,6 +5,7 @@
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 14 february 2019
+ * @Todo : certainement prévoir d'implémenter ArrayIterator / SPL
  */
 namespace AppBundle\Service;
 
@@ -118,6 +119,7 @@ class SeqAlignManager
      * @param type $index
      * @return type
      * @throws \Exception
+     * @group Legacy
      */
     public function fetch($index = "")
     {
@@ -137,6 +139,7 @@ class SeqAlignManager
      * Returns the lenght of the longest sequence in an alignment set.
      * @return type
      * @throws \Exception
+     * @group Legacy
      */
     public function get_length()
     {
@@ -158,6 +161,7 @@ class SeqAlignManager
      * Counts the number of gaps ("-") found in all sequences in an alignment set.
      * @return type
      * @throws \Exception
+     * @group Legacy
      */
     public function get_gap_count()
     {
@@ -177,6 +181,7 @@ class SeqAlignManager
      * Tests if all the sequences in an alignment set have the same length.
      * @return boolean
      * @throws \Exception
+     * @group Legacy
      */
     public function get_is_flush()
     {
@@ -209,6 +214,7 @@ class SeqAlignManager
      * @param type $res
      * @return boolean
      * @throws \Exception
+     * @group Legacy
      */
     public function char_at_res($seqidx, $res)
     {
@@ -249,6 +255,7 @@ class SeqAlignManager
      * @param type $res_end
      * @return boolean
      * @throws \Exception
+     * @group Legacy
      */
     public function substr_bw_res($seqidx, $res_beg, $res_end = "")
     {
@@ -296,6 +303,7 @@ class SeqAlignManager
      * @param type $col
      * @return boolean|string
      * @throws \Exception
+     * @group Legacy
      */
     public function col2res($seqidx, $col)
     {
@@ -334,6 +342,7 @@ class SeqAlignManager
      * @param type $res
      * @return boolean|int
      * @throws \Exception
+     * @group Legacy
      */
     public function res2col($seqidx, $res)
     {
