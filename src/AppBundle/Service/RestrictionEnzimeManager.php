@@ -26,6 +26,7 @@ class RestrictionEnzimeManager
      * @param   Sequence    $oSequence
      * @param   string      $options
      * @return type
+     * @group Legacy
      */
     public function CutSeq(Sequence $oSequence, $options = "N")
     {
@@ -118,12 +119,14 @@ class RestrictionEnzimeManager
 
 
     /**
-     * Flexible method for searching the Restriction Enzyme database 
+     * Flexible method for searching the Restriction Enzyme database
      * for entries meeting complex criteria.  It returns an array of RestEn objects.
      * @param type $pattern
      * @param type $cutpos
      * @param type $plen
      * @return type
+     * @throws \Exception
+     * @group Legacy
      */
     public function FindRestEn($pattern = "", $cutpos = "", $plen = "")
     {

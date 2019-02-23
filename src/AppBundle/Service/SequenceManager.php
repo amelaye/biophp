@@ -410,10 +410,11 @@ class SequenceManager
 
 
     /**
-     * 
-     * @param   int     $iReadFrame
-     * @param   int     $iFormat
+     *
+     * @param   int $iReadFrame
+     * @param   int $iFormat
      * @return  string  $sResult
+     * @throws \Exception
      */
     public function translate($iReadFrame = 0, $iFormat = 3)
     {
@@ -441,8 +442,9 @@ class SequenceManager
      * Function charge() accepts a string of amino acids in single-letter format and outputs
      * a string of charges in single-letter format also.  A for acidic, C for basic, and N
      * for neutral.
-     * @param   string  $sAminoSeq
+     * @param   string $sAminoSeq
      * @return  string
+     * @throws \Exception
      */
     public function charge($sAminoSeq)
     {
@@ -484,8 +486,9 @@ class SequenceManager
 
     /**
      * Chemical groups: L - GAVLI, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *, X - X
-     * @param   string  $sAminoSeq
+     * @param   string $sAminoSeq
      * @return  string
+     * @throws \Exception
      */
     public function chemicalGroup($sAminoSeq)
     {
@@ -512,9 +515,11 @@ class SequenceManager
 
     /**
      * Tranlates string to RNA codon
-     * @param   string  $sCodon
-     * @param   int    $iFormat
+     * @param   string $sCodon
+     * @param   int $iFormat
      * @return  string
+     * @throws \Exception
+     * @group Legacy
      */
     public function translateCodon($sCodon, $iFormat = 3)
     {
@@ -558,6 +563,7 @@ class SequenceManager
      * @param   int     $iStart
      * @param   int     $iCount
      * @return  string
+     * @group Legacy
      */
     public function trunc($iStart, $iCount)
     {
@@ -575,6 +581,7 @@ class SequenceManager
      * For our purposes, we shall call [X] as the "bridge".
      * @param   string  $string
      * @return  boolean
+     * @group Legacy
      */
     public function is_mirror($string = "")
     {
@@ -596,6 +603,7 @@ class SequenceManager
      * @param   type $pallen2
      * @param   type $options
      * @return  boolean
+     * @group Legacy
      */
     public function find_mirror($haystack, $pallen1, $pallen2 = "", $options = "E")
     {
@@ -661,6 +669,7 @@ class SequenceManager
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
      * @param type $string
      * @return boolean
+     * @group Legacy
      */
     public function is_palindrome($string = "")
     {
@@ -693,6 +702,7 @@ class SequenceManager
      * @param type $seqlen
      * @param type $pallen
      * @return boolean|array|int
+     * @group Legacy
      */
     public function find_palindrome($haystack, $seqlen = "", $pallen = "")
     {

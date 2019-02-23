@@ -5,9 +5,12 @@
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 21 february 2019
+ * @Todo : utilise Finder, bécasse ! https://symfony.com/doc/3.4/components/finder.html
  */
 namespace AppBundle\Service;
 
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\ParseGenbankManager;
 use AppBundle\Service\ParseSwissprotManager;
@@ -54,11 +57,13 @@ class DatabaseManager
     public function fetch($seqid)
     {
         try {
+            $fileSystem = new Filesystem();
+
             if ($this->database->getDataFn() == ""){
                 throw new \Exception("Cannot invoke fetch() method from a closed object.");
             }
 
-            if(is_file($this->database->getDataFn())) {
+            if($fileSystem->exists($this->database->getDataFn())) {
                 $idx_r = $this->searchIdInIdx($this->database->getDataFn(), $seqid);
             } else {
                 throw new \Exception("Unable to open ".$this->database->getDataFn());
@@ -149,11 +154,13 @@ class DatabaseManager
     public function open($dbname)
     {
         try {
-            if (!file_exists($dbname . ".idx")) {
+            $fileSystem = new Filesystem();
+
+            if (!$fileSystem->exist($dbname . ".idx")) {
                 throw new \Exception("ERROR: Index file $dbname.IDX does not exist!");
             }
 
-            if (!file_exists($dbname . ".dir")) {
+            if (!$fileSystem->exist($dbname . ".dir")) {
                 throw new \Exception("ERROR: Index file $dbname.DIR does not exist!");
             }
 

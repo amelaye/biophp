@@ -21,6 +21,7 @@ class SeqMatchManager
      * @param type $seq2
      * @return int
      * @throws \Exception
+     * @group Legacy
      */
     public function hamdist($seq1, $seq2)
     {
@@ -71,6 +72,8 @@ class SeqMatchManager
      * @param type $cost_rep
      * @param type $cost_del
      * @return type
+     * @throws \Exception
+     * @group Legacy
      */
     public function levdist($seq1, $seq2, $cost_ins = 1, $cost_rep = 1, $cost_del = 1)
     {
@@ -107,6 +110,8 @@ class SeqMatchManager
      * @param type $s
      * @param type $t
      * @return type
+     * @throws \Exception
+     * @group Legacy
      */
     public function xlevdist($s, $t)
     {
@@ -172,6 +177,8 @@ class SeqMatchManager
      * @param type $partial
      * @param type $nomatch
      * @return string
+     * @throws \Exception
+     * @group Legacy
      */
     public function match($str1, $str2, $matrix, $equal, $partial = "+", $nomatch = ".")
     {
