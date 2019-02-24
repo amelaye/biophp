@@ -195,4 +195,30 @@ class DnaToProteinManager
         $sResults .= "</pre></td></tr></table>";
         return $sResults;
     }
+
+    /**
+     * Treatment when a specie has been chosen
+     * @param   DnaToProtein    $oDnaToProtein
+     * @param   string          $sSequence
+     * @return  array
+     */
+    private function definedTreatment(DnaToProtein $oDnaToProtein, $sSequence)
+    {
+        // Translate in 5-3 direction
+        $aFrames[1] = $this->dnaToProteinManager->translateDNAToProtein(substr($sSequence, 0, floor(strlen($sSequence)/3)*3),$oDnaToProtein->getGeneticCode());
+        if ($oDnaToProtein->getFrames() > 1){
+            $aFrames[2] = $this->dnaToProteinManager->translateDNAToProtein(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
+            $aFrames[3] = $this->dnaToProteinManager->translateDNAToProtein(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+        }
+        // Translate the complementary sequence
+        if ($oDnaToProtein->getFrames() > 3){
+            // Get complementary
+            $this->sRvSequence = $this->dnaToProteinManager->revCompDNA($sSequence);
+            //calculate frames 4-6
+            $aFrames[4] = $this->dnaToProteinManager->translateDNAToProtein(substr($this->sRvSequence, 0,floor(strlen($this->sRvSequence)/3)*3),$oDnaToProtein->getGeneticCode());
+            $aFrames[5] = $this->dnaToProteinManager->translateDNAToProtein(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
+            $aFrames[6] = $this->dnaToProteinManager->translateDNAToProtein(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+        }
+        return $aFrames;
+    }
 }
