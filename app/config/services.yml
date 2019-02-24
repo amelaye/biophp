@@ -683,3 +683,7 @@ services:
             - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
+
+    MinitoolsBundle\Listener\DnaToProteinListener:
+        arguments:
+            - '@MinitoolsBundle\Service\DnaToProteinManager'
