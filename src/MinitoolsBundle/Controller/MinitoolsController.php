@@ -8,9 +8,13 @@
  */
 namespace MinitoolsBundle\Controller;
 
+use MinitoolsBundle\Entity\DnaToProtein;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+
+use MinitoolsBundle\Form\DnaToProteinType;
 
 class MinitoolsController extends Controller
 {
@@ -19,6 +23,7 @@ class MinitoolsController extends Controller
      */
     public function chaosGameRepresentationAction()
     {
+
         return $this->render('@Minitools/Minitools/chaosGameRepresentation.html.twig');
     }
 
@@ -35,7 +40,21 @@ class MinitoolsController extends Controller
      */
     public function dnaToProteinAction()
     {
-        return $this->render('@Minitools/Minitools/dnaToProtein.html.twig');
+        $aAminoAcidCodes = $this->getParameter('codons');
+        $aAminoAcidCodesLeft = array_slice($aAminoAcidCodes, 0, 13);
+        $aAminoAcidCodesRight = array_slice($aAminoAcidCodes, 13);
+
+        $dnatoprotein = new DnaToProtein();
+        $form = $this->get('form.factory')->create(DnaToProteinType::class, $dnatoprotein);
+
+        return $this->render(
+            '@Minitools/Minitools/dnaToProtein.html.twig',
+            [
+                'amino_left' => $aAminoAcidCodesLeft,
+                'amino_right' => $aAminoAcidCodesRight,
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
