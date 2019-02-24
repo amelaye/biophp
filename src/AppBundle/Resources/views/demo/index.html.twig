@@ -1,10 +1,51 @@
 {% extends '@App/base.html.twig' %}
 {% block body %}
-    <h1>Amelaye's BioPHP demo</h1>
+    <div class="container">
+        <h1>Amelaye's BioPHP demo</h1>
+        <p>&nbsp;</p>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card">
+                    <h5 class="card-header">Code Samples</h5>
+                    <div class="card-body">
+                        <ul>
+                            <li><a href="{{ url('sequence_analysis') }}">Sequence analysis : mirrors in a chain</a></li>
+                            <li><a href="{{ url('read_sequence_genbank') }}">Opening a SEQ (genbank) database</a></li>
+                            <li><a href="{{ url('read_sequence_swissprot') }}">Opening a Swissprot database</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-    <ul>
-        <li><a href="{{ url('sequence_analysis') }}">Sequence analysis : mirrors in a chain</a></li>
-        <li><a href="{{ url('read_sequence_genbank') }}">Opening a SEQ (genbank) database</a></li>
-        <li><a href="{{ url('read_sequence_swissprot') }}">Opening a Swissprot database</a></li>
-    </ul>
+            <div class="col-md-5">
+                <div class="card">
+                    <h5 class="card-header">Minitools</h5>
+                    <div class="card-body">
+                        <ul>
+                            <li><a href="{{ url('chaos_game_representation') }}">Chaos Game Representation of DNA</a></li>
+                            <li><a href="{{ url('distance_among_sequences') }}">Oligonucleotide frequency based distance among sequences</a></li>
+                            <li><a href="{{ url('dna_to_protein') }}">DNA to protein translation</a></li>
+                            <li><a href="{{ url('find_palindromes') }}">Palindromic sequences finder</a></li>
+                            <li><a href="{{ url('gc_content_finder') }}">GC Contenf Finder</a></li>
+                            <li><a href="{{ url('melting_temperature') }}">Melting Temperature (Tm) Calculation</a></li>
+                            <li><a href="{{ url('micro_array_analysis_adaptive_quantification') }}">Microarray Data Analysis (adaptive quantification method)</a></li>
+                            <li><a href="{{ url('microsatellite_repeats_finder') }}">Microsatellite repeats finder</a></li>
+                            <li><a href="{{ url('oligonucleotide_frequency') }}">Frequency of nucleotides and oligonucleotides</a></li>
+                            <li><a href="{{ url('pcr_amplification') }}">PCR amplification</a></li>
+                            <li><a href="{{ url('protein_properties') }}">Protein sequence properties</a></li>
+                            <li><a href="{{ url('protein_to_dna') }}">Protein to DNA reverse translation</a></li>
+                            <li><a href="{{ url('random_seqs') }}">Random sequences</a></li>
+                            <li><a href="{{ url('reader_gff_fasta') }}">Reader</a></li>
+                            <li><a href="{{ url('reduce_protein_alphabet') }}">Reduced alphabets for proteins</a></li>
+                            <li><a href="{{ url('restriction_digest') }}">Restriction enzyme digest of DNA</a></li>
+                            <li><a href="{{ url('seq_alignment') }}">Alignment of two DNA, RNA or protein sequences</a></li>
+                            <li><a href="{{ url('sequences_manipulation_and_data') }}">DNA sequence manipulation/properties</a></li>
+                            <li><a href="{{ url('skews') }}">GC-, AT-, KETO- and oligo-skews generator</a></li>
+                            <li><a href="{{ url('useful_formulas') }}">Formula functions</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
