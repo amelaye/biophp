@@ -65,15 +65,22 @@ class DnaToProteinType extends AbstractType
             TextareaType::class,
             [
                 'data' => $textSequence,
-                'attr' => ['cols' => 75, 'rows' => 10],
-                'label' => "Sequence : "
+                'attr' => [
+                    'cols'  => 75,
+                    'rows'  => 10,
+                    'class' => "form-control"
+                ],
+                'label' => "Sequence : ",
             ]
         );
         $builder->add(
             'submit',
             SubmitType::class,
             [
-                'label' => "Translate to Protein"
+                'label' => "Translate to Protein",
+                'attr' => [
+                    'class' => "btn btn-primary"
+                ]
             ]
         );
         $builder->add(
@@ -81,7 +88,10 @@ class DnaToProteinType extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $optionsFrames,
-                'label' => "Translate frames : "
+                'label' => "Translate frames : ",
+                'attr' => [
+                    'class' => "custom-select d-block w-20"
+                ]
             ]
         );
         $builder->add(
@@ -113,21 +123,26 @@ class DnaToProteinType extends AbstractType
             TextType::class,
             [
                 'data' => 50,
-                'label' => "Minimum size of protein sequence : "
+                'label' => "Minimum size of protein sequence : ",
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ]
         );
         $builder->add(
             'only_coding',
             CheckboxType::class,
             [
-                'label' => "do not show non-coding"
+                'label' => "... and do not show non-coding",
+                'required' => false
             ]
         );
         $builder->add(
             'trimmed',
             CheckboxType::class,
             [
-                'label' => "ORFs trimmed to MET-to-Stop"
+                'label' => "ORFs trimmed to MET-to-Stop",
+                'required' => false,
             ]
         );
         $builder->add(
@@ -135,21 +150,28 @@ class DnaToProteinType extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $aGeneticCode,
-                'label' => "Genetic code : "
+                'label' => "Genetic code : ",
+                'attr' => [
+                    'class' => "custom-select d-block w-20"
+                ]
             ]
         );
         $builder->add(
           'usemycode',
           CheckboxType::class,
             [
-                'label' => "Use custom genetic code"
+                'label' => "Use custom genetic code",
+                'required' => false
             ]
         );
         $builder->add(
             'mycode',
             TextType::class,
             [
-                'data' => "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG"
+                'data' => "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ]
         );
     }

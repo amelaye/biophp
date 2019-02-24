@@ -4,14 +4,107 @@
     <div class="container">
         <h1>DNA to protein translation</h1>
         <p>&nbsp;</p>
+        {% if frames is empty %}
+        {% else %}
+            <div class="card border-info mb-3" style="font-size:0.9em">
+                <div class="card-header">Results of your request</div>
+                <div class="card-body">
+                    {% if aligned_results != "" %}
+                        {{ aligned_results|raw }}
+                    {% endif %}
 
-        <div class="well">
+                    {% for key, frame in frames %}
+                        <h5 class="card-title">Frame {{ key }}</h5>
+                        <pre class="card-text">{{ frame }}</pre>
+                    {% endfor %}
 
-            {{ form(form) }}
-
-        </div>
+                </div>
+            </div>
+        {% endif %}
 
         <p>&nbsp;</p>
+
+        {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            <div class="card bg-light mb-3">
+                <div class="card-body">
+                    {{ form_errors(form) }}
+
+                    <div class="row">
+                        <!-- Sequence -->
+                        {{ form_widget(form.sequence) }}
+                    </div>
+
+                    <p>&nbsp;</p>
+
+                    <div class="row">
+                        <!-- Translate frames -->
+                        <div class="col-md-2">{{ form_label(form.frames) }}</div>
+                        <div class="col-md-2">{{ form_widget(form.frames) }}</div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Output the amino acids with double gaps (--)  -->
+                        <div class="col-md-1">{{ form_widget(form.dgaps) }}</div>
+                        <div class="col-md-11">{{ form_label(form.dgaps) }}</div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="row">
+                        <!-- Show Translations Aligned   -->
+                        <div class="col-md-1">{{ form_widget(form.show_aligned) }}</div>
+                        <div class="col-md-11">{{ form_label(form.show_aligned) }}</div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="row">
+                        <!-- Search for ORFs -->
+                        <div class="col-md-1">{{ form_widget(form.search_orfs) }}</div>
+                        <div class="col-md-11">{{ form_label(form.search_orfs) }}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">{{ form_label(form.protsize) }}</div>
+                        <div class="col-md-3">{{ form_widget(form.protsize) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">{{ form_widget(form.only_coding) }}</div>
+                        <div class="col-md-11">{{ form_label(form.only_coding) }} </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">{{ form_widget(form.trimmed) }}</div>
+                        <div class="col-md-11">{{ form_label(form.trimmed) }}</div>
+                    </div>
+                    <hr/>
+                    <div class="row">
+                        <!-- Translate frames -->
+                        <div class="col-md-3">{{ form_label(form.genetic_code) }}</div>
+                        <div class="col-md-9">{{ form_widget(form.genetic_code) }}</div>
+                    </div>
+                    <div class="row">
+                        <!-- Translate frames -->
+                        <div class="col-md-3">{{ form_label(form.usemycode) }}</div>
+                        <div class="col-md-9">{{ form_widget(form.usemycode) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">{{ form_widget(form.mycode) }}</div>
+                    </div>
+
+                    <p>&nbsp;</p>
+                    <div class="row">
+                        <div class="col-md-12">{{ form_widget(form.submit) }}</div>
+                    </div>
+                </div>
+            </div>
+
+
+            {{ form_rest(form) }}
+
+            {{ form_end(form) }}
+
+
         <p>&nbsp;</p>
 
         <div class="card">
@@ -23,16 +116,16 @@
                         This tool works similarly to other ones available online or programs allowing this feature.
                         Genetic codes used in this service are those ones compiled by
                         <a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode">Andrzej (Anjay) Elzanowski and Jim Ostell</a>.
-                        <br />
+                        <br/>
                         DNA sequence may be added as shown in the example sequence or in any other format (number, spaces and
                         line feeds are removed). JavaScript enable browser will be able to perform
                         small tasks as for example tiding up the sequence and getting reverse or complement sequences.
-                        <br />
+                        <br/>
                         Translation to protein will be performed by using one of the predefined genetic codes, or by using
                         custom genetic code. Minimum size of protein sequence for Open Reading Frames (ORF)
                         is customizable, and they can be trimmed to MET-to-Stop. Showing translation alignment is optional,
                         and aminoacids will be displaied as a 1-letter&nbsp;aminoacids code.
-                        <br />
+                        <br/>
                         After translation, in the response page ORFs are shown as arrow. In order to check ORFs represented by
                         those arrows, click on them and a new browser window will be opened showing in red letters the DNA sequence
                         corresponding to that specific ORF and translated protein. This feature requires a JavaScript enable
@@ -40,7 +133,7 @@
                     </p>
                     <h5>How to use custom genetic codes</h5>
                     <p>
-                        The genetic code used to translate a sequence into protein may be customized. <br />
+                        The genetic code used to translate a sequence into protein may be customized. <br/>
                         This service allows introducing the genetic code as a string, where each character corresponds
                         to one aminoacid and asteriscs represents termination codes. In the example bellow is shown the standard genetic
                         code and the corresponding triplets.
@@ -66,7 +159,7 @@
                         <h5>Explanation</h5>
                         <p>
                             In the first line, the first character ("F") represents Phenylalanine, which is encoded by
-                            the triplet TTT (first character of "Base1", first character of "Base2" and&nbsp;first character of "Base3").<br />
+                            the triplet TTT (first character of "Base1", first character of "Base2" and&nbsp;first character of "Base3").<br/>
                             The eleventh character ("*") represents a termination code, which is encoded by the triplet TAA.
                         </p>
                     </div>
@@ -105,6 +198,7 @@
                     </div>
                 </div>
                 <p>&nbsp;</p>
+                <footer class="blockquote-footer">Text taken from <cite title="Source Title">biophp.org</cite></footer>
             </span>
         </div>
     </div>
