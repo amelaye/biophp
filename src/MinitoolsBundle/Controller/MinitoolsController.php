@@ -9,6 +9,7 @@
 namespace MinitoolsBundle\Controller;
 
 use MinitoolsBundle\Entity\DnaToProtein;
+use MinitoolsBundle\Service\DnaToProteinManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,22 +38,90 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/dna-to-protein", name="dna_to_protein")
+     * @param   Request                 $request
+     * @param   DnaToProteinManager     $dnaToProteinManager
+     * @return  Response
+     * @throws  \Exception
      */
-    public function dnaToProteinAction()
+    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager)
     {
-        $aAminoAcidCodes = $this->getParameter('codons');
-        $aAminoAcidCodesLeft = array_slice($aAminoAcidCodes, 0, 13);
-        $aAminoAcidCodesRight = array_slice($aAminoAcidCodes, 13);
+        $sRvSequence    = "";
+        $aFrames        = [];
+        $sResults       = "";
+
+        $aAminoAcidCodes        = $this->getParameter('codons');
+        $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
+        $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
         $dnatoprotein = new DnaToProtein();
         $form = $this->get('form.factory')->create(DnaToProteinType::class, $dnatoprotein);
 
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $sequence = preg_replace("(\W|\d)", "", $dnatoprotein->getSequence());
+
+            if($dnatoprotein->getUsemycode() == 1) {
+                $mycode = preg_replace("([^FLIMVSPTAY*HQNKDECWRG\*])", "", $dnatoprotein->getMycode());
+                if (strlen($mycode) != 64) {
+                    throw new \Exception("The custom code is not correct (is not 64 characters long).");
+                }
+                $dnatoprotein->setGeneticCode("custom");
+            }
+
+            if ($dnatoprotein->getProtsize() < 10) {
+                throw new \Exception("Minimum size of protein sequence is not correct (minimum size is 10).");
+            }
+
+            if ($dnatoprotein->getGeneticCode() == "custom"){
+                // Translate in  5-3 direction
+                $aFrames[1] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sequence, 0, floor(strlen($sequence)/3)*3), $mycode);
+
+                if ($dnatoprotein->getFrames() > 1){
+                    $aFrames[2] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sequence, 1,floor((strlen($sequence)-1)/3)*3),$mycode);
+                    $aFrames[3] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sequence, 2,floor((strlen($sequence)-2)/3)*3),$mycode);
+                }
+                // Translate the complementary sequence
+                if ($dnatoprotein->getFrames() > 3){
+                    // Get complementary
+                    $sRvSequence = $dnaToProteinManager->revCompDNA($sequence);
+                    $aFrames[4] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sRvSequence, 0, floor(strlen($sRvSequence)/3)*3),$mycode);
+                    $aFrames[5] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sRvSequence, 1,floor((strlen($sRvSequence)-1)/3)*3),$mycode);
+                    $aFrames[6] = $dnaToProteinManager->translateDNAToProteinCustomcode(substr($sRvSequence, 2,floor((strlen($sRvSequence)-2)/3)*3),$mycode);
+                }
+            } else {
+                // Translate in 5-3 direction
+                $aFrames[1] = $dnaToProteinManager->translateDNAToProtein(substr($sequence, 0, floor(strlen($sequence)/3)*3),$dnatoprotein->getGeneticCode());
+                if ($dnatoprotein->getFrames() > 1){
+                    $aFrames[2] = $dnaToProteinManager->translateDNAToProtein(substr($sequence, 1,floor((strlen($sequence)-1)/3)*3),$dnatoprotein->getGeneticCode());
+                    $aFrames[3] = $dnaToProteinManager->translateDNAToProtein(substr($sequence, 2,floor((strlen($sequence)-2)/3)*3),$dnatoprotein->getGeneticCode());
+                }
+                // Translate the complementary sequence
+                if ($dnatoprotein->getFrames() > 3){
+                    // Get complementary
+                    $sRvSequence = $dnaToProteinManager->revCompDNA($sequence);
+                    //calculate frames 4-6
+                    $aFrames[4] = $dnaToProteinManager->translateDNAToProtein(substr($sRvSequence, 0,floor(strlen($sRvSequence)/3)*3),$dnatoprotein->getGeneticCode());
+                    $aFrames[5] = $dnaToProteinManager->translateDNAToProtein(substr($sRvSequence, 1,floor((strlen($sRvSequence)-1)/3)*3),$dnatoprotein->getGeneticCode());
+                    $aFrames[6] = $dnaToProteinManager->translateDNAToProtein(substr($sRvSequence, 2,floor((strlen($sRvSequence)-2)/3)*3),$dnatoprotein->getGeneticCode());
+                }
+            }
+            // SHOW TRANSLATIONS ALIGNED (when requested)
+            if ((bool)$dnatoprotein->getShowAligned()){
+                $sResults = $dnaToProteinManager->showTranslationsAligned($sequence,$sRvSequence,$aFrames);
+            }
+            // FIND ORFs
+            if ((bool)$dnatoprotein->getSearchOrfs()){
+                $aFrames = $dnaToProteinManager->findORF($aFrames, $dnatoprotein->getProtsize(), (bool)$dnatoprotein->getOnlyCoding(), (bool)$dnatoprotein->getTrimmed());
+            }
+        }
+
         return $this->render(
             '@Minitools/Minitools/dnaToProtein.html.twig',
             [
-                'amino_left' => $aAminoAcidCodesLeft,
-                'amino_right' => $aAminoAcidCodesRight,
-                'form' => $form->createView()
+                'amino_left'        => $aAminoAcidCodesLeft,
+                'amino_right'       => $aAminoAcidCodesRight,
+                'form'              => $form->createView(),
+                'frames'            => $aFrames,
+                'aligned_results'   => $sResults
             ]
         );
     }
