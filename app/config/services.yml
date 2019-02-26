@@ -6,6 +6,37 @@ imports:
     - {resource : inc/alphabet.yml}
     - {resource : inc/triplets.yml}
 parameters:
+    pk_values:
+        EMBOSS:
+            N_terminus: 8.6
+            K: 10.8
+            R: 12.5
+            H: 6.5
+            C_terminus: 3.6
+            D: 3.9
+            E: 4.1
+            C: 8.5
+            Y: 10.1
+        DTASelect:
+            N_terminus: 8
+            K: 10
+            R: 12
+            H: 6.5
+            C_terminus: 3.1
+            D: 4.4
+            E: 4.4
+            C: 8.5
+            Y: 10
+        Solomon:
+            N_terminus: 9.6
+            K: 10.5
+            R: 125
+            H: 6.0
+            C_terminus: 2.4
+            D: 3.9
+            E: 4.3
+            C: 8.3
+            Y: 10.1
     dna_complements:
         A: T
         T: A
@@ -15,7 +46,7 @@ parameters:
         A: U
         U: A
         G: C
-        C: G      
+        C: G
     chemical_groups:
         'S': 'H'
         'T': 'H'
@@ -102,6 +133,12 @@ services:
         tags: ['controller.service_arguments']
 
     MinitoolsBundle\Service\DnaToProteinManager:
+        arguments:
+            - "%codons%"
+            - "%triplets%"
+            - "%triplets_combinations%"
+
+    MinitoolsBundle\Service\ProteinPropertiesnManager:
         arguments:
             - "%codons%"
             - "%triplets%"

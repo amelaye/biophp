@@ -1,11 +1,11 @@
 {% extends '@App/base.html.twig' %}
 {% block title %}DNA to protein translation{% endblock %}
 {% block body %}
-    <div class="container">
         <h1>DNA to protein translation</h1>
-        <p>&nbsp;</p>
+
         {% if frames is empty %}
         {% else %}
+            <p>&nbsp;</p>
             <div class="card border-info mb-3" style="font-size:0.9em">
                 <div class="card-header">Results of your request</div>
                 <div class="card-body">
@@ -32,6 +32,13 @@
 
                     <div class="row">
                         <!-- Sequence -->
+                        <p>
+                            <a href="javascript: tidyup()">Tidy Up</a> &nbsp;
+                            <a href="javascript: strrev()">Reverse</a> &nbsp;
+                            <a href="javascript: Complement()">Complement</a> &nbsp;
+                            <a href="javascript: Clear()">Clear</a>
+                            <br>
+                        </p>
                         {{ form_widget(form.sequence) }}
                     </div>
 
@@ -201,6 +208,5 @@
                 <footer class="blockquote-footer">Text taken from <cite title="Source Title">biophp.org</cite></footer>
             </span>
         </div>
-    </div>
 
 {% endblock %}
