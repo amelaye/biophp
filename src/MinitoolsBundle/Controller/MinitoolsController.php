@@ -4,20 +4,23 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 23 february 2019
+ * Last modified 26 february 2019
  */
 namespace MinitoolsBundle\Controller;
 
-use MinitoolsBundle\Entity\DnaToProtein;
-use MinitoolsBundle\Entity\Protein;
-use MinitoolsBundle\Form\ProteinPropertiesType;
-use MinitoolsBundle\Service\DnaToProteinManager;
+use MinitoolsBundle\Entity\DistanceAmongSequences;
+use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
+use MinitoolsBundle\Entity\ChaosGameRepresentation;
+use MinitoolsBundle\Entity\DnaToProtein;
+use MinitoolsBundle\Entity\Protein;
+use MinitoolsBundle\Form\ChaosGameRepresentationType;
+use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
 
 class MinitoolsController extends Controller
@@ -27,8 +30,15 @@ class MinitoolsController extends Controller
      */
     public function chaosGameRepresentationAction()
     {
+        $oChaosGameRepresentation = new ChaosGameRepresentation();
+        $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
 
-        return $this->render('@Minitools/Minitools/chaosGameRepresentation.html.twig');
+        return $this->render(
+            '@Minitools/Minitools/chaosGameRepresentation.html.twig',
+            [
+                'form'              => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -36,7 +46,15 @@ class MinitoolsController extends Controller
      */
     public function distanceAmongSequencesAction()
     {
-        return $this->render('@Minitools/Minitools/distanceAmongSequences.html.twig');
+        $oDistanceAmongSequences = new DistanceAmongSequences();
+        $form = $this->get('form.factory')->create(DistanceAmongSequencesType::class, $oDistanceAmongSequences);
+
+        return $this->render(
+            '@Minitools/Minitools/distanceAmongSequences.html.twig',
+            [
+                'form'              => $form->createView(),
+            ]
+        );
     }
 
     /**
