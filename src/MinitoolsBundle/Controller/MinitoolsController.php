@@ -9,6 +9,8 @@
 namespace MinitoolsBundle\Controller;
 
 use MinitoolsBundle\Entity\DnaToProtein;
+use MinitoolsBundle\Entity\Protein;
+use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Service\DnaToProteinManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -39,7 +41,7 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/dna-to-protein", name="dna_to_protein")
-     * @param   Request                 $request
+     * @param   Request      $request
      * @return  Response
      * @throws  \Exception
      */
@@ -51,12 +53,12 @@ class MinitoolsController extends Controller
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
-        $dnatoprotein = new DnaToProtein();
-        $form = $this->get('form.factory')->create(DnaToProteinType::class, $dnatoprotein);
+        $oDnaToProtein = new DnaToProtein();
+        $form = $this->get('form.factory')->create(DnaToProteinType::class, $oDnaToProtein);
 
         // Form treatment
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $aEvent = $this->get('event_dispatcher')->dispatch('on_create_frames', new GenericEvent($dnatoprotein));
+            $aEvent = $this->get('event_dispatcher')->dispatch('on_create_frames', new GenericEvent($oDnaToProtein));
         }
 
         return $this->render(
@@ -65,8 +67,8 @@ class MinitoolsController extends Controller
                 'amino_left'        => $aAminoAcidCodesLeft,
                 'amino_right'       => $aAminoAcidCodesRight,
                 'form'              => $form->createView(),
-                'frames'            => $aEvent->getArgument('frames'),
-                'aligned_results'   => $aEvent->getArgument('frames_aligned'),
+                'frames'            => $aEvent != null ? $aEvent->getArgument('frames') : null,
+                'aligned_results'   => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
             ]
         );
     }
@@ -132,7 +134,15 @@ class MinitoolsController extends Controller
      */
     public function proteinPropertiesAction()
     {
-        return $this->render('@Minitools/Minitools/proteinProperties.html.twig');
+        $oProtein = new Protein();
+        $form = $this->get('form.factory')->create(ProteinPropertiesType::class, $oProtein);
+
+        return $this->render(
+            '@Minitools/Minitools/proteinProperties.html.twig',
+            [
+                'form'              => $form->createView(),
+            ]
+        );
     }
 
     /**

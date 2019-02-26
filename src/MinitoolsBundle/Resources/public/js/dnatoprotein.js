@@ -4,21 +4,22 @@ function Removeuseless(str) {
     return str;
 }
 
-
 function strrev() {
-    str=document.mydna.sequence.value.toUpperCase();
+    str = $('#dna_to_protein_sequence').val();
+    $('#dna_to_protein_sequence').val(str.toUpperCase());
 
-    if (!str) {document.mydna.sequence.value=''};
-    var revstr=' ';
-    var k=0;
-    for (i = str.length-1; i>=0; i--) {
-        revstr+=str.charAt(i);
-        k+=1;
-    };
-    document.mydna.sequence.value=revstr;
+    if (!str) {
+        $('#dna_to_protein_sequence').val();
+    }
+    var revstr='';
+    var k = 0;
+    for (i = str.length-1; i >= 0; i--) {
+        revstr += str.charAt(i);
+        k += 1;
+    }
+    $('#dna_to_protein_sequence').val(revstr);
     tidyup();
 }
-
 
 function tidyup() {
     str=document.mydna.sequence.value.toUpperCase();
@@ -36,7 +37,6 @@ function tidyup() {
 
     document.mydna.sequence.value=revstr;
 }
-
 
 function Complement() {
     var str=document.mydna.sequence.value.toUpperCase();

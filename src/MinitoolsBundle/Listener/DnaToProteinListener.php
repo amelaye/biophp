@@ -12,6 +12,11 @@ class DnaToProteinListener implements EventSubscriberInterface
     private $dnaToProteinManager;
     private $sRvSequence = "";
 
+
+    /**
+     * DnaToProteinListener constructor.
+     * @param DnaToProteinManager $dnaToProteinManager
+     */
     public function __construct(DnaToProteinManager $dnaToProteinManager)
     {
         $this->dnaToProteinManager = $dnaToProteinManager;
