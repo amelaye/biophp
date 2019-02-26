@@ -1,4 +1,13 @@
 {% extends '@App/base.html.twig' %}
+{% block title %}Distance between sequences : comparison of oligonucleotide compositions{% endblock %}
 {% block body %}
-    <p>Coming soon :)</p>
+    <h1>Distance between sequences : comparison of oligonucleotide composition</h1>
+
+    <ul>
+        <li>This tool will compute distance between input sequences and UPGMA clustering will be applied.</li>
+        <li>Distances are shown in a table, and a dendrogram is displaied.</li>
+        <li>Check carefully the results. Their value for phylogenetics is limited.</li>
+    </ul>
+    <p>&nbsp;</p>
+    {{ form(form) }}
 {% endblock %}

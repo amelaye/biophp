@@ -1,96 +1,43 @@
+{% extends '@App/base.html.twig' %}
+{% block title %}Graphical representation of genomes and oligonucleotide frequencies{% endblock %}
+{% block javascript %}
+    function a(b){
+        document.getElementById("txt").innerHTML=b;
+    }
+{% endblock %}
+{% block body %}
+    <h1>Graphical representation of genomes and oligonucleotide frequencies</h1>
 
+    <p>&nbsp;</p>
+    {{ form(form) }}
+    <p>&nbsp;</p>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>CGR and FCGR</title>
-    <script type="text/javascript">
-        function a(b){document.getElementById("txt").innerHTML=b;}
-    </SCRIPT>
-</head>
-<body style="background-color: rgb(255, 255, 255);">
+    <div class="card">
+        <h5 class="card-header">Protein sequence information tool</h5>
+        <span class="card-body">
+            <div class="card-text">
+                <h5 class="card-title">Chaos Game Representation (CGR) </h5>
+                <p>
+                    as described by <a href=http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=2336393 target=new>Jeffrey</a> (1990).<br />
+                    Represents DNA primary sequence organization.
+                </p>
+                <h5>Chaos Game Representation of Frequencies (FCGR)</h5>
+                <p>
+                    as described by <a href=http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=10563018 target=new>Deschavanne <i>at al</i>.</a> (1999).<br />
+                    <br>Represents frequencies of oligonucleotides.
+                </p>
+                <p>
+                    This script has been extracted from online tools at <a href=http://insilico.ehu.es/>insilico.ehu.es</a>.<br />
+                    CGR images for all sequenced bacterial genomes are available <a href=http://insilico.ehu.es/describe/>here</a><br />
+                    To understand how CGR images are generated, check <a href=http://insilico.ehu.es/describe/CGR/info_position_CGR.html>here</a><br />
+                    Example representations for <i>E. coli</i> K12 :
+                    <a href=http://insilico.ehu.es/mini_tools/CGR-FCGR/E_coli_K12_CGR.html>CGR</a>,
+                    <a href=http://insilico.ehu.es/mini_tools/CGR-FCGR/E_coli_K12_FCGR.html>FCGR</a>
+                </p>
+            </div>
+            <p>&nbsp;</p>
+            <footer class="blockquote-footer">Text taken from <cite title="Source Title">biophp.org</cite></footer>
+        </span>
+    </div>
 
-    <h1><p>Graphical representation of genomes<br>and oligonucleotide frequencies</h1>
-
-
-<table align=center border=0 width=600>
-    <tr><td>
-
-            <font size=+2>
-                <a href="<? print $_SERVER["PHP_SELF"]; ?>?CGR">Chaos Game Representation (CGR)</a>
-            </font>
-            <br>as described by <a href=http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=2336393 target=new>Jeffrey</A> (1990).
-            <br>Represents DNA primary sequence organization.
-
-            <p>&nbsp;
-            <p>
-
-                <font size=+2>
-                    <a href="<? print $_SERVER["PHP_SELF"]; ?>?FCGR">Chaos Game Representation of Frequencies (FCGR)</a>
-                </font>
-                <br>as described by <a href=http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=10563018 target=new>Deschavanne <i>at al.</i></a> (1999).
-                <br>Represents frequencies of oligonucleotides.
-
-            <p>&nbsp;
-            <hr>
-
-            <font size=-1>
-                This script has been extracted from online tools at <a href=http://insilico.ehu.es/>insilico.ehu.es/</a>.
-                <br>CGR images for all sequenced bacterial genomes are available <a href=http://insilico.ehu.es/describe/>here</a>
-                <br>To understand how CGR images are generated, check <a href=http://insilico.ehu.es/describe/CGR/info_position_CGR.html>here</a>
-                <br>Example representations for <i>E. coli</i> K12:
-                <a href=http://insilico.ehu.es/mini_tools/CGR-FCGR/E_coli_K12_CGR.html>CGR</a>,
-                <a href=http://insilico.ehu.es/mini_tools/CGR-FCGR/E_coli_K12_FCGR.html>FCGR</a>
-                <p>Source code is available at <a href=http://www.biophp.org/minitools/chaos_game_representation target=new>BioPHP.org</a>
-            </font>
-
-        </td></tr></table>
-
-    <h2>Computation of <br>
-        Chaos Game Representation of frequencies (FCGR)
-        </h3>
-        <table border="0" cellpadding="10" width="650">
-            <tbody>
-            <tr>
-                <td style="vertical-align: top;" bgcolor="#ddddff">
-                    <form action="" method="post">
-                    <table>
-                        <tbody>
-                        <tr>
-                            <td width="250">Sequence name<br>
-                                <input name="seq_name" size="15" type="text"></td>
-                            <td>Compute data for
-                                <select name="s">
-                                    <option value="2">Both strands</option>
-                                    <option value="1">Only upper strand</option>
-                                </select>
-                                <br>
-                                Search oligos of length
-                                <select name="len">
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                </select>
-                                <br>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    Sequence code <font size="-1">(<<?= $input_max; ?> bp; all digits, spaces and other non-coding
-                        characters will be removed)</font><br>
-                    <textarea cols="80" rows="5" name="seq"></textarea>
-
-                    <p><input value="Create FCGR image" type="submit">
-                        <br><input type=checkbox name=map value=1> Show as image map (not recomemded for long oligonuclotides)
-                        <br><input type=checkbox name=freq value=1 checked> Show oligonuclotide frequencies
-
-                        </form>
-                </td>
-            </tr>
-
-            </tbody>
-        </table>
-</center>
-</body>
+{% endblock %}
