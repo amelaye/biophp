@@ -7,6 +7,48 @@ parameters:
                           "ACA ", "ACG ", "AAT ", "AAC ", "AAA ", "AAG ", "AGT ", "AGC ", "AGA ", "AGG ",
                           "GTT ", "GTC ", "GTA ", "GTG ", "GCT ", "GCC ", "GCA ", "GCG ", "GAT ", "GAC ",
                           "GAA ", "GAG ", "GGT ", "GGC ", "GGA ", "GGG "]
+
+  # Info has been extracted from http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode
+  triplets_list:
+    standard_genetic_code: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRR",
+                            "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN","GGN","NNN"]
+    vertebrate_mitochondrial: ["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","WRR",
+                               "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]
+    yeast_mitochondrial: ["TTY","TTR","ATY","ATR","GTN","WSN","CCN","MYN","GCN","TAY","TAR","CAY",
+                          "CAR","AAY","AAR","GAY","GAR","TGY","TGR","MGN","GGN","NNN"]
+    mold_rotozoan_coelenterate_mitochondrial: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN",
+                                               "GCN","TAY","TAR","CAY","CAR","AAY","AAR","GAY",
+                                               "GAR","TGY","TGR","MGN","GGN","NNN"]
+    invertebrate_mitochondrial: ["TTY","YTN","ATY","ATR","GTN","WSN","CCN","WSN","GCN","TAY","TAR",
+                                 "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]
+    ciliate_dasycladacean_hexamita_nuclear: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN",
+                                             "TAY","TGA","CAY","YAR","AAY","AAR","GAY","GAR","TGY",
+                                             "TGG","MGN","GGN","NNN"]
+    echinoderm_mitochondrial: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","WCN","GCN","TAY","TAR",
+                               "CAY","CAR","AAH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]
+    euplotid_nuclear: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY","CAR",
+                       "AAY","AAR","GAY","GAR","TGH","TGG","MGN","GGN","NNN"]
+    bacterial_and_plant_plastid: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRR",
+                                  "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN","GGN","NNN"]
+    alternative_yeast_nuclear: ["TTY","YTN","ATH","ATG","GTN","HBN","CCN","ACN","GCN","TAY","TRR",
+                                "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN","GGN","NNN"]
+    ascidian_mitochondrial: ["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY",
+                             "CAR","AAY","AAR","GAY","GAR","TGY","TGR","CGN","RGN","NNN"]
+    flatworm_mitochondrial: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAH","TAG","CAY",
+                             "CAR","ATH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]
+    blepharisma_macronuclear: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRA","CAY",
+                               "YAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN","GGN","NNN"]
+    chlorophycean_mitochondrial: ["TTY","YWN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRA",
+                                  "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN","GGN","NNN"]
+    trematode_mitochondrial: ["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY",
+                              "CAR","AAH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]
+    scenedesmus_obliquus_mitochondrial: ["TTY","YWN","ATH","ATG","GTN","WSB","CCN","ACN","GCN","TAY",
+                                         "TVR","CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN",
+                                         "GGN","NNN"]
+    thraustochytrium_mitochondrial_code: ["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY",
+                                          "TDR","CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN",
+                                          "GGN","NNN"]
+
   # Info has been extracted from http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode
   triplets:
     standard:

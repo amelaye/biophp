@@ -179,13 +179,6 @@ class MinitoolsController extends Controller
         return $this->render('@Minitools/Minitools/randomSeqs.html.twig');
     }
 
-    /**
-     * @Route("/minitools/reader-gff-fasta", name="reader_gff_fasta")
-     */
-    public function readerGffFastaAction()
-    {
-        return $this->render('@Minitools/Minitools/readerGffFasta.html.twig');
-    }
 
     /**
      * @Route("/minitools/reduce-protein-alphabet", name="reduce_protein_alphabet")
