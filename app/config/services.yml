@@ -5,6 +5,7 @@ imports:
     - {resource : inc/codons.yml}
     - {resource : inc/alphabet.yml}
     - {resource : inc/triplets.yml}
+    - {resource : inc/enzymes.yml}
 parameters:
     pk_values:
         EMBOSS:
