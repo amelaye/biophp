@@ -321,122 +321,122 @@ parameters:
       - "AjuI"
       - "_NNNNN'NNNNNNNGAANNNNNNNTTGGNNNNNN_NNNNN_'\n   Generates two cuts"
       - "(............GAA.......TTGG...........|...........CCAA.......TTC............)"
-      - 37
-      - 5
-      - -5
-      - 7
+      - '37'
+      - '5'
+      - '-5'
+      - '7'
     AlfI#:
       - "AlfI"
       - "_NN'NNNNNNNNNNCGANNNNNNTGCNNNNNNNNNN_NN'\n   Generates two cuts"
       - "(............CGA......TGC............|............GCA......TCG............)"
-      - 36
-      - 2
-      - -2
-      - 6
+      - '36'
+      - '2'
+      - '-2'
+      - '6'
     AloI#:
       - "AloI"
       - "_NNNNN'NNNNNNNGAACNNNNNNTCCNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(............GAAC......TCC............|............GGA......GTTC............)"
-      - 37
-      - 5
-      - -5
-      - 7
+      - '37'
+      - '5'
+      - '-5'
+      - '7'
     BaeI#:
       - "BaeI"
       - "_NNNNN'NNNNNNNNNNACNNNNGTAYCNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(...............AC....GTACC............|...............AC....GTATC............|............GATAC....GT...............|............GGTAC....GT...............)"
-      - 38
-      - 5
-      - -5
-      - 7
+      - '38'
+      - '5'
+      - '-5'
+      - '7'
     BarI:
       - "BarI"
       - "_NNNNN'NNNNNNNGAAGNNNNNNTACNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(............GAAG......TAC............|............GTA......CTTC............)"
-      - 37
-      - 5
-      - -5
-      - 7
+      - '37'
+      - '5'
+      - '-5'
+      - '7'
     BcgI#:
       - "BcgI"
       - "_NN'NNNNNNNNNNCGANNNNNNTGCNNNNNNNNNN_NN'\n   Generates two cuts"
       - "(............CGA......TGC............|............GCA......TCG............)"
-      - 36
-      - 2
-      - -2
-      - 6
+      - '36'
+      - '2'
+      - '-2'
+      - '6'
     BdaI#:
       - "BdaI"
       - "_NN'NNNNNNNNNNTGANNNNNNTCANNNNNNNNNN_NN'\n   Generates two cuts"
       - "(............TGA......TCA............)"
-      - 36
-      - 2
-      - -2
-      - 6
+      - '36'
+      - '2'
+      - '-2'
+      - '6'
     BplI#:
       - "BplI"
       - "_NNNNN'NNNNNNNNGAGNNNNNCTCNNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(.............GAG.....CTC.............|.............GAG.....CTC.............)"
-      - 37
-      - 5
-      - -5
-      - 6
+      - '37'
+      - '5'
+      - '-5'
+      - '6'
     BsaXI#:
       - "BsaXI"
       - "_NNN'NNNNNNNNNACNNNNNCTCCNNNNNNN_NNN'\n   Generates two cuts"
       - "(............AC.....CTCC..........|..........GGAG.....GT............)"
-      - 33
-      - 3
-      - -3
-      - 6
+      - '33'
+      - '3'
+      - '-3'
+      - '6'
     CspCI#:
       - "CspCI"
       - "_NN'NNNNNNNNNNNCAANNNNNGTGGNNNNNNNNNN_NN'\n   Generates two cuts"
       - "(.............CAA.....GTGG............|............GCA.....TCG.............)"
-      - 37
-      - 2
-      - -2
-      - 7
+      - '37'
+      - '2'
+      - '-2'
+      - '7'
     FalI#:
-      - "FalI",
+      - "FalI"
       - "_NNNNN'NNNNNNNNAAGNNNNNCTTNNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(.............AAG.....CTT.............|.............AAG.....CTT.............)"
-      - 37
-      - 5
-      - -5
-      - 6
+      - '37'
+      - '5'
+      - '-5'
+      - '6'
     Hin4I#:
       - "Hin4I"
       - "_NNNNN'NNNNNNNNGAYNNNNNVTCNNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(.............GAC.....ATC.............|.............GAC.....CTC.............|.............GAC.....GTC.............|.............GAT.....ATC.............|.............GAT.....CTC.............|.............GAT.....GTC.............|.............GAG.....ATC.............|.............GAG.....ATC.............)"
-      - 37
-      - 5
-      - -5
-      - 6
+      - '37'
+      - '5'
+      - '-5'
+      - '6'
     PpiI#:
       - "PpiI"
       - "_NNNNN'NNNNNNNGAACNNNNNCTCNNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(............GAAC.....CTC.............|.............GAG.....GTTC............)"
-      - 37
-      - 5
-      - -5
-      - 7
+      - '37'
+      - '5'
+      - '-5'
+      - '7'
     PsrI#:
       - "PsrI"
       - "_NNNNN'NNNNNNNGAACNNNNNNTACNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(............GAAC......TAC............|............GTA......GTTC............)"
-      - 37
-      - 5
-      - -5
-      - 7
+      - '37'
+      - '5'
+      - '-5'
+      - '7'
     TstI#:
       - "TstI"
       - "_NNNNN'NNNNNNNNCACNNNNNNTCCNNNNNNN_NNNNN'\n   Generates two cuts"
       - "(.............CAC......TCC............|............GGA......GTG.............)"
-      - 37
-      - 5
-      - -5
-      - 6
+      - '37'
+      - '5'
+      - '-5'
+      - '6'
   vendors: [
         AanI: "F", AarI: "F", AasI: "F", AatII: "FIKMNR", AbaSI: "N", AbsI: "I", AccI: "BJKMNQRSUX", AccII: "JK",
         AccIII: "JKR", Acc16I: "I", Acc36I: "I", Acc65I: "FINR", AccB1I: "I", AccB7I: "I", AccBSI: "I", AciI: "N",

@@ -10,9 +10,13 @@ namespace MinitoolsBundle\Service;
 
 class ReduceProteinAlphabetManager
 {
-    public function __construct($protein_colors)
+    private $protein_colors;
+    private $aReductions;
+
+    public function __construct($protein_colors, $aReductions)
     {
-        $this->protein_colors = $protein_colors;
+        $this->protein_colors   = $protein_colors;
+        $this->aReductions      = $aReductions;
     }
 
     public function printReducedCodeInfo($type)
@@ -140,63 +144,87 @@ class ReduceProteinAlphabetManager
     {
         switch($type) {
             case 2:
-                $this->getPh($sSequence);
+                $aPattern       = $this->aReductions["PH"]["pattern"];
+                $aReplacement   = $this->aReductions["PH"]["reduction"];
                 break;
             case 5:
-                $this->getARCTD($sSequence);
+                $aPattern       = $this->aReductions["ARCTD"]["pattern"];
+                $aReplacement   = $this->aReductions["ARCTD"]["reduction"];
                 break;
             case 6:
-                $this->getARPNTD($sSequence);
+                $aPattern       = $this->aReductions["ARPNTD"]["pattern"];
+                $aReplacement   = $this->aReductions["ARPNTD"]["reduction"];
                 break;
             case "3IMG":
-                $this->getPNH($sSequence);
+                $aPattern       = $this->aReductions["PNH"]["pattern"];
+                $aReplacement   = $this->aReductions["PNH"]["reduction"];
                 break;
-            case "5IMG":
-                $this->getGCEMF($sSequence);
+            case "5IMG": // GCEMF (IMGT amino acid volume)
+                $aPattern       = $this->aReductions["GCEMF"]["pattern"];
+                $aReplacement   = $this->aReductions["GCEMF"]["reduction"];
                 break;
             case "11IMG":
-                $this->getAFCGSWYPDNH($sSequence);
+                $aPattern       = $this->aReductions["AFCGSWYPDNH"]["pattern"];
+                $aReplacement   = $this->aReductions["AFCGSWYPDNH"]["reduction"];
                 break;
             case "Murphy15":
-                $this->getLCAGSTPFWEDNQKH($sSequence);
+                $aPattern       = $this->aReductions["LCAGSTPFWEDNQKH"]["pattern"];
+                $aReplacement   = $this->aReductions["LCAGSTPFWEDNQKH"]["reduction"];
                 break;
             case "Murphy10":
-                $this->getLCAGSPFEKH($sSequence);
+                $aPattern       = $this->aReductions["LCAGSPFEKH"]["pattern"];
+                $aReplacement   = $this->aReductions["LCAGSPFEKH"]["reduction"];
                 break;
             case "Murphy8":
-                $this->getLASPFEKH($sSequence);
+                $aPattern       = $this->aReductions["LASPFEKH"]["pattern"];
+                $aReplacement   = $this->aReductions["LASPFEKH"]["replacement"];
                 break;
             case "Murphy4":
-                $this->getLAFE($sSequence);
+                $aPattern       = $this->aReductions["LAFE"]["pattern"];
+                $aReplacement   = $this->aReductions["LAFE"]["pattern"];
                 break;
             case "Murphy2":
-                $this->getPE($sSequence);
+                $aPattern       = $this->aReductions["PE"]["pattern"];
+                $aReplacement   = $this->aReductions["PE"]["reduction"];
                 break;
             case "Wang5":
-                $this->getIAGEK($sSequence);
+                $aPattern       = $this->aReductions["IAGEK"]["pattern"];
+                $aReplacement   = $this->aReductions["IAGEK"]["reduction"];
                 break;
             case "Wang5v":
-                $this->getILAEK($sSequence);
+                $aPattern       = $this->aReductions["ILAEK"]["pattern"];
+                $aReplacement   = $this->aReductions["ILAEK"]["reduction"];
                 break;
             case "Wang3":
-                $this->getIAE($sSequence);
+                $aPattern       = $this->aReductions["IAE"]["pattern"];
+                $aReplacement   = $this->aReductions["IAE"]["reduction"];
                 break;
             case "Wang2":
-                $this->getIA($sSequence);
+                $aPattern       = $this->aReductions["IA"]["pattern"];
+                $aReplacement   = $this->aReductions["IA"]["reduction"];
                 break;
             case "Li10":
-                $this->getCYLVGPSNEK($sSequence);
+                $aPattern       = $this->aReductions["CYLVGPSNEK"]["pattern"];
+                $aReplacement   = $this->aReductions["CYLVGPSNEK"]["reduction"];
                 break;
             case "Li5":
-                $this->getYIGSE($sSequence);
+                $aPattern       = $this->aReductions["YIGSE"]["pattern"];
+                $aReplacement   = $this->aReductions["YIGSE"]["reduction"];
                 break;
             case "Li4":
-                $this->getYISE($sSequence);
+                $aPattern       = $this->aReductions["YISE"]["pattern"];
+                $aReplacement   = $this->aReductions["YISE"]["reduction"];
                 break;
             case "Li3":
-                $this->getISE($sSequence);
+                $aPattern       = $this->aReductions["ISE"]["pattern"];
+                $aReplacement   = $this->aReductions["ISE"]["reduction"];
                 break;
+            default:
+                $aPattern       = [];
+                $aReplacement   = [];
         }
+        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
+        $sSequence = strtoupper($sSequence);
         return $sSequence;
     }
 
@@ -298,262 +326,5 @@ class ReduceProteinAlphabetManager
         }
 
         return $new_seq;
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getPH(&$sSequence)
-    {
-        $aPattern = [
-            "/A|G|T|S|N|Q|D|E|H|R|K|P/",    // Hydrophilic
-            "/C|M|F|I|L|V|W|Y/"             // Hydrophobic
-        ];
-        $aReplacement = ["p", "h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getARCTD(&$sSequence)
-    {
-        $aPattern = [
-            "/I|V|L/",          // Aliphatic
-            "/F|Y|W|H/",        // Aromatic
-            "/K|R|D|E/",        // Charged
-            "/G|A|C|S/",        // Tiny
-            "/T|M|Q|N|P/"       // Diverse
-        ];
-        $aReplacement = ["a", "r", "c", "t", "d"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getARPNTD(&$sSequence)
-    {
-        $aPattern = [
-            "/I|V|L/",      // Aliphatic
-            "/F|Y|W|H/",    // Aromatic
-            "/K|R/",        // Pos. charged
-            "/D|E/",        // Neg. charged
-            "/G|A|C|S/",    // Tiny
-            "/T|M|Q|N|P/"   // Diverse
-        ];
-        $aReplacement = ["a", "r", "p", "n", "t", "d"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getPNH(&$sSequence)
-    {
-        $aPattern = [
-            "/D|N|E|Q|K|R/",        // Hydrophilic
-            "/G|T|S|Y|P|M/",        // Neutral
-            "/I|V|L|F|C|M|A|W/"     // Hydrophobic
-        ];
-        $aReplacement = ["p", "n", "h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getGCEMF(&$sSequence) // GCEMF (IMGT amino acid volume)
-    {
-        $aPattern = [
-            "/G|A|S/",          // 60-90
-            "/C|D|P|N|T/",      // 108-117
-            "/E|V|Q|H/",        // 138-154
-            "/M|I|L|K|R/",      // 162-174
-            "/F|Y|W/"           // 189-228
-        ];
-        $aReplacement = ["g", "c", "e", "m", "f"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getAFCGSWYPDNH(&$sSequence)
-    {
-        $aPattern = [
-            "/A|V|I|L/",    // Aliphatic
-            "/F/",          // Phenylalanine
-            "/C|M/",        // Sulfur
-            "/G/",          // Glycine
-            "/S|T/",        // Hydroxyl
-            "/W/",          // Tryptophan
-            "/Y/",          // Tyrosine
-            "/P/",          // Proline
-            "/D|E/",        // Acidic
-            "/N|Q/",        // Amide
-            "/H|K|R/"       // Basic
-        ];
-        $aReplacement = ["a","f","c","g","s","w","y","p","d","n","h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getLCAGSTPFWEDNQKH(&$sSequence)
-    {
-        $aPattern = [
-            "/L|V|I|M/", "/C/", "/A/", "/G/", "/S/", "/T/", "/P/",  // Large hydrophobic
-            "/F|Y/", "/W/", "/E/", "/D/", "/N/", "/Q/",             // Hydrophobic/aromatic sidechains
-            "/K|R/", "/H/"                                          // Long-chain positively charged
-        ];
-        $aReplacement = ["l", "c", "a", "g", "s", "t", "p", "f", "w", "e", "d", "n", "q", "k", "h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getLCAGSPFEKH(&$sSequence)
-    {
-        $aPattern = [
-            "/L|V|I|M/", "/C/", "/A/", "/G/",   // Large hydrophobic
-            "/S|T/", "/P/",                     // Polar
-            "/F|Y|W/",                          // Hydrophobic/aromatic sidechains
-            "/E|D|N|Q/",                        // Charged / polar
-            "/K|R/", "/H/"                      // Long-chain positively charged
-        ];
-        $aReplacement = ["l", "c", "a", "g", "s", "p", "f", "e", "k", "h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    /**
-     * @param $sSequence
-     */
-    private function getLASPFEKH(&$sSequence)
-    {
-        $aPattern = [
-            "/L|V|I|M|C/", "/A|G/",     // Hydrophobic
-            "/S|T/", "/P/",             // Polar
-            "/F|Y|W/", "/E|D|N|Q/",     // Hydrophobic/aromatic sidechains
-            "/K|R/", "/H/"              // Long-chain positively charged
-        ];
-        $aReplacement = ["l", "a", "s", "p", "f", "e", "k", "h"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getLAFE(&$sSequence)
-    {
-        $aPattern = [
-            "/L|V|I|M|C/", "/A|G|S|T|P/",   // Hydrophobic
-            "/F|Y|W/", "/E|D|N|Q|K|R|H/"    // Hydrophobic/aromatic sidechains
-        ];
-        $aReplacement = ["l", "a", "f", "e"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getPE(&$sSequence)
-    {
-        $aPattern = [
-            "/L|V|I|M|C|A|G|S|T|P|F|Y|W/",  //Hydrophobic
-            "/E|D|N|Q|K|R|H/"               //Hydrophilic
-        ];
-        $aReplacement = ["p", "e"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getIAGEK(&$sSequence)
-    {
-        $aPattern = ["/C|M|F|I|L|V|W|Y/", "/A|T|H/", "/G|P/", "/D|E/", "/S|N|Q|R|K/"];
-        $aReplacement = ["i", "a", "g", "e", "k"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getILAEK(&$sSequence)
-    {
-        $aPattern = ["/C|M|F|I/", "/L|V|W|Y/", "/A|T|G|S/", "/N|Q|D|E/", "/H|P|R|K/"];
-        $aReplacement = ["i", "l", "a", "e", "k"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getIAE(&$sSequence)
-    {
-        $aPattern = ["/C|M|F|I|L|V|W|Y/", "/A|T|H|G|P|R/", "/D|E|S|N|Q|K/"];
-        $aReplacement = ["i", "a", "e"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getIA(&$sSequence)
-    {
-        $aPattern = ["/C|M|F|I|L|V|W|Y/", "/A|T|H|G|P|R|D|E|S|N|Q|K/"];
-        $aReplacement = ["i", "a"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getCYLVGPSNEK(&$sSequence)
-    {
-        $aPattern = ["/C/", "/F|Y|W/", "/M|L/", "/I|V/", "/G/", "/P/", "/A|T|S/", "/N|H/", "/Q|E|D/", "/R|K/"];
-        $aReplacement = ["c", "y", "l", "v", "g", "p", "s", "n", "e", "k"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-
-    private function getYIGSE(&$sSequence)
-    {
-        $aPattern = ["/C|F|Y|W/", "/M|L|I|V/", "/G/", "/P|A|T|S/", "/N|H|Q|E|D|R|K/"];
-        $aReplacement = ["y", "i", "g", "s", "e"];
-
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-    private function getYISE(&$sSequence)
-    {
-        $aPattern = ["/C|F|Y|W/", "/M|L|I|V/", "/G|P|A|T|S/", "/N|H|Q|E|D|R|K/"];
-        $aReplacement = ["y", "i", "s", "e"];
-
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
-    }
-
-    private function getISE(&$sSequence)
-    {
-        $aPattern = ["/C|F|Y|W|M|L|I|V/", "/G|P|A|T|S/", "/N|H|Q|E|D|R|K/"];
-        $aReplacement = ["i", "s", "e"];
-        $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
-        $sSequence = strtoupper($sSequence);
     }
 }

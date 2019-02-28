@@ -1,0 +1,167 @@
+parameters:
+  reductions:
+    PH:
+      pattern:
+        - "/A|G|T|S|N|Q|D|E|H|R|K|P/"   # Hydrophilic
+        - "/C|M|F|I|L|V|W|Y/"           # Hydrophobic
+      reduction: ["p", "h"]
+    ARCTD:
+      pattern:
+        - "/I|V|L/"          # Aliphatic
+        - "/F|Y|W|H/"        # Aromatic
+        - "/K|R|D|E/"        # Charged
+        - "/G|A|C|S/"        # Tiny
+        - "/T|M|Q|N|P/"      # Diverse
+      reduction: ["a", "r", "c", "t", "d"]
+    ARPNTD:
+      pattern:
+        - "/I|V|L/"         # Aliphatic
+        - "/F|Y|W|H/"       # Aromatic
+        - "/K|R/"           # Pos. charged
+        - "/D|E/"           # Neg. charged
+        - "/G|A|C|S/"       # Tiny
+        - "/T|M|Q|N|P/"     # Diverse
+      reduction: ["a", "r", "p", "n", "t", "d"]
+    PNH:
+      pattern:
+        - "/D|N|E|Q|K|R/"         # Hydrophilic
+        - "/G|T|S|Y|P|M/"         # Neutral
+        - "/I|V|L|F|C|M|A|W/"     # Hydrophobic
+      reduction : ["p", "n", "h"]
+    GCEMF:                        # GCEMF (IMGT amino acid volume)
+      pattern:
+        - "/G|A|S/"          # 60-90
+        - "/C|D|P|N|T/"      # 108-117
+        - "/E|V|Q|H/"        # 138-154
+        - "/M|I|L|K|R/"      # 162-174
+        - "/F|Y|W/"          # 189-228
+      reduction: ["g", "c", "e", "m", "f"]
+    AFCGSWYPDNH:
+      pattern:
+        - "/A|V|I|L/"    # Aliphatic
+        - "/F/"          # Phenylalanine
+        - "/C|M/"        # Sulfur
+        - "/G/"          # Glycine
+        - "/S|T/"        # Hydroxyl
+        - "/W/"          # Tryptophan
+        - "/Y/"          # Tyrosine
+        - "/P/"          # Proline
+        - "/D|E/"        # Acidic
+        - "/N|Q/"        # Amide
+        - "/H|K|R/"      # Basic
+      replacement: ["a","f","c","g","s","w","y","p","d","n","h"]
+    LCAGSTPFWEDNQKH:
+      pattern:
+        - "/L|V|I|M/"     # Large hydrophobic
+        - "/C/"
+        - "/A/"
+        - "/G/"
+        - "/S/"
+        - "/T/"
+        - "/P/"
+        - "/F|Y/"         # Hydrophobic/aromatic sidechains
+        - "/W/"
+        - "/E/"
+        - "/D/"
+        - "/N/"
+        - "/Q/"
+        - "/K|R/"         # Long-chain positively charged
+        - "/H/"
+      replacement: ["l", "c", "a", "g", "s", "t", "p", "f", "w", "e", "d", "n", "q", "k", "h"]
+    LCAGSPFEKH:
+      pattern:
+        - "/L|V|I|M/"         # Large hydrophobic
+        - "/C/"
+        - "/A/"
+        - "/G/"
+        - "/S|T/"             # Polar
+        - "/P/"
+        - "/F|Y|W/"           # Hydrophobic/aromatic sidechains
+        - "/E|D|N|Q/"         # Charged / polar
+        - "/K|R/"             # Long-chain positively charged
+        - "/H/"
+      replacement: ["l", "c", "a", "g", "s", "p", "f", "e", "k", "h"]
+    LASPFEKH:
+      pattern:
+        - "/L|V|I|M|C/"       # Hydrophobic
+        - "/A|G/"
+        - "/S|T/"             # Polar
+        - "/P/"
+        - "/F|Y|W/"           # Hydrophobic/aromatic sidechains
+        - "/E|D|N|Q/"
+        - "/K|R/"             # Long-chain positively charged
+        - "/H/"
+      replacement: ["l", "a", "s", "p", "f", "e", "k", "h"]
+    LAFE:
+      pattern:
+        - "/L|V|I|M|C/"       # Hydrophobic
+        - "/A|G|S|T|P/"
+        - "/F|Y|W/"           # Hydrophobic/aromatic sidechains
+        - "/E|D|N|Q|K|R|H/"
+      replacement: ["l", "a", "f", "e"]
+    PE:
+      pattern:
+        - "/L|V|I|M|C|A|G|S|T|P|F|Y|W/"   #Hydrophobic
+        - "/E|D|N|Q|K|R|H/"               #Hydrophilic
+      replacement: ["p", "e"]
+    IAGEK:
+      pattern:
+        - "/C|M|F|I|L|V|W|Y/"
+        - "/A|T|H/"
+        - "/G|P/"
+        - "/D|E/"
+        - "/S|N|Q|R|K/"
+      replacement: ["i", "a", "g", "e", "k"]
+    ILAEK:
+      pattern:
+        - "/C|M|F|I/"
+        - "/L|V|W|Y/"
+        - "/A|T|G|S/"
+        - "/N|Q|D|E/"
+        - "/H|P|R|K/"
+      replacement: ["i", "l", "a", "e", "k"]
+    IAE:
+      pattern:
+        - "/C|M|F|I|L|V|W|Y/"
+        - "/A|T|H|G|P|R/"
+        - "/D|E|S|N|Q|K/"
+      replacement: ["i", "a", "e"]
+    IA:
+      pattern:
+        - "/C|M|F|I|L|V|W|Y/"
+        - "/A|T|H|G|P|R|D|E|S|N|Q|K/"
+      replacement: ["i", "a"]
+    CYLVGPSNEK:
+      pattern:
+        - "/C/"
+        - "/F|Y|W/"
+        - "/M|L/"
+        - "/I|V/"
+        - "/G/"
+        - "/P/"
+        - "/A|T|S/"
+        - "/N|H/"
+        - "/Q|E|D/"
+        - "/R|K/"
+      replacement: ["c", "y", "l", "v", "g", "p", "s", "n", "e", "k"]
+    YIGSE:
+      pattern:
+        - "/C|F|Y|W/"
+        - "/M|L|I|V/"
+        - "/G/"
+        - "/P|A|T|S/"
+        - "/N|H|Q|E|D|R|K/"
+      replacement: ["y", "i", "g", "s", "e"]
+    YISE:
+      pattern:
+        - "/C|F|Y|W/"
+        - "/M|L|I|V/"
+        - "/G|P|A|T|S/"
+        - "/N|H|Q|E|D|R|K/"
+      remplacement: ["y", "i", "s", "e"]
+    ISE:
+      pattern:
+        - "/C|F|Y|W|M|L|I|V/"
+        - "/G|P|A|T|S/"
+        - "/N|H|Q|E|D|R|K/"
+      remplacement: ["i", "s", "e"]
