@@ -9,11 +9,14 @@
  */
 namespace MinitoolsBundle\Service;
 
+use MinitoolsBundle\Entity\DnaToProtein;
+
 class DnaToProteinManager
 {
     private $aAminos;
     private $aTriplets;
     private $aTripletsCombinations;
+    private $sRvSequence;
 
     /**
      * DnaToProteinManager constructor.
@@ -27,6 +30,78 @@ class DnaToProteinManager
         $this->aTriplets                = $aTriplets;
         $this->aTripletsCombinations    = $aTripletsCombinations;
     }
+
+
+    public function getRvSequence($sSequence)
+    {
+        $this->sRvSequence = $this->revCompDNA($sSequence);
+    }
+
+
+    /**
+     * @param   DnaToProtein $oDnaToProtein
+     * @param   string $sSequence
+     * @param   string $sMycode
+     * @return  array
+     * @throws \Exception
+     */
+    public function customTreatment(DnaToProtein $oDnaToProtein, $sSequence, $sMycode)
+    {
+        try {
+            $aFrames = [];
+            // Translate in  5-3 direction
+            $aFrames[1] = $this->translateDNAToProteinCustomcode(substr($sSequence, 0, floor(strlen($sSequence)/3)*3), $sMycode);
+
+            if ($oDnaToProtein->getFrames() > 1) {
+                $aFrames[2] = $this->translateDNAToProteinCustomcode(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3),$sMycode);
+                $aFrames[3] = $this->translateDNAToProteinCustomcode(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3),$sMycode);
+            }
+            // Translate the complementary sequence
+            if ($oDnaToProtein->getFrames() > 3) {
+                // Get complementary
+                $this->sRvSequence = $this->revCompDNA($sSequence);
+                $aFrames[4] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 0, floor(strlen($this->sRvSequence)/3)*3),$sMycode);
+                $aFrames[5] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3),$sMycode);
+                $aFrames[6] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3),$sMycode);
+            }
+            return $aFrames;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+
+    /**
+     * Treatment when a specie has been chosen
+     * @param   DnaToProtein $oDnaToProtein
+     * @param   string $sSequence
+     * @return  array
+     * @throws \Exception
+     */
+    public function definedTreatment(DnaToProtein $oDnaToProtein, $sSequence)
+    {
+        try {
+            // Translate in 5-3 direction
+            $aFrames[1] = $this->translateDNAToProtein(substr($sSequence, 0, floor(strlen($sSequence)/3)*3),$oDnaToProtein->getGeneticCode());
+            if ($oDnaToProtein->getFrames() > 1){
+                $aFrames[2] = $this->translateDNAToProtein(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
+                $aFrames[3] = $this->translateDNAToProtein(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+            }
+            // Translate the complementary sequence
+            if ($oDnaToProtein->getFrames() > 3){
+                // Get complementary
+                $this->sRvSequence = $this->revCompDNA($sSequence);
+                //calculate frames 4-6
+                $aFrames[4] = $this->translateDNAToProtein(substr($this->sRvSequence, 0,floor(strlen($this->sRvSequence)/3)*3),$oDnaToProtein->getGeneticCode());
+                $aFrames[5] = $this->translateDNAToProtein(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
+                $aFrames[6] = $this->translateDNAToProtein(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+            }
+            return $aFrames;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
 
     /**
      * Find ORFs in sequence
@@ -101,7 +176,7 @@ class DnaToProteinManager
     public function translateDNAToProtein($sSequence, $sGeneticCode)
     {
         try {
-            $aAminoAcids = array("F","L","I","M","V","S","P","T","A","Y","*","H","Q","N","K","D","E","C","W","R","G","X");
+            $aAminoAcids = ["F","L","I","M","V","S","P","T","A","Y","*","H","Q","N","K","D","E","C","W","R","G","X"];
 
             $triplets[1] = $this->aTriplets["standard"]; // Standard genetic code
             $triplets[2] = $this->aTriplets["vertebrate_mitochondrial"]; // Vertebrate Mitochondrial
@@ -139,21 +214,21 @@ class DnaToProteinManager
      * @return  string
      * @throws  \Exception
      */
-    function translateDNAToProteinCustomcode($sSequence, $sGeneticCode)
+    public function translateDNAToProteinCustomcode($sSequence, $sGeneticCode)
     {
         try {
             $temp = chunk_split($sSequence,3,' '); // The sequence is chopped and @ is inserted after each triplete
 
             // each triplete replace by corresponding amnoacid
-            foreach($this->aTripletsCombinations as $key => $aTriplete) {
+            foreach ($this->aTripletsCombinations as $key => $aTriplete) {
                 $temp = str_replace($aTriplete,substr($sGeneticCode, $key, 1)."  ",$temp);
             }
 
             // no matching triplets -> X
-            $temp = preg_replace ("(\S\S\S )", "X  ", $temp);
+            $temp = preg_replace("(\S\S\S )", "X  ", $temp);
             $temp = substr ($temp, 0, -2);
 
-            $sProtein = preg_replace ("/ /","",$temp);
+            $sProtein = preg_replace("/ /","",$temp);
             return $sProtein;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -161,28 +236,22 @@ class DnaToProteinManager
     }
 
     /**
-     * Shows triplets and Proteins aligned
+     * Shows triplets and Proteins aligned (5'->3')
      * @param   string $sSequence
-     * @param   string $sRvSequence
      * @param   string $aFrame
      * @return  string
      * @throws  \Exception
      */
-    function showTranslationsAligned($sSequence, $sRvSequence, $aFrame)
+    public function showTranslationsAligned($sSequence, $aFrame)
     {
         try {
             $sResults = "";
             $aChunkedFrames = [];
 
-            $scale = "         10        20        30        40        50        60        70        80        90         ";
-            $barr = "         |         |         |         |         |         |         |         |         |          ";
-
             foreach ($aFrame as $n => $sPeptideSequence) {
                 $aChunkedFrames[$n] = chunk_split($sPeptideSequence, 1, '  ');
             }
 
-            // Show translation of of sequence in 5'->3' direction
-            $sResults .= "<br /><b>Translation of requested code (5'->3')</b>\n\n  $scale\n$barr\n";
             $i = 0;
 
 
@@ -193,22 +262,44 @@ class DnaToProteinManager
                 }
                 $sResults .= "\n";
                 $sResults .= substr($aChunkedFrames[1], $i, 100) . "\n";
-                if(isset($aChunkedFrames[2])) {
+                if (isset($aChunkedFrames[2])) {
                     $sResults .= substr(" " . $aChunkedFrames[2], $i, 100) . "\n";
                 }
-                if(isset( $aChunkedFrames[3])) {
+                if (isset( $aChunkedFrames[3])) {
                     $sResults .= substr("  " . $aChunkedFrames[3], $i, 100) . "\n\n";
                 }
 
                 $i += 100;
             }
 
+            return $sResults;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+
+    /**
+     * Shows triplets and Proteins aligned (complementary DNA chain)
+     * @param $aFrame
+     * @return string
+     * @throws \Exception
+     */
+    public function showTranslationsAlignedComplementary($aFrame)
+    {
+        try {
+            $sResults = "";
+            $aChunkedFrames = [];
+
+            foreach ($aFrame as $n => $sPeptideSequence) {
+                $aChunkedFrames[$n] = chunk_split($sPeptideSequence, 1, '  ');
+            }
+
             if (isset($aFrame[6])) {
-                $sResults .= "<b>Translation of requested code (complementary DNA chain)</b>\n\n  $scale\n$barr\n";
                 $i = 0;
-                while ($i < strlen($sRvSequence)) {
-                    $sResults .= substr($sRvSequence, $i, 100) . "  ";
-                    if ($i < strlen($sSequence) - $i) {
+                while ($i < strlen($this->sRvSequence)) {
+                    $sResults .= substr($this->sRvSequence, $i, 100) . "  ";
+                    if ($i < strlen($this->sRvSequence) - $i) {
                         $sResults .= $i + 100;
                     }
                     $sResults .= "\n";
