@@ -4,145 +4,157 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 24 february 2019
+ * Last modified 3 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DnaToProtein
 {
+    private $sSequence;
+
+    private $aFrames;
+
+    private $bDgaps;
+
+    private $bShowAligned;
+
+    private $bSearchOrfs;
+
     /**
-     * @var string
+     * @Assert\GreaterThanOrEqual(
+     *     value = 10
+     * )
      */
-    private $sequence;
+    private $iProtsize;
 
-    private $frames;
+    private $bOnlyCoding;
 
-    private $dgaps;
+    private $bTrimmed;
 
-    private $showAligned;
+    private $sGeneticCode;
 
-    private $searchOrfs;
+    private $bUsemycode;
 
-    private $protsize;
-
-    private $onlyCoding;
-
-    private $trimmed;
-
-    private $genetic_code;
-
-    private $usemycode;
-
-    private $mycode;
+    /**
+     * @Assert\Length(
+     *      min = 64,
+     *      max = 64,
+     *      minMessage = "The custom code is not correct (is not 64 characters long).",
+     *      maxMessage = "The custom code is not correct (is not 64 characters long)."
+     * )
+     */
+    private $sMycode;
 
 
     public function getSequence()
     {
-        return $this->sequence;
+        return $this->sSequence;
     }
-    public function setSequence($sequence)
+    public function setSequence($sSequence)
     {
-        $this->sequence = strtoupper($sequence);
+        $this->sSequence = strtoupper($sSequence);
     }
 
 
     public function getFrames()
     {
-        return $this->frames;
+        return $this->aFrames;
     }
-    public function setFrames($frames)
+    public function setFrames($aFrames)
     {
-        $this->frames = $frames;
+        $this->aFrames = $aFrames;
     }
 
 
     public function getDgaps()
     {
-        return $this->dgaps;
+        return $this->bDgaps;
     }
-    public function setDgaps($dgaps)
+    public function setDgaps($bDgaps)
     {
-        $this->dgaps = $dgaps;
+        $this->bDgaps = $bDgaps;
     }
 
 
     public function getShowAligned()
     {
-        return $this->showAligned;
+        return $this->bShowAligned;
     }
-    public function setShowAligned($showAligned)
+    public function setShowAligned($bShowAligned)
     {
-        $this->showAligned = $showAligned;
+        $this->bShowAligned = $bShowAligned;
     }
 
 
     public function getSearchOrfs()
     {
-        return $this->searchOrfs;
+        return $this->bSearchOrfs;
     }
-    public function setSearchOrfs($searchOrfs)
+    public function setSearchOrfs($bSearchOrfs)
     {
-         $this->searchOrfs = $searchOrfs;
+         $this->bSearchOrfs = $bSearchOrfs;
     }
 
 
     public function getProtsize()
     {
-        return $this->protsize;
+        return $this->iProtsize;
     }
-    public function setProtsize($protsize)
+    public function setProtsize($iProtsize)
     {
-        $this->protsize = $protsize;
+        $this->iProtsize = $iProtsize;
     }
 
 
     public function getOnlyCoding()
     {
-        return $this->onlyCoding;
+        return $this->bOnlyCoding;
     }
-    public function setOnlyCoding($onlyCoding)
+    public function setOnlyCoding($bOnlyCoding)
     {
-        $this->onlyCoding = $onlyCoding;
+        $this->bOnlyCoding = $bOnlyCoding;
     }
 
 
     public function getTrimmed()
     {
-        return $this->trimmed;
+        return $this->bTrimmed;
     }
-    public function setTrimmed($trimmed)
+    public function setTrimmed($bTrimmed)
     {
-        $this->trimmed = $trimmed;
+        $this->bTrimmed = $bTrimmed;
     }
 
 
     public function getGeneticCode()
     {
-        return $this->genetic_code;
+        return $this->sGeneticCode;
     }
-    public function setGeneticCode($genetic_code)
+    public function setGeneticCode($sGeneticCode)
     {
-        $this->genetic_code = $genetic_code;
+        $this->sGeneticCode = $sGeneticCode;
     }
 
 
     public function getUsemycode()
     {
-        return $this->usemycode;
+        return $this->bUsemycode;
     }
-    public function setUsemycode($usemycode)
+    public function setUsemycode($bUsemycode)
     {
-        $this->usemycode = $usemycode;
+        $this->bUsemycode = $bUsemycode;
     }
 
 
     public function getMycode()
     {
-        return $this->mycode;
+        return $this->sMycode;
     }
-    public function setMycode($mycode)
+    public function setMycode($sMycode)
     {
-        $this->mycode = strtoupper($mycode);
+        $this->sMycode = strtoupper($sMycode);
     }
 }
