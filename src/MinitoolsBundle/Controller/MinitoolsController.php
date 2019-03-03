@@ -85,13 +85,13 @@ class MinitoolsController extends Controller
         return $this->render(
             '@Minitools/Minitools/dnaToProtein.html.twig',
             [
-                'amino_left'        => $aAminoAcidCodesLeft,
-                'amino_right'       => $aAminoAcidCodesRight,
-                'form'              => $form->createView(),
-                'frames'            => $aEvent != null ? $aEvent->getArgument('frames') : null,
-                'aligned_results'   => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
-                'aligned_results_bis'   => $aEvent != null ? $aEvent->getArgument('frames_aligned_bis') : null,
-                'bar'               => "$sScale\n$aBar"
+                'amino_left'            => $aAminoAcidCodesLeft,
+                'amino_right'           => $aAminoAcidCodesRight,
+                'form'                  => $form->createView(),
+                'frames'                => $aEvent != null ? $aEvent->getArgument('frames') : null,
+                'aligned_results'       => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
+                'aligned_results_compl' => $aEvent != null ? $aEvent->getArgument('frames_aligned_compl') : null,
+                'bar'                   => "$sScale\n$aBar"
             ]
         );
     }

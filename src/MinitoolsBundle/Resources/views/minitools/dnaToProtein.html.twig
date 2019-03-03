@@ -13,13 +13,13 @@
                     <b>Translation of requested code (5'->3')</b><pre>{{ bar|raw }}<br />{{ aligned_results|raw }}</pre>
                 {% endif %}
 
-                {% if aligned_results != "" %}
+                {% if aligned_results_compl != "" %}
                     <b>Translation of requested code (complementary DNA chain)</b><pre>{{ bar|raw }}<br />{{ aligned_results_bis|raw }}</pre>
                 {% endif %}
 
                 {% for key, frame in frames %}
                     <h5 class="card-title">Frame {{ key }}</h5>
-                    <pre class="card-text">{{ frame }}</pre>
+                    <pre class="card-text">{{ frame|raw }}</pre>
                 {% endfor %}
 
             </div>
@@ -109,9 +109,6 @@
             </div>
         </div>
     </div>
-
-
-    {{ form_rest(form) }}
 
     {{ form_end(form) }}
 

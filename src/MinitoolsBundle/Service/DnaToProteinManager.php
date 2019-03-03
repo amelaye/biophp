@@ -135,7 +135,7 @@ class DnaToProteinManager
                         $sNewPeptideSequence .= $val;
                     }
                 }
-                // to avoid showing no coding, remove them from output sequence
+                // To avoid showing no coding, remove them from output sequence
                 if($bOnlyCoding) {
                     $sNewPeptideSequence = preg_replace("/f|l|i|m|v|s|p|t|a|y|h|q|n|k|d|e|c|w|r|g|x]/","_",$sNewPeptideSequence);
                 }
@@ -156,8 +156,8 @@ class DnaToProteinManager
     {
         try {
             $sSequence = strtoupper($sSequence);
-            $original =  array("(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)");
-            $complement = array("t","a","c","g","r","y","w","s","m","k","h","b","d","v");
+            $original   = ["(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)"];
+            $complement = ["t","a","c","g","r","y","w","s","m","k","h","b","d","v"];
             $sSequence = preg_replace($original, $complement, $sSequence);
             $sSequence = strtoupper($sSequence);
             return $sSequence;
