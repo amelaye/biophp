@@ -4,7 +4,8 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 24 february 2019
+ * Last modified 3 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
@@ -180,10 +181,10 @@ class DnaToProteinManager
                 $aChunkedFrames[$n] = chunk_split($sPeptideSequence, 1, '  ');
             }
 
-            $sResults .= "<table><tr><td nowrap><pre>\n";
             // Show translation of of sequence in 5'->3' direction
-            $sResults .= "<b>Translation of requested code (5'->3')</b>\n\n  $scale\n$barr\n";
+            $sResults .= "<br /><b>Translation of requested code (5'->3')</b>\n\n  $scale\n$barr\n";
             $i = 0;
+
 
             while ($i < strlen($sSequence)) {
                 $sResults .= substr($sSequence, $i, 100) . "  ";
@@ -192,8 +193,13 @@ class DnaToProteinManager
                 }
                 $sResults .= "\n";
                 $sResults .= substr($aChunkedFrames[1], $i, 100) . "\n";
-                $sResults .= substr(" " . $aChunkedFrames[2], $i, 100) . "\n";
-                $sResults .= substr("  " . $aChunkedFrames[3], $i, 100) . "\n\n";
+                if(isset($aChunkedFrames[2])) {
+                    $sResults .= substr(" " . $aChunkedFrames[2], $i, 100) . "\n";
+                }
+                if(isset( $aChunkedFrames[3])) {
+                    $sResults .= substr("  " . $aChunkedFrames[3], $i, 100) . "\n\n";
+                }
+
                 $i += 100;
             }
 
@@ -212,7 +218,7 @@ class DnaToProteinManager
                     $i += 100;
                 }
             }
-            $sResults .= "</pre></td></tr></table>";
+
             return $sResults;
         } catch (\Exception $e) {
             throw new \Exception($e);

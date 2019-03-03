@@ -71,6 +71,9 @@ class MinitoolsController extends Controller
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
+        $sScale = "         10        20        30        40        50        60        70        80        90         ";
+        $aBar   = "         |         |         |         |         |         |         |         |         |          ";
+
         $oDnaToProtein = new DnaToProtein();
         $form = $this->get('form.factory')->create(DnaToProteinType::class, $oDnaToProtein);
 
@@ -87,6 +90,7 @@ class MinitoolsController extends Controller
                 'form'              => $form->createView(),
                 'frames'            => $aEvent != null ? $aEvent->getArgument('frames') : null,
                 'aligned_results'   => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
+                'bar'               => "$sScale\n$aBar"
             ]
         );
     }
