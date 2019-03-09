@@ -17,3 +17,12 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
+
+    nucleotids_graphs:
+        positions_2:
+            h_pos: 24
+            v_pos: 26
+        intervals_2: 64
+        startx_2: 10
+        starty_2: 90
+        fcgr_file: 'FCGR.png'

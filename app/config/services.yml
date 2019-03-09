@@ -153,4 +153,5 @@ services:
         arguments:
             - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
+            - '%nucleotids_graphs%'
 
