@@ -1,6 +1,6 @@
 <?php
 /**
- * Formulas Functions
+ * Chaos Game Representation Functions
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 3 march  2019
@@ -9,8 +9,24 @@
  */
 namespace MinitoolsBundle\Service;
 
-class ChaosGameReprentationManager
+use MinitoolsBundle\Entity\ChaosGameRepresentation;
+
+class ChaosGameRepresentationManager
 {
+    private $chaosGameRepresentation;
+
+    private $dnaComplements;
+
+    public function __construct($dnaComplements)
+    {
+        $this->dnaComplements = $dnaComplements;
+    }
+
+    public function setChaosGameRepresentation(ChaosGameRepresentation $chaosGameRepresentation)
+    {
+        $this->chaosGameRepresentation = $chaosGameRepresentation;
+    }
+
     /**
      * @param $input_min
      * @param $input_max
@@ -20,16 +36,16 @@ class ChaosGameReprentationManager
     public function CGRCompute($input_min, $input_max)
     {
         // GET POSTED DATA
-        if ($_POST["seq_name"]) {
-            $seq_name = $_POST["seq_name"];
-        } else {
-            $seq_name = "No name";
-        }
-        $seq = strtoupper($_POST["seq"]);
+        //if ($_POST["seq_name"]) {
+            //$seq_name = $_POST["seq_name"];
+        //} else {
+            //$seq_name = "No name";
+        //}
+        $seq = strtoupper($this->chaosGameRepresentation->getSeq());
         $seq = preg_replace("/\W|\d/", "", $seq);
 
         $seq_len = strlen($seq);
-
+dump($seq); exit();
         // add limits to length of imput sequence
         if($seq_len > $input_max) {
             throw new \Exception("Sequence is longer than $input_max bp. At this moment we can not provide this service to such a long sequences.");
@@ -55,71 +71,30 @@ class ChaosGameReprentationManager
 
 
     /**
-     * @param $input_min
-     * @param $input_max
-     * @todo : voir ce qu'il faut faire avec ce legacy. Needs complete rafacto.
+     * Gets data sequences
+     * @return array
      */
-    public function FCGRCompute($input_min, $input_max)
+    public function FCGRCompute()
     {
-        print "<p align=right><a href=".$_SERVER["PHP_SELF"].">Home</a></p>\n";
-        print "Computing...(time depends on sequence length and power of the server)<center><hr>";flush();
-
-        // GET DATA
-        if ($_POST["seq_name"]) {
-            $seq_name = $_POST["seq_name"];
-        } else {
-            $seq_name = "No name";
-        }
-        $seq = strtoupper($_POST["seq"]);
+        $seq = strtoupper($this->chaosGameRepresentation->getSeq());
         $seq = preg_replace ("/\W|\d/", "", $seq);
-        $seq_len = strlen($seq);
-
-        // limits for length of sequence
-        if($seq_len > $input_max) {
-            die("<p>Sequence is longer than $input_max bp.<p>At this moment we can not provide this service to such a long sequences.");
-        }
-        if($seq_len < $input_min) {
-            die("<p>Minumum sequence length: $input_min bp");
-        }
-
-        $oligo_len = $_POST["len"];
+        $oligo_len = $this->chaosGameRepresentation->getLen();
 
         // If double strand is requested to be computed...
-        if ($_POST["s"] == 2) {
-            $seq .= " ".$this->revComp($seq);
-        }
-
-        // compute nucleotide frequencies
-        $A = substr_count($seq,"A");
-        $C = substr_count($seq,"C");
-        $G = substr_count($seq,"G");
-        $T = substr_count($seq,"T");
-
-        // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-        //   frequencies are saved to an array named $oligos
-        $oligos = $this->findOligos($seq,$oligo_len);
-
-
-        // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
-        //      check the function for more info on parameters
-        //      $data contains a string with the data to be used to create the image map
-        $for_map = $this->createFCGRImage($oligos, $seq_name, $A, $C, $G, $T, $seq_len, $_POST["s"], $oligo_len);
-
-        // PRINT THE IMAGE, WHICH WILL BE A IMAGE MAP WHEN REQUESTED
-        //    to avoid submission of a huge amount of data throught the net
-        if($_POST["map"] == 1) {   // image map is requested
-            print "<br><MAP NAME=Kaixo>\n$for_map\n</MAP>\n<span id=txt></span>&nbsp;<br><img USEMAP=\#Kaixo src=FCGR.png?".date("U")." width=552 hight=700 border=0>\n";
-        } else {
-            print "<br><img  src=FCGR.png?".date("U")." width=552 hight=700 border=0>";
-        }
-        // PRINT TEXTAREA WITH OLIGONUCLEOTIDE FREQUENCIES  WHEN REQUESTED
-        if($_POST["freq"] == 1) {   // oligonucleotide frequencies are requested
-            print "<p><p>Raw data used to generate images above: <BR><textarea cols=80 rows=10>Sequence\tOccurences\n";
-            foreach ($oligos as $key => $val) {
-                print "\n$key\t$val";
+        if ($this->chaosGameRepresentation->getS() == 2) {
+            $seqRevert = strrev($seq);
+            foreach ($this->dnaComplements as $nucleotide => $complement) {
+                $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
             }
-            print "</textarea>";
+            $seq .= " ".strtoupper($seqRevert);
         }
+
+        $aDataSeq = array(
+            "sequence" => $seq,
+            "length"   => $oligo_len,
+        );
+
+        return $aDataSeq;
     }
 
 
@@ -167,6 +142,146 @@ class ChaosGameReprentationManager
         imagedestroy($im);
     }
 
+    private function findOligos2BasesLong($base_a, $base_b, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                if($oligos_1step[$val_a.$val_b]) {
+                    $oligos[$val_a.$val_b] = $oligos_1step[$val_a.$val_b];
+                } else {
+                    $oligos[$val_a.$val_b] = 0;
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos3BasesLong($base_a, $base_b, $base_c, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    if($oligos_1step[$val_a.$val_b.$val_c]) {
+                        $oligos[$val_a.$val_b.$val_c] = $oligos_1step[$val_a.$val_b.$val_c];
+                    } else {
+                        $oligos[$val_a.$val_b.$val_c] = 0;
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos4BasesLong($base_a, $base_b, $base_c, $base_d, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d]) {
+                            $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_1step[$val_a.$val_b.$val_c.$val_d];
+                        } else {
+                            $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
+                        }
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos5BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e]) {
+                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e];
+                            } else {
+                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos6BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            foreach($base_f as $key_f => $val_f) {
+                                if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
+                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
+                                } else {
+                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos7BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            foreach($base_f as $key_f => $val_f) {
+                                foreach($base_g as $key_g => $val_g) {
+                                    if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g]) {
+                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g];
+                                    } else {
+                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
+    private function findOligos8BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $base_h, $oligos_1step)
+    {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            foreach($base_f as $key_f => $val_f) {
+                                foreach($base_g as $key_g => $val_g) {
+                                    foreach($base_h as $key_h => $val_h) {
+                                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h]) {
+                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h];
+                                        } else {
+                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = 0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $oligos;
+    }
+
 
     /**
      * compute frequency of oligonucleotides with length $oligo_len for sequence $sequence
@@ -179,138 +294,46 @@ class ChaosGameReprentationManager
         $i = 0;
         $oligos_1step = [];
         $len = strlen($sequence) - $oligo_len + 1;
-        while($i < $len) {
+
+        while ($i < $len) {
             $seq = substr($sequence, $i, $oligo_len);
-            $oligos_1step[$seq] ++;
+            if (!isset($oligos_1step[$seq])) {
+                $oligos_1step[$seq] = 1;
+            } else {
+                $oligos_1step[$seq] ++;
+            }
             $i ++;
         }
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = array("A","C","G","T");
+
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = array_values($this->dnaComplements);
 
         //for oligos 2 bases long
         if($oligo_len == 2) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    if($oligos_1step[$val_a.$val_b]) {
-                        $oligos[$val_a.$val_b] = $oligos_1step[$val_a.$val_b];
-                    } else {
-                        $oligos[$val_a.$val_b] = 0;
-                    }
-                }
-            }
+            $oligos = $this->findOligos2BasesLong($base_a, $base_b, $oligos_1step);
         }
         //for oligos 3 bases long
         if($oligo_len == 3) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        if($oligos_1step[$val_a.$val_b.$val_c]) {
-                            $oligos[$val_a.$val_b.$val_c] = $oligos_1step[$val_a.$val_b.$val_c];
-                        } else {
-                            $oligos[$val_a.$val_b.$val_c] = 0;
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos3BasesLong($base_a, $base_b, $base_c, $oligos_1step);
         }
         //for oligos 4 bases long
         if($oligo_len == 4) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            if($oligos_1step[$val_a.$val_b.$val_c.$val_d]) {
-                                $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_1step[$val_a.$val_b.$val_c.$val_d];
-                            } else {
-                                $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
-                            }
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos4BasesLong($base_a, $base_b, $base_c, $base_d, $oligos_1step);
         }
         //for oligos 5 bases long
         if($oligo_len == 5) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e]) {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e];
-                                } else {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos5BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $oligos_1step);
         }
         //for oligos 6 bases long
         if($oligo_len == 6) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                foreach($base_f as $key_f => $val_f) {
-                                    if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
-                                    } else {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos6BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $oligos_1step);
         }
         //for oligos 7 bases long
         if($oligo_len == 7) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                foreach($base_f as $key_f => $val_f) {
-                                    foreach($base_g as $key_g => $val_g) {
-                                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g]) {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g];
-                                        } else {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = 0;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos7BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $oligos_1step);
         }
         //for oligos 8 bases long
         if($oligo_len == 8) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                foreach($base_f as $key_f => $val_f) {
-                                    foreach($base_g as $key_g => $val_g) {
-                                        foreach($base_h as $key_h => $val_h) {
-                                            if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h]) {
-                                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h];
-                                            } else {
-                                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = 0;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            $oligos = $this->findOligos8BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $base_h, $oligos_1step);
         }
         return $oligos;
     }
@@ -574,22 +597,5 @@ class ChaosGameReprentationManager
 
         imagedestroy($im);
         return $for_map;
-    }
-
-
-    /**
-     * REVERSE_COMPLEMENT DNA
-     * @param $code
-     * @return mixed|string
-     */
-    public function revComp($code)
-    {
-        $code = strrev($code);
-        $code = str_replace("A", "t", $code);
-        $code = str_replace("T", "a", $code);
-        $code = str_replace("G", "c", $code);
-        $code = str_replace("C", "g", $code);
-        $code = strtoupper($code);
-        return $code;
     }
 }

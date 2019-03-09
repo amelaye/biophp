@@ -26,11 +26,16 @@ class ChaosGameRepresentationType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $sampleADN = "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG";
+        $sampleADN .= "TTAATTAAACTGAAGAAGGATATATTTGGCTGGGTGTTTTCAAATGTCAGCTTAAAATTGGTAATTGAAT";
+        $sampleADN .= "GGAAGCAAAATTATAAGAAGAGGAAATTAAAGTCTTCCATTGCATGTATTGTAAACAGAAGGAGATGGGT";
+        $sampleADN .= "GATTCCTTCAATTCAAAAGCTCTCTTTGGAATGAACAATGTGGGCGTTTGTAAATTCTGGAAATGTCTTT";
+        $sampleADN .= "CTATTCATAATAAACTAGATACTGTTGATCTTTTAAAAAAAAAAAA";
+
         $builder->add(
             'seq_name',
             TextType::class,
             [
-                'data' => 50,
                 'label' => "Sequence name",
                 'attr' => [
                     'class' => "form-control"
@@ -43,8 +48,8 @@ class ChaosGameRepresentationType extends AbstractType
             ChoiceType::class,
             [
                 'choices' => [
-                    "Both strands" => 1,
-                    "Only upper strand" => 2
+                    "Both strands" => 2,
+                    "Only upper strand" => 1
                 ],
                 'label' => "Compute data for",
                 'attr' => [
@@ -57,7 +62,14 @@ class ChaosGameRepresentationType extends AbstractType
             'len',
             ChoiceType::class,
             [
-                'choices' => [2, 3, 4, 5, 6, 7],
+                'choices' => [
+                    2 => '2',
+                    3 => '3',
+                    4 => '4',
+                    5 => '5',
+                    6 => '6',
+                    7 => '7'
+                ],
                 'label' => "Search oligos of length",
                 'attr' => [
                     'class' => "custom-select d-block w-20"
@@ -75,6 +87,7 @@ class ChaosGameRepresentationType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
+                'data'  => $sampleADN
             ]
         );
 

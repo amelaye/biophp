@@ -10,6 +10,7 @@ namespace MinitoolsBundle\Controller;
 
 use MinitoolsBundle\Entity\DistanceAmongSequences;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
+use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,19 +27,62 @@ use MinitoolsBundle\Form\DnaToProteinType;
 class MinitoolsController extends Controller
 {
     /**
-     * @Route("/minitools/chaos-game-representation", name="chaos_game_representation")
+     * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
+     * @param Request $request
+     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
+     * @return Response
+     * @throws \Exception
      */
-    public function chaosGameRepresentationAction()
+    public function chaosGameRepresentationAction($schema, Request $request, ChaosGameRepresentationManager $chaosGameReprentationManager)
     {
-        $oChaosGameRepresentation = new ChaosGameRepresentation();
-        $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
+        if ($schema == "FCGR") {
+            $aOligos = null;
+            $for_map = null;
+
+            $oChaosGameRepresentation = new ChaosGameRepresentation();
+            $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
+
+            // Form treatment
+            if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+                $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
+
+                $aSeqData = $chaosGameReprentationManager->FCGRCompute();
+
+                // compute nucleotide frequencies
+                foreach($this->getParameter('dna_complements') as $sNucleotide) {
+                    $$sNucleotide = substr_count($aSeqData["sequence"], $sNucleotide);
+                }
+
+                // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
+                //      frequencies are saved to an array named $aOligos
+                $aOligos = $chaosGameReprentationManager->findOligos($aSeqData["sequence"], $aSeqData["length"]);
+
+                // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
+                //      check the function for more info on parameters
+                //      $data contains a string with the data to be used to create the image map
+                $for_map = $chaosGameReprentationManager->createFCGRImage(
+                    $aOligos,
+                    $oChaosGameRepresentation->getSeqName(),
+                    $A, $C, $G, $T,
+                    $aSeqData["length"],
+                    $oChaosGameRepresentation->getS(),
+                    $oChaosGameRepresentation->getLen()
+                );
+            }
+        }
 
         return $this->render(
             '@Minitools/Minitools/chaosGameRepresentation.html.twig',
             [
                 'form'              => $form->createView(),
+                'oligos'            => $aOligos,
+                'for_map'           => $for_map,
+                'is_map'            => $oChaosGameRepresentation->getMap(),
+                'show_as_freq'      => $oChaosGameRepresentation->getFreq()
             ]
         );
+
     }
 
     /**
@@ -71,9 +115,6 @@ class MinitoolsController extends Controller
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
-        $sScale = "         10        20        30        40        50        60        70        80        90         \r";
-        $aBar   = "         |         |         |         |         |         |         |         |         |          ";
-
         $oDnaToProtein = new DnaToProtein();
         $form = $this->get('form.factory')->create(DnaToProteinType::class, $oDnaToProtein);
 
@@ -91,7 +132,7 @@ class MinitoolsController extends Controller
                 'frames'                => $aEvent != null ? $aEvent->getArgument('frames') : null,
                 'aligned_results'       => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
                 'aligned_results_compl' => $aEvent != null ? $aEvent->getArgument('frames_aligned_compl') : null,
-                'bar'                   => "$sScale\n$aBar"
+                'bar'                   => $aEvent != null ? $aEvent->getArgument('bar') : null,
             ]
         );
     }

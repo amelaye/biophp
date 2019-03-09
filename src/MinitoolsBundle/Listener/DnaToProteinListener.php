@@ -29,9 +29,10 @@ class DnaToProteinListener implements EventSubscriberInterface
     public function onCreateFrames(GenericEvent $event)
     {
         try {
-            $sResults = '';
-            $sResultsComplementary = '';
-            $mycode = null;
+            $sResults               = '';
+            $sResultsComplementary  = '';
+            $mycode                 = null;
+            $sBar                   = '';
 
             $dnatoprotein = $event->getSubject(); // Object injected
 
@@ -59,23 +60,25 @@ class DnaToProteinListener implements EventSubscriberInterface
             if((bool)$dnatoprotein->getShowAligned()) {
                 $sResults = $this->dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
                 $sResultsComplementary = $this->dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
+                $sBar = $this->dnaToProteinManager->getScaleAndBar();
             }
 
             // Output the amino acids with double gaps (--)
-            if ($dnatoprotein->getDgaps() == 1) {
+            if ((bool)$dnatoprotein->getDgaps()) {
                 foreach($aFrames as &$line) {
                     $line = chunk_split($line,1,'--');
                 }
             }
 
             // Formats frames
-            foreach($aFrames as &$line) {
-                $line = chunk_split($line,100,'<br>');
+            foreach($aFrames as &$sPeptideSequence) {
+                $sPeptideSequence = chunk_split($sPeptideSequence,100,'<br>');
             }
 
             $event->setArgument('frames', $aFrames);
             $event->setArgument('frames_aligned',$sResults);
             $event->setArgument('frames_aligned_compl', $sResultsComplementary);
+            $event->setArgument('bar', $sBar);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
