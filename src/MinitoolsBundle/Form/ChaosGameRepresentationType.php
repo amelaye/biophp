@@ -33,10 +33,29 @@ class ChaosGameRepresentationType extends AbstractType
         $sampleADN .= "GATTCCTTCAATTCAAAAGCTCTCTTTGGAATGAACAATGTGGGCGTTTGTAAATTCTGGAAATGTCTTT";
         $sampleADN .= "CTATTCATAATAAACTAGATACTGTTGATCTTTTAAAAAAAAAAAA";
 
+        $optionsSize = array(
+            "Auto" => "auto",
+            "1024 X 1024" => "1024",
+            "512 x 512" => "512",
+            "256 x 256" => "256",
+        );
+
         $builder->add(
             'seq_name',
             TextType::class,
             [
+                'label' => "Sequence name",
+                'attr' => [
+                    'class' => "form-control"
+                ]
+            ]
+        );
+
+        $builder->add(
+            'size',
+            ChoiceType::class,
+            [
+                'choices' => $optionsSize,
                 'label' => "Sequence name",
                 'attr' => [
                     'class' => "form-control"
