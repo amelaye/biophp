@@ -52,9 +52,9 @@ class OligosManager
      */
     public function findOligos3BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -78,10 +78,10 @@ class OligosManager
      */
     public function findOligos4BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
-        $this->base_d = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -107,11 +107,11 @@ class OligosManager
      */
     public function findOligos5BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
-        $this->base_d = array_values($dnaComplements);
-        $this->base_e = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
+        $this->base_e = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -139,12 +139,12 @@ class OligosManager
      */
     public function findOligos6BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
-        $this->base_d = array_values($dnaComplements);
-        $this->base_e = array_values($dnaComplements);
-        $this->base_f = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
+        $this->base_e = $dnaComplements;
+        $this->base_f = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -174,13 +174,13 @@ class OligosManager
      */
     public function findOligos7BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
-        $this->base_d = array_values($dnaComplements);
-        $this->base_e = array_values($dnaComplements);
-        $this->base_f = array_values($dnaComplements);
-        $this->base_g = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
+        $this->base_e = $dnaComplements;
+        $this->base_f = $dnaComplements;
+        $this->base_g = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -212,14 +212,14 @@ class OligosManager
      */
     public function findOligos8BasesLong($oligos_1step, $dnaComplements)
     {
-        $this->base_a = array_values($dnaComplements);
-        $this->base_b = array_values($dnaComplements);
-        $this->base_c = array_values($dnaComplements);
-        $this->base_d = array_values($dnaComplements);
-        $this->base_e = array_values($dnaComplements);
-        $this->base_f = array_values($dnaComplements);
-        $this->base_g = array_values($dnaComplements);
-        $this->base_h = array_values($dnaComplements);
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
+        $this->base_e = $dnaComplements;
+        $this->base_f = $dnaComplements;
+        $this->base_g = $dnaComplements;
+        $this->base_h = $dnaComplements;
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
