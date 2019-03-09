@@ -23,3 +23,4 @@
 web/code-coverage/*
 *.DS_STORE*
 *.DS_Store*
+/web/FCGR.png

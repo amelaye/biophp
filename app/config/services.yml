@@ -139,7 +139,7 @@ services:
             - "%triplets%"
             - "%triplets_combinations%"
 
-    MinitoolsBundle\Service\ProteinPropertiesnManager:
+    MinitoolsBundle\Service\ProteinPropertiesManager:
         arguments:
             - "%codons%"
             - "%triplets%"
@@ -151,4 +151,6 @@ services:
 
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
+            - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
+

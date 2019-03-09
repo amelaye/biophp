@@ -4,7 +4,8 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 26 february 2019
+ * Last modified 9 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
 
@@ -38,6 +39,7 @@ class MinitoolsController extends Controller
         if ($schema == "FCGR") {
             $aOligos = null;
             $for_map = null;
+            $aNucleotides = [];
 
             $oChaosGameRepresentation = new ChaosGameRepresentation();
             $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
@@ -51,7 +53,7 @@ class MinitoolsController extends Controller
 
                 // compute nucleotide frequencies
                 foreach($this->getParameter('dna_complements') as $sNucleotide) {
-                    $$sNucleotide = substr_count($aSeqData["sequence"], $sNucleotide);
+                    $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
                 }
 
                 // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
@@ -64,7 +66,7 @@ class MinitoolsController extends Controller
                 $for_map = $chaosGameReprentationManager->createFCGRImage(
                     $aOligos,
                     $oChaosGameRepresentation->getSeqName(),
-                    $A, $C, $G, $T,
+                    $aNucleotides,
                     $aSeqData["length"],
                     $oChaosGameRepresentation->getS(),
                     $oChaosGameRepresentation->getLen()

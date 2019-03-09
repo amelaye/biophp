@@ -4,21 +4,25 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 3 march  2019
- * Last modified 3 march 2019
+ * Last modified 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use MinitoolsBundle\Entity\ChaosGameRepresentation;
+use AppBundle\Service\OligosManager;
 
 class ChaosGameRepresentationManager
 {
     private $chaosGameRepresentation;
 
+    private $oligosManager;
     private $dnaComplements;
 
-    public function __construct($dnaComplements)
+
+    public function __construct(OligosManager $oligosManager, $dnaComplements)
     {
+        $this->oligosManager = $oligosManager;
         $this->dnaComplements = $dnaComplements;
     }
 
@@ -72,29 +76,34 @@ dump($seq); exit();
 
     /**
      * Gets data sequences
-     * @return array
+     * @return  array
+     * @throws  \Exception
      */
     public function FCGRCompute()
     {
-        $seq = strtoupper($this->chaosGameRepresentation->getSeq());
-        $seq = preg_replace ("/\W|\d/", "", $seq);
-        $oligo_len = $this->chaosGameRepresentation->getLen();
+        try {
+            $sSequence = strtoupper($this->chaosGameRepresentation->getSeq());
+            $sSequence = preg_replace ("/\W|\d/", "", $sSequence);
+            $iOligoLen = $this->chaosGameRepresentation->getLen();
 
-        // If double strand is requested to be computed...
-        if ($this->chaosGameRepresentation->getS() == 2) {
-            $seqRevert = strrev($seq);
-            foreach ($this->dnaComplements as $nucleotide => $complement) {
-                $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+            // If double strand is requested to be computed...
+            if ($this->chaosGameRepresentation->getS() == 2) {
+                $seqRevert = strrev($sSequence);
+                foreach ($this->dnaComplements as $nucleotide => $complement) {
+                    $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+                }
+                $sSequence .= " ".strtoupper($seqRevert);
             }
-            $seq .= " ".strtoupper($seqRevert);
+
+            $aDataSeq = array(
+                "sequence" => $sSequence,
+                "length"   => $iOligoLen,
+            );
+
+            return $aDataSeq;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-
-        $aDataSeq = array(
-            "sequence" => $seq,
-            "length"   => $oligo_len,
-        );
-
-        return $aDataSeq;
     }
 
 
@@ -142,303 +151,130 @@ dump($seq); exit();
         imagedestroy($im);
     }
 
-    private function findOligos2BasesLong($base_a, $base_b, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                if($oligos_1step[$val_a.$val_b]) {
-                    $oligos[$val_a.$val_b] = $oligos_1step[$val_a.$val_b];
-                } else {
-                    $oligos[$val_a.$val_b] = 0;
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos3BasesLong($base_a, $base_b, $base_c, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    if($oligos_1step[$val_a.$val_b.$val_c]) {
-                        $oligos[$val_a.$val_b.$val_c] = $oligos_1step[$val_a.$val_b.$val_c];
-                    } else {
-                        $oligos[$val_a.$val_b.$val_c] = 0;
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos4BasesLong($base_a, $base_b, $base_c, $base_d, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    foreach($base_d as $key_d => $val_d) {
-                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d]) {
-                            $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_1step[$val_a.$val_b.$val_c.$val_d];
-                        } else {
-                            $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
-                        }
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos5BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    foreach($base_d as $key_d => $val_d) {
-                        foreach($base_e as $key_e => $val_e) {
-                            if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e]) {
-                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e];
-                            } else {
-                                $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos6BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    foreach($base_d as $key_d => $val_d) {
-                        foreach($base_e as $key_e => $val_e) {
-                            foreach($base_f as $key_f => $val_f) {
-                                if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
-                                } else {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos7BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    foreach($base_d as $key_d => $val_d) {
-                        foreach($base_e as $key_e => $val_e) {
-                            foreach($base_f as $key_f => $val_f) {
-                                foreach($base_g as $key_g => $val_g) {
-                                    if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g]) {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g];
-                                    } else {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
-    private function findOligos8BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $base_h, $oligos_1step)
-    {
-        foreach($base_a as $key_a => $val_a) {
-            foreach($base_b as $key_b => $val_b) {
-                foreach($base_c as $key_c => $val_c) {
-                    foreach($base_d as $key_d => $val_d) {
-                        foreach($base_e as $key_e => $val_e) {
-                            foreach($base_f as $key_f => $val_f) {
-                                foreach($base_g as $key_g => $val_g) {
-                                    foreach($base_h as $key_h => $val_h) {
-                                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h]) {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h];
-                                        } else {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = 0;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $oligos;
-    }
-
 
     /**
-     * compute frequency of oligonucleotides with length $oligo_len for sequence $sequence
-     * @param $sequence
-     * @param $oligo_len
-     * @return mixed
+     * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
+     * @param   string $sSequence
+     * @param   int $iOligoLen
+     * @return  array
+     * @throws  \Exception
      */
-    public function findOligos($sequence, $oligo_len)
+    public function findOligos($sSequence, $iOligoLen)
     {
-        $i = 0;
-        $oligos_1step = [];
-        $len = strlen($sequence) - $oligo_len + 1;
+        try {
+            $i              = 0;
+            $aOligos1Step   = [];
+            $aOligos        = [];
 
-        while ($i < $len) {
-            $seq = substr($sequence, $i, $oligo_len);
-            if (!isset($oligos_1step[$seq])) {
-                $oligos_1step[$seq] = 1;
-            } else {
-                $oligos_1step[$seq] ++;
+            $iLength = strlen($sSequence) - $iOligoLen + 1;
+            while ($i < $iLength) {
+                $sMySequence = substr($sSequence, $i, $iOligoLen);
+
+                if (!isset($aOligos1Step[$sMySequence])) {
+                    $aOligos1Step[$sMySequence] = 1;
+                } else {
+                    $aOligos1Step[$sMySequence] ++;
+                }
+                $i ++;
             }
-            $i ++;
-        }
 
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = array_values($this->dnaComplements);
+            $aDnaComplements = array_values($this->dnaComplements);
 
-        //for oligos 2 bases long
-        if($oligo_len == 2) {
-            $oligos = $this->findOligos2BasesLong($base_a, $base_b, $oligos_1step);
+            switch ($iOligoLen) {
+                case 2:
+                    $aOligos = $this->oligosManager->findOligos2BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 3:
+                    $aOligos = $this->oligosManager->findOligos3BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 4:
+                    $aOligos = $this->oligosManager->findOligos4BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 5:
+                    $aOligos = $this->oligosManager->findOligos5BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 6:
+                    $aOligos = $this->oligosManager->findOligos6BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 7:
+                    $aOligos = $this->oligosManager->findOligos7BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 8:
+                    $aOligos = $this->oligosManager->findOligos8BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                default:
+                    throwException(new \Exception("Invalid base format ! "));
+            }
+
+            return $aOligos;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        //for oligos 3 bases long
-        if($oligo_len == 3) {
-            $oligos = $this->findOligos3BasesLong($base_a, $base_b, $base_c, $oligos_1step);
-        }
-        //for oligos 4 bases long
-        if($oligo_len == 4) {
-            $oligos = $this->findOligos4BasesLong($base_a, $base_b, $base_c, $base_d, $oligos_1step);
-        }
-        //for oligos 5 bases long
-        if($oligo_len == 5) {
-            $oligos = $this->findOligos5BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $oligos_1step);
-        }
-        //for oligos 6 bases long
-        if($oligo_len == 6) {
-            $oligos = $this->findOligos6BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $oligos_1step);
-        }
-        //for oligos 7 bases long
-        if($oligo_len == 7) {
-            $oligos = $this->findOligos7BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $oligos_1step);
-        }
-        //for oligos 8 bases long
-        if($oligo_len == 8) {
-            $oligos = $this->findOligos8BasesLong($base_a, $base_b, $base_c, $base_d, $base_e, $base_f, $base_g, $base_h, $oligos_1step);
-        }
-        return $oligos;
     }
-
 
     /**
      * CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES
      * The FCGR image will be save to a file, and an string is returned which contains data to be create a image map
-     * @param   $oligos         the array containing the oligonucleotides and their frequencies
-     * @param   $seq_name       name of the sequence
-     * @param $A
-     * @param $C
-     * @param $G
-     * @param $T                frequencies of nucleotides
-     * @param $seq_len          length of sequence
-     * @param $n                number of strands used to compute the figure
-     * @param $oligo_len        length of oligonucleotides studied
-     * @return string
+     * @param   array       $oligos
+     * @param   string      $seq_name
+     * @param   array       $aNucleotids
+     * @param   int         $seq_len
+     * @param   string      $n
+     * @param   int         $oligo_len
+     * @return  string
      */
-    public function createFCGRImage($oligos, $seq_name, $A, $C, $G, $T, $seq_len, $n, $oligo_len)
+    public function createFCGRImage($oligos, $seq_name, $aNucleotids, $seq_len, $n, $oligo_len)
     {
+        $iFontWeight = 3;
+
         $max_val = max($oligos);
         $min_val = min($oligos);
+
         foreach($oligos as $key => $val) {
             $ratio[$key] = floor(255 - ((255 * ($val - $min_val)) / ($max_val - $min_val)));
         }
 
-        $im = imagecreatetruecolor(552, 370) or die("Cannot initialize image");
+        $im = imagecreatetruecolor(552, 370);
+
+
         for($c = 0; $c < 256; $c++) {
-            $thecolor[$c] = ImageColorAllocate($im, $c, $c, $c);
+            $thecolor[$c] = imagecolorallocate($im, $c, $c, $c);
         }
         $background_color = imagecolorallocate($im, 255, 255, 255);
         imagefilledrectangle($im,0,0,552,700,$background_color);
-        $black = imagecolorallocate($im, 0, 0, 0);
-        $red = imagecolorallocate($im, 255, 0, 0);
-        $blue = imagecolorallocate($im, 0, 0, 255);
+
+        $black  = imagecolorallocate($im, 0, 0, 0);
+        $red    = imagecolorallocate($im, 255, 0, 0);
+        $blue   = imagecolorallocate($im, 0, 0, 255);
 
         imagestring($im, 4, 10, 10, "Over or under-representation of oligonucleotides", $blue);
         imagestring($im, 3, 20, 30, "Chaos Game Representation of frequencies (FCGR)", $black);
         imageline($im, 10, 50, 350, 50, $black);
         $seq_name = substr($seq_name,0,15);
         imagestring($im, 3, 20, 55, "Sequence name: $seq_name ($seq_len bp)", $black);
+
         if($n == 1) {
             imagestring($im, 3, 20, 73, "Results for only one strand", $black);
         }
-        if($n == 2) {
+        else if($n == 2) {
             imagestring($im, 3, 20, 73, "Results for both strands", $black);
         }
 
+        $thecolor[255] = imagecolorallocate($im, 255, 255, 255);
 
-        $thecolor[255] = ImageColorAllocate($im, 255, 255, 255);
-        $for_map = "";
-        foreach($ratio as $seq => $val) {
-            $len = strlen($seq);
-            if($len == 7) {
-                $len_cuadro = 1;
-            }
-            if($len == 6) {
-                $len_cuadro = 3;
-            }
-            if($len == 5) {
-                $len_cuadro = 7;
-            }
-            if($len == 4) {
-                $len_cuadro = 15;
-            }
-            if($len == 3) {
-                $len_cuadro = 31;
-            }
-            if($len == 2) {
-                $len_cuadro = 63;
-            }
-            $mas_x = 10;
-            $mas_y = 90;
-            // para posicion
-            $x = 0;
-            $y = 0;
-            $tt = 0;
-            $len2 = $len;
-            while($len2 > 0) {
-                $len2 --;
-                $ttt = pow(2, $tt);
-                $tt ++;
-                $subseq1 = substr($seq, $len2, 1);
-                if($subseq1 == "A" || $subseq1 == "T") {
-                    $y += 128 / $ttt;
-                }
-                if($subseq1 == "G" || $subseq1 == "T") {
-                    $x += 128 / $ttt;
-                }
-            }
-            $x += $mas_x;
-            $x2 = $x + $len_cuadro;
-            $y += $mas_y;
-            $y2 = $y + $len_cuadro;
+        // maps area data
+        $for_map = $this->mapAreaData($ratio, $thecolor, $im, $oligos);
 
-            imagefilledrectangle($im,$x,$y,$x2,$y2,$thecolor[$val]);
-            $for_map.="<AREA onMouseover=\"a('$seq => ".$oligos[$seq]."');\" onMouseout=\"a('');\" COORDS=\"$x,$y,$x2,$y2\" SHAPE=RECT>\n";
+        $imageNucleotids = array(
+            "A" => array("font" => $iFontWeight, "x" => 420,  "y" => 10, "occurences" => $aNucleotids["A"]),
+            "C" => array("font" => $iFontWeight, "x" => 420,  "y" => 30, "occurences" => $aNucleotids["C"]),
+            "G" => array("font" => $iFontWeight, "x" => 420,  "y" => 50, "occurences" => $aNucleotids["G"]),
+            "T" => array("font" => $iFontWeight, "x" => 420,  "y" => 70, "occurences" => $aNucleotids["T"]),
+        );
 
+        foreach($imageNucleotids as $key => $l) {
+            imagestring($im, $l["font"], $l["x"], $l["y"],  $key.': '.$l["occurences"].'', $black);
         }
-
-        imagestring($im, 3, 420, 10,  "A: $A", $black);
-        imagestring($im, 3, 420, 30,  "C: $C", $black);
-        imagestring($im, 3, 420, 50,  "G: $G", $black);
-        imagestring($im, 3, 420, 70,  "T: $T", $black);
 
         // lines
         imageline ($im, 10, 90, 10, 346, $black);
@@ -447,128 +283,14 @@ dump($seq); exit();
         imageline ($im, 10, 346, 266, 346, $black);
 
         if($oligo_len == 2) {
-            // lines
-            imageline ($im, 10, 154, 266, 154, $black);
-            imageline ($im, 10, 218, 266, 218, $black);
-            imageline ($im, 10, 282, 266, 282, $black);
-            imageline ($im, 74, 90, 74, 346, $black);
-            imageline ($im, 138, 90, 138, 346, $black);
-            imageline ($im, 202, 90, 202, 346, $black);
-
-            // dimers in their place
-            $h_pos = 24;
-            $v_pos = 26;
-            imagestring($im, 3, 10+$h_pos, 90+$v_pos, "CC", $black);
-            imagestring($im, 3, 74+$h_pos, 90+$v_pos, "GC", $black);
-            imagestring($im, 3, 138+$h_pos, 90+$v_pos, "CG", $black);
-            imagestring($im, 3, 202+$h_pos, 90+$v_pos, "GG", $black);
-            imagestring($im, 3, 10+$h_pos, 154+$v_pos, "AC", $black);
-            imagestring($im, 3, 74+$h_pos, 154+$v_pos, "TC", $black);
-            imagestring($im, 3, 138+$h_pos, 154+$v_pos, "AG", $black);
-            imagestring($im, 3, 202+$h_pos, 154+$v_pos, "TG", $black);
-            imagestring($im, 3, 10+$h_pos, 218+$v_pos, "CA", $black);
-            imagestring($im, 3, 74+$h_pos, 218+$v_pos, "GA", $black);
-            imagestring($im, 3, 138+$h_pos, 218+$v_pos, "CT", $black);
-            imagestring($im, 3, 202+$h_pos, 218+$v_pos, "GT", $black);
-            imagestring($im, 3, 10+$h_pos, 282+$v_pos, "AA", $black);
-            imagestring($im, 3, 74+$h_pos, 282+$v_pos, "TA", $black);
-            imagestring($im, 3, 138+$h_pos, 282+$v_pos, "AT", $black);
-            imagestring($im, 3, 202+$h_pos, 282+$v_pos, "TT", $black);
+            $this->createGraphFor2Nucleo($im, $black, $iFontWeight);
         }
         if ($oligo_len == 3) {
-            // lines
-            imageline ($im, 10, 122, 266, 122, $black);
-            imageline ($im, 10, 154, 266, 154, $black);
-            imageline ($im, 10, 186, 266, 186, $black);
-            imageline ($im, 10, 218, 266, 218, $black);
-            imageline ($im, 10, 250, 266, 250, $black);
-            imageline ($im, 10, 282, 266, 282, $black);
-            imageline ($im, 10, 314, 266, 314, $black);
-            imageline ($im, 42, 90, 42, 346, $black);
-            imageline ($im, 74, 90, 74, 346, $black);
-            imageline ($im, 106, 90, 106, 346, $black);
-            imageline ($im, 138, 90, 138, 346, $black);
-            imageline ($im, 170, 90, 170, 346, $black);
-            imageline ($im, 202, 90, 202, 346, $black);
-            imageline ($im, 234, 90, 234, 346, $black);
-
-            // trinucleotides in their place
-            $h_pos = 8;
-            $v_pos = 10;
-            imagestring($im, 2, 10+$h_pos, 90+$v_pos, "CCC", $black);
-            imagestring($im, 2, 42+$h_pos, 90+$v_pos, "GCC", $black);
-            imagestring($im, 2, 74+$h_pos, 90+$v_pos, "CGC", $black);
-            imagestring($im, 2, 106+$h_pos, 90+$v_pos, "GGC", $black);
-            imagestring($im, 2, 138+$h_pos, 90+$v_pos, "CCG", $black);
-            imagestring($im, 2, 170+$h_pos, 90+$v_pos, "GCG", $black);
-            imagestring($im, 2, 202+$h_pos, 90+$v_pos, "CGG", $black);
-            imagestring($im, 2, 234+$h_pos, 90+$v_pos, "GGG", $black);
-
-            imagestring($im, 2, 10+$h_pos, 122+$v_pos, "ACC", $black);
-            imagestring($im, 2, 42+$h_pos, 122+$v_pos, "TCC", $black);
-            imagestring($im, 2, 74+$h_pos, 122+$v_pos, "AGC", $black);
-            imagestring($im, 2, 106+$h_pos, 122+$v_pos, "TGC", $black);
-            imagestring($im, 2, 138+$h_pos, 122+$v_pos, "ACG", $black);
-            imagestring($im, 2, 170+$h_pos, 122+$v_pos, "TCG", $black);
-            imagestring($im, 2, 202+$h_pos, 122+$v_pos, "AGG", $black);
-            imagestring($im, 2, 234+$h_pos, 122+$v_pos, "TGG", $black);
-
-            imagestring($im, 2, 10+$h_pos, 154+$v_pos, "CAC", $black);
-            imagestring($im, 2, 42+$h_pos, 154+$v_pos, "GAC", $black);
-            imagestring($im, 2, 74+$h_pos, 154+$v_pos, "ATC", $black);
-            imagestring($im, 2, 106+$h_pos, 154+$v_pos, "CTC", $black);
-            imagestring($im, 2, 138+$h_pos, 154+$v_pos, "CAG", $black);
-            imagestring($im, 2, 170+$h_pos, 154+$v_pos, "GAG", $black);
-            imagestring($im, 2, 202+$h_pos, 154+$v_pos, "CTG", $black);
-            imagestring($im, 2, 234+$h_pos, 154+$v_pos, "GTG", $black);
-
-            imagestring($im, 2, 10+$h_pos, 186+$v_pos, "AAC", $black);
-            imagestring($im, 2, 42+$h_pos, 186+$v_pos, "TAC", $black);
-            imagestring($im, 2, 74+$h_pos, 186+$v_pos, "GTC", $black);
-            imagestring($im, 2, 106+$h_pos, 186+$v_pos, "TTC", $black);
-            imagestring($im, 2, 138+$h_pos, 186+$v_pos, "AAG", $black);
-            imagestring($im, 2, 170+$h_pos, 186+$v_pos, "TAG", $black);
-            imagestring($im, 2, 202+$h_pos, 186+$v_pos, "ATG", $black);
-            imagestring($im, 2, 234+$h_pos, 186+$v_pos, "TTG", $black);
-
-            imagestring($im, 2, 10+$h_pos, 218+$v_pos, "CCA", $black);
-            imagestring($im, 2, 42+$h_pos, 218+$v_pos, "GCA", $black);
-            imagestring($im, 2, 74+$h_pos, 218+$v_pos, "CGA", $black);
-            imagestring($im, 2, 106+$h_pos, 218+$v_pos, "GGA", $black);
-            imagestring($im, 2, 138+$h_pos, 218+$v_pos, "CCT", $black);
-            imagestring($im, 2, 170+$h_pos, 218+$v_pos, "GCT", $black);
-            imagestring($im, 2, 202+$h_pos, 218+$v_pos, "CGT", $black);
-            imagestring($im, 2, 234+$h_pos, 218+$v_pos, "GGT", $black);
-
-            imagestring($im, 2, 10+$h_pos, 250+$v_pos, "ACA", $black);
-            imagestring($im, 2, 42+$h_pos, 250+$v_pos, "TCA", $black);
-            imagestring($im, 2, 74+$h_pos, 250+$v_pos, "AGA", $black);
-            imagestring($im, 2, 106+$h_pos, 250+$v_pos, "TGA", $black);
-            imagestring($im, 2, 138+$h_pos, 250+$v_pos, "ACT", $black);
-            imagestring($im, 2, 170+$h_pos, 250+$v_pos, "TCT", $black);
-            imagestring($im, 2, 202+$h_pos, 250+$v_pos, "AGT", $black);
-            imagestring($im, 2, 234+$h_pos, 250+$v_pos, "TGT", $black);
-
-            imagestring($im, 2, 10+$h_pos, 282+$v_pos, "CAA", $black);
-            imagestring($im, 2, 42+$h_pos, 282+$v_pos, "GAA", $black);
-            imagestring($im, 2, 74+$h_pos, 282+$v_pos, "CTA", $black);
-            imagestring($im, 2, 106+$h_pos, 282+$v_pos, "GTA", $black);
-            imagestring($im, 2, 138+$h_pos, 282+$v_pos, "CAT", $black);
-            imagestring($im, 2, 170+$h_pos, 282+$v_pos, "GAT", $black);
-            imagestring($im, 2, 202+$h_pos, 282+$v_pos, "CTT", $black);
-            imagestring($im, 2, 234+$h_pos, 282+$v_pos, "GTT", $black);
-
-            imagestring($im, 2, 10+$h_pos, 314+$v_pos, "AAA", $black);
-            imagestring($im, 2, 42+$h_pos, 314+$v_pos, "TAA", $black);
-            imagestring($im, 2, 74+$h_pos, 314+$v_pos, "ATA", $black);
-            imagestring($im, 2, 106+$h_pos, 314+$v_pos, "TTA", $black);
-            imagestring($im, 2, 138+$h_pos, 314+$v_pos, "AAT", $black);
-            imagestring($im, 2, 170+$h_pos, 314+$v_pos, "TAT", $black);
-            imagestring($im, 2, 202+$h_pos, 314+$v_pos, "ATT", $black);
-            imagestring($im, 2, 234+$h_pos, 314+$v_pos, "TTT", $black);
+            $this->createGraphForTrinucleo($im, $black, $iFontWeight);
         }
+
         // show length of oligonucleotides
-        imagestring($im, 3, 50, 350,  "Oligonucleotide length: $oligo_len", $black);
+        imagestring($im, $iFontWeight, 50, 350,  "Oligonucleotide length: $oligo_len", $black);
 
 
         $cent = 286;
@@ -596,6 +318,226 @@ dump($seq); exit();
         imagepng($im,"FCGR.png");
 
         imagedestroy($im);
+        return $for_map;
+    }
+
+    /**
+     * Creates graph for two nucleotids
+     * @param   resource      $im
+     * @param   string        $black
+     * @param   int           $iFontWeight
+     */
+    private function createGraphFor2Nucleo(&$im, $black, $iFontWeight)
+    {
+        // lines
+        imageline($im, 10, 154, 266, 154, $black);
+        imageline($im, 10, 218, 266, 218, $black);
+        imageline($im, 10, 282, 266, 282, $black);
+
+        imageline($im, 74, 90, 74, 346, $black);
+        imageline($im, 138, 90, 138, 346, $black);
+        imageline($im, 202, 90, 202, 346, $black);
+
+        // dimers in their place
+        $h_pos = 24;
+        $v_pos = 26;
+
+        $imageNucleotids = array(
+            "CC" => array("x" => 10  + $h_pos,  "y" => 90 + $v_pos),
+            "GC" => array("x" => 74  + $h_pos,  "y" => 90 + $v_pos), // x + 64
+            "CG" => array("x" => 138 + $h_pos,  "y" => 90 + $v_pos),
+            "GG" => array("x" => 202 + $h_pos,  "y" => 90 + $v_pos),
+
+            "AC" => array("x" => 10  + $h_pos,  "y" => 154 + $v_pos), // y + 64
+            "TC" => array("x" => 74  + $h_pos,  "y" => 154 + $v_pos),
+            "AG" => array("x" => 138 + $h_pos,  "y" => 154 + $v_pos),
+            "TG" => array("x" => 202 + $h_pos,  "y" => 154 + $v_pos),
+
+            "CA" => array("x" => 10  + $h_pos,  "y" => 218 + $v_pos),
+            "GA" => array("x" => 74  + $h_pos,  "y" => 218 + $v_pos),
+            "CT" => array("x" => 138 + $h_pos,  "y" => 218 + $v_pos),
+            "GT" => array("x" => 138 + $h_pos,  "y" => 218 + $v_pos),
+
+            "AA" => array("x" => 10  + $h_pos,  "y" => 282 + $v_pos),
+            "TA" => array("x" => 74  + $h_pos,  "y" => 282 + $v_pos),
+            "AT" => array("x" => 138 + $h_pos,  "y" => 282 + $v_pos),
+            "TT" => array("x" => 202 + $h_pos,  "y" => 282 + $v_pos),
+        );
+
+        foreach($imageNucleotids as $key => $l) {
+            imagestring($im, $iFontWeight, $l["x"], $l["y"], $key, $black);
+        }
+    }
+
+    /**
+     * Creates graph for three nucleotids
+     * @param   resource      $im
+     * @param   string        $black
+     * @param   int           $iFontWeight
+     */
+    private function createGraphForTrinucleo(&$im, $black, $iFontWeight)
+    {
+        // lines
+        imageline ($im, 10, 122, 266, 122, $black);
+        imageline ($im, 10, 154, 266, 154, $black);
+        imageline ($im, 10, 186, 266, 186, $black);
+        imageline ($im, 10, 218, 266, 218, $black);
+        imageline ($im, 10, 250, 266, 250, $black);
+        imageline ($im, 10, 282, 266, 282, $black);
+        imageline ($im, 10, 314, 266, 314, $black);
+        imageline ($im, 42, 90, 42, 346, $black);
+        imageline ($im, 74, 90, 74, 346, $black);
+        imageline ($im, 106, 90, 106, 346, $black);
+        imageline ($im, 138, 90, 138, 346, $black);
+        imageline ($im, 170, 90, 170, 346, $black);
+        imageline ($im, 202, 90, 202, 346, $black);
+        imageline ($im, 234, 90, 234, 346, $black);
+
+        // trinucleotides in their place
+        $h_pos = 8;
+        $v_pos = 10;
+
+        $imageNucleotids = array(
+            "CCC" => array("x" => 10   + $h_pos,  "y" => 90 + $v_pos), // x + 32
+            "GCC" => array("x" => 42   + $h_pos,  "y" => 90 + $v_pos),
+            "CGC" => array("x" => 74   + $h_pos,  "y" => 90 + $v_pos),
+            "GGC" => array("x" => 106  + $h_pos,  "y" => 90 + $v_pos),
+            "CCG" => array("x" => 138  + $h_pos,  "y" => 90 + $v_pos),
+            "GCG" => array("x" => 170  + $h_pos,  "y" => 90 + $v_pos),
+            "CGG" => array("x" => 202  + $h_pos,  "y" => 90 + $v_pos),
+            "GGG" => array("x" => 234  + $h_pos,  "y" => 90 + $v_pos),
+
+            "ACC" => array("x" => 10   + $h_pos,  "y" => 122 + $v_pos), // y + 32
+            "TCC" => array("x" => 42   + $h_pos,  "y" => 122 + $v_pos),
+            "AGC" => array("x" => 74   + $h_pos,  "y" => 122 + $v_pos),
+            "TGC" => array("x" => 106  + $h_pos,  "y" => 122 + $v_pos),
+            "ACG" => array("x" => 138  + $h_pos,  "y" => 122 + $v_pos),
+            "TCG" => array("x" => 170  + $h_pos,  "y" => 122 + $v_pos),
+            "AGG" => array("x" => 202  + $h_pos,  "y" => 122 + $v_pos),
+            "TGG" => array("x" => 234  + $h_pos,  "y" => 122 + $v_pos),
+
+            "CAC" => array("x" => 10   + $h_pos,  "y" => 154 + $v_pos),
+            "GAC" => array("x" => 42   + $h_pos,  "y" => 154 + $v_pos),
+            "ATC" => array("x" => 74   + $h_pos,  "y" => 154 + $v_pos),
+            "CTC" => array("x" => 106  + $h_pos,  "y" => 154 + $v_pos),
+            "CAG" => array("x" => 138  + $h_pos,  "y" => 154 + $v_pos),
+            "GAG" => array("x" => 170  + $h_pos,  "y" => 154 + $v_pos),
+            "CTG" => array("x" => 202  + $h_pos,  "y" => 154 + $v_pos),
+            "GTG" => array("x" => 234  + $h_pos,  "y" => 154 + $v_pos),
+
+            "AAC" => array("x" => 10   + $h_pos,  "y" => 186 + $v_pos),
+            "TAC" => array("x" => 42   + $h_pos,  "y" => 186 + $v_pos),
+            "GTC" => array("x" => 74   + $h_pos,  "y" => 186 + $v_pos),
+            "TTC" => array("x" => 106  + $h_pos,  "y" => 186 + $v_pos),
+            "AAG" => array("x" => 138  + $h_pos,  "y" => 186 + $v_pos),
+            "TAG" => array("x" => 170  + $h_pos,  "y" => 186 + $v_pos),
+            "ATG" => array("x" => 202  + $h_pos,  "y" => 186 + $v_pos),
+            "TTG" => array("x" => 234  + $h_pos,  "y" => 186 + $v_pos),
+
+            "CCA" => array("x" => 10   + $h_pos,  "y" => 218 + $v_pos),
+            "GCA" => array("x" => 42   + $h_pos,  "y" => 218 + $v_pos),
+            "CGA" => array("x" => 74   + $h_pos,  "y" => 218 + $v_pos),
+            "GGA" => array("x" => 106  + $h_pos,  "y" => 218 + $v_pos),
+            "CCT" => array("x" => 138  + $h_pos,  "y" => 218 + $v_pos),
+            "GCT" => array("x" => 170  + $h_pos,  "y" => 218 + $v_pos),
+            "CGT" => array("x" => 202  + $h_pos,  "y" => 218 + $v_pos),
+            "GGT" => array("x" => 234  + $h_pos,  "y" => 218 + $v_pos),
+
+            "ACA" => array("x" => 10   + $h_pos,  "y" => 250 + $v_pos),
+            "TCA" => array("x" => 42   + $h_pos,  "y" => 250 + $v_pos),
+            "AGA" => array("x" => 74   + $h_pos,  "y" => 250 + $v_pos),
+            "TGA" => array("x" => 106  + $h_pos,  "y" => 250 + $v_pos),
+            "ACT" => array("x" => 138  + $h_pos,  "y" => 250 + $v_pos),
+            "TCT" => array("x" => 170  + $h_pos,  "y" => 250 + $v_pos),
+            "AGT" => array("x" => 202  + $h_pos,  "y" => 250 + $v_pos),
+            "TGT" => array("x" => 234  + $h_pos,  "y" => 250 + $v_pos),
+
+            "CAA" => array("x" => 10   + $h_pos,  "y" => 282 + $v_pos),
+            "GAA" => array("x" => 42   + $h_pos,  "y" => 282 + $v_pos),
+            "CTA" => array("x" => 74   + $h_pos,  "y" => 282 + $v_pos),
+            "GTA" => array("x" => 106  + $h_pos,  "y" => 282 + $v_pos),
+            "CAT" => array("x" => 138  + $h_pos,  "y" => 282 + $v_pos),
+            "GAT" => array("x" => 170  + $h_pos,  "y" => 282 + $v_pos),
+            "CTT" => array("x" => 202  + $h_pos,  "y" => 282 + $v_pos),
+            "GTT" => array("x" => 234  + $h_pos,  "y" => 282 + $v_pos),
+
+            "AAA" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "TAA" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "ATA" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "TTA" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "AAT" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "TAT" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "ATT" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+            "TTT" => array("x" => 10   + $h_pos,  "y" => 314 + $v_pos),
+        );
+
+        foreach($imageNucleotids as $key => $l) {
+            imagestring($im, $iFontWeight, $l["x"], $l["y"], $key, $black);
+        }
+    }
+
+    /**
+     * @param $ratio
+     * @param $thecolor
+     * @param $im
+     * @param $oligos
+     * @return string
+     */
+    private function mapAreaData($ratio, $thecolor, $im, $oligos)
+    {
+        $for_map = "";
+        foreach($ratio as $seq => $val) {
+            $len = strlen($seq);
+            switch($len) {
+                case 7:
+                    $len_cuadro = 1;
+                    break;
+                case 6:
+                    $len_cuadro = 3;
+                    break;
+                case 5:
+                    $len_cuadro = 7;
+                    break;
+                case 4:
+                    $len_cuadro = 15;
+                    break;
+                case 3:
+                    $len_cuadro = 31;
+                    break;
+                case 2:
+                    $len_cuadro = 63;
+                    break;
+            }
+
+            $mas_x = 10;
+            $mas_y = 90;
+
+            // para posicion
+            $x = 0;
+            $y = 0;
+            $tt = 0;
+            $len2 = $len;
+            while($len2 > 0) {
+                $len2 --;
+                $ttt = pow(2, $tt);
+                $tt ++;
+                $subseq1 = substr($seq, $len2, 1);
+                if($subseq1 == "A" || $subseq1 == "T") {
+                    $y += 128 / $ttt;
+                }
+                if($subseq1 == "G" || $subseq1 == "T") {
+                    $x += 128 / $ttt;
+                }
+            }
+            $x += $mas_x;
+            $x2 = $x + $len_cuadro;
+            $y += $mas_y;
+            $y2 = $y + $len_cuadro;
+
+            imagefilledrectangle($im,$x,$y,$x2,$y2,$thecolor[$val]);
+            $for_map.="<AREA onMouseover=\"a('$seq => ".$oligos[$seq]."');\" onMouseout=\"a('');\" COORDS=\"$x,$y,$x2,$y2\" SHAPE=RECT>\n";
+
+        }
         return $for_map;
     }
 }
