@@ -22,7 +22,8 @@
                     <h5 class="card-header">Minitools</h5>
                     <div class="card-body">
                         <ul>
-                            <li><a href="{{ url('chaos_game_representation') }}">Chaos Game Representation of DNA</a></li>
+                            <li><a href="{{ url('chaos_game_representation', { schema: 'FCGR' }) }}">Chaos Game Representation of DNA FCGR *</a></li>
+                            <li><a href="{{ url('chaos_game_representation', { schema: 'CGR' }) }}">Chaos Game Representation of DNA CGR *</a></li>
                             <li><a href="{{ url('distance_among_sequences') }}">Oligonucleotide frequency based distance among sequences</a></li>
                             <li><a href="{{ url('dna_to_protein') }}">DNA to protein translation *</a></li>
                             <li><a href="{{ url('find_palindromes') }}">Palindromic sequences finder</a></li>

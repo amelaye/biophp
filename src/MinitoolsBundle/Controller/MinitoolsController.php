@@ -36,15 +36,14 @@ class MinitoolsController extends Controller
      */
     public function chaosGameRepresentationAction($schema, Request $request, ChaosGameRepresentationManager $chaosGameReprentationManager)
     {
+        $oChaosGameRepresentation = new ChaosGameRepresentation();
+        $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
+
         if ($schema == "FCGR") {
             $aOligos = null;
             $for_map = null;
             $aNucleotides = [];
 
-            $oChaosGameRepresentation = new ChaosGameRepresentation();
-            $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
-
-            // Form treatment
             if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 
                 $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
@@ -72,19 +71,32 @@ class MinitoolsController extends Controller
                     $oChaosGameRepresentation->getLen()
                 );
             }
+
+            return $this->render(
+                '@Minitools/Minitools/chaosGameRepresentationFCGR.html.twig',
+                [
+                    'form'              => $form->createView(),
+                    'oligos'            => $aOligos,
+                    'areas'             => $for_map,
+                    'is_map'            => $oChaosGameRepresentation->getMap(),
+                    'show_as_freq'      => $oChaosGameRepresentation->getFreq()
+                ]
+            );
         }
 
-        return $this->render(
-            '@Minitools/Minitools/chaosGameRepresentation.html.twig',
-            [
-                'form'              => $form->createView(),
-                'oligos'            => $aOligos,
-                'for_map'           => $for_map,
-                'is_map'            => $oChaosGameRepresentation->getMap(),
-                'show_as_freq'      => $oChaosGameRepresentation->getFreq()
-            ]
-        );
+        if ($schema == "CGR") {
+            if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+                $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
+                $chaosGameReprentationManager->CGRCompute();
+            }
 
+            return $this->render(
+                '@Minitools/Minitools/chaosGameRepresentationCGR.html.twig',
+                [
+                    'form'              => $form->createView(),
+                ]
+            );
+        }
     }
 
     /**

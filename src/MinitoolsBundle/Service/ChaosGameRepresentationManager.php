@@ -6,6 +6,8 @@
  * Created 3 march  2019
  * Last modified 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
+ * @todo : bug de positionnement du calque couleur, à revoir
+ * @todo : bug affichage length de la chaine pour FCGR
  */
 namespace MinitoolsBundle\Service;
 
@@ -34,45 +36,34 @@ class ChaosGameRepresentationManager
     }
 
     /**
-     * @param $input_min
-     * @param $input_max
-     * @todo : attention données en POST de legacy
+     * Analyses Data before sending the image
      * @throws \Exception
      */
-    public function CGRCompute($input_min, $input_max)
+    public function CGRCompute()
     {
-        // GET POSTED DATA
-        //if ($_POST["seq_name"]) {
-            //$seq_name = $_POST["seq_name"];
-        //} else {
-            //$seq_name = "No name";
-        //}
-        $seq = strtoupper($this->chaosGameRepresentation->getSeq());
-        $seq = preg_replace("/\W|\d/", "", $seq);
+        try {
+            $seq_name = $this->chaosGameRepresentation->getSeqName();
+            $seq = strtoupper($this->chaosGameRepresentation->getSeq());
+            $seq = preg_replace("/\W|\d/", "", $seq);
 
-        $seq_len = strlen($seq);
-dump($seq); exit();
-        // add limits to length of imput sequence
-        if($seq_len > $input_max) {
-            throw new \Exception("Sequence is longer than $input_max bp. At this moment we can not provide this service to such a long sequences.");
-        }
-        if($seq_len < $input_min) {
-            throw new \Exception("Minumum sequence length: $input_min bp");
-        }
+            $seq_len = strlen($seq);
 
-        if($_POST["size"] == "auto") {
-            $size = 256;
-            if($seq_len > 1000000) {
-                $size = 1024;
+            if($this->chaosGameRepresentation->getSize() == "auto") {
+                $size = 256;
+                if($seq_len > 1000000) {
+                    $size = 1024;
+                }
+                if($seq_len > 100000) {
+                    $size = 512;
+                }
+            } else {
+                $size = $this->chaosGameRepresentation->getSize();
             }
-            if($seq_len > 100000) {
-                $size = 512;
-            }
-        }else{
-            $size = $_POST["size"];
-        }
 
-        $this->createCGRImage($seq_name, $seq, $size);
+            $this->createCGRImage($seq_name, $seq, $size);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
 
@@ -110,36 +101,36 @@ dump($seq); exit();
 
 
     /**
+     * CREATE CHAOS GAME REPRESENTATION OF FREQUENCIE
      * @param $seq_name
      * @param $seq
      * @param $size
-     * @param $ip2
      */
-    public function createCGRImage($seq_name, $seq, $size, $ip2)
+    public function createCGRImage($sSeqName, $sSequence, $iSize)
     {
-        $im = imagecreatetruecolor($size, $size+20);
+        $im = imagecreatetruecolor($iSize, $iSize + 20);
         $white = imagecolorallocate($im, 255, 255, 255);
         $black = imagecolorallocate($im, 0, 0, 0);
-        imagefilledrectangle($im, 0, 0, $size, $size + 20, $white);
-        $x = round($size / 2);
+        imagefilledrectangle($im, 0, 0, $iSize, $iSize + 20, $white);
+        $x = round($iSize / 2);
         $y = $x;
-        for($i = 0; $i < strlen($seq); $i++) {
-            $w = substr($seq, $i, 1);
+        for($i = 0; $i < strlen($sSequence); $i++) {
+            $w = substr($sSequence, $i, 1);
             if($w == "A") {
                 $x -= $x / 2;
-                $y += ($size - $y) / 2;
+                $y += ($iSize - $y) / 2;
             }
             if($w == "C") {
                 $x -= $x / 2;
                 $y -= $y / 2;
             }
-            if($w=="G"){
-                $x+=($size-$x)/2;
-                $y-=$y/2;
+            if($w == "G") {
+                $x += ($iSize-$x)/2;
+                $y -= $y/2;
             }
-            if($w=="T"){
-                $x += ($size-$x) / 2;
-                $y += ($size-$y) / 2;
+            if($w == "T"){
+                $x += ($iSize-$x) / 2;
+                $y += ($iSize-$y) / 2;
             }
             $x2 = floor($x);
             $y2 = floor($y);
@@ -147,9 +138,9 @@ dump($seq); exit();
             imagesetpixel($im, $x2, $y2, $black);
         }
 
-        $seqlen = strlen($seq);
-        imagestring($im, 3, 5, $size+5, "$seq_name ($seqlen bp)", $black);
-        imagepng($im, "CGR.png");
+        $iSeqlen = strlen($sSequence);
+        imagestring($im, 3, 5, $iSize+5, "$sSeqName ($iSeqlen bp)", $black);
+        imagepng($im, $this->nucleotidsGraphs["cgr_file"]);
         imagedestroy($im);
     }
 
@@ -223,7 +214,7 @@ dump($seq); exit();
      * @param   int         $seq_len
      * @param   string      $n
      * @param   int         $oligo_len
-     * @return  string
+     * @return  array
      * @throws  \Exception
      */
     public function createFCGRImage($oligos, $seq_name, $aNucleotids, $seq_len, $n, $oligo_len)
@@ -267,7 +258,7 @@ dump($seq); exit();
             $thecolor[255] = imagecolorallocate($im, 255, 255, 255);
 
             // maps area data
-            $for_map = $this->mapAreaData($ratio, $thecolor, $im, $oligos);
+            $for_map = $this->mapAreaData($ratio, $thecolor, $im);
 
             $imageNucleotids = array(
                 "A" => array("font" => $iFontWeight, "x" => 420,  "y" => 10, "occurences" => $aNucleotids["A"]),
@@ -546,44 +537,46 @@ dump($seq); exit();
     }
 
     /**
-     * @param $ratio
-     * @param $thecolor
+     * @todo : bug possible de position
+     * @param array $aRatio
+     * @param string $sThecolor
      * @param $im
-     * @param $oligos
-     * @return string
+     * @return array
      * @throws \Exception
      */
-    private function mapAreaData($ratio, $thecolor, $im, $oligos)
+    private function mapAreaData($aRatio, $sThecolor, $im)
     {
         try {
-            $for_map = "";
-            foreach($ratio as $seq => $val) {
+            $aAreas = [];
+            $frameLength = null;
+
+            foreach($aRatio as $seq => $val) {
                 $len = strlen($seq);
                 switch($len) {
                     case 7:
-                        $len_cuadro = 1;
+                        $frameLength = 1;
                         break;
                     case 6:
-                        $len_cuadro = 3;
+                        $frameLength = 3;
                         break;
                     case 5:
-                        $len_cuadro = 7;
+                        $frameLength = 7;
                         break;
                     case 4:
-                        $len_cuadro = 15;
+                        $frameLength = 15;
                         break;
                     case 3:
-                        $len_cuadro = 31;
+                        $frameLength = 31;
                         break;
                     case 2:
-                        $len_cuadro = 63;
+                        $frameLength = 63;
                         break;
                 }
 
-                $mas_x = 10;
-                $mas_y = 90;
+                $h_pos = $this->nucleotidsGraphs["positions_2"]["h_pos"];
+                $v_pos = $this->nucleotidsGraphs["positions_2"]["v_pos"];
 
-                // para posicion
+                // each position
                 $x = 0;
                 $y = 0;
                 $tt = 0;
@@ -600,16 +593,16 @@ dump($seq); exit();
                         $x += 128 / $ttt;
                     }
                 }
-                $x += $mas_x;
-                $x2 = $x + $len_cuadro;
-                $y += $mas_y;
-                $y2 = $y + $len_cuadro;
+                $x += $h_pos;
+                $x2 = $x + $frameLength;
+                $y += $v_pos;
+                $y2 = $y + $frameLength;
 
-                imagefilledrectangle($im,$x,$y,$x2,$y2,$thecolor[$val]);
-                $for_map.="<AREA onMouseover=\"a('$seq => ".$oligos[$seq]."');\" onMouseout=\"a('');\" COORDS=\"$x,$y,$x2,$y2\" SHAPE=RECT>\n";
+                imagefilledrectangle($im,$x,$y,$x2,$y2,$sThecolor[$val]);
 
+                $aAreas[$seq] = array($x,$y,$x2,$y2);
             }
-            return $for_map;
+            return $aAreas;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

@@ -14,6 +14,8 @@ class ChaosGameRepresentation
 {
     private $seqName;
 
+    private $size;
+
     private $s;
 
     private $len;
@@ -32,6 +34,15 @@ class ChaosGameRepresentation
     public function setSeqName($seqName)
     {
         $this->seqName = $seqName;
+    }
+
+    public function getSize()
+    {
+        return $this->size;
+    }
+    public function setSize($size)
+    {
+        $this->size = $size;
     }
 
     public function getS()
