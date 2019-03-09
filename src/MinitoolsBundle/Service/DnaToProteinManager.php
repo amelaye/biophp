@@ -31,17 +31,31 @@ class DnaToProteinManager
         $this->aTripletsCombinations    = $aTripletsCombinations;
     }
 
-
+    /**
+     * Set reverted sequence
+     * @param   string      $sSequence
+     * @throws  \Exception
+     */
     public function getRvSequence($sSequence)
     {
         $this->sRvSequence = $this->revCompDNA($sSequence);
     }
 
+    /**
+     * Sets the bar + scale
+     * @return string
+     */
+    public function getScaleAndBar()
+    {
+        $sScale = "         10        20        30        40        50        60        70        80        90         \r";
+        $aBar   = "         |         |         |         |         |         |         |         |         |          ";
+        return "$sScale\n$aBar";
+    }
 
     /**
      * @param   DnaToProtein $oDnaToProtein
-     * @param   string $sSequence
-     * @param   string $sMycode
+     * @param   string      $sSequence
+     * @param   string      $sMycode
      * @return  array
      * @throws \Exception
      */
@@ -70,13 +84,12 @@ class DnaToProteinManager
         }
     }
 
-
     /**
      * Treatment when a specie has been chosen
-     * @param   DnaToProtein $oDnaToProtein
-     * @param   string $sSequence
+     * @param   DnaToProtein    $oDnaToProtein
+     * @param   string          $sSequence
      * @return  array
-     * @throws \Exception
+     * @throws  \Exception
      */
     public function definedTreatment(DnaToProtein $oDnaToProtein, $sSequence)
     {
@@ -102,14 +115,13 @@ class DnaToProteinManager
         }
     }
 
-
     /**
      * Find ORFs in sequence
-     * @param   array $aFrames
-     * @param   int $iProtsize
-     * @param   bool $bOnlyCoding
-     * @param   bool $bTrimmed
-     * @return  mixed
+     * @param   array       $aFrames
+     * @param   int         $iProtsize
+     * @param   bool        $bOnlyCoding
+     * @param   bool        $bTrimmed
+     * @return  array
      * @throws  \Exception
      */
     public function findORF($aFrames, $iProtsize, $bOnlyCoding, $bTrimmed)
@@ -148,7 +160,7 @@ class DnaToProteinManager
     }
 
     /**
-     * @param   string $sSequence
+     * @param   string          $sSequence
      * @return  string
      * @throws  \Exception
      */
@@ -168,8 +180,8 @@ class DnaToProteinManager
 
     /**
      * Translates a DNA Sequence to proteins
-     * @param   string $sSequence
-     * @param   string $sGeneticCode
+     * @param   string          $sSequence
+     * @param   string          $sGeneticCode
      * @return  string
      * @throws  \Exception
      */
@@ -199,7 +211,7 @@ class DnaToProteinManager
             // place a space after each triplete in the sequence
             $temp = chunk_split($sSequence,3,' ');
             // replace triplets by corresponding amnoacid
-            $sPeptide = preg_replace ($triplets[$sGeneticCode], $aAminoAcids, $temp);
+            $sPeptide = preg_replace($triplets[$sGeneticCode], $aAminoAcids, $temp);
             // return peptide sequence
             return $sPeptide;
         } catch (\Exception $e) {
@@ -209,8 +221,8 @@ class DnaToProteinManager
 
     /**
      * Translate DNA to protein (custom)
-     * @param   string $sSequence
-     * @param   string $sGeneticCode
+     * @param   string          $sSequence
+     * @param   string          $sGeneticCode
      * @return  string
      * @throws  \Exception
      */
@@ -226,7 +238,7 @@ class DnaToProteinManager
 
             // no matching triplets -> X
             $temp = preg_replace("(\S\S\S )", "X  ", $temp);
-            $temp = substr ($temp, 0, -2);
+            $temp = substr($temp, 0, -2);
 
             $sProtein = preg_replace("/ /","",$temp);
             return $sProtein;
@@ -237,15 +249,15 @@ class DnaToProteinManager
 
     /**
      * Shows triplets and Proteins aligned (5'->3')
-     * @param   string $sSequence
-     * @param   string $aFrame
+     * @param   string      $sSequence
+     * @param   array       $aFrame
      * @return  string
      * @throws  \Exception
      */
     public function showTranslationsAligned($sSequence, $aFrame)
     {
         try {
-            $sResults = "";
+            $aResults = [];
             $aChunkedFrames = [];
 
             foreach ($aFrame as $n => $sPeptideSequence) {
@@ -254,36 +266,35 @@ class DnaToProteinManager
 
             $i = 0;
 
-
             while ($i < strlen($sSequence)) {
-                $sResults .= substr($sSequence, $i, 100) . "  ";
+                $aResults[] = substr($sSequence, $i, 100) . "  ";
                 if ($i < strlen($sSequence) - $i) {
-                    $sResults .= $i + 100;
+                    $aResults[] = $i + 100;
                 }
-                $sResults .= "\n";
-                $sResults .= substr($aChunkedFrames[1], $i, 100) . "\n";
+                $aResults[] = "\n";
+                $aResults[] = substr($aChunkedFrames[1], $i, 100) . "\n";
                 if (isset($aChunkedFrames[2])) {
-                    $sResults .= substr(" " . $aChunkedFrames[2], $i, 100) . "\n";
+                    $aResults[] = substr(" " . $aChunkedFrames[2], $i, 100) . "\n";
                 }
                 if (isset( $aChunkedFrames[3])) {
-                    $sResults .= substr("  " . $aChunkedFrames[3], $i, 100) . "\n\n";
+                    $aResults[] = substr("  " . $aChunkedFrames[3], $i, 100) . "\n\n";
                 }
 
                 $i += 100;
             }
 
+            $sResults = implode('', $aResults);
             return $sResults;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
-
     /**
      * Shows triplets and Proteins aligned (complementary DNA chain)
-     * @param $aFrame
-     * @return string
-     * @throws \Exception
+     * @param   array    $aFrame
+     * @return  string
+     * @throws  \Exception
      */
     public function showTranslationsAlignedComplementary($aFrame)
     {

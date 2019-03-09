@@ -148,3 +148,7 @@ services:
     MinitoolsBundle\Listener\DnaToProteinListener:
         arguments:
             - '@MinitoolsBundle\Service\DnaToProteinManager'
+
+    MinitoolsBundle\Service\ChaosGameRepresentationManager:
+        arguments:
+            - '%dna_complements%'

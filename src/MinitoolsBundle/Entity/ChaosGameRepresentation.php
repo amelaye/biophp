@@ -8,6 +8,7 @@
 */
 namespace MinitoolsBundle\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ChaosGameRepresentation
 {
@@ -50,6 +51,14 @@ class ChaosGameRepresentation
         $this->len = $len;
     }
 
+    /**
+     * @Assert\Length(
+     *      min = 50,
+     *      max = 5000000,
+     *      minMessage = "Minumum sequence length: {{ min }} bp",
+     *      maxMessage = "Sequence is longer than {{ max }} bp. At this moment we can not provide this service to such a long sequences."
+     * )
+     */
     public function getSeq()
     {
         return $this->seq;
