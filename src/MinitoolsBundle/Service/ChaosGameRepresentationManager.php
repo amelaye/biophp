@@ -6,8 +6,6 @@
  * Created 3 march  2019
  * Last modified 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * @todo : bug de positionnement du calque couleur, à revoir
- * @todo : bug affichage length de la chaine pour FCGR
  */
 namespace MinitoolsBundle\Service;
 
@@ -102,9 +100,9 @@ class ChaosGameRepresentationManager
 
     /**
      * CREATE CHAOS GAME REPRESENTATION OF FREQUENCIE
-     * @param $seq_name
-     * @param $seq
-     * @param $size
+     * @param   string      $sSeqName
+     * @param   string      $sSequence
+     * @param   int         $iSize
      */
     public function createCGRImage($sSeqName, $sSequence, $iSize)
     {
@@ -147,10 +145,10 @@ class ChaosGameRepresentationManager
 
     /**
      * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
-     * @param   string $sSequence
-     * @param   int $iOligoLen
-     * @return  array
-     * @throws  \Exception
+     * @param       string      $sSequence
+     * @param       int         $iOligoLen
+     * @return      array
+     * @throws      \Exception
      */
     public function findOligos($sSequence, $iOligoLen)
     {
@@ -573,8 +571,8 @@ class ChaosGameRepresentationManager
                         break;
                 }
 
-                $h_pos = $this->nucleotidsGraphs["positions_2"]["h_pos"];
-                $v_pos = $this->nucleotidsGraphs["positions_2"]["v_pos"];
+                $h_pos = $this->nucleotidsGraphs["startx_2"];
+                $v_pos = $this->nucleotidsGraphs["starty_2"];
 
                 // each position
                 $x = 0;

@@ -66,7 +66,7 @@ class MinitoolsController extends Controller
                     $aOligos,
                     $oChaosGameRepresentation->getSeqName(),
                     $aNucleotides,
-                    $aSeqData["length"],
+                    strlen($oChaosGameRepresentation->getSeq()),
                     $oChaosGameRepresentation->getS(),
                     $oChaosGameRepresentation->getLen()
                 );
