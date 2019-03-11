@@ -8,9 +8,16 @@
 */
 namespace MinitoolsBundle\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DistanceAmongSequences
 {
+    /**
+     * @Assert\Length(
+     *      max = 2000000,
+     *      maxMessage = "This service does not handle input requests longer than {{ max }} bp."
+     * )
+     */
     private $seq;
 
     private $method;
