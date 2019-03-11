@@ -130,12 +130,12 @@ class MinitoolsController extends Controller
         $oligo_array = [];
         $data = [];
         $textcluster = "";
+        $seq_name = "";
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 
             $oDistanceAmongSequencesManager->setDistanceAmongSequence($oDistanceAmongSequences);
 
-            $timestart = date("U");
             $allsequences = $oDistanceAmongSequences->getSeq();
 
             //remove a couple of things from sequence
@@ -242,11 +242,16 @@ class MinitoolsController extends Controller
              */
             $textcluster = $x.",".$y;
 
-            // $max is the distance in the last clustering step (the root of the dendrogram)
-            $max = $data[$x][$y];
+            $dendogramFile = $this->getParameter('nucleotids_graphs')['dendogram_file'];
 
             // CREATE THE IMAGE WITH THE DENDROGRAM
-            //create_dendrogram ($textcluster,$comp,$max,$_POST["method"],$_POST["len"]);
+            $oDistanceAmongSequencesManager->createDendrogram(
+                $textcluster,
+                $comp,
+                $oDistanceAmongSequences->getMethod(),
+                $oDistanceAmongSequences->getLen(),
+                $dendogramFile
+            );
         }
 
 
@@ -258,7 +263,8 @@ class MinitoolsController extends Controller
                 'data'              => $data,
                 'length'            => $oDistanceAmongSequences->getLen(),
                 'seq_names'         => $seq_name,
-                'textcluster'       => $textcluster
+                'textcluster'       => $textcluster,
+                'dendogram_file'    => $dendogramFile
             ]
         );
     }

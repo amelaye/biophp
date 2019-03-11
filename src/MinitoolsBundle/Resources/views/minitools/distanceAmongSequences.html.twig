@@ -46,6 +46,8 @@
         <p>Length of oligoncleotides for comparison : {{ length }}</p>
 
         <p>Clustering method: UPGMA<br />{{ textcluster }}<p>
+
+        <img src="/{{ dendogram_file }}?{{ "now"|date("U") }}" />
     {% endif %}
 
 
