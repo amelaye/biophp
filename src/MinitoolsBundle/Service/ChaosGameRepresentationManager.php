@@ -16,14 +16,12 @@ class ChaosGameRepresentationManager
 {
     private $chaosGameRepresentation;
 
-    private $oligosManager;
     private $dnaComplements;
     private $nucleotidsGraphs;
 
 
-    public function __construct(OligosManager $oligosManager, $dnaComplements, $nucleotidsGraphs)
+    public function __construct($dnaComplements, $nucleotidsGraphs)
     {
-        $this->oligosManager = $oligosManager;
         $this->dnaComplements = $dnaComplements;
         $this->nucleotidsGraphs = $nucleotidsGraphs;
     }
@@ -140,67 +138,6 @@ class ChaosGameRepresentationManager
         imagestring($im, 3, 5, $iSize+5, "$sSeqName ($iSeqlen bp)", $black);
         imagepng($im, $this->nucleotidsGraphs["cgr_file"]);
         imagedestroy($im);
-    }
-
-
-    /**
-     * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
-     * @param       string      $sSequence
-     * @param       int         $iOligoLen
-     * @return      array
-     * @throws      \Exception
-     */
-    public function findOligos($sSequence, $iOligoLen)
-    {
-        try {
-            $i              = 0;
-            $aOligos1Step   = [];
-            $aOligos        = [];
-
-            $iLength = strlen($sSequence) - $iOligoLen + 1;
-            while ($i < $iLength) {
-                $sMySequence = substr($sSequence, $i, $iOligoLen);
-
-                if (!isset($aOligos1Step[$sMySequence])) {
-                    $aOligos1Step[$sMySequence] = 1;
-                } else {
-                    $aOligos1Step[$sMySequence] ++;
-                }
-                $i ++;
-            }
-
-            $aDnaComplements = array_values($this->dnaComplements);
-
-            switch ($iOligoLen) {
-                case 2:
-                    $aOligos = $this->oligosManager->findOligos2BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 3:
-                    $aOligos = $this->oligosManager->findOligos3BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 4:
-                    $aOligos = $this->oligosManager->findOligos4BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 5:
-                    $aOligos = $this->oligosManager->findOligos5BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 6:
-                    $aOligos = $this->oligosManager->findOligos6BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 7:
-                    $aOligos = $this->oligosManager->findOligos7BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                case 8:
-                    $aOligos = $this->oligosManager->findOligos8BasesLong($aOligos1Step, $aDnaComplements);
-                    break;
-                default:
-                    throwException(new \Exception("Invalid base format ! "));
-            }
-
-            return $aOligos;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
     }
 
     /**

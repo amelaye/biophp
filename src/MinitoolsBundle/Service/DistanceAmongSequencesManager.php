@@ -4,18 +4,60 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 11 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
+use MinitoolsBundle\Entity\DistanceAmongSequences;
+
 class DistanceAmongSequencesManager
 {
+    private $distanceAmongSequences;
+
+    private $dnaComplements;
+
+    private $x = null;
+    private $y = null;
+    private $min = null;
+    private $cases = null;
+
+    public function __construct($dnaComplements)
+    {
+        $this->dnaComplements = $dnaComplements;
+    }
+
+    public function setDistanceAmongSequence(DistanceAmongSequences $distanceAmongSequences)
+    {
+        $this->distanceAmongSequences = $distanceAmongSequences;
+    }
+
+    public function getX()
+    {
+        return $this->x;
+    }
+
+    public function getY()
+    {
+        return $this->y;
+    }
+
+    public function getMin()
+    {
+        return $this->min;
+    }
+
+    public function getCases()
+    {
+        return $this->cases;
+    }
+
     /**
      * @param $a
      * @return array|array[]|false|string[]
      * @throws \Exception
      */
-    public function getCases($a)
+    /*public function getCases($a)
     {
         try {
             $done = "";
@@ -32,7 +74,7 @@ class DistanceAmongSequencesManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }
+    }*/
 
 
     /**
@@ -112,26 +154,26 @@ class DistanceAmongSequencesManager
     public function minArray($a)
     {
         try {
-            global $x, $y, $min;
-            global $cases; // an array  for cases
-            $str_cases = "";
-            $min = 1000000;
-            foreach($a as $key =>$val){
+            $str_cases  = "";
+            $min        = 1000000;
+            $done       = "";
+            foreach ($a as $key => $val) {
                 $str_cases .= "#$key";
-                foreach($a[$key] as $key2 =>$val2){
-                    if ($val == ""){continue;}
+                foreach($a[$key] as $key2 =>$val2) {
+                    if ($val == "") {
+                        continue;
+                    }
                     $str_cases .= "#$key2";
-                    if ($val2 < $min){
+                    if ($val2 < $min) {
                         $min = $val2;
-                        $x = $key;
-                        $y = $key2;
+                        $this->x = $key;
+                        $this->y = $key2;
                     }
                 }
             }
-            $cases = preg_split("/#/",$done,-1,PREG_SPLIT_NO_EMPTY);
-            $cases = array_unique($cases);
-            sort($cases);
-            $min2 = $min/2;
+            $this->cases = preg_split("/#/",$done,-1,PREG_SPLIT_NO_EMPTY);
+            $this->cases = array_unique($this->cases);
+            sort($this->cases);
             return $min;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -263,28 +305,6 @@ class DistanceAmongSequencesManager
         }
     }
 
-
-    /**
-     * @param $code
-     * @return mixed|string
-     * @throws \Exception
-     */
-    public function revComp($code)
-    {
-        try {
-            $code = strrev($code);
-            $code = str_replace("A", "t", $code);
-            $code = str_replace("T", "a", $code);
-            $code = str_replace("G", "c", $code);
-            $code = str_replace("C", "g", $code);
-            $code = strtoupper($code);
-            return $code;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
     /**
      * @param $a
      * @param $b
@@ -413,118 +433,6 @@ class DistanceAmongSequencesManager
         }
     }
 
-
-    /**
-     * @param $cadena
-     * @param $len_oligos
-     * @return mixed
-     * @throws \Exception
-     */
-    public function oligoFrequenciesStandard($cadena,$len_oligos)
-    {
-        try {
-            $oligos_internos = [];
-            $i = 0;
-            $len = strlen($cadena)-$len_oligos+1;
-            while($i<$len) {
-                $seq = substr($cadena,$i,$len_oligos);
-                $oligos_internos[$seq]++;
-                $i++;
-            }
-            $base_a = ["A","C","G","T"];
-            $base_b = ["A","C","G","T"];
-            $base_c = ["A","C","G","T"];
-            $base_d = ["A","C","G","T"];
-            $base_e = ["A","C","G","T"];
-            $base_f = ["A","C","G","T"];
-
-            // para oligos de 2
-            if ($len_oligos == 2) {
-                foreach($base_a as $key_a => $val_a) {
-                    foreach($base_b as $key_b => $val_b) {
-                        if ($oligos_internos[$val_a.$val_b]) {
-                            $oligos[$val_a.$val_b] = $oligos_internos[$val_a.$val_b];
-                        } else {
-                            $oligos[$val_a.$val_b] = 0;
-                        }
-                    }
-                }
-            }
-            //para oligos de 3
-            if ($len_oligos == 3) {
-                foreach($base_a as $key_a => $val_a) {
-                    foreach($base_b as $key_b => $val_b) {
-                        foreach($base_c as $key_c => $val_c) {
-                            if ($oligos_internos[$val_a.$val_b.$val_c]) {
-                                $oligos[$val_a.$val_b.$val_c] = $oligos_internos[$val_a.$val_b.$val_c];
-                            } else {
-                                $oligos[$val_a.$val_b.$val_c] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-            //para oligos de 4
-            if ($len_oligos == 4){
-                foreach($base_a as $key_a => $val_a) {
-                    foreach($base_b as $key_b => $val_b) {
-                        foreach($base_c as $key_c => $val_c) {
-                            foreach($base_d as $key_d => $val_d) {
-                                if ($oligos_internos[$val_a.$val_b.$val_c.$val_d]) {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_internos[$val_a.$val_b.$val_c.$val_d];
-                                } else {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            //para oligos de 5
-            if ($len_oligos == 5) {
-                foreach($base_a as $key_a => $val_a) {
-                    foreach($base_b as $key_b => $val_b) {
-                        foreach($base_c as $key_c => $val_c) {
-                            foreach($base_d as $key_d => $val_d) {
-                                foreach($base_e as $key_e => $val_e) {
-                                    if ($oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e]) {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e];
-                                    } else {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            //para oligos de 6
-            if ($len_oligos == 6) {
-                foreach($base_a as $key_a => $val_a) {
-                    foreach($base_b as $key_b => $val_b) {
-                        foreach($base_c as $key_c => $val_c) {
-                            foreach($base_d as $key_d => $val_d) {
-                                foreach($base_e as $key_e => $val_e) {
-                                    foreach($base_f as $key_f => $val_f) {
-                                        if ($oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
-                                        } else {
-                                            $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            $oligos = $this->standardFrecuencies($oligos, $len_oligos);
-            return $oligos;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
     /**
      * @param $array
      * @param $m
@@ -540,7 +448,7 @@ class DistanceAmongSequencesManager
             }
             $c = pow(4,$m)/$sum;
             foreach($array as $k => $v) {
-                $array[$k] = $c*$v;
+                $array[$k] = $c * $v;
             }
             return $array;
         } catch (\Exception $e) {

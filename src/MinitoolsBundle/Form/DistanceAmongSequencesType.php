@@ -4,13 +4,13 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 11 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,8 +20,8 @@ class DistanceAmongSequencesType extends AbstractType
 {
     /**
      * Form builder
-     * @param   FormBuilderInterface $builder
-     * @param   array $options
+     * @param   FormBuilderInterface    $builder
+     * @param   array                   $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -51,12 +51,11 @@ class DistanceAmongSequencesType extends AbstractType
             ChoiceType::class,
             [
                 'choices' => [
-                    "pearson" => "Pearson distance for z-scores of tetranucleotides (>20000 bp sequences)",
-                    "euclidean" => "Euclidean distance for"
+                    "Pearson distance for z-scores of tetranucleotides (>20000 bp sequences)" => "pearson",
+                    "Euclidean distance for" => "euclidean"
                 ],
-                'expanded' => false,
-                'mapped' => false,
-                'required' => true,
+                'multiple' => false,
+                'expanded' => true,
             ]
         );
 

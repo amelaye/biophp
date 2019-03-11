@@ -154,4 +154,8 @@ services:
             - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
             - '%nucleotids_graphs%'
-
+            -
+    MinitoolsBundle\Service\DistanceAmongSequencesManager:
+        arguments:
+            - '@AppBundle\Service\OligosManager'
+            - '%dna_complements%'

@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 9 march  2019
- * Last modified 9 march 2019
+ * Last modified 11 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service;
@@ -243,5 +243,63 @@ class OligosManager
             }
         }
         return $oligos;
+    }
+
+    /**
+     * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
+     * @param       string      $sSequence
+     * @param       int         $iOligoLen
+     * @return      array
+     * @throws      \Exception
+     */
+    public function findOligos($sSequence, $iOligoLen, $aDnaComplements)
+    {
+        try {
+            $i              = 0;
+            $aOligos1Step   = [];
+            $aOligos        = [];
+
+            $iLength = strlen($sSequence) - $iOligoLen + 1;
+            while ($i < $iLength) {
+                $sMySequence = substr($sSequence, $i, $iOligoLen);
+
+                if (!isset($aOligos1Step[$sMySequence])) {
+                    $aOligos1Step[$sMySequence] = 1;
+                } else {
+                    $aOligos1Step[$sMySequence] ++;
+                }
+                $i ++;
+            }
+
+            switch ($iOligoLen) {
+                case 2:
+                    $aOligos = $this->findOligos2BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 3:
+                    $aOligos = $this->findOligos3BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 4:
+                    $aOligos = $this->findOligos4BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 5:
+                    $aOligos = $this->findOligos5BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 6:
+                    $aOligos = $this->findOligos6BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 7:
+                    $aOligos = $this->findOligos7BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                case 8:
+                    $aOligos = $this->findOligos8BasesLong($aOligos1Step, $aDnaComplements);
+                    break;
+                default:
+                    throwException(new \Exception("Invalid base format ! "));
+            }
+
+            return $aOligos;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 }
