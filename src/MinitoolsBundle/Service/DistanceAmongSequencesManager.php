@@ -52,6 +52,11 @@ class DistanceAmongSequencesManager
         return $this->cases;
     }
 
+    public function computeEuclidianData()
+    {
+
+    }
+
     /**
      * @param $a
      * @return array|array[]|false|string[]
@@ -182,6 +187,7 @@ class DistanceAmongSequencesManager
 
 
     /**
+     * Creates picture for Dendogram
      * @param $str
      * @param $comp
      * @param $max
@@ -189,20 +195,21 @@ class DistanceAmongSequencesManager
      * @param $len
      * @throws \Exception
      */
-    public function createDendrogram($str,$comp,$max,$method,$len)
+    public function createDendrogram($str, $comp, $method, $len, $dendogramFile)
     {
         try {
-            $w = 20;          //height for each line (case)
+            $w      = 20;          //height for each line (case)
+            $wherex = [];
 
-            $str = preg_replace("/\(|\)/","",$str).",";
-            $a = preg_split("/,/",$str,-1,PREG_SPLIT_NO_EMPTY);
-            $rows = sizeof($a);
+            $str    = preg_replace("/\(|\)/","",$str).",";
+            $a      = preg_split("/,/",$str,-1,PREG_SPLIT_NO_EMPTY);
+            $rows   = sizeof($a);
 
-            $width = 600;     // width of scale from 0 to 2
-            $im = imagecreatetruecolor($width*1.2, $rows*$w+40);
-            $white = imagecolorallocate($im, 255, 255, 255);
-            $black = imagecolorallocate($im, 0, 0, 0);
-            $red = imagecolorallocate($im, 255, 0, 0);
+            $width  = 600;     // width of scale from 0 to 2
+            $im     = imagecreatetruecolor($width*1.2, $rows*$w+40);
+            $white  = imagecolorallocate($im, 255, 255, 255);
+            $black  = imagecolorallocate($im, 0, 0, 0);
+            $red    = imagecolorallocate($im, 255, 0, 0);
             imagefilledrectangle($im,0,0,$width*1.2, $rows*$w+40,$white);
 
             $y = $rows*$w;    // vertical location
@@ -212,21 +219,27 @@ class DistanceAmongSequencesManager
             $j = 0.1;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+
             $j = 0.2;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+
             $j = 0.3;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+
             $j = 0.5;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+
             $j = 1.0;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "1.0", $black);
+
             $j = 1.5;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+
             $j = 2.0;
             imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "2.0", $black);
@@ -234,9 +247,9 @@ class DistanceAmongSequencesManager
             // write into the image the numbers corresponding to cases
             foreach($a as $n => $val) {
                 if(strlen($val) == 1) {
-                    $val=" $val";
+                    $val = " $val";
                 }
-                imagestring($im,3, 5, $n*$w+5,  $val, $black);
+                imagestring($im,3, 5, $n * $w + 5,  $val, $black);
             }
 
             // WRITE LINES
@@ -261,11 +274,12 @@ class DistanceAmongSequencesManager
                     }
 
                     // Position related data
-                    $xkey1 = $wherex[$key];
+                    $xkey1 = isset($wherex[$key]) ? $xkey1 = $wherex[$key] : $xkey1 = 0;
                     if($xkey1 == "") {
                         $xkey1 = 0;
                     }
-                    $xkey2 = $wherex[$key2];
+
+                    $xkey2 = isset($wherex[$key2]) ? $xkey2 = $wherex[$key2] : $xkey2 = 0;
                     if($xkey2 == "") {
                         $xkey2 = 0;
                     }
@@ -277,7 +291,7 @@ class DistanceAmongSequencesManager
                     $val4min = log($min+1)*$f;
 
                     // write lines
-                    if ($wherex[$key] == $max) {
+                    if (isset($wherex[$key]) && $wherex[$key] == $max) {
                         imageline($im, $val4max+20, $pos1b*$w, $val4+20, $pos1b*$w, $black);
                         imageline($im, $val4+20, $pos1b*$w, $val4+20, $pos2b*$w, $black);
                         imageline($im, $val4min+20, $pos2b*$w, $val4+20, $pos2b*$w, $black);
@@ -292,13 +306,15 @@ class DistanceAmongSequencesManager
             }
             imageline($im, $val4+20, ($pos1b+$pos2b)*$w/2, $val4+40, ($pos1b+$pos2b)*$w/2, $black);
             imageline($im, 20, $y, $width*1.2, $y, $black);
+
             if ($method == "euclidean") {
                 imagestring($im, 2, 5, $rows*$w+25,  "Euclidean distance for $len bases long oligonucleotides.", $red);
             } else {
                 imagestring($im, 2, 5, $rows*$w+25,  "Pearson distance for z-scores of tetranucleotides.", $red);
             }
-            imagestring($im, 2, $width*1, $rows*$w+25,  "by insilico.ehu.es", black);
-            imagepng($im,"image.png");
+
+            imagestring($im, 2, $width*1, $rows*$w+25,  "by insilico.ehu.es", $black);
+            imagepng($im, $dendogramFile);
             imagedestroy($im);
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -318,7 +334,7 @@ class DistanceAmongSequencesManager
             // Wang et al, Gene 2005; 346:173-185
             $c = sqrt(pow(2,$k)) / pow(4,$k);   // contant
             $sum = 0;
-            foreach($a as $key => $val){
+            foreach($a as $key => $val) {
                 $sum += pow($val-$b[$key],2);
             }
             return $c * sqrt($sum);

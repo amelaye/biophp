@@ -26,3 +26,5 @@ parameters:
         startx_2: 10
         starty_2: 90
         fcgr_file: 'FCGR.png'
+        cgr_file: 'CGR.png'
+        dendogram_file: 'diagrams/dendogram.png'
