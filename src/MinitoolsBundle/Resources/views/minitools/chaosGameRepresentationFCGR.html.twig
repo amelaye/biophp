@@ -1,9 +1,9 @@
 {% extends '@App/base.html.twig' %}
 {% block title %}Graphical representation of genomes and oligonucleotide frequencies{% endblock %}
 {% block js_scripts %}
-    function a(b) {
-        $("#txt").html(b);
-    }
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
 {% endblock %}
 {% block body %}
     <h1>Graphical representation of genomes and oligonucleotide frequencies (FCGR)</h1>
@@ -17,12 +17,12 @@
                 {% if(is_map == 1) %}
                     <map name = "Kaixo">
                         {% for seq, area in areas %}
-                            <area onMouseover="a('{{ seq }} => {{ oligos[seq] }}');" onMouseout="a('');" coords="{{ area.0 }}, {{ area.1 }}, {{ area.2 }}, {{ area.3 }}" shape="rect" />
+                            <area class="mapseq" data-toggle="tooltip" data-placement="top" title="{{ seq }} => {{ oligos[seq] }}" coords="{{ area.0 }}, {{ area.1 }}, {{ area.2 }}, {{ area.3 }}" shape="rect" />
                         {% endfor %}
                     </map>
-                    <img usemap="#Kaixo" src="/FCGR.png?{{ "now"|date("U") }}" width="552" hight="700" border="0" />
+                    <img usemap="#Kaixo" src="/FCGR.png?{{ "now"|date("U") }}" style="width:552px;max-height:552px;" />
                 {% else %}
-                    <img src="/FCGR.png?{{ "now"|date("U") }}" width="552" hight="700" border="0" />
+                    <img src="/FCGR.png?{{ "now"|date("U") }}" style="width:552px;max-height:552px;" />
                 {% endif %}
 
                 <div id="txt"></div>
