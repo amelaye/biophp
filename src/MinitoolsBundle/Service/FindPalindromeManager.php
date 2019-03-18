@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 18 march 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -12,23 +12,23 @@ class FindPalindromeManager
 {
     /**
      * Searches sequence for palindromic substrings
-     * @param   string $seq is the sequence to be searched
-     * @param   int $min the minimum length of palindromic sequence to be searched
-     * @param   int $max the maximum length of palindromic sequence to be searched
+     * @param   string  $sSequence      is the sequence to be searched
+     * @param   int     $iMin           the minimum length of palindromic sequence to be searched
+     * @param   int     $iMax           the maximum length of palindromic sequence to be searched
      * @return  array   keys are positions in genome, and values are length of palindromic sequences
      * @throws \Exception
      */
-    public function findPalindromicSeqs($seq, $min, $max)
+    public function findPalindromicSeqs($sSequence, $iMin, $iMax)
     {
         try {
-            $result = "";
-            $seq_len = strlen($seq);
-            for($i = 0; $i < $seq_len-$min+1; $i++) {
-                $j = $min;
-                while($j < $max+1 && ($i+$j) <= $seq_len) {
-                    $sub_seq = substr($seq,$i,$j);
-                    if ($this->dnaIsPalindrome($sub_seq)==1) {
-                        $results [$i] = $sub_seq;
+            $results = [];
+            $seqLen = strlen($sSequence);
+            for($i = 0; $i < $seqLen-$iMin+1; $i++) {
+                $j = $iMin;
+                while($j < $iMax+1 && ($i+$j) <= $seqLen) {
+                    $subSeq = substr($sSequence, $i, $j);
+                    if ($this->dnaIsPalindrome($subSeq) == 1) {
+                        $results[$i] = $subSeq;
                     }
                     $j++;
                 }
@@ -42,17 +42,17 @@ class FindPalindromeManager
 
 
     /**
-     * Checks whether a DNA sequeence is palindromic.
+     * Checks whether a DNA sequence is palindromic.
      * When degenerate nucleotides are included in the sequence to be searched,
      * sequences as "AANTT" will be considered palindromic.
-     * @param   string $seq is the sequence to be searched
+     * @param   string      $sSequence      is the sequence to be searched
      * @return  bool
      * @throws \Exception
      */
-    public function dnaIsPalindrome($seq)
+    public function dnaIsPalindrome($sSequence)
     {
         try {
-            if ($seq == $this->revCompDNA2($seq)) {
+            if ($sSequence == $this->revCompDNA2($sSequence)) {
                 return true;
             } else {
                 return false;
@@ -64,32 +64,21 @@ class FindPalindromeManager
 
 
     /**
-     * Will yield the Reverse comlement of a NA sequence. Allows degenerated nucleotides
-     * @param   string $seq is the sequence
+     * Will yield the Reverse complement of a NA sequence. Allows degenerated nucleotides
+     * @param   string      $sSequence      is the sequence
      * @return  string
      * @throws \Exception
      */
-    public function revCompDNA2($seq)
+    public function revCompDNA2($sSequence)
     {
         try {
-            $seq = strtoupper($seq);
-            $seq = strrev($seq);
-            $seq = str_replace("A", "t", $seq);
-            $seq = str_replace("T", "a", $seq);
-            $seq = str_replace("G", "c", $seq);
-            $seq = str_replace("C", "g", $seq);
-            $seq = str_replace("Y", "r", $seq);
-            $seq = str_replace("R", "y", $seq);
-            $seq = str_replace("W", "w", $seq);
-            $seq = str_replace("S", "s", $seq);
-            $seq = str_replace("K", "m", $seq);
-            $seq = str_replace("M", "k", $seq);
-            $seq = str_replace("D", "h", $seq);
-            $seq = str_replace("V", "b", $seq);
-            $seq = str_replace("H", "d", $seq);
-            $seq = str_replace("B", "v", $seq);
-            $seq = strtoupper ($seq);
-            return $seq;
+            $sSequence = strtoupper($sSequence);
+            $sSequence = strrev($sSequence);
+            $aPattern = ["A", "T", "G", "C", "Y", "R", "W", "S",  "K", "M",  "D", "V",  "H",  "B"];
+            $aReplace = ["t", "a",  "c", "g", "r", "y", "w", "s", "m", "k", "h", "b", "d", "v"];
+            $sSequence = str_replace($aPattern, $aReplace, $sSequence);
+            $sSequence = strtoupper ($sSequence);
+            return $sSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -98,24 +87,24 @@ class FindPalindromeManager
 
     /**
      * Will remove non coding characters from a DNA sequence
-     * @param   string $seq is the sequence
+     * @param   string      $sSequence      is the sequence
      * @return  string
      * @throws \Exception
      */
-    public function removeUselessFromDNA($seq)
+    public function removeUselessFromDNA($sSequence)
     {
         try {
-            $seq = strtoupper($seq);
-            $seq = preg_replace("/\\W|\\d/","",$seq);
-            $seq = preg_replace("/X/","N",$seq);
-            $len_seq = strlen($seq);
-            $number_ATGC = $this->countACGT($seq);
-            $number_YRWSKMDVHB = $this->countYRWSKMDVHB($seq);
-            $number = $number_ATGC + $number_YRWSKMDVHB + substr_count($seq,"N");
+            $sSequence = strtoupper($sSequence);
+            $sSequence = preg_replace("/\\W|\\d/","", $sSequence);
+            $sSequence = preg_replace("/X/","N", $sSequence);
+            $len_seq = strlen($sSequence);
+            $number_ATGC = $this->countACGT($sSequence);
+            $number_YRWSKMDVHB = $this->countYRWSKMDVHB($sSequence);
+            $number = $number_ATGC + $number_YRWSKMDVHB + substr_count($sSequence,"N");
             if ($number != $len_seq) {
                 throw new \Exception("Sequence is not valid. At least one letter in the sequence is unknown (not a NC-UIBMB valid code)");
             }
-            return ($seq);
+            return ($sSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -124,17 +113,17 @@ class FindPalindromeManager
 
     /**
      * Will count number of A, C, G and T bases in the sequence
-     * @param   string $seq is the sequence
+     * @param   string  $sSequence  is the sequence
      * @return  int
      * @throws \Exception
      */
-    public function countACGT($seq)
+    public function countACGT($sSequence)
     {
         try {
-            $cg = substr_count($seq,"A")
-                + substr_count($seq,"T")
-                + substr_count($seq,"G")
-                + substr_count($seq,"C");
+            $cg = substr_count($sSequence,"A")
+                + substr_count($sSequence,"T")
+                + substr_count($sSequence,"G")
+                + substr_count($sSequence,"C");
             return $cg;
         } catch (\Exception $e) {
             throw new \Exception($e);

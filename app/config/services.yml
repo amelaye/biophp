@@ -111,7 +111,10 @@ services:
         arguments: 
             - '@AppBundle\Entity\Protein'
             - "%wts%"
-    
+
+    AppBundle\Service\OligosManager:
+        arguments: []
+
     AppBundle\Service\RestrictionEnzymeManager:
         arguments:
             - '@AppBundle\Entity\RestrictionEnzyme'

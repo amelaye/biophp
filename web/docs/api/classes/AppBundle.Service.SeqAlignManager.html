@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/AppBundle.html">\AppBundle</a></li>
+                                                        <li><a href="../namespaces/MinitoolsBundle.html">\MinitoolsBundle</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">1033</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">5</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1294912557"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-1294912557" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1636753930"></a>
+                                <a href="../namespaces/AppBundle.html" style="margin-left: 30px; padding-left: 0">AppBundle</a>
+            </div>
+            <div id="namespace-1636753930" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1929715084"></a>
+                                <a href="../namespaces/AppBundle.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-1929715084" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Controller.DemoController.html">DemoController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-721330525"></a>
+                                <a href="../namespaces/AppBundle.Entity.html" style="margin-left: 30px; padding-left: 0">Entity</a>
+            </div>
+            <div id="namespace-721330525" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Entity.Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Fasta.html">Fasta</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Gff.html">Gff</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Protein.html">Protein</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.RestrictionEnzime.html">RestrictionEnzime</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.SeqAlign.html">SeqAlign</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Sequence.html">Sequence</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1592112217"></a>
+                                <a href="../namespaces/AppBundle.Interfaces.html" style="margin-left: 30px; padding-left: 0">Interfaces</a>
+            </div>
+            <div id="namespace-1592112217" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/AppBundle.Interfaces.ParseDatabaseInterface.html">ParseDatabaseInterface</a></li>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1410804345"></a>
+                                <a href="../namespaces/AppBundle.Service.html" style="margin-left: 30px; padding-left: 0">Service</a>
+            </div>
+            <div id="namespace-1410804345" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Service.DatabaseManager.html">DatabaseManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.OligosManager.html">OligosManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ParseGenbankManager.html">ParseGenbankManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ParseSwissprotManager.html">ParseSwissprotManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ProteinManager.html">ProteinManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.RestrictionEnzimeManager.html">RestrictionEnzimeManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SeqAlignManager.html">SeqAlignManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SeqMatchManager.html">SeqMatchManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SequenceManager.html">SequenceManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SubMatrixManager.html">SubMatrixManager</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-951041108"></a>
+                                <a href="../namespaces/AppBundle.Traits.html" style="margin-left: 30px; padding-left: 0">Traits</a>
+            </div>
+            <div id="namespace-951041108" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                            <li class="trait"><a href="../classes/AppBundle.Traits.FormatsTrait.html">FormatsTrait</a></li>
+                                                    <li class="trait"><a href="../classes/AppBundle.Traits.SwissprotTrait.html">SwissprotTrait</a></li>
+                                                                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.AppBundle.html">AppBundle</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1705398374"></a>
+                                <a href="../namespaces/MinitoolsBundle.html" style="margin-left: 30px; padding-left: 0">MinitoolsBundle</a>
+            </div>
+            <div id="namespace-1705398374" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-898367783"></a>
+                                <a href="../namespaces/MinitoolsBundle.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-898367783" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Controller.MinitoolsController.html">MinitoolsController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1566906475"></a>
+                                <a href="../namespaces/MinitoolsBundle.Entity.html" style="margin-left: 30px; padding-left: 0">Entity</a>
+            </div>
+            <div id="namespace-1566906475" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.ChaosGameRepresentation.html">ChaosGameRepresentation</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.DistanceAmongSequences.html">DistanceAmongSequences</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.DnaToProtein.html">DnaToProtein</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.Protein.html">Protein</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1256071607"></a>
+                                <a href="../namespaces/MinitoolsBundle.Form.html" style="margin-left: 30px; padding-left: 0">Form</a>
+            </div>
+            <div id="namespace-1256071607" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.ChaosGameRepresentationType.html">ChaosGameRepresentationType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.DistanceAmongSequencesType.html">DistanceAmongSequencesType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.DnaToProteinType.html">DnaToProteinType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.ProteinPropertiesType.html">ProteinPropertiesType</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2090113769"></a>
+                                <a href="../namespaces/MinitoolsBundle.Listener.html" style="margin-left: 30px; padding-left: 0">Listener</a>
+            </div>
+            <div id="namespace-2090113769" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Listener.DnaToProteinListener.html">DnaToProteinListener</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1563646581"></a>
+                                <a href="../namespaces/MinitoolsBundle.Service.html" style="margin-left: 30px; padding-left: 0">Service</a>
+            </div>
+            <div id="namespace-1563646581" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ChaosGameRepresentationManager.html">ChaosGameRepresentationManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.DistanceAmongSequencesManager.html">DistanceAmongSequencesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.DnaToProteinManager.html">DnaToProteinManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.FindPalindromeManager.html">FindPalindromeManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.FormulasManager.html">FormulasManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MeltingTemperatureManager.html">MeltingTemperatureManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MicroarrayAnalysisAdaptive.html">MicroarrayAnalysisAdaptive</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MicrosatelliteRepeatsFinder.html">MicrosatelliteRepeatsFinder</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.OligonucleotideFrequencyManager.html">OligonucleotideFrequencyManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.PcrAmplificationManager.html">PcrAmplificationManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ProteinPropertiesManager.html">ProteinPropertiesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ProteinToDnaManager.html">ProteinToDnaManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.RandomSequencesManager.html">RandomSequencesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ReaderGffFastaManager.html">ReaderGffFastaManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ReduceProteinAlphabetManager.html">ReduceProteinAlphabetManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.RestrictionDigestManager.html">RestrictionDigestManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SequenceAlignmentManager.html">SequenceAlignmentManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SequenceManipulationAndDataManager.html">SequenceManipulationAndDataManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SkewsManager.html">SkewsManager</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.MinitoolsBundle.html">MinitoolsBundle</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/fasta.html">fasta</a></li>
+                                                    <li class="class"><a href="../classes/gff.html">gff</a></li>
+                                                    <li class="class"><a href="../classes/Reader.html">Reader</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/AppBundle.Service.html">\AppBundle\Service</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\AppBundle\Service</small>SeqAlignManager</h1>
+                    <p><em></em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_setSeqAlign" class="">setSeqAlign()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_sort_alpha" class="">sort_alpha()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_first" class="">first()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_last" class="">last()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_prev" class="">prev()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_next" class="">next()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_fetch" class="">fetch()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_get_length" class="">get_length()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_get_gap_count" class="">get_gap_count()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_get_is_flush" class="">get_is_flush()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_char_at_res" class="">char_at_res()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_substr_bw_res" class="">substr_bw_res()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_col2res" class="">col2res()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_res2col" class="">res2col()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_subalign" class="">subalign()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_select" class="">select()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_res_var" class="">res_var()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_consensus" class="">consensus()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_add_seq" class="">add_seq()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#method_del_seq" class="">del_seq()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#property_seqAlign" class="">$seqAlign</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqAlignManager.html#property_aAlphabet" class="">$aAlphabet</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/AppBundle.Service.SeqAlignManager.html"><div class="path-wrapper">AppBundle/Service/SeqAlignManager.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\AppBundle\Service\SeqAlignManager</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_seqAlign" name="property_seqAlign" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$seqAlign</h3>
+                <pre class="signature">$seqAlign : \AppBundle\Entity\SeqAlign</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/AppBundle.Entity.SeqAlign.html">\AppBundle\Entity\SeqAlign</a>
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_aAlphabet" name="property_aAlphabet" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$aAlphabet</h3>
+                <pre class="signature">$aAlphabet : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$aAlphabet</span>) </pre>
+                <p><em></em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$aAlphabet </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setSeqAlign" name="method_setSeqAlign" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setSeqAlign()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setSeqAlign(\AppBundle\Entity\SeqAlign  <span class="argument">$oSeqAlign</span>) </pre>
+                <p><em></em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/AppBundle.Entity.SeqAlign.html">\AppBundle\Entity\SeqAlign</a></td>
+                                <td>$oSeqAlign </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_sort_alpha" name="method_sort_alpha" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">sort_alpha()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">sort_alpha(\AppBundle\Service\type  <span class="argument">$option = &quot;ASC&quot;</span>) </pre>
+                <p><em>Rearranges the sequences in an alignment set alphabetically by their sequence id.</em></p>
+                <p>In addition, you can specify if you wish it be in ascending or descending order via $option.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$option </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_first" name="method_first" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">first()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">first() </pre>
+                <p><em>Moves the sequence pointer to the first sequence in the alignment set.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_last" name="method_last" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">last()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">last() </pre>
+                <p><em>Moves the sequence pointer to the last sequence in the alignment set.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_prev" name="method_prev" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">prev()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">prev() </pre>
+                <p><em>Moves the sequence pointer to the sequence before the current one.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_next" name="method_next" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">next()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">next() </pre>
+                <p><em>Moves the sequence pointer to the sequence after the current one.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_fetch" name="method_fetch" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">fetch()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">fetch(\AppBundle\Service\type  <span class="argument">$index = &quot;&quot;</span>) : \AppBundle\Service\type</pre>
+                <p><em>Retrieves a particular sequence (identified by its index number) from an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$index </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_length" name="method_get_length" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_length()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_length() : \AppBundle\Service\type</pre>
+                <p><em>Returns the lenght of the longest sequence in an alignment set.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_gap_count" name="method_get_gap_count" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_gap_count()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_gap_count() : \AppBundle\Service\type</pre>
+                <p><em>Counts the number of gaps (&quot;-&quot;) found in all sequences in an alignment set.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_is_flush" name="method_get_is_flush" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_is_flush()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_is_flush() : boolean</pre>
+                <p><em>Tests if all the sequences in an alignment set have the same length.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_char_at_res" name="method_char_at_res" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">char_at_res()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">char_at_res(\AppBundle\Service\type  <span class="argument">$seqidx</span>, \AppBundle\Service\type  <span class="argument">$res</span>) : boolean</pre>
+                <p><em>Returns the character found at a given residue number in a given sequence.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqidx </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$res </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_substr_bw_res" name="method_substr_bw_res" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">substr_bw_res()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">substr_bw_res(\AppBundle\Service\type  <span class="argument">$seqidx</span>, \AppBundle\Service\type  <span class="argument">$res_beg</span>, \AppBundle\Service\type  <span class="argument">$res_end = &quot;&quot;</span>) : boolean</pre>
+                <p><em>Gets the substring between two residues in a sequence that is part of an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqidx </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$res_beg </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$res_end </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_col2res" name="method_col2res" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">col2res()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">col2res(\AppBundle\Service\type  <span class="argument">$seqidx</span>, \AppBundle\Service\type  <span class="argument">$col</span>) : boolean|string</pre>
+                <p><em>Converts a column number to a residue number in a sequence that is part of an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqidx </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$col </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean|string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_res2col" name="method_res2col" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">res2col()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">res2col(\AppBundle\Service\type  <span class="argument">$seqidx</span>, \AppBundle\Service\type  <span class="argument">$res</span>) : boolean|integer</pre>
+                <p><em>Converts a residue number to a column number in a sequence in an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqidx </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$res </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean|integer
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_subalign" name="method_subalign" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">subalign()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">subalign(\AppBundle\Service\type  <span class="argument">$beg</span>, \AppBundle\Service\type  <span class="argument">$end</span>) : \AppBundle\Services\SeqAlign</pre>
+                <p><em>Returns a subset of consecutive sequences in an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$beg </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$end </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Services\SeqAlign
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_select" name="method_select" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">select()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">select() : \AppBundle\Entity\SeqAlign</pre>
+                <p><em>Returns a set of (possibly non-consecutive) sequences in an alignment set.</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/AppBundle.Entity.SeqAlign.html">\AppBundle\Entity\SeqAlign</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_res_var" name="method_res_var" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">res_var()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">res_var(\AppBundle\Service\type  <span class="argument">$threshold = 100</span>) : array</pre>
+                <p><em>Identifies the positions of variant and invariant (conserved) residues in an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$threshold </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_consensus" name="method_consensus" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">consensus()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">consensus(\AppBundle\Service\type  <span class="argument">$threshold = 100</span>) : string</pre>
+                <p><em>Returns the consensus string for an alignment set.  See technical reference for details.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$threshold </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_add_seq" name="method_add_seq" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">add_seq()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">add_seq(\AppBundle\Service\type  <span class="argument">$seqobj</span>) : \AppBundle\Service\type</pre>
+                <p><em>Adds a sequence to an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqobj </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_del_seq" name="method_del_seq" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">del_seq()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">del_seq(\AppBundle\Service\type  <span class="argument">$seqobj</span>) : \AppBundle\Service\type</pre>
+                <p><em>Deletes or removes a sequence from an alignment set.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seqobj </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">SeqAlignManager.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/AppBundle/Service/SeqAlignManager.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/AppBundle.html">\AppBundle</a></li>
+                                                                            <li><a href="../namespaces/MinitoolsBundle.html">\MinitoolsBundle</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on March 11th, 2019 at 17:38.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

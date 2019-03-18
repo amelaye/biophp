@@ -62,7 +62,7 @@ class DistanceAmongSequencesManager
      * @return array|array[]|false|string[]
      * @throws \Exception
      */
-    /*public function getCases($a)
+    public function getArrayCases($a)
     {
         try {
             $done = "";
@@ -79,53 +79,50 @@ class DistanceAmongSequencesManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }*/
+    }
 
 
     /**
      * @param $a
-     * @param $cases
-     * @param $x
-     * @param $y
      * @return mixed
      * @throws \Exception
      */
-    public function newArray($a, $cases, $x, $y)
+    public function newArray($a)
     {
         try {
-            $cases = get_cases($a);
+            $cases = $this->getArrayCases($a);
             for($j = 0; $j < sizeof($cases)+1; $j++) {
                 $key = $cases[$j];
 
                 // next 3 lines are required in windows for correct comparison
                 settype($key, "string");
-                settype($x, "string");
-                settype($y, "string");
+                settype($this->getX(), "string");
+                settype($this->getY(), "string");
 
-                if($key == $x || $key == $y) {
+                if($key == $this->getX() || $key == $this->getY()) {
                     continue;
                 }
-                if($a[$key][$x] != "") {
-                    if($a[$key][$y] != "") {
-                        $temp_a[$key]["($x,$y)"] = ($a[$key][$x]+$a[$key][$y])/2;
+                if($a[$key][$this->getX()] != "") {
+                    if($a[$key][$this->getY()] != "") {
+                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$key][$this->getY()])/2;
                     }
-                    if($a[$x][$key] != "") {
-                        $temp_a[$key]["($x,$y)"] = ($a[$key][$x]+$a[$x][$key])/2;
+                    if($a[$this->getX()][$key] != "") {
+                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$this->getX()][$key])/2;
                     }
-                    if($a[$y][$key] != "") {
-                        $temp_a[$key]["($x,$y)"] = ($a[$key][$x]+$a[$y][$key])/2;
+                    if($a[$this->getY()][$key] != "") {
+                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$this->getY()][$key])/2;
                     }
                 } else {
-                    if($a[$key][$y] != "") {
-                        if ($a[$x][$key] != "") {
-                            $temp_a[$key]["($x,$y)"] = ($a[$key][$y]+$a[$x][$key])/2;
+                    if($a[$key][$this->getY()] != "") {
+                        if ($a[$this->getX()][$key] != "") {
+                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getY()]+$a[$this->getX()][$key])/2;
                         }
-                        if($a[$y][$key] != "") {
-                            $temp_a[$key]["($x,$y)"] = ($a[$key][$y]+$a[$y][$key])/2;
+                        if($a[$this->getY()][$key] != "") {
+                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getY()]+$a[$this->getY()][$key])/2;
                         }
                     } else {
-                        if($a[$y][$key] != "") {
-                            $temp_a[$key]["($x,$y)"] = ($a[$y][$key]+$a[$y][$key])/2;
+                        if($a[$this->getY()][$key] != "") {
+                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$this->getY()][$key]+$a[$this->getY()][$key])/2;
                         }
                     }
                 }
@@ -133,7 +130,7 @@ class DistanceAmongSequencesManager
                 for($i = $j+1; $i < sizeof($cases); $i++) {
                     $key2 = $cases[$i];
                     settype($key2, "string");
-                    if ($key == $key2 || $key2 == $x || $key2 == $y) {
+                    if ($key == $key2 || $key2 == $this->getX() || $key2 == $this->getY()) {
                         continue;
                     }
                     if ($a[$key][$key2] != "") {
@@ -190,12 +187,9 @@ class DistanceAmongSequencesManager
      * Creates picture for Dendogram
      * @param $str
      * @param $comp
-     * @param $max
-     * @param $method
-     * @param $len
      * @throws \Exception
      */
-    public function createDendrogram($str, $comp, $method, $len, $dendogramFile)
+    public function createDendrogram($str, $comp, $dendogramFile)
     {
         try {
             $w      = 20;          //height for each line (case)
@@ -307,8 +301,8 @@ class DistanceAmongSequencesManager
             imageline($im, $val4+20, ($pos1b+$pos2b)*$w/2, $val4+40, ($pos1b+$pos2b)*$w/2, $black);
             imageline($im, 20, $y, $width*1.2, $y, $black);
 
-            if ($method == "euclidean") {
-                imagestring($im, 2, 5, $rows*$w+25,  "Euclidean distance for $len bases long oligonucleotides.", $red);
+            if ($this->distanceAmongSequences->getMethod() == "euclidean") {
+                imagestring($im, 2, 5, $rows*$w+25,  "Euclidean distance for ".$this->distanceAmongSequences->getLen()." bases long oligonucleotides.", $red);
             } else {
                 imagestring($im, 2, 5, $rows*$w+25,  "Pearson distance for z-scores of tetranucleotides.", $red);
             }
@@ -324,15 +318,15 @@ class DistanceAmongSequencesManager
     /**
      * @param $a
      * @param $b
-     * @param $k
      * @return float|int
      * @throws \Exception
      */
-    public function euclidDistance($a,$b,$k)
+    public function euclidDistance($a,$b)
     {
         try {
             // Wang et al, Gene 2005; 346:173-185
-            $c = sqrt(pow(2,$k)) / pow(4,$k);   // contant
+            $c = sqrt(pow(2,$this->distanceAmongSequences->getLen()))
+                / pow(4,$this->distanceAmongSequences->getLen());   // content
             $sum = 0;
             foreach($a as $key => $val) {
                 $sum += pow($val-$b[$key],2);
@@ -418,7 +412,7 @@ class DistanceAmongSequencesManager
                 $oligos4[$seq]++;
                 $i++;
             }
-            $base_a = ["A","C","G","T"];
+            /*$base_a = ["A","C","G","T"];
             $base_b = ["A","C","G","T"];
             $base_c = ["A","C","G","T"];
             $base_d = ["A","C","G","T"];
@@ -442,7 +436,8 @@ class DistanceAmongSequencesManager
                         }
                     }
                 }
-            }
+            }*/
+
             return $zscore;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -451,18 +446,17 @@ class DistanceAmongSequencesManager
 
     /**
      * @param $array
-     * @param $m
      * @return mixed
      * @throws \Exception
      */
-    public function standardFrecuencies($array, $m)
+    public function standardFrecuencies($array)
     {
         try {
             $sum = 0;
             foreach($array as $k => $v) {
                 $sum += $v;
             }
-            $c = pow(4,$m)/$sum;
+            $c = pow(4, $this->distanceAmongSequences->getLen()) / $sum;
             foreach($array as $k => $v) {
                 $array[$k] = $c * $v;
             }
