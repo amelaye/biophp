@@ -1,6 +1,6 @@
 <?php
 /**
- * Entity used by form ProteinPropertiesType
+ * Entity used by form FindPalindromesType
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
