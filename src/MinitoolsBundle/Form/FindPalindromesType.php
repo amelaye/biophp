@@ -1,10 +1,10 @@
 <?php
 /**
- * Form DnaToProteinType
+ * Form FindPalindromesType
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
- * Created 24 february 2019
- * Last modified 24 february 2019
+ * Created 18 march 2019
+ * Last modified 18 march 2019
  */
 namespace MinitoolsBundle\Form;
 

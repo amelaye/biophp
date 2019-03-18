@@ -1,11 +1,73 @@
 imports:
     - { resource: parameters.yml }
+    - { resource: inc/chemical.yml }
+    - { resource: inc/codons.yml }
+    - { resource: inc/alphabet.yml }
+    - { resource: inc/triplets.yml }
+    - { resource: inc/enzymes.yml }
     - { resource: security.yml }
     - { resource: services.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    pk_values:
+        EMBOSS:
+            N_terminus: 8.6
+            K: 10.8
+            R: 12.5
+            H: 6.5
+            C_terminus: 3.6
+            D: 3.9
+            E: 4.1
+            C: 8.5
+            Y: 10.1
+        DTASelect:
+            N_terminus: 8
+            K: 10
+            R: 12
+            H: 6.5
+            C_terminus: 3.1
+            D: 4.4
+            E: 4.4
+            C: 8.5
+            Y: 10
+        Solomon:
+            N_terminus: 9.6
+            K: 10.5
+            R: 125
+            H: 6.0
+            C_terminus: 2.4
+            D: 3.9
+            E: 4.3
+            C: 8.3
+            Y: 10.1
+    dna_complements:
+        A: T
+        T: A
+        G: C
+        C: G
+    rna_complements:
+        A: U
+        U: A
+        G: C
+        C: G
+    chemical_groups:
+        'S': 'H'
+        'T': 'H'
+        'N': 'M'
+        'Q': 'M'
+        'C': 'S'
+        'M': 'S'
+        'P': 'I'
+        'D': 'A'
+        'E': 'A'
+        'K': 'C'
+        'R': 'C'
+        'H': 'C'
+        '*': '*'
+        'X': 'X'
+    brochures_directory: '%kernel.project_dir%/web/public/uploads/fasta'
     locale: en
 
 framework:

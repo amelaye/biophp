@@ -9,16 +9,21 @@
  */
 namespace MinitoolsBundle\Controller;
 
+use AppBundle\Entity\Fasta;
 use AppBundle\Service\OligosManager;
 use MinitoolsBundle\Entity\DistanceAmongSequences;
+use MinitoolsBundle\Entity\FastaUploader;
 use MinitoolsBundle\Entity\FindPalindromes;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
+use MinitoolsBundle\Form\FastaUploaderType;
 use MinitoolsBundle\Form\FindPalindromesType;
 use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 use MinitoolsBundle\Service\DistanceAmongSequencesManager;
+use MinitoolsBundle\Service\FastaUploaderManager;
 use MinitoolsBundle\Service\FindPalindromeManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -342,12 +347,82 @@ class MinitoolsController extends Controller
     }
 
     /**
-     * @Route("/minitools/gc-content-finder", name="gc_content_finder")
+     * @Route("/minitools/fasta-uploader", name="gc_content_finder")
+     * @param   Request                 $request
+     * @param   FastaUploaderManager    $oFastaUploaderManager
+     * @return  Response
+     * @throws  \Exception
      */
-    public function gcContentFinderAction()
+    public function fastaUploaderAction(Request $request, FastaUploaderManager $oFastaUploaderManager)
     {
-        return $this->render('@Minitools/Minitools/gcContentFinder.html.twig');
+        $length = 0;
+        $a = 0; $g = 0; $t = 0; $c = 0;
+
+        $oFastaUploader = new FastaUploader();
+
+        $form = $this->get('form.factory')->create(FastaUploaderType::class, $oFastaUploader);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $file = $oFastaUploader->getFasta();
+            $fileName = md5(uniqid()).'.txt';
+
+            try {
+                $file->move(
+                    $this->getParameter('brochures_directory'),
+                    $fileName
+                );
+            } catch (FileException $e) {
+                throw new FileException($e);
+            }
+
+            $myFile = $this->getParameter('brochures_directory').'/'.$fileName;
+            $fh = fopen($myFile, 'r');
+            $var = fread($fh, 1000000);
+            fclose($fh);
+
+            $length = strlen($var);
+            if($length != '') {
+                if($oFastaUploaderManager->isValidSequence($var)) {
+                    for ($i = 0; $i < $length ; ++$i) {
+                        switch($var[$i]) {
+                            case 'a':
+                            case 'A':
+                                $a++;
+                                break;
+                            case 't':
+                            case 'T':
+                                $t++;
+                                break;
+                            case 'c':
+                            case 'C':
+                                $c++;
+                                break;
+                            case 'g':
+                            case 'G':
+                                $g++;
+                        }
+                    }
+                } else {
+                    throw new \Exception("Please check....This is not a Nucleotide sequence");
+                }
+            }
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/gcContentFinder.html.twig',
+            [
+                'form'      => $form->createView(),
+                'length'    => $length,
+                'a'         => $a,
+                't'         => $t,
+                'g'         => $g,
+                'c'         => $c,
+                'at'        => (($a + $t) / $length) * 100,
+                'gc'        => (($g + $c) / $length) * 100
+            ]
+        );
     }
+
 
     /**
      * @Route("/minitools/melting-temperature", name="melting_temperature")
