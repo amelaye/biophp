@@ -27,3 +27,4 @@ web/code-coverage/*
 /web/dendogram.png
 /web/public/diagrams
 /web/public/diagrams/*
+/web/docs/
