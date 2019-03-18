@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/AppBundle.html">\AppBundle</a></li>
+                                                        <li><a href="../namespaces/MinitoolsBundle.html">\MinitoolsBundle</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">1033</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">5</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-163121305"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-163121305" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-728707624"></a>
+                                <a href="../namespaces/AppBundle.html" style="margin-left: 30px; padding-left: 0">AppBundle</a>
+            </div>
+            <div id="namespace-728707624" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-231310923"></a>
+                                <a href="../namespaces/AppBundle.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-231310923" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Controller.DemoController.html">DemoController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1703360016"></a>
+                                <a href="../namespaces/AppBundle.Entity.html" style="margin-left: 30px; padding-left: 0">Entity</a>
+            </div>
+            <div id="namespace-1703360016" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Entity.Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Fasta.html">Fasta</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Gff.html">Gff</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Protein.html">Protein</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.RestrictionEnzime.html">RestrictionEnzime</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.SeqAlign.html">SeqAlign</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Entity.Sequence.html">Sequence</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-64970597"></a>
+                                <a href="../namespaces/AppBundle.Interfaces.html" style="margin-left: 30px; padding-left: 0">Interfaces</a>
+            </div>
+            <div id="namespace-64970597" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/AppBundle.Interfaces.ParseDatabaseInterface.html">ParseDatabaseInterface</a></li>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-607641788"></a>
+                                <a href="../namespaces/AppBundle.Service.html" style="margin-left: 30px; padding-left: 0">Service</a>
+            </div>
+            <div id="namespace-607641788" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.Service.DatabaseManager.html">DatabaseManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.OligosManager.html">OligosManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ParseGenbankManager.html">ParseGenbankManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ParseSwissprotManager.html">ParseSwissprotManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.ProteinManager.html">ProteinManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.RestrictionEnzimeManager.html">RestrictionEnzimeManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SeqAlignManager.html">SeqAlignManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SeqMatchManager.html">SeqMatchManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SequenceManager.html">SequenceManager</a></li>
+                                                    <li class="class"><a href="../classes/AppBundle.Service.SubMatrixManager.html">SubMatrixManager</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2071347994"></a>
+                                <a href="../namespaces/AppBundle.Traits.html" style="margin-left: 30px; padding-left: 0">Traits</a>
+            </div>
+            <div id="namespace-2071347994" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                            <li class="trait"><a href="../classes/AppBundle.Traits.FormatsTrait.html">FormatsTrait</a></li>
+                                                    <li class="trait"><a href="../classes/AppBundle.Traits.SwissprotTrait.html">SwissprotTrait</a></li>
+                                                                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/AppBundle.AppBundle.html">AppBundle</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-483856300"></a>
+                                <a href="../namespaces/MinitoolsBundle.html" style="margin-left: 30px; padding-left: 0">MinitoolsBundle</a>
+            </div>
+            <div id="namespace-483856300" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-756805897"></a>
+                                <a href="../namespaces/MinitoolsBundle.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-756805897" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Controller.MinitoolsController.html">MinitoolsController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-990281807"></a>
+                                <a href="../namespaces/MinitoolsBundle.Entity.html" style="margin-left: 30px; padding-left: 0">Entity</a>
+            </div>
+            <div id="namespace-990281807" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.ChaosGameRepresentation.html">ChaosGameRepresentation</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.DistanceAmongSequences.html">DistanceAmongSequences</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.DnaToProtein.html">DnaToProtein</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Entity.Protein.html">Protein</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-672373502"></a>
+                                <a href="../namespaces/MinitoolsBundle.Form.html" style="margin-left: 30px; padding-left: 0">Form</a>
+            </div>
+            <div id="namespace-672373502" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.ChaosGameRepresentationType.html">ChaosGameRepresentationType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.DistanceAmongSequencesType.html">DistanceAmongSequencesType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.DnaToProteinType.html">DnaToProteinType</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Form.ProteinPropertiesType.html">ProteinPropertiesType</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1811819577"></a>
+                                <a href="../namespaces/MinitoolsBundle.Listener.html" style="margin-left: 30px; padding-left: 0">Listener</a>
+            </div>
+            <div id="namespace-1811819577" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Listener.DnaToProteinListener.html">DnaToProteinListener</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1245565785"></a>
+                                <a href="../namespaces/MinitoolsBundle.Service.html" style="margin-left: 30px; padding-left: 0">Service</a>
+            </div>
+            <div id="namespace-1245565785" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ChaosGameRepresentationManager.html">ChaosGameRepresentationManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.DistanceAmongSequencesManager.html">DistanceAmongSequencesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.DnaToProteinManager.html">DnaToProteinManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.FindPalindromeManager.html">FindPalindromeManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.FormulasManager.html">FormulasManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MeltingTemperatureManager.html">MeltingTemperatureManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MicroarrayAnalysisAdaptive.html">MicroarrayAnalysisAdaptive</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.MicrosatelliteRepeatsFinder.html">MicrosatelliteRepeatsFinder</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.OligonucleotideFrequencyManager.html">OligonucleotideFrequencyManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.PcrAmplificationManager.html">PcrAmplificationManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ProteinPropertiesManager.html">ProteinPropertiesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ProteinToDnaManager.html">ProteinToDnaManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.RandomSequencesManager.html">RandomSequencesManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ReaderGffFastaManager.html">ReaderGffFastaManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.ReduceProteinAlphabetManager.html">ReduceProteinAlphabetManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.RestrictionDigestManager.html">RestrictionDigestManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SequenceAlignmentManager.html">SequenceAlignmentManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SequenceManipulationAndDataManager.html">SequenceManipulationAndDataManager</a></li>
+                                                    <li class="class"><a href="../classes/MinitoolsBundle.Service.SkewsManager.html">SkewsManager</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MinitoolsBundle.MinitoolsBundle.html">MinitoolsBundle</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/fasta.html">fasta</a></li>
+                                                    <li class="class"><a href="../classes/gff.html">gff</a></li>
+                                                    <li class="class"><a href="../classes/Reader.html">Reader</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/AppBundle.Service.html">\AppBundle\Service</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\AppBundle\Service</small>SeqMatchManager</h1>
+                    <p><em></em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#method_hamdist" class="">hamdist()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#method_levdist" class="">levdist()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#method_xlevdist" class="">xlevdist()</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#method_match" class="">match()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#property_result" class="">$result</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#property_hamdist" class="">$hamdist</a><br />
+                                                                    <a href="../classes/AppBundle.Service.SeqMatchManager.html#property_levdist" class="">$levdist</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/AppBundle.Service.SeqMatchManager.html"><div class="path-wrapper">AppBundle/Service/SeqMatchManager.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\AppBundle\Service\SeqMatchManager</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_result" name="property_result" class="anchor"></a>
+            <article class="property">
+                <h3 class="public ">$result</h3>
+                <pre class="signature">$result : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_hamdist" name="property_hamdist" class="anchor"></a>
+            <article class="property">
+                <h3 class="public ">$hamdist</h3>
+                <pre class="signature">$hamdist : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_levdist" name="property_levdist" class="anchor"></a>
+            <article class="property">
+                <h3 class="public ">$levdist</h3>
+                <pre class="signature">$levdist : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_hamdist" name="method_hamdist" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">hamdist()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">hamdist(\AppBundle\Service\type  <span class="argument">$seq1</span>, \AppBundle\Service\type  <span class="argument">$seq2</span>) : integer</pre>
+                <p><em>Computes the Hamming Distance between two strings or Seq objects
+of equal length.  For more information, consult the technical reference.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seq1 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seq2 </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    integer
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_levdist" name="method_levdist" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">levdist()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">levdist(\AppBundle\Service\type  <span class="argument">$seq1</span>, \AppBundle\Service\type  <span class="argument">$seq2</span>, \AppBundle\Service\type  <span class="argument">$cost_ins = 1</span>, \AppBundle\Service\type  <span class="argument">$cost_rep = 1</span>, \AppBundle\Service\type  <span class="argument">$cost_del = 1</span>) : \AppBundle\Service\type</pre>
+                <p><em>levdist() computes the Levenshtein Distance between two strings or Seq objects
+with equal/unequal lengths.  You can pass custom values for cost of insertion,
+replacement, and deletion.  If you don&#039;t pass any, they are assumed to be 1.</em></p>
+                <p>For more information, see technical reference.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seq1 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$seq2 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$cost_ins </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$cost_rep </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$cost_del </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_xlevdist" name="method_xlevdist" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">xlevdist()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">xlevdist(\AppBundle\Service\type  <span class="argument">$s</span>, \AppBundle\Service\type  <span class="argument">$t</span>) : \AppBundle\Service\type</pre>
+                <p><em>xlevdist() is an extended version of levdist() which accepts strings with length
+greater than 255 but not to exceed 1024 (which takes my CPU 18 seconds to compute).</em></p>
+                <p>The only drawback to xlevdist is that the cost of insertion, deletion, and replacement
+is fixed to 1.  I have yet to find a way to allow custom values for these.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$s </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$t </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    \AppBundle\Service\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_match" name="method_match" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">match()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">match(\AppBundle\Service\type  <span class="argument">$str1</span>, \AppBundle\Service\type  <span class="argument">$str2</span>, \AppBundle\Service\type  <span class="argument">$matrix</span>, \AppBundle\Service\type  <span class="argument">$equal</span>, \AppBundle\Service\type  <span class="argument">$partial = &quot;+&quot;</span>, \AppBundle\Service\type  <span class="argument">$nomatch = &quot;.&quot;</span>) : string</pre>
+                <p><em>The match() method accepts two sequence strings (not objects) of equal length,
+and returns a sequence match result string, according to the following rules:
+If there is an exact match, return the amino acid symbol.</em></p>
+                <p>If there is a partial match, return a plus sign.
+If there is no match, return a whitespace character.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$str1 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$str2 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$matrix </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$equal </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$partial </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\AppBundle\Service\type</td>
+                                <td>$nomatch </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            global
+                        </th>
+                        <td>
+                                                                                            <p>type $chemgrp_matrix</p>
+                                                    </td>
+                    </tr>
+                                    <tr>
+                        <th>
+                            group
+                        </th>
+                        <td>
+                                                                                            <p>Legacy</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">SeqMatchManager.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/AppBundle/Service/SeqMatchManager.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/AppBundle.html">\AppBundle</a></li>
+                                                                            <li><a href="../namespaces/MinitoolsBundle.html">\MinitoolsBundle</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on March 11th, 2019 at 17:38.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>
