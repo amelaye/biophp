@@ -63,6 +63,9 @@ services:
             - "%chemical_groups%"
             - "%codons%"
 
+    AppBundle\Service\NucleotidsManager:
+        arguments: []
+
     AppBundle\Service\SeqAlignManager:
         arguments:
             - "%alphabet%"
@@ -98,3 +101,13 @@ services:
         arguments:
             - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
+
+    MinitoolsBundle\Service\MeltingTemperatureManager:
+        arguments:
+            - '%dna_weights%'
+            - '%rna_weights%'
+            - '%tm_base_stacking%'
+
+    MinitoolsBundle\Service\FindPalindromeManager:
+        arguments:
+            - '@AppBundle\Service\NucleotidsManager'

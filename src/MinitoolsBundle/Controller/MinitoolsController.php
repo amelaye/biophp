@@ -417,8 +417,8 @@ class MinitoolsController extends Controller
                 't'         => $t,
                 'g'         => $g,
                 'c'         => $c,
-                'at'        => (($a + $t) / $length) * 100,
-                'gc'        => (($g + $c) / $length) * 100
+                'at'        => ($length != 0) ? (($a + $t) / $length) * 100 : null,
+                'gc'        => ($length != 0) ? (($g + $c) / $length) * 100 : null
             ]
         );
     }
@@ -429,6 +429,7 @@ class MinitoolsController extends Controller
      */
     public function meltingTemperatureAction()
     {
+
         return $this->render('@Minitools/Minitools/meltingTemperature.html.twig');
     }
 
