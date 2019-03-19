@@ -8,8 +8,17 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Service\NucleotidsManager;
+
 class FindPalindromeManager
 {
+    private $oNucleotidsManager;
+
+    public function __construct(NucleotidsManager $oNucleotidsManager)
+    {
+        $this->oNucleotidsManager = $oNucleotidsManager;
+    }
+
     /**
      * Searches sequence for palindromic substrings
      * @param   string  $sSequence      is the sequence to be searched
@@ -98,58 +107,13 @@ class FindPalindromeManager
             $sSequence = preg_replace("/\\W|\\d/","", $sSequence);
             $sSequence = preg_replace("/X/","N", $sSequence);
             $len_seq = strlen($sSequence);
-            $number_ATGC = $this->countACGT($sSequence);
-            $number_YRWSKMDVHB = $this->countYRWSKMDVHB($sSequence);
+            $number_ATGC = $this->oNucleotidsManager->countACGT($sSequence);
+            $number_YRWSKMDVHB = $this->oNucleotidsManager->countYRWSKMDVHB($sSequence);
             $number = $number_ATGC + $number_YRWSKMDVHB + substr_count($sSequence,"N");
             if ($number != $len_seq) {
                 throw new \Exception("Sequence is not valid. At least one letter in the sequence is unknown (not a NC-UIBMB valid code)");
             }
             return ($sSequence);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
-    /**
-     * Will count number of A, C, G and T bases in the sequence
-     * @param   string  $sSequence  is the sequence
-     * @return  int
-     * @throws \Exception
-     */
-    public function countACGT($sSequence)
-    {
-        try {
-            $cg = substr_count($sSequence,"A")
-                + substr_count($sSequence,"T")
-                + substr_count($sSequence,"G")
-                + substr_count($sSequence,"C");
-            return $cg;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
-    /**
-     * Will count number of degenerate nucleotides (Y, R, W, S, K, MD, V, H and B) in the sequence
-     * @param   string $c
-     * @return  int
-     * @throws \Exception
-     */
-    public function countYRWSKMDVHB($c){
-        try {
-            $cg = substr_count($c,"Y")
-                + substr_count($c,"R")
-                + substr_count($c,"W")
-                + substr_count($c,"S")
-                + substr_count($c,"K")
-                + substr_count($c,"M")
-                + substr_count($c,"D")
-                + substr_count($c,"V")
-                + substr_count($c,"H")
-                + substr_count($c,"B");
-            return $cg;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
