@@ -156,11 +156,11 @@ class DatabaseManager
         try {
             $fileSystem = new Filesystem();
 
-            if (!$fileSystem->exist($dbname . ".idx")) {
+            if (!$fileSystem->exists($dbname . ".idx")) {
                 throw new \Exception("ERROR: Index file $dbname.IDX does not exist!");
             }
 
-            if (!$fileSystem->exist($dbname . ".dir")) {
+            if (!$fileSystem->exists($dbname . ".dir")) {
                 throw new \Exception("ERROR: Index file $dbname.DIR does not exist!");
             }
 

@@ -72,6 +72,7 @@ class SkewsManager
      * @param $cadena
      * @param $len_oligos
      * @return mixed
+     * @todo : à refactoriser
      */
     public function searchOligos($cadena,$len_oligos)
     {
