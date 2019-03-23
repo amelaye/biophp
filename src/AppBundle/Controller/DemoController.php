@@ -1,7 +1,6 @@
 <?php
 /**
- * Demo controller
- * @author Amélie DUVERNET akka Amelaye
+ * Demo controller : you can be inspired by this to create you own scripts
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 21 february 2019
@@ -17,7 +16,11 @@ use AppBundle\Service\SequenceManager;
 use AppBundle\Entity\Database;
 use AppBundle\Service\DatabaseManager;
 
-
+/**
+ * Class DemoController
+ * @package AppBundle\Controller
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class DemoController extends Controller
 {
     /**
@@ -27,9 +30,11 @@ class DemoController extends Controller
     {
         return $this->render('@App/demo/index.html.twig');
     }
-    
+
     /**
      * @route("/sequence-analysis", name="sequence_analysis")
+     * @param SequenceManager $sequenceManager
+     * @return Response
      */
     public function sequenceanalysisAction(SequenceManager $sequenceManager)
     {

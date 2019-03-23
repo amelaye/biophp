@@ -67,10 +67,11 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $this->aLines = new \ArrayIterator($aFlines); // <3
 
         foreach($this->aLines as $lineno => $linestr) {
-            dump($this->aLines->current());
+            //dump($this->aLines->current());
         }
 
-        dump($oSequence);
+        //dump($oSequence);
+        return $oSequence;
     }
 
     /**
