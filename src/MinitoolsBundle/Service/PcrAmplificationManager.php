@@ -47,6 +47,7 @@ class PcrAmplificationManager
      * @param $p2
      * @return mixed|string
      * @throws \Exception
+     * @todo : à supprimer
      */
     function revComp($p2)
     {

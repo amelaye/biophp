@@ -4,9 +4,12 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 19 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Service\NucleotidsManager;
 
 class MeltingTemperatureManager
 {
@@ -16,17 +19,25 @@ class MeltingTemperatureManager
 
     private $tmBaseStacking;
 
+    private $oNucleotidsManager;
+
     /**
      * MeltingTemperatureManager constructor.
+     * @param NucleotidsManager $oNucleotidsManager
      * @param array $dnaWeights
      * @param array $rnaWeights
      * @param array $tmBaseStacking
      */
-    public function __construct(array $dnaWeights, array $rnaWeights, array $tmBaseStacking)
+    public function __construct(
+        NucleotidsManager $oNucleotidsManager,
+        array $dnaWeights,
+        array $rnaWeights,
+        array $tmBaseStacking)
     {
-        $this->dnaWeights       = $dnaWeights;
-        $this->rnaWeights       = $rnaWeights;
-        $this->tmBaseStacking   = $tmBaseStacking;
+        $this->oNucleotidsManager   = $oNucleotidsManager;
+        $this->dnaWeights           = $dnaWeights;
+        $this->rnaWeights           = $rnaWeights;
+        $this->tmBaseStacking       = $tmBaseStacking;
     }
 
     /**
@@ -39,9 +50,8 @@ class MeltingTemperatureManager
     public function tmBaseStacking($c, $conc_primer, $conc_salt, $conc_mg)
     {
         try {
-            if (CountATCG($c) != strlen($c)) {
-                print "The oligonucleotide is not valid";
-                return;
+            if ($this->oNucleotidsManager->countATCG($c) != strlen($c)) {
+                throw new \Exception("The oligonucleotide is not valid");
             }
             $h = $s = 0;
 
@@ -50,9 +60,9 @@ class MeltingTemperatureManager
 
             // effect on entropy by salt correction; von Ahsen et al 1999
             // Increase of stability due to presence of Mg;
-            $salt_effect = ($conc_salt/1000)+(($conc_mg/1000) * 140);
+            $salt_effect = ($conc_salt/1000) + (($conc_mg/1000) * 140);
             // effect on entropy
-            $s+=0.368 * (strlen($c)-1)* log($salt_effect);
+            $s += 0.368 * (strlen($c)-1) * log($salt_effect);
 
             // terminal corrections. Santalucia 1998
             $firstnucleotide = substr($c,0,1);
@@ -65,7 +75,7 @@ class MeltingTemperatureManager
                 $s += 4.1;
             }
 
-            $lastnucleotide=substr($c,strlen($c)-1,1);
+            $lastnucleotide = substr($c,strlen($c)-1,1);
             if ($lastnucleotide == "G" || $lastnucleotide == "C") {
                 $h += 0.1;
                 $s += -2.8;
@@ -76,12 +86,12 @@ class MeltingTemperatureManager
             }
 
             // compute new H and s based on sequence. Santalucia 1998
-            for($i=0; $i<strlen($c)-1; $i++) {
+            for($i = 0; $i < strlen($c)-1; $i++) {
                 $subc = substr($c,$i,2);
                 $h += $array_h[$subc];
                 $s += $array_s[$subc];
             }
-            $tm = ((1000*$h)/($s+(1.987*log($conc_primer/2000000000))))-273.15;
+            $tm = ((1000*$h) / ($s + (1.987 * log($conc_primer / 2000000000)))) - 273.15;
             print "Tm:                 <font color=880000><b>".round($tm,1)." &deg;C</b></font>";
             print  "\n<font color=008800>  Enthalpy: ".round($h,2)."\n  Entropy:  ".round($s,2)."</font>";
         } catch (\Exception $e) {

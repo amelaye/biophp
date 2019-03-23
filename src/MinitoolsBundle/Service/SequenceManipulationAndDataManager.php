@@ -75,17 +75,39 @@ class SequenceManipulationAndDataManager
         $result.="\nC: ".substr_count($seq,"C");
         $result.="\nG: ".substr_count($seq,"G");
         $result.="\nT: ".substr_count($seq,"T");
-        if (substr_count($seq,"Y")>0){$result.="\nY: ".substr_count($seq,"Y");}
-        if (substr_count($seq,"R")>0){$result.="\nR: ".substr_count($seq,"R");}
-        if (substr_count($seq,"W")>0){$result.="\nW: ".substr_count($seq,"W");}
-        if (substr_count($seq,"S")>0){$result.="\nS: ".substr_count($seq,"S");}
-        if (substr_count($seq,"K")>0){$result.="\nK: ".substr_count($seq,"K");}
-        if (substr_count($seq,"M")>0){$result.="\nM: ".substr_count($seq,"M");}
-        if (substr_count($seq,"D")>0){$result.="\nD: ".substr_count($seq,"D");}
-        if (substr_count($seq,"V")>0){$result.="\nV: ".substr_count($seq,"V");}
-        if (substr_count($seq,"H")>0){$result.="\nH: ".substr_count($seq,"H");}
-        if (substr_count($seq,"B")>0){$result.="\nB: ".substr_count($seq,"B");}
-        if (substr_count($seq,"N")>0){$result.="\nN: ".substr_count($seq,"N");}
+        if (substr_count($seq,"Y") > 0) {
+            $result .= "\nY: ".substr_count($seq,"Y");
+        }
+        if (substr_count($seq,"R") > 0) {
+            $result .= "\nR: ".substr_count($seq,"R");
+        }
+        if (substr_count($seq,"W") > 0) {
+            $result .= "\nW: ".substr_count($seq,"W");
+        }
+        if (substr_count($seq,"S") > 0) {
+            $result .= "\nS: ".substr_count($seq,"S");
+        }
+        if (substr_count($seq,"K") > 0) {
+            $result .= "\nK: ".substr_count($seq,"K");
+        }
+        if (substr_count($seq,"M") > 0) {
+            $result .= "\nM: ".substr_count($seq,"M");
+        }
+        if (substr_count($seq,"D") > 0) {
+            $result .= "\nD: ".substr_count($seq,"D");
+        }
+        if (substr_count($seq,"V") > 0) {
+            $result .= "\nV: ".substr_count($seq,"V");
+        }
+        if (substr_count($seq,"H") > 0) {
+            $result .= "\nH: ".substr_count($seq,"H");
+        }
+        if (substr_count($seq,"B") > 0) {
+            $result .= "\nB: ".substr_count($seq,"B");
+        }
+        if (substr_count($seq,"N") > 0) {
+            $result .= "\nN: ".substr_count($seq,"N");
+        }
         $result.="\n\n";
         return $result;
     }

@@ -48,6 +48,8 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-genbank", name="read_sequence_genbank")
+     * @param DatabaseManager $databaseManager
+     * @return Response
      * @throws \Exception
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
@@ -66,6 +68,8 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-swissprot", name="read_sequence_swissprot")
+     * @param DatabaseManager $databaseManager
+     * @return Response
      * @throws \Exception
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)

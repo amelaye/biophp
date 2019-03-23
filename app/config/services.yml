@@ -104,6 +104,7 @@ services:
 
     MinitoolsBundle\Service\MeltingTemperatureManager:
         arguments:
+            - '@AppBundle\Service\NucleotidsManager'
             - '%dna_weights%'
             - '%rna_weights%'
             - '%tm_base_stacking%'

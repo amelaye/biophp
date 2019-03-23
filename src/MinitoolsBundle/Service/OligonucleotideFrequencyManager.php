@@ -17,6 +17,7 @@ class OligonucleotideFrequencyManager
      * @param $oligo_len
      * @return mixed
      * @throws \Exception
+     * @todo : à refactoriser
      */
     public function findOligos($sequence,$oligo_len)
     {
@@ -40,6 +41,10 @@ class OligonucleotideFrequencyManager
                 $oligos_1step[$seq]++;
                 $i++;
             }
+
+            /*
+             * Supprimer à partir de là
+             */
             $base_a = array("A","C","G","T");
             $base_b = $base_a;
             $base_c = $base_a;
@@ -187,8 +192,9 @@ class OligonucleotideFrequencyManager
      * @param $seq
      * @return mixed|string
      * @throws \Exception
+     * @todo : à supprimer
      */
-    function revComp($seq)
+    /*function revComp($seq)
     {
         try {
             $seq = strrev($seq);
@@ -201,5 +207,5 @@ class OligonucleotideFrequencyManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }
+    }*/
 }
