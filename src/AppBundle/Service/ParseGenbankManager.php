@@ -99,7 +99,7 @@ class ParseGenbankManager implements ParseDatabaseInterface
             }
         }
 
-        dump($oSequence);
+        //dump($oSequence);
         return $oSequence;
     }
 

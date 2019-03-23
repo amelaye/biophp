@@ -1,6 +1,14 @@
 {
-    "name": "amelaye/amelaye-biophp",
-    "license": "proprietary",
+    "name": "amelaye/amelayes-biophp",
+    "authors": [
+        {
+            "name": "Amelie DUVERNET",
+            "email": "amelieonline@gmail.com",
+            "homepage": "http://www.amelionline.net",
+            "role": "Developer"
+        }
+    ],
+    "license": "GPL-2.0-only",
     "type": "project",
     "autoload": {
         "psr-4": {
@@ -29,6 +37,7 @@
         "phpunit/phpunit": "^7.5",
         "sensio/distribution-bundle": "^5.0",
         "sensio/framework-extra-bundle": "^5.2",
+        "symfony/dom-crawler": "3.4.22",
         "symfony/monolog-bundle": "^3.3",
         "symfony/options-resolver": "v3.4.22",
         "symfony/polyfill-apcu": "^1.11",

@@ -16,12 +16,14 @@ class ChaosGameRepresentationManager
 {
     private $chaosGameRepresentation;
 
+    private $oligosManager;
     private $dnaComplements;
     private $nucleotidsGraphs;
 
 
-    public function __construct($dnaComplements, $nucleotidsGraphs)
+    public function __construct(OligosManager $oligosManager, $dnaComplements, $nucleotidsGraphs)
     {
+        $this->oligosManager = $oligosManager;
         $this->dnaComplements = $dnaComplements;
         $this->nucleotidsGraphs = $nucleotidsGraphs;
     }
@@ -472,7 +474,7 @@ class ChaosGameRepresentationManager
     }
 
     /**
-     * @todo : bug possible de position
+     * Creates the different positions of areas
      * @param array $aRatio
      * @param string $sThecolor
      * @param $im
