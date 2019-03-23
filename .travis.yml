@@ -3,5 +3,5 @@ php:
   - '7.1.16'
 
 script:
-  - composer install
+  - composer install -o
   - vendor/bin/phpunit
