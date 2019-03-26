@@ -3,7 +3,7 @@
  * Functional tests for Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundleTest\Controller;
@@ -141,8 +141,22 @@ class MinitoolsControllerTest extends WebTestCase
         /**
          * 1 - Access to the page OK
          */
-        $this->client->request('GET', '/minitools/melting-temperature');
+        $crawler = $this->client->request('GET', '/minitools/melting-temperature');
         static::assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        /**
+         * 2 - Posting data OK
+         */
+        $form = $crawler->selectButton('Calculate Tm')->form();
+        $form['melting_temperature[primer]'] = 'AAAATTTGGGGCCCATGCCC'; // primer
+        $form['melting_temperature[basic]'] = 1; // Basic Tm (Deg. Nuc. allowed)
+        $form['melting_temperature[nearestNeighbor]'] = 1; // Basic Tm (Deg. Nuc. NOT allowed)
+        $form['melting_temperature[cp]'] = 200; // Primer concentration
+        $form['melting_temperature[cs]'] = 50; // Salt concentration
+        $form['melting_temperature[cmg]'] = 0; // Mg2+ concentration
+
+        $crawler = $this->client->submit($form);
+        $this->assertGreaterThan(1, $crawler->filter('div#results pre')->count());
     }
 
     /**

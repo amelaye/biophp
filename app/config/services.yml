@@ -108,6 +108,7 @@ services:
             - '%dna_weights%'
             - '%rna_weights%'
             - '%tm_base_stacking%'
+            - '%elements%'
 
     MinitoolsBundle\Service\FindPalindromeManager:
         arguments:
