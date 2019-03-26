@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <parser>
+        <target>web/docs/api</target>
+    </parser>
+    <transformer>
+        <target>web/docs/api</target>
+    </transformer>
+    <files>
+        <directory>./src</directory>
+        <ignore>*/Legacy/*</ignore>
+    </files>
+</phpdoc>

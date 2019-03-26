@@ -44,11 +44,11 @@ class MeltingTemperatureManager
 
     /**
      * MeltingTemperatureManager constructor.
-     * @param NucleotidsManager $oNucleotidsManager
-     * @param array $dnaWeights
-     * @param array $rnaWeights
-     * @param array $tmBaseStacking
-     * @param array $elements
+     * @param   NucleotidsManager   $oNucleotidsManager     Service counting nucleotids
+     * @param   array               $dnaWeights             Array of A, T, G, C Weights
+     * @param   array               $rnaWeights             Array of A, C, G, U Weights
+     * @param   array               $tmBaseStacking         Basic temperatures of nucleotids combinations
+     * @param   array               $elements               Weights of basic elements (for water)
      */
     public function __construct(
         NucleotidsManager $oNucleotidsManager,
@@ -132,7 +132,7 @@ class MeltingTemperatureManager
 
     /**
      * Gets temperature mini
-     * @param       string      $primer
+     * @param       string      $primer     Sequence to analyze
      * @return      float
      * @throws      \Exception
      */
@@ -160,7 +160,7 @@ class MeltingTemperatureManager
 
     /**
      * Gets temperature maxi
-     * @param       string      $primer
+     * @param       string      $primer     Sequence to analyze
      * @return      float
      * @throws      \Exception
      */
@@ -186,7 +186,7 @@ class MeltingTemperatureManager
 
     /**
      * Reduces the primer
-     * @param       string      $primer
+     * @param       string      $primer     Sequence to analyze
      * @return      string
      * @throws      \Exception
      */
@@ -204,7 +204,7 @@ class MeltingTemperatureManager
 
     /**
      * Unreduces the primer
-     * @param       string      $primer
+     * @param       string      $primer     Sequence to analyze
      * @return      string
      * @throws      \Exception
      */
@@ -222,9 +222,9 @@ class MeltingTemperatureManager
 
     /**
      * Gets the weight of the sequence
-     * @param   string      $sSequence       sequence to analyse
+     * @param   string      $sSequence       Sequence to analyse
      * @param   string      $sMoltype        DNA or RNA
-     * @param   string      $sLimit          upperlimit or lowerlimit
+     * @param   string      $sLimit          "Upperlimit" or "lowerlimit" (string)
      * @return  float
      * @throws  \Exception
      */
