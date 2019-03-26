@@ -14,7 +14,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name="sequence")
+ * @ORM\Table(
+ *     name = "sequence",
+ *     indexes = {@ORM\Index(name = "locus_name", columns = {"entry_name", "mol_type"})}
+ * )
  */
 class Sequence
 {
@@ -25,7 +28,7 @@ class Sequence
      *     length = 8,
      *     options = {"default":0},
      *     nullable = false
-     *     )
+     * )
      */
     private $primAcc;
 
@@ -33,9 +36,8 @@ class Sequence
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
-     *     options = {"default":''},
      *     nullable = false
-     *     )
+     * )
      */
     private $entryName;
 
@@ -44,7 +46,7 @@ class Sequence
      *     type = "integer",
      *     length = 11,
      *     nullable = true
-     *     )
+     * )
      */
     private $seqLength;
 
@@ -53,7 +55,7 @@ class Sequence
      *     type = "string",
      *     length = 6,
      *     nullable = true
-     *     )
+     * )
      */
     private $molType;
 
@@ -61,7 +63,7 @@ class Sequence
      * @ORM\Column(
      *     type = "date",
      *     nullable = true
-     *     )
+     * )
      */
     private $date;
 
@@ -69,7 +71,7 @@ class Sequence
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
-     *     )
+     * )
      */
     private $source;
 
@@ -77,7 +79,7 @@ class Sequence
      * @ORM\Column(
      *     type = "text",
      *     nullable = false
-     *     )
+     * )
      */
     private $sequence;
 
@@ -85,7 +87,7 @@ class Sequence
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
-     *     )
+     * )
      */
     private $description;
 
@@ -93,7 +95,7 @@ class Sequence
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
-     *     )
+     * )
      */
     private $organism;
 

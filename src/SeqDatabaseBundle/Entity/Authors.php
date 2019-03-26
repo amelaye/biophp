@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name="authors")
+ * @ORM\Table(name = "authors")
  */
 class Authors
 {
@@ -23,8 +23,7 @@ class Authors
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
-     *     length = 8,
-     *     options = {"default":''}
+     *     length = 8
      * )
      */
     private $primAcc;
@@ -44,8 +43,7 @@ class Authors
      * @ORM\Column(
      *     type = "string",
      *     length = 50,
-     *     nullable = false,
-     *     options = {"default":''}
+     *     nullable = false
      * )
      */
     private $author;
