@@ -3,7 +3,7 @@
  * Doctrine Entity Accession
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -27,16 +27,18 @@ class Accession
 {
 
     /**
+     * @var string
      * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     nullable = false
-     *     )
+     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName = "prim_acc"
+     * )
      */
     private $primAcc;
 
     /**
+     * @var string
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
@@ -47,7 +49,7 @@ class Accession
     private $accession;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -55,7 +57,7 @@ class Accession
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -63,7 +65,7 @@ class Accession
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getAccession()
     {
@@ -71,7 +73,7 @@ class Accession
     }
 
     /**
-     * @param mixed $accession
+     * @param string $accession
      */
     public function setAccession($accession)
     {

@@ -3,7 +3,7 @@
  * Doctrine Entity GbSequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -26,16 +26,18 @@ use Doctrine\ORM\Mapping as ORM;
 class GbSequence
 {
     /**
+     * @var string
      * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     nullable = false
+     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName = "prim_acc"
      * )
      */
     private $primAcc;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 2,
@@ -45,6 +47,7 @@ class GbSequence
     private $strands;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 1,
@@ -54,6 +57,7 @@ class GbSequence
     private $topology;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 3,
@@ -63,6 +67,7 @@ class GbSequence
     private $division;
 
     /**
+     * @var int
      * @ORM\Column(
      *     type = "integer",
      *     length = 11,
@@ -72,6 +77,7 @@ class GbSequence
     private $segmentNo;
 
     /**
+     * @var int
      * @ORM\Column(
      *     type = "integer",
      *     length = 11,
@@ -81,6 +87,7 @@ class GbSequence
     private $segmentCount;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 10,
@@ -90,6 +97,7 @@ class GbSequence
     private $version;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type="string",
      *     length = 30,
@@ -99,7 +107,7 @@ class GbSequence
     private $ncbiGiId;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -107,7 +115,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -115,7 +123,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getStrands()
     {
@@ -123,7 +131,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $strands
+     * @param string $strands
      */
     public function setStrands($strands)
     {
@@ -131,7 +139,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTopology()
     {
@@ -139,7 +147,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $topology
+     * @param string $topology
      */
     public function setTopology($topology)
     {
@@ -147,7 +155,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getDivision()
     {
@@ -155,7 +163,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $division
+     * @param string $division
      */
     public function setDivision($division)
     {
@@ -163,7 +171,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getSegmentNo()
     {
@@ -171,7 +179,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $segmentNo
+     * @param int $segmentNo
      */
     public function setSegmentNo($segmentNo)
     {
@@ -179,7 +187,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getSegmentCount()
     {
@@ -187,7 +195,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $segmentCount
+     * @param int $segmentCount
      */
     public function setSegmentCount($segmentCount)
     {
@@ -195,7 +203,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getVersion()
     {
@@ -203,7 +211,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $version
+     * @param string $version
      */
     public function setVersion($version)
     {
@@ -211,7 +219,7 @@ class GbSequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getNcbiGiId()
     {
@@ -219,7 +227,7 @@ class GbSequence
     }
 
     /**
-     * @param mixed $ncbiGiId
+     * @param string $ncbiGiId
      */
     public function setNcbiGiId($ncbiGiId)
     {
