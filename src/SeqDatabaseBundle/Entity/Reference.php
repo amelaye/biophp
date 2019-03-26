@@ -23,8 +23,7 @@ class Reference
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
-     *     nullable = false,
-     *     options = {"default":''}
+     *     nullable = false
      * )
      */
     private $primAcc;

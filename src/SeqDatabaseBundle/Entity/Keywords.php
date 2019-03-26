@@ -14,7 +14,15 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name="keywords")
+ * @ORM\Table(
+ *     name = "keywords",
+ *     uniqueConstraints = {
+ *        @ORM\UniqueConstraint(
+ *            name = "prim_acc",
+ *            columns = {"prim_acc", "keywords"}
+ *        )
+ *     }
+ * )
  */
 class Keywords
 {
@@ -23,8 +31,7 @@ class Keywords
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
-     *     nullable = false,
-     *     options = {"default":''}
+     *     nullable = false
      * )
      */
     private $primAcc;
@@ -34,8 +41,7 @@ class Keywords
      * @ORM\Column(
      *     type = "string",
      *     length = 80,
-     *     nullable = false,
-     *     options = {"default":''}
+     *     nullable = false
      * )
      */
     private $keywords;

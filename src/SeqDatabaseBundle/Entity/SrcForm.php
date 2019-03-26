@@ -14,7 +14,15 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name="src_form")
+ * @ORM\Table(
+ *     name = "src_form",
+ *     uniqueConstraints = {
+ *        @ORM\UniqueConstraint(
+ *            name = "prim_acc",
+ *            columns = {"prim_acc"}
+ *        )
+ *     }
+ * )
  */
 class SrcForm
 {

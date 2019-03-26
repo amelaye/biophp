@@ -14,7 +14,14 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name="gb_sequence")
+ * @ORM\Table(
+ *     name = "gb_sequence",
+ *     uniqueConstraints = {
+ *        @ORM\UniqueConstraint(
+ *            name = "prim_acc",
+ *            columns = {"prim_acc"})
+ *     }
+ * )
  */
 class GbSequence
 {
@@ -23,8 +30,7 @@ class GbSequence
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
-     *     nullable = false,
-     *     options = {"default":''}
+     *     nullable = false
      * )
      */
     private $primAcc;
