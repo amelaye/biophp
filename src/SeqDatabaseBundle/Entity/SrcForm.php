@@ -3,7 +3,7 @@
  * Doctrine Entity SrcForm
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -27,17 +27,18 @@ use Doctrine\ORM\Mapping as ORM;
 class SrcForm
 {
     /**
+     * @var string
      * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     nullable = false,
-     *     options = {"default":0}
+     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName = "prim_acc"
      * )
      */
     private $primAcc;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type="text"
      * )
@@ -45,7 +46,7 @@ class SrcForm
     private $entry;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -53,7 +54,7 @@ class SrcForm
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -61,7 +62,7 @@ class SrcForm
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getEntry()
     {
@@ -69,7 +70,7 @@ class SrcForm
     }
 
     /**
-     * @param mixed $entry
+     * @param string $entry
      */
     public function setEntry($entry)
     {

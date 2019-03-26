@@ -3,7 +3,7 @@
  * Doctrine Entity Authors
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -20,15 +20,21 @@ class Authors
 {
 
     /**
+     * @var string
      * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8
+     * @ORM\ManyToOne(
+     *     targetEntity = "SeqDatabaseBundle\Entity\Reference",
+     *     inversedBy="primAcc"
+     * )
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName = "prim_acc"
      * )
      */
     private $primAcc;
 
     /**
+     * @var int
      * @ORM\Id
      * @ORM\Column(
      *     type = "integer",
@@ -40,6 +46,7 @@ class Authors
     private $refno;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 50,
@@ -65,7 +72,7 @@ class Authors
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getRefno()
     {
@@ -73,7 +80,7 @@ class Authors
     }
 
     /**
-     * @param mixed $refno
+     * @param int $refno
      */
     public function setRefno($refno)
     {
@@ -81,7 +88,7 @@ class Authors
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getAuthor()
     {
@@ -89,7 +96,7 @@ class Authors
     }
 
     /**
-     * @param mixed $author
+     * @param string $author
      */
     public function setAuthor($author)
     {

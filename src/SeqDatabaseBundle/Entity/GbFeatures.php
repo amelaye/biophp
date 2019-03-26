@@ -3,7 +3,7 @@
 * Doctrine Entity GbFeatures
 * Freely inspired by BioPHP's project biophp.org
 * Created 23 march 2019
-* Last modified 23 march 2019
+* Last modified 26 march 2019
 */
 namespace SeqDatabaseBundle\Entity;
 
@@ -27,16 +27,18 @@ use Doctrine\ORM\Mapping as ORM;
 class GbFeatures
 {
     /**
+     * @var string
      * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     nullable = false
+     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName="prim_acc"
      * )
      */
     private $primAcc;
 
     /**
+     * @var string
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
@@ -47,6 +49,7 @@ class GbFeatures
     private $ftKey;
 
     /**
+     * @var string
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
@@ -57,6 +60,7 @@ class GbFeatures
     private $ftQual;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type="text"
      * )
@@ -64,7 +68,7 @@ class GbFeatures
     private $ftValue;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -72,7 +76,7 @@ class GbFeatures
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -80,7 +84,7 @@ class GbFeatures
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getFtKey()
     {
@@ -88,7 +92,7 @@ class GbFeatures
     }
 
     /**
-     * @param mixed $ftKey
+     * @param string $ftKey
      */
     public function setFtKey($ftKey)
     {
@@ -96,7 +100,7 @@ class GbFeatures
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getFtQual()
     {
@@ -104,7 +108,7 @@ class GbFeatures
     }
 
     /**
-     * @param mixed $ftQual
+     * @param string $ftQual
      */
     public function setFtQual($ftQual)
     {
@@ -112,7 +116,7 @@ class GbFeatures
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getFtValue()
     {
@@ -120,7 +124,7 @@ class GbFeatures
     }
 
     /**
-     * @param mixed $ftValue
+     * @param string $ftValue
      */
     public function setFtValue($ftValue)
     {

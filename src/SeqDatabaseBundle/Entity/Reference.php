@@ -3,7 +3,7 @@
  * Doctrine Entity Reference
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -19,16 +19,28 @@ use Doctrine\ORM\Mapping as ORM;
 class Reference
 {
     /**
+     * @var string
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
+     *     options = {"default":0},
      *     nullable = false
+     * )
+     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\JoinColumn(
+     *     name = "prim_acc",
+     *     referencedColumnName = "prim_acc"
+     * )
+     * @ORM\OneToMany(
+     *     targetEntity = "SeqDatabaseBundle\Entity\Authors",
+     *     mappedBy = "primAcc"
      * )
      */
     private $primAcc;
 
     /**
+     * @var int
      * @ORM\Id
      * @ORM\Column(
      *     type = "integer",
@@ -40,6 +52,7 @@ class Reference
     private $refno;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 80,
@@ -49,6 +62,7 @@ class Reference
     private $baseRange;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 255,
@@ -58,6 +72,7 @@ class Reference
     private $title;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
@@ -67,6 +82,7 @@ class Reference
     private $medline;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 20,
@@ -76,6 +92,7 @@ class Reference
     private $pubmed;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 255,
@@ -85,6 +102,7 @@ class Reference
     private $remark;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "text"
      * )
@@ -92,7 +110,7 @@ class Reference
     private $journal;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -100,7 +118,7 @@ class Reference
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -108,7 +126,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getRefno()
     {
@@ -116,7 +134,7 @@ class Reference
     }
 
     /**
-     * @param mixed $refno
+     * @param int $refno
      */
     public function setRefno($refno)
     {
@@ -124,7 +142,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getBaseRange()
     {
@@ -132,7 +150,7 @@ class Reference
     }
 
     /**
-     * @param mixed $baseRange
+     * @param string $baseRange
      */
     public function setBaseRange($baseRange)
     {
@@ -140,7 +158,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTitle()
     {
@@ -148,7 +166,7 @@ class Reference
     }
 
     /**
-     * @param mixed $title
+     * @param string $title
      */
     public function setTitle($title)
     {
@@ -156,7 +174,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getJournal()
     {
@@ -164,7 +182,7 @@ class Reference
     }
 
     /**
-     * @param mixed $journal
+     * @param string $journal
      */
     public function setJournal($journal)
     {
@@ -172,7 +190,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getMedline()
     {
@@ -180,7 +198,7 @@ class Reference
     }
 
     /**
-     * @param mixed $medline
+     * @param string $medline
      */
     public function setMedline($medline)
     {
@@ -188,7 +206,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPubmed()
     {
@@ -196,7 +214,7 @@ class Reference
     }
 
     /**
-     * @param mixed $pubmed
+     * @param string $pubmed
      */
     public function setPubmed($pubmed)
     {
@@ -204,7 +222,7 @@ class Reference
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getRemark()
     {
@@ -212,7 +230,7 @@ class Reference
     }
 
     /**
-     * @param mixed $remark
+     * @param string $remark
      */
     public function setRemark($remark)
     {

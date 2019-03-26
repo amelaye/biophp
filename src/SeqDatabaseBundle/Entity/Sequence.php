@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 23 march 2019
+ * Last modified 26 march 2019
  */
 namespace SeqDatabaseBundle\Entity;
 
@@ -16,12 +16,15 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(
  *     name = "sequence",
- *     indexes = {@ORM\Index(name = "locus_name", columns = {"entry_name", "mol_type"})}
+ *     indexes = {
+ *         @ORM\Index(name = "locus_name", columns = {"entry_name", "mol_type"})
+ *     }
  * )
  */
 class Sequence
 {
     /**
+     * @var string
      * @ORM\Id
      * @ORM\Column(
      *     type = "string",
@@ -29,10 +32,17 @@ class Sequence
      *     options = {"default":0},
      *     nullable = false
      * )
+     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\GbSequence")
+     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\GbFeatures")
+     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\ScForm")
+     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Accession")
+     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Keywords")
+     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Reference")
      */
     private $primAcc;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 8,
@@ -42,6 +52,7 @@ class Sequence
     private $entryName;
 
     /**
+     * @var int
      * @ORM\Column(
      *     type = "integer",
      *     length = 11,
@@ -51,6 +62,7 @@ class Sequence
     private $seqLength;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     length = 6,
@@ -60,6 +72,7 @@ class Sequence
     private $molType;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "date",
      *     nullable = true
@@ -68,6 +81,7 @@ class Sequence
     private $date;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
@@ -76,6 +90,7 @@ class Sequence
     private $source;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "text",
      *     nullable = false
@@ -84,6 +99,7 @@ class Sequence
     private $sequence;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
@@ -92,6 +108,7 @@ class Sequence
     private $description;
 
     /**
+     * @var string
      * @ORM\Column(
      *     type = "string",
      *     nullable = true
@@ -100,7 +117,7 @@ class Sequence
     private $organism;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getPrimAcc()
     {
@@ -108,7 +125,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $primAcc
+     * @param string $primAcc
      */
     public function setPrimAcc($primAcc)
     {
@@ -116,7 +133,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getEntryName()
     {
@@ -124,7 +141,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $entryName
+     * @param string $entryName
      */
     public function setEntryName($entryName)
     {
@@ -132,7 +149,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getSeqLength()
     {
@@ -140,7 +157,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $seqLength
+     * @param int $seqLength
      */
     public function setSeqLength($seqLength)
     {
@@ -148,7 +165,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getMolType()
     {
@@ -156,7 +173,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $molType
+     * @param string $molType
      */
     public function setMolType($molType)
     {
@@ -164,7 +181,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getDate()
     {
@@ -172,7 +189,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $date
+     * @param string $date
      */
     public function setDate($date)
     {
@@ -180,7 +197,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getSource()
     {
@@ -188,7 +205,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $source
+     * @param string $source
      */
     public function setSource($source)
     {
@@ -196,7 +213,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getSequence()
     {
@@ -204,7 +221,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $sequence
+     * @param string $sequence
      */
     public function setSequence($sequence)
     {
@@ -212,7 +229,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getDescription()
     {
@@ -220,7 +237,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $description
+     * @param string $description
      */
     public function setDescription($description)
     {
@@ -228,7 +245,7 @@ class Sequence
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getOrganism()
     {
@@ -236,7 +253,7 @@ class Sequence
     }
 
     /**
-     * @param mixed $organism
+     * @param string $organism
      */
     public function setOrganism($organism)
     {
