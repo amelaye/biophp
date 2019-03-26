@@ -68,13 +68,14 @@ class MeltingTemperatureManager
     /**
      * Gets different informations when degenerated nucleotids are not allowed
      * @param   string      $primer         Primer string
-     * @param   int         $conc_primer    Primer concentration
-     * @param   int         $conc_salt      Salt concentration:
-     * @param   int         $conc_mg        Mg2+ concentration
+     * @param   int         $concPrimer     Primer concentration
+     * @param   int         $concSalt       Salt concentration
+     * @param   int         $concMg         Mg2+ concentration
      * @return  array
      * @throws  \Exception
+     * @todo    Transformer l'exception en erreur formulaire
      */
-    public function tmBaseStacking($primer, $conc_primer, $conc_salt, $conc_mg)
+    public function tmBaseStacking($primer, $concPrimer, $concSalt, $concMg)
     {
         try {
             if ($this->oNucleotidsManager->countACGT($primer) != strlen($primer)) {
@@ -87,7 +88,7 @@ class MeltingTemperatureManager
 
             // effect on entropy by salt correction; von Ahsen et al 1999
             // Increase of stability due to presence of Mg;
-            $salt_effect = ($conc_salt/1000) + (($conc_mg/1000) * 140);
+            $salt_effect = ($concSalt/1000) + (($concMg/1000) * 140);
             // effect on entropy
             $s += 0.368 * (strlen($primer)-1) * log($salt_effect);
 
@@ -118,7 +119,7 @@ class MeltingTemperatureManager
                 $h += $array_h[$subc];
                 $s += $array_s[$subc];
             }
-            $tm = ((1000 * $h) / ($s + (1.987 * log($conc_primer / 2000000000)))) - 273.15;
+            $tm = ((1000 * $h) / ($s + (1.987 * log($concPrimer / 2000000000)))) - 273.15;
 
             return [
                 'tm'        => round($tm, 1),
