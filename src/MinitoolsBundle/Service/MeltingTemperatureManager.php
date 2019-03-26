@@ -1,24 +1,45 @@
 <?php
 /**
  * MeltingTemperatureManager
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 19 march 2019
+ * Last modified 26 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Service\NucleotidsManager;
 
+/**
+ * Class MeltingTemperatureManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class MeltingTemperatureManager
 {
+    /**
+     * @var array
+     */
     private $dnaWeights;
 
+    /**
+     * @var array
+     */
     private $rnaWeights;
 
+    /**
+     * @var array
+     */
     private $tmBaseStacking;
 
+    /**
+     * @var array
+     */
+    private $elements;
+
+    /**
+     * @var NucleotidsManager
+     */
     private $oNucleotidsManager;
 
     /**
@@ -27,30 +48,36 @@ class MeltingTemperatureManager
      * @param array $dnaWeights
      * @param array $rnaWeights
      * @param array $tmBaseStacking
+     * @param array $elements
      */
     public function __construct(
         NucleotidsManager $oNucleotidsManager,
         array $dnaWeights,
         array $rnaWeights,
-        array $tmBaseStacking)
+        array $tmBaseStacking,
+        array $elements
+    )
     {
         $this->oNucleotidsManager   = $oNucleotidsManager;
         $this->dnaWeights           = $dnaWeights;
         $this->rnaWeights           = $rnaWeights;
         $this->tmBaseStacking       = $tmBaseStacking;
+        $this->elements             = $elements;
     }
 
     /**
-     * @param $c
-     * @param $conc_primer
-     * @param $conc_salt
-     * @param $conc_mg
-     * @throws \Exception
+     * Gets different informations when degenerated nucleotids are not allowed
+     * @param   string      $primer         Primer string
+     * @param   int         $conc_primer    Primer concentration
+     * @param   int         $conc_salt      Salt concentration:
+     * @param   int         $conc_mg        Mg2+ concentration
+     * @return  array
+     * @throws  \Exception
      */
-    public function tmBaseStacking($c, $conc_primer, $conc_salt, $conc_mg)
+    public function tmBaseStacking($primer, $conc_primer, $conc_salt, $conc_mg)
     {
         try {
-            if ($this->oNucleotidsManager->countATCG($c) != strlen($c)) {
+            if ($this->oNucleotidsManager->countACGT($primer) != strlen($primer)) {
                 throw new \Exception("The oligonucleotide is not valid");
             }
             $h = $s = 0;
@@ -62,10 +89,10 @@ class MeltingTemperatureManager
             // Increase of stability due to presence of Mg;
             $salt_effect = ($conc_salt/1000) + (($conc_mg/1000) * 140);
             // effect on entropy
-            $s += 0.368 * (strlen($c)-1) * log($salt_effect);
+            $s += 0.368 * (strlen($primer)-1) * log($salt_effect);
 
             // terminal corrections. Santalucia 1998
-            $firstnucleotide = substr($c,0,1);
+            $firstnucleotide = substr($primer,0,1);
             if($firstnucleotide == "G" || $firstnucleotide == "C") {
                 $h += 0.1;
                 $s += -2.8;
@@ -75,7 +102,7 @@ class MeltingTemperatureManager
                 $s += 4.1;
             }
 
-            $lastnucleotide = substr($c,strlen($c)-1,1);
+            $lastnucleotide = substr($primer,strlen($primer)-1,1);
             if ($lastnucleotide == "G" || $lastnucleotide == "C") {
                 $h += 0.1;
                 $s += -2.8;
@@ -86,44 +113,28 @@ class MeltingTemperatureManager
             }
 
             // compute new H and s based on sequence. Santalucia 1998
-            for($i = 0; $i < strlen($c)-1; $i++) {
-                $subc = substr($c,$i,2);
+            for($i = 0; $i < strlen($primer)-1; $i++) {
+                $subc = substr($primer,$i,2);
                 $h += $array_h[$subc];
                 $s += $array_s[$subc];
             }
-            $tm = ((1000*$h) / ($s + (1.987 * log($conc_primer / 2000000000)))) - 273.15;
-            print "Tm:                 <font color=880000><b>".round($tm,1)." &deg;C</b></font>";
-            print  "\n<font color=008800>  Enthalpy: ".round($h,2)."\n  Entropy:  ".round($s,2)."</font>";
+            $tm = ((1000 * $h) / ($s + (1.987 * log($conc_primer / 2000000000)))) - 273.15;
+
+            return [
+                'tm'        => round($tm, 1),
+                'enthalpy'  => round($h,2),
+                'entropy'   => round($s,2)
+            ];
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
-
     /**
-     * @param $primer
-     * @throws \Exception
-     */
-    public function mol_wt($primer)
-    {
-        try {
-            $upper_mwt = $this->molwt($primer,"DNA","upperlimit");
-            $lower_mwt = $this->molwt($primer,"DNA","lowerlimit");
-            if ($upper_mwt == $lower_mwt) {
-                print "Molecular weight:        $upper_mwt";
-            } else {
-                print "Upper Molecular weight:  $upper_mwt\nLower Molecular weight:  $lower_mwt";
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
-    /**
-     * @param $primer
-     * @return float
-     * @throws \Exception
+     * Gets temperature mini
+     * @param       string      $primer
+     * @return      float
+     * @throws      \Exception
      */
     public function tmMin($primer)
     {
@@ -148,9 +159,10 @@ class MeltingTemperatureManager
 
 
     /**
-     * @param $primer
-     * @return float
-     * @throws \Exception
+     * Gets temperature maxi
+     * @param       string      $primer
+     * @return      float
+     * @throws      \Exception
      */
     public function tmMax($primer)
     {
@@ -173,9 +185,10 @@ class MeltingTemperatureManager
 
 
     /**
-     * @param $primer
-     * @return string|string[]|null
-     * @throws \Exception
+     * Reduces the primer
+     * @param       string      $primer
+     * @return      string
+     * @throws      \Exception
      */
     public function primerMin($primer)
     {
@@ -190,9 +203,10 @@ class MeltingTemperatureManager
 
 
     /**
-     * @param $primer
-     * @return string|string[]|null
-     * @throws \Exception
+     * Unreduces the primer
+     * @param       string      $primer
+     * @return      string
+     * @throws      \Exception
      */
     function primerMax($primer)
     {
@@ -207,18 +221,19 @@ class MeltingTemperatureManager
 
 
     /**
-     * @param $sequence
-     * @param $moltype
-     * @param $limit
-     * @return float|int
-     * @throws \Exception
+     * Gets the weight of the sequence
+     * @param   string      $sSequence       sequence to analyse
+     * @param   string      $sMoltype        DNA or RNA
+     * @param   string      $sLimit          upperlimit or lowerlimit
+     * @return  float
+     * @throws  \Exception
      */
-    function molwt($sequence, $moltype, $limit)
+    function molwt($sSequence, $sMoltype, $sLimit)
     {
         try {
-            $water = 18.015;
+            $water = $this->elements["water"];
 
-            $dna_wts = [
+            $dnaWeights = [
                 'A' => [$this->dnaWeights["A_wt"], $this->dnaWeights["A_wt"]],  // Adenine
                 'C' => [$this->dnaWeights["C_wt"], $this->dnaWeights["C_wt"]],  // Cytosine
                 'G' => [$this->dnaWeights["G_wt"], $this->dnaWeights["G_wt"]],  // Guanine
@@ -238,7 +253,7 @@ class MeltingTemperatureManager
             ];
 
 
-            $rna_wts = [
+            $rnaWeights = [
                 'A' => [$this->rnaWeights["A_wt"], $this->rnaWeights["A_wt"]],  // Adenine
                 'C' => [$this->rnaWeights["C_wt"], $this->rnaWeights["C_wt"]],  // Cytosine
                 'G' => [$this->rnaWeights["G_wt"], $this->rnaWeights["G_wt"]],  // Guanine
@@ -257,21 +272,21 @@ class MeltingTemperatureManager
                 'N' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]]   // G, A, U or C
             ];
 
-            $all_na_wts = array('DNA' => $dna_wts, 'RNA' => $rna_wts);
-            $na_wts = $all_na_wts[$moltype];
+            $all_na_wts = ['DNA' => $dnaWeights, 'RNA' => $rnaWeights];
+            $na_wts = $all_na_wts[$sMoltype];
 
             $mwt = 0;
-            $NA_len = strlen($sequence);
+            $NA_len = strlen($sSequence);
 
-            if($limit == "lowerlimit"){
-                $wlimit=1;
+            if($sLimit == "lowerlimit") {
+                $wlimit = 1;
             }
-            if($limit == "upperlimit"){
-                $wlimit=0;
+            if($sLimit == "upperlimit") {
+                $wlimit = 0;
             }
 
             for ($i = 0; $i < $NA_len; $i++) {
-                $NA_base = substr($sequence, $i, 1);
+                $NA_base = substr($sSequence, $i, 1);
                 $mwt += $na_wts[$NA_base][$wlimit];
             }
             $mwt += $water;

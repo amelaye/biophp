@@ -1,26 +1,29 @@
 <?php
 /**
  * Minitools controller
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 11 march 2019
+ * Last modified 26 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
 
 use AppBundle\Entity\Fasta;
+use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 use MinitoolsBundle\Entity\DistanceAmongSequences;
 use MinitoolsBundle\Entity\FastaUploader;
 use MinitoolsBundle\Entity\FindPalindromes;
+use MinitoolsBundle\Entity\MeltingTemperature;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use MinitoolsBundle\Form\FastaUploaderType;
 use MinitoolsBundle\Form\FindPalindromesType;
+use MinitoolsBundle\Form\MeltingTemperatureType;
 use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 use MinitoolsBundle\Service\DistanceAmongSequencesManager;
 use MinitoolsBundle\Service\FastaUploaderManager;
 use MinitoolsBundle\Service\FindPalindromeManager;
+use MinitoolsBundle\Service\MeltingTemperatureManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -35,15 +38,20 @@ use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
 
+/**
+ * Class MinitoolsController
+ * @package MinitoolsBundle\Controller
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class MinitoolsController extends Controller
 {
     /**
      * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
-     * @param Request $request
-     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
-     * @param OligosManager $oligosManager
-     * @return Response
-     * @throws \Exception
+     * @param   Request                         $request
+     * @param   ChaosGameRepresentationManager  $chaosGameReprentationManager
+     * @param   OligosManager                   $oligosManager
+     * @return  Response
+     * @throws  \Exception
      */
     public function chaosGameRepresentationAction(
         $schema,
@@ -426,11 +434,66 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/melting-temperature", name="melting_temperature")
+     * @param   Request $request
+     * @param   MeltingTemperatureManager $oMeltingTemperatureManager
+     * @param   NucleotidsManager $oNucleotidsManager
+     * @return  Response
+     * @throws  \Exception
      */
-    public function meltingTemperatureAction()
+    public function meltingTemperatureAction(
+        Request $request,
+        MeltingTemperatureManager $oMeltingTemperatureManager,
+        NucleotidsManager $oNucleotidsManager
+    )
     {
+        $cg = 0;
+        $upper_mwt = $lower_mwt = 0;
+        $countATGC = 0;
+        $tmMin = $tmMax = 0;
+        $aTmBaseStacking = [];
+        $oMeltingTemperature = new MeltingTemperature();
 
-        return $this->render('@Minitools/Minitools/meltingTemperature.html.twig');
+        $form = $this->get('form.factory')->create(MeltingTemperatureType::class, $oMeltingTemperature);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $cg = round(100 * $oNucleotidsManager->countCG($oMeltingTemperature->getPrimer())
+                / strlen($oMeltingTemperature->getPrimer()),1);
+
+            $upper_mwt = $oMeltingTemperatureManager->molwt($oMeltingTemperature->getPrimer(),"DNA","upperlimit");
+            $lower_mwt = $oMeltingTemperatureManager->molwt($oMeltingTemperature->getPrimer(),"DNA","lowerlimit");
+
+            if($oMeltingTemperature->isBasic()) {
+                $countATGC = $oNucleotidsManager->countACGT($oMeltingTemperature->getPrimer());
+                $tmMin = $oMeltingTemperatureManager->tmMin($oMeltingTemperature->getPrimer());
+                $tmMax = $oMeltingTemperatureManager->tmMax($oMeltingTemperature->getPrimer());
+            }
+
+            if($oMeltingTemperature->isNearestNeighbor()) {
+                $aTmBaseStacking = $oMeltingTemperatureManager->tmBaseStacking(
+                    $oMeltingTemperature->getPrimer(),
+                    $oMeltingTemperature->getCp(),
+                    $oMeltingTemperature->getCs(),
+                    $oMeltingTemperature->getCmg()
+                );
+            }
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/meltingTemperature.html.twig',
+            [
+                'form'              => $form->createView(),
+                'primer'            => $oMeltingTemperature->getPrimer(),
+                'basic'             => $oMeltingTemperature->isBasic(),
+                'nearest_neighbor'  => $oMeltingTemperature->isNearestNeighbor(),
+                'upper_mwt'         => $upper_mwt,
+                'lower_mwt'         => $lower_mwt,
+                'countATGC'         => $countATGC,
+                'tm_min'            => $tmMin,
+                'tm_max'            => $tmMax,
+                'cg'                => $cg,
+                'tmBaseStacking'    => $aTmBaseStacking
+            ]
+        );
     }
 
     /**
