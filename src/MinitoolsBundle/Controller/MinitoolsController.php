@@ -518,7 +518,9 @@ class MinitoolsController extends Controller
         $form = $this->get('form.factory')->create(MicroArrayDataAnalysisType::class, $oMicroArrayDataAnalysis);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $results = $oMicroarrayAnalysisAdaptiveManager->processMicroarrayDataAdaptiveQuantificationMethod($oMicroArrayDataAnalysis->getData());
+            $results = $oMicroarrayAnalysisAdaptiveManager->processMicroarrayDataAdaptiveQuantificationMethod(
+                $oMicroArrayDataAnalysis->getData()
+            );
         }
 
         return $this->render(

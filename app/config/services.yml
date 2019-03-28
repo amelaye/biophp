@@ -70,6 +70,9 @@ services:
         arguments:
             - "%alphabet%"
 
+    AppBundle\Service\MathematicsManager:
+        arguments: []
+
     MinitoolsBundle\Controller\:
         resource: '../../src/MinitoolsBundle/Controller'
         public: true
@@ -113,3 +116,7 @@ services:
     MinitoolsBundle\Service\FindPalindromeManager:
         arguments:
             - '@AppBundle\Service\NucleotidsManager'
+
+    MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager:
+        arguments:
+            - '@AppBundle\Service\MathematicsManager'
