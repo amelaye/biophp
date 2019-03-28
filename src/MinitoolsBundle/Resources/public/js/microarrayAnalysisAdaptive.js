@@ -1,3 +1,16 @@
+/**
+ * Microarray Analysis JS Functions
+ * @author Amélie DUVERNET akka Amelaye
+ * Inspired by BioPHP's project biophp.org
+ * Created 28 march 2019
+ * Last modified 28 march 2019
+ * RIP Pasha, gone 27 february 2019 =^._.^= ∫
+ */
+
+/**
+ * Changes the color cell - depends on the number
+ * @param div
+ */
 function getColorChannel(div) {
     $(div).each(function() {
         var red1 = 255;
