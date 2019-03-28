@@ -15,15 +15,19 @@ use MinitoolsBundle\Entity\DistanceAmongSequences;
 use MinitoolsBundle\Entity\FastaUploader;
 use MinitoolsBundle\Entity\FindPalindromes;
 use MinitoolsBundle\Entity\MeltingTemperature;
+use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use MinitoolsBundle\Form\FastaUploaderType;
 use MinitoolsBundle\Form\FindPalindromesType;
 use MinitoolsBundle\Form\MeltingTemperatureType;
+use MinitoolsBundle\Form\MicroArrayDataAnalysisType;
 use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 use MinitoolsBundle\Service\DistanceAmongSequencesManager;
 use MinitoolsBundle\Service\FastaUploaderManager;
 use MinitoolsBundle\Service\FindPalindromeManager;
 use MinitoolsBundle\Service\MeltingTemperatureManager;
+use MinitoolsBundle\Service\MicroarrayAnalysisAdaptive;
+use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -498,10 +502,32 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/micro-array-analysis-adaptive-quantification", name="micro_array_analysis_adaptive_quantification")
+     * @param Request $request
+     * @param MicroarrayAnalysisAdaptiveManager $oMicroarrayAnalysisAdaptiveManager
+     * @return Response
+     * @throws \Exception
      */
-    public function microArrayAnalysisAdaptiveQuantificationAction()
+    public function microArrayAnalysisAdaptiveQuantificationAction(
+        Request $request,
+        MicroarrayAnalysisAdaptiveManager $oMicroarrayAnalysisAdaptiveManager
+    )
     {
-        return $this->render('@Minitools/Minitools/microArrayAnalysisAdaptiveQuantification.html.twig');
+        $oMicroArrayDataAnalysis = new MicroArrayDataAnalysis();
+        $results = array();
+
+        $form = $this->get('form.factory')->create(MicroArrayDataAnalysisType::class, $oMicroArrayDataAnalysis);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $results = $oMicroarrayAnalysisAdaptiveManager->processMicroarrayDataAdaptiveQuantificationMethod($oMicroArrayDataAnalysis->getData());
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/microArrayAnalysisAdaptiveQuantification.html.twig',
+            [
+                'form'              => $form->createView(),
+                'results'           => $results
+            ]
+        );
     }
 
     /**

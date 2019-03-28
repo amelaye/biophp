@@ -4,11 +4,11 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 28 march 2019
  */
 namespace MinitoolsBundle\Service;
 
-class MicroarrayAnalysisAdaptive
+class MicroarrayAnalysisAdaptiveManager
 {
     /**
      * @param $file
@@ -24,7 +24,7 @@ class MicroarrayAnalysisAdaptive
             $n_data = 0;
 
             // find data for first column and row, and remove all headings;
-            $file = substr($file,strpos($file,"1\t1\t"));
+            $file = substr($file,strpos($file,"1\t\t1\t"));
             // remove from file returns (\r) and (\")
             $file = preg_replace("/\r|\"/","",$file);
 
@@ -36,6 +36,7 @@ class MicroarrayAnalysisAdaptive
             $sum_ch1 = 0;
             $sum_ch2 = 0;
             foreach($data_array as $key => $val) {
+
                 // example of line to be splitted:
                 // 1        2        G16        1136        159        538        118
                 // where        1 and 2 define position in the plate
@@ -43,6 +44,7 @@ class MicroarrayAnalysisAdaptive
                 //              1136 is reading of chanel 1, and 159 is the background
                 //              538 is reading of chanel 2, and 159 is the background
                 $line_element = preg_split("/\t/",$val, -1, PREG_SPLIT_NO_EMPTY);
+
                 if (sizeof ($line_element) < 7) {
                     continue;
                 }
@@ -50,10 +52,18 @@ class MicroarrayAnalysisAdaptive
                 // This is the name of the gene studied
                 $name = $line_element[2];
 
+                if(!isset($data_array2[$name][1])) {
+                    $data_array2[$name][1] = "";
+                }
+                if(!isset($data_array2[$name][2])) {
+                    $data_array2[$name][2] = "";
+                }
+
                 // For chanel 1
                 // calculate data obtained in chanel 1 minus background
                 $ch1_bg = $line_element[3] - $line_element[4];
-                // save data to a element in $data_array2 (separate diferent calculations from the same gene with commas)
+
+                // save data to a element in $data_array2 (separate different calculations from the same gene with commas)
                 $data_array2[$name][1] .= ",".$ch1_bg;
                 $sum_ch1 += $ch1_bg; // $sum_ch1 will record the sum of all (chanel 1 - background) values
 
@@ -70,6 +80,13 @@ class MicroarrayAnalysisAdaptive
             //    where sum(data-background) is $sum_ch1 or $sum_ch2
             //    and save data in  $data_array3
             foreach($data_array2 as $key => $val) {
+                if(!isset($data_array3[$key][1])) {
+                    $data_array3[$key][1] = "";
+                }
+                if(!isset($data_array3[$key][2])) {
+                    $data_array3[$key][2] = "";
+                }
+
                 // split data separated by comma (chanel 1)
                 $data_element = preg_split("/,/",$data_array2[$key][1], -1, PREG_SPLIT_NO_EMPTY);
                 foreach($data_element as $key2 => $value) {
@@ -91,6 +108,14 @@ class MicroarrayAnalysisAdaptive
             foreach($data_array3 as $key => $val) {
                 $data_element1 = preg_split("/,/",$data_array3[$key][1], -1, PREG_SPLIT_NO_EMPTY);
                 $data_element2 = preg_split("/,/",$data_array3[$key][2], -1, PREG_SPLIT_NO_EMPTY);
+
+                if(!isset($data_array4[$key][1])) {
+                    $data_array4[$key][1] = "";
+                }
+                if(!isset($data_array4[$key][2])) {
+                    $data_array4[$key][2] = "";
+                }
+
                 foreach ($data_element1 as $key2 => $value) {
                     $ratio = $data_element1[$key2] / $data_element2[$key2]; //compute ch1/ch2
                     $data_array4[$key][1] .= ",$ratio"; // and save
@@ -102,10 +127,12 @@ class MicroarrayAnalysisAdaptive
             ksort($data_array4);
 
             foreach($data_array4 as $key => $val) {
+                dump($data_array4[$key][1]);
                 $results[$key]["n_data"] = substr_count($data_array4[$key][1],",");
-                $results[$key]["median1"] = median($data_array4[$key][1]);
-                $results[$key]["median2"] = median($data_array4[$key][2]);
-
+                $results[$key]["median1"] = $this->median($data_array4[$key][1]);
+                $results[$key]["medlog1"] = round(log10($results[$key]["median1"]),3);
+                $results[$key]["median2"] = $this->median($data_array4[$key][2]);
+                $results[$key]["medlog2"] = round(log10($results[$key]["median2"]),3);
             }
             return $results;
         } catch (\Exception $e) {
@@ -146,7 +173,7 @@ class MicroarrayAnalysisAdaptive
      * @return float|int
      * @throws \Exception
      */
-    function median($cadena)
+    public function median($cadena)
     {
         try {
             $data = preg_split("/,/",$cadena,-1,PREG_SPLIT_NO_EMPTY);
@@ -167,7 +194,7 @@ class MicroarrayAnalysisAdaptive
      * @return float|int
      * @throws \Exception
      */
-    function variance($cadena)
+    public function variance($cadena)
     {
         try {
             $mean = $this->mean($cadena);

@@ -1,7 +1,6 @@
 <?php
 /**
  * Nucleotids Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 19 march  2019
  * Last modified 19 march 2019
@@ -9,6 +8,11 @@
  */
 namespace AppBundle\Service;
 
+/**
+ * Class NucleotidsManager
+ * @package AppBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class NucleotidsManager
 {
     /**
