@@ -17,14 +17,13 @@ class MathematicsManager
 {
     /**
      * Calculates the mean
-     * @param $cadena
-     * @return float|int
-     * @throws \Exception
+     * @param       array       $data
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function mean($cadena)
+    public function mean($data)
     {
         try {
-            $data = preg_split("/,/",$cadena,-1,PREG_SPLIT_NO_EMPTY);
             $sum = 0;
             $numValidElements = 0;
 
@@ -44,14 +43,14 @@ class MathematicsManager
 
 
     /**
-     * @param $cadena
-     * @return float|int
-     * @throws \Exception
+     * Calculates the median
+     * @param       array       $data
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function median($cadena)
+    public function median($data)
     {
         try {
-            $data = preg_split("/,/",$cadena,-1,PREG_SPLIT_NO_EMPTY);
             sort($data);
             $i = floor(sizeof($data)/2);
             if (sizeof($data) / 2 != $i) {
@@ -65,15 +64,15 @@ class MathematicsManager
 
 
     /**
-     * @param $cadena
-     * @return float|int
-     * @throws \Exception
+     * Calculates the variance
+     * @param       array       $data
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function variance($cadena)
+    public function variance($data)
     {
         try {
-            $mean = $this->mean($cadena);
-            $data = preg_split("/,/",$cadena,-1,PREG_SPLIT_NO_EMPTY);
+            $mean = $this->mean($data);
             $sum = 0;
             $numValidElements = 0;
 
