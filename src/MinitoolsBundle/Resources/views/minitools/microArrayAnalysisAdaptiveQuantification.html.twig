@@ -1,4 +1,71 @@
 {% extends '@App/base.html.twig' %}
+{% block title %}Microarray Data Analysis{% endblock %}
 {% block body %}
-    <p>Coming soon :)</p>
+    <h1>Microarray Data Analysis</h1>
+
+    {% if results is not empty %}
+    <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+        <div class="card-header">Results of your request</div>
+        <div class="card-body">
+            <table border=1>
+                <tr>
+                    <th>Identification</th>
+                    <th>No. data</th>
+                    <th>Channel 1</th>
+                    <th>log10</th>
+                    <th>Channel 2</th>
+                    <th>log10</th>
+                </tr>
+                {% for key, line in results %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ line.n_data }}</td>
+                        <td>{{ line.median1 | round(3, 'common') }}</td>
+                        <td class="channel1-log">{{ line.medlog1 }}</td>
+                        <td>{{ line.median2 | round(3, 'common') }}</td>
+                        <td class="channel2-log">{{ line.medlog2 }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-12">{{ form_label(form.data) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">{{ form_widget(form.data) }}</div>
+            </div>
+            <p>&nbsp;</p>
+            <div class="row">
+                <div class="col-md-12">{{ form_widget(form.submit) }}</div>
+            </div>
+            <p>Copy tabulated data to the textarea as shown. First valid data must correspond to Column 1/Row 1.<br />
+                All lines preceding data for Column 1/Row 1 will be removed previous to calculations.</p>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <div class="card">
+        <h5 class="card-header">Microarray Data Analysis</h5>
+        <span class="card-body">
+            <div class="card-text">
+                <h5>Computational procedure</h5>
+                <p>1. For each spot, the following is computed for both channels (1 and 2): (value-background)*100/sum(value-background))<br />
+                    2. With previous results, ch1/ch2 and ch2/ch1 are computed<br />
+                    3. As there are several replicas for ch1/ch2 and ch2/ch1, median and its base 10 logarithm is computed.<br />
+                    4. In a table, medians and logs are represented. A color code is used to show over-expression (red) or under-expression (blue).</p>
+            </div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('bundles/minitools/js/microarrayAnalysisAdaptive.js') }}"></script>
+{% endblock %}
+{% block js_scripts %}
+    getColorChannel(".channel1-log");
+    getColorChannel(".channel2-log");
 {% endblock %}
