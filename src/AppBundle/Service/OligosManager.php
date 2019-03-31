@@ -21,6 +21,7 @@ class OligosManager
     private $base_h;
 
 
+
     /**
      * For oligos 2 bases long
      * @param $oligos_1step
@@ -59,7 +60,7 @@ class OligosManager
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
-                    if($oligos_1step[$val_a.$val_b.$val_c]) {
+                    if(isset($oligos_1step[$val_a.$val_b.$val_c])) {
                         $oligos[$val_a.$val_b.$val_c] = $oligos_1step[$val_a.$val_b.$val_c];
                     } else {
                         $oligos[$val_a.$val_b.$val_c] = 0;
@@ -272,6 +273,11 @@ class OligosManager
             }
 
             switch ($iOligoLen) {
+                case 1:
+                    foreach($aDnaComplements as $key => $oligo) {
+                        $aOligos[$oligo] = substr_count($sSequence, $oligo);
+                    }
+                    break;
                 case 2:
                     $aOligos = $this->findOligos2BasesLong($aOligos1Step, $aDnaComplements);
                     break;

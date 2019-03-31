@@ -12,6 +12,8 @@ use AppBundle\Entity\Fasta;
 use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 
+use MinitoolsBundle\Entity\OligoNucleotideFrequency;
+use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -579,10 +581,56 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/oligonucleotide-frequency", name="oligonucleotide_frequency")
+     * @param   Request         $request
+     * @param   OligosManager   $oligosManager
+     * @return  Response
+     * @throws  \Exception
      */
-    public function oligonucleotideFrequencyAction()
+    public function oligonucleotideFrequencyAction(Request $request, OligosManager $oligosManager)
     {
-        return $this->render('@Minitools/Minitools/oligonucleotideFrequency.html.twig');
+        $oOligoNucleotideFrequency = new OligoNucleotideFrequency();
+        $aResults = [];
+
+        $form = $this->get('form.factory')->create(
+            OligoNucleotideFrequencyType::class,
+            $oOligoNucleotideFrequency
+        );
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            // remove useless from sequence (non-letters and digists are removed)
+            $sSequence = preg_replace("/\W|\d/","", $oOligoNucleotideFrequency->getSequence());  // removed
+
+            // when length of query sequence is bellow 4^oligo_len => error (to avoid a lot of 0 frequencies);
+            if (strlen($sSequence) < pow(4, $oOligoNucleotideFrequency->getLen())) {
+                throw new \Exception("Query sequence must be at least 4^(length of oligo) to proceed.");
+            }
+
+            // when frequencies at both strands are requested, place sequence and reverse complement of sequence in one line
+            if ($oOligoNucleotideFrequency->getStrands() == 2) {
+                $seqRevert = strrev($sSequence);
+                foreach ($this->getParameter('dna_complements') as $nucleotide => $complement) {
+                    $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+                }
+                $sSequence .= " ".strtoupper($seqRevert);
+            }
+
+            $aResults = $oligosManager->findOligos(
+                $sSequence,
+                $oOligoNucleotideFrequency->getLen(),
+                $this->getParameter('dna_complements')
+            );
+
+            ksort($aResults);
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/oligonucleotideFrequency.html.twig',
+            [
+                'form'              => $form->createView(),
+                'results'           => $aResults,
+                'length'            => $oOligoNucleotideFrequency->getLen()
+            ]
+        );
     }
 
     /**
