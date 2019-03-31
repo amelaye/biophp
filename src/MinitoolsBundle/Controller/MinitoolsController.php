@@ -11,23 +11,7 @@ namespace MinitoolsBundle\Controller;
 use AppBundle\Entity\Fasta;
 use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
-use MinitoolsBundle\Entity\DistanceAmongSequences;
-use MinitoolsBundle\Entity\FastaUploader;
-use MinitoolsBundle\Entity\FindPalindromes;
-use MinitoolsBundle\Entity\MeltingTemperature;
-use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
-use MinitoolsBundle\Form\DistanceAmongSequencesType;
-use MinitoolsBundle\Form\FastaUploaderType;
-use MinitoolsBundle\Form\FindPalindromesType;
-use MinitoolsBundle\Form\MeltingTemperatureType;
-use MinitoolsBundle\Form\MicroArrayDataAnalysisType;
-use MinitoolsBundle\Service\ChaosGameRepresentationManager;
-use MinitoolsBundle\Service\DistanceAmongSequencesManager;
-use MinitoolsBundle\Service\FastaUploaderManager;
-use MinitoolsBundle\Service\FindPalindromeManager;
-use MinitoolsBundle\Service\MeltingTemperatureManager;
-use MinitoolsBundle\Service\MicroarrayAnalysisAdaptive;
-use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -41,6 +25,25 @@ use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
+use MinitoolsBundle\Entity\DistanceAmongSequences;
+use MinitoolsBundle\Entity\FastaUploader;
+use MinitoolsBundle\Entity\FindPalindromes;
+use MinitoolsBundle\Entity\MeltingTemperature;
+use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
+use MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder;
+use MinitoolsBundle\Form\DistanceAmongSequencesType;
+use MinitoolsBundle\Form\FastaUploaderType;
+use MinitoolsBundle\Form\FindPalindromesType;
+use MinitoolsBundle\Form\MeltingTemperatureType;
+use MinitoolsBundle\Form\MicroArrayDataAnalysisType;
+use MinitoolsBundle\Form\MicrosatelliteRepeatsFinderType;
+use MinitoolsBundle\Service\ChaosGameRepresentationManager;
+use MinitoolsBundle\Service\DistanceAmongSequencesManager;
+use MinitoolsBundle\Service\FastaUploaderManager;
+use MinitoolsBundle\Service\FindPalindromeManager;
+use MinitoolsBundle\Service\MeltingTemperatureManager;
+use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
+use MinitoolsBundle\Service\MicrosatelliteRepeatsFinderManager;
 
 /**
  * Class MinitoolsController
@@ -534,10 +537,44 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/microsatellite-repeats-finder", name="microsatellite_repeats_finder")
+     * @param Request $request
+     * @param MicrosatelliteRepeatsFinderManager $oMicrosatelliteRepeatsFinderManager
+     * @return Response
+     * @throws \Exception
      */
-    public function microsatelliteRepeatsFinderAction()
-    {
-        return $this->render('@Minitools/Minitools/microsatelliteRepeatsFinder.html.twig');
+    public function microsatelliteRepeatsFinderAction (
+        Request $request,
+        MicrosatelliteRepeatsFinderManager $oMicrosatelliteRepeatsFinderManager
+    ) {
+        $results = [];
+        $oMicrosatelliteRepeatsFinder = new MicrosatelliteRepeatsFinder();
+
+        $form = $this->get('form.factory')->create(
+            MicrosatelliteRepeatsFinderType::class,
+            $oMicrosatelliteRepeatsFinder
+        );
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $sequence = strtoupper($oMicrosatelliteRepeatsFinder->getSequence()); // Get the sequence
+            $sequence = preg_replace("/\\W|\\d/","",$sequence); // Remove non word and digits from sequence
+
+            $results = $oMicrosatelliteRepeatsFinderManager->findMicrosatelliteRepeats(
+                $sequence,
+                $oMicrosatelliteRepeatsFinder->getMin(),
+                $oMicrosatelliteRepeatsFinder->getMax(),
+                $oMicrosatelliteRepeatsFinder->getMinRepeats(),
+                $oMicrosatelliteRepeatsFinder->getLengthOfMR(),
+                $oMicrosatelliteRepeatsFinder->getMismatch()
+            );
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/microsatelliteRepeatsFinder.html.twig',
+            [
+                'form'              => $form->createView(),
+                'results'           => $results
+            ]
+        );
     }
 
     /**

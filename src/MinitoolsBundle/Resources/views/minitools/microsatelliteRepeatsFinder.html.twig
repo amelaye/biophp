@@ -1,4 +1,86 @@
 {% extends '@App/base.html.twig' %}
+{% block title %}Microsatellite repeats finder{% endblock %}
 {% block body %}
-    <p>Coming soon :)</p>
+    <h1>Microsatellite repeats finder</h1>
+    <p>&nbsp;</p>
+
+    {% if results is not empty %}
+        <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+            <div class="card-header">Results of your request</div>
+            <div class="card-body">
+                <table cellpadding="4">
+                    <tr>
+                        <th>Position</th>
+                        <th>Cicle</th>
+                        <th>Repeats</th>
+                        <th>Sequence</th>
+                    </tr>
+                    {% for val in results %}
+                        <tr>
+                            <td>{{ val.start_position }}</td>
+                            <td>{{ val.length }}</td>
+                            <td>{{ val.repeats }}</td>
+                            <td>{{ val.sequence }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    <p>&nbsp;</p>
+
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.sequence) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form_label(form.min) }}</div>
+                <div class="col-md-2">{{ form_widget(form.min) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form_label(form.max) }}</div>
+                <div class="col-md-2">{{ form_widget(form.max) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form_label(form.min_repeats) }}</div>
+                <div class="col-md-2">{{ form_widget(form.min_repeats) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form_label(form.length_of_MR) }}</div>
+                <div class="col-md-2">{{ form_widget(form.length_of_MR) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form_label(form.mismatch) }}</div>
+                <div class="col-md-2">{{ form_widget(form.mismatch) }}</div>
+            </div>
+
+            <p>&nbsp;</p>
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.submit) }}</div>
+            </div>
+
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <p>&nbsp;</p>
+
+    <div class="card">
+        <h5 class="card-header">Definitions</h5>
+        <span class="card-body">
+            <div class="card-text">
+                <h5>Microsatellite Repeat</h5>
+                <p>A variety of simple di- (DINUCLEOTIDE REPEATS), tri- (TRINUCLEOTIDE REPEATS), tetra-,
+                    and pentanucleotide tandem repeats (usually less than 100 bases long).</p>
+                <h5>Tandem repeats</h5>
+                <p>Copies of DNA sequences which lie adjacent to each other.</p>
+                <h5>Related terms</h5>
+                <p>Simple Tandem Repeats (STR), Exact Tandem Repeats (ETRs), Short Sequence Repeats (SSRs),
+                    Repetitive DNA, Simple Sequence Repeats (SSR).</p>
+            </div>
+        </span>
+    </div>
 {% endblock %}
