@@ -1,4 +1,56 @@
 {% extends '@App/base.html.twig' %}
+{% block title %}In silico PCR amplification{% endblock %}
 {% block body %}
-    <p>Coming soon :)</p>
+   <h1>In silico PCR amplification</h1>
+   <p>A,T,G,C and N are allowed; A+T+G+C must be 10 or more. </p>
+   <p>One mismatch is allowed in any position of primers. </p>
+
+   {% if results is not empty %}
+      <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+         <div class="card-header">Results of your request</div>
+         <div class="card-body">
+            <pre>Primer 1: {{ primer1 }}</pre>
+            <pre>Primer 2: {{ primer2 }}</pre>
+            <h5>List of amplicons: position in sequence, length and sequence</h5>
+            {% for key, val in results %}
+               <pre>{{ key }} {{ val }}     {{ sequence|slice(key, val) }}</pre>
+            {% endfor %}
+         </div>
+      </div>
+   {% endif %}
+
+   {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+   <div class="card bg-light mb-3">
+      <div class="card-body">
+         {{ form_errors(form) }}
+         <div class="row">
+            <div class="col-md-12">
+               {{ form_row(form.sequence) }}
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-6">{{ form_label(form.primer1) }}</div>
+            <div class="col-md-2">{{ form_widget(form.primer1) }}</div>
+         </div>
+         <div class="row">
+            <div class="col-md-6">{{ form_label(form.primer2) }}</div>
+            <div class="col-md-2">{{ form_widget(form.primer2) }}</div>
+         </div>
+         <div class="row">
+            <div class="col-md-6">{{ form_label(form.allowmismatch) }}</div>
+            <div class="col-md-2">{{ form_widget(form.allowmismatch) }}</div>
+         </div>
+         <div class="row">
+            <div class="col-md-6">{{ form_label(form.length) }}</div>
+            <div class="col-md-2">{{ form_widget(form.length) }}</div>
+         </div>
+
+         <p>&nbsp;</p>
+         <div class="row">
+            <div class="col-md-12">{{ form_row(form.submit) }}</div>
+         </div>
+
+      </div>
+   </div>
+   {{ form_end(form) }}
 {% endblock %}
