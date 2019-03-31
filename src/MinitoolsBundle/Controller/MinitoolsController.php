@@ -13,7 +13,10 @@ use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 
 use MinitoolsBundle\Entity\OligoNucleotideFrequency;
+use MinitoolsBundle\Entity\PcrAmplification;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
+use MinitoolsBundle\Form\PcrAmplificationType;
+use MinitoolsBundle\Service\PcrAmplificationManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -635,10 +638,60 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/pcr-amplification", name="pcr_amplification")
+     * @param Request $request
+     * @param PcrAmplificationManager $pcrAmplificationManager
+     * @return Response
+     * @throws \Exception
      */
-    public function pcrAmplificationAction()
+    public function pcrAmplificationAction(Request $request, PcrAmplificationManager $pcrAmplificationManager)
     {
-        return $this->render('@Minitools/Minitools/pcrAmplification.html.twig');
+        $pcrAmplification = new PcrAmplification();
+        $aResults = [];
+
+        $form = $this->get('form.factory')->create(
+            PcrAmplificationType::class,
+            $pcrAmplification
+        );
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+            // SET PATTERNS FROM PRIMERS
+            // Change N to point in primers
+            $sPattern1 = str_replace("N", ".", $pcrAmplification->getPrimer1());
+            $sPattern2 = str_replace("N", ".", $pcrAmplification->getPrimer2());
+
+
+            if ($pcrAmplification->isAllowmismatch()) {
+                $sPattern1 = $pcrAmplificationManager->includeN($pcrAmplification->getPrimer1());
+                $sPattern2 = $pcrAmplificationManager->includeN($pcrAmplification->getPrimer2());
+            }
+
+            $sStartPattern = "$sPattern1|$sPattern2"; // SET PATTERN
+
+            $seqRevert = strrev($sStartPattern);
+            foreach ($this->getParameter('dna_complements') as $nucleotide => $complement) {
+                $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+            }
+            $sEndPattern = strtoupper($seqRevert);
+
+            $aResults = $pcrAmplificationManager->amplify(
+                $sStartPattern,
+                $sEndPattern,
+                $pcrAmplification->getSequence(),
+                $pcrAmplification->getLength()
+            );
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/pcrAmplification.html.twig',
+            [
+                'form'         => $form->createView(),
+                'results'      => $aResults,
+                'sequence'     => $pcrAmplification->getSequence(),
+                'primer1'      => $pcrAmplification->getPrimer1(),
+                'primer2'      => $pcrAmplification->getPrimer2()
+            ]
+        );
     }
 
     /**
