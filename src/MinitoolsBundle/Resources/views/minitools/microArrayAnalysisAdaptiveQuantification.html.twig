@@ -7,7 +7,7 @@
     <div class="card border-info mb-3" style="font-size:0.9em" id="results">
         <div class="card-header">Results of your request</div>
         <div class="card-body">
-            <table border=1>
+            <table border="1">
                 <tr>
                     <th>Identification</th>
                     <th>No. data</th>
@@ -61,6 +61,8 @@
                     3. As there are several replicas for ch1/ch2 and ch2/ch1, median and its base 10 logarithm is computed.<br />
                     4. In a table, medians and logs are represented. A color code is used to show over-expression (red) or under-expression (blue).</p>
             </div>
+        </span>
+    </div>
 {% endblock %}
 {% block javascripts %}
     <script src="{{ asset('bundles/minitools/js/microarrayAnalysisAdaptive.js') }}"></script>

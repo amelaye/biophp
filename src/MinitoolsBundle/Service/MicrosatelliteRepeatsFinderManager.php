@@ -1,30 +1,34 @@
 <?php
 /**
- * Microsatellite Repeats Finder Fnctions
- * @author Amélie DUVERNET akka Amelaye
+ * Microsatellite Repeats Finder Fonctions
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 february 2019
+ * Last modified 31 march 2019
  */
 namespace MinitoolsBundle\Service;
 
-class MicrosatelliteRepeatsFinder
+/**
+ * Class MicrosatelliteRepeatsFinderManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
+class MicrosatelliteRepeatsFinderManager
 {
     /**
      * This function will search for microsatellite repeats within a sequence. A microsatellite repeat is defined as a sequence
      * which shows a repeated pattern, as for example in sequence 'ACGTACGTACGTACGT', where 'ACGT' is repeated
      * 4 times. The function allows searching for this kind of subsequences within a sequence.
      * so that sequence AACCGGTT-AAGCGGTT-AACCGGAT-AACCGGTT may be considered as a microsatellite repeat
-     * @param   $sequence               is the sequence
-     * @param   $min_length             are the range of oligo lengths to be searched; p.e. oligos with length 2 to 6
-     * @param   $max_length             are the range of oligo lengths to be searched; p.e. oligos with length 2 to 6
-     * @param   $min_repeats            minimal number of time a sequence must be repeated to be considered as a microsatellite repeat
-     * @param   $min_length_of_MR       minimum length of tanden repeat; to avoid considering AAAA as a microsatellite repeat, set it to >4
-     * @param   $mismatches_allowed     the porcentage of errors allowed when searching in the repetitive sequence
+     * @param   string      $sequence               is the sequence
+     * @param   int         $min_length             are the range of oligo lengths to be searched; p.e. oligos with length 2 to 6
+     * @param   int         $max_length             are the range of oligo lengths to be searched; p.e. oligos with length 2 to 6
+     * @param   int         $min_repeats            minimal number of time a sequence must be repeated to be considered as a microsatellite repeat
+     * @param   int         $min_length_of_MR       minimum length of tandem repeat; to avoid considering AAAA as a microsatellite repeat, set it to >4
+     * @param   int         $mismatches_allowed     the porcentage of errors allowed when searching in the repetitive sequence
      * @return  array
-     * @throws \Exception
+     * @throws  \Exception
      */
-    public function findMicrosatelliteRepeats($sequence,$min_length,$max_length,$min_repeats,$min_length_of_MR,$mismatches_allowed)
+    public function findMicrosatelliteRepeats($sequence, $min_length, $max_length, $min_repeats, $min_length_of_MR, $mismatches_allowed)
     {
         try {
             $len_seq = strlen($sequence);
@@ -37,17 +41,19 @@ class MicrosatelliteRepeatsFinder
                     $sub_seq = substr($sequence,$i,$j);
                     $len_sub_seq = strlen($sub_seq);
                     $mismatches = floor($len_sub_seq * $mismatches_allowed / 100);
-                    if ($mismatches == 1) {
-                        $sub_seq_pattern = $this->includeN1($sub_seq,0);
-                    }
-                    elseif ($mismatches == 2) {
-                        $sub_seq_pattern = $this->includeN2($sub_seq,0);
-                    }
-                    elseif ($mismatches == 3) {
-                        $sub_seq_pattern = $this->includeN3($sub_seq,0);
-                    }
-                    else {
-                        $sub_seq_pattern = $sub_seq;
+
+                    switch($mismatches) {
+                        case 1:
+                            $sub_seq_pattern = $this->includeN1($sub_seq,0);
+                            break;
+                        case 2:
+                            $sub_seq_pattern = $this->includeN2($sub_seq,0);
+                            break;
+                        case 3:
+                            $sub_seq_pattern = $this->includeN3($sub_seq,0);
+                            break;
+                        default:
+                            $sub_seq_pattern = $sub_seq;
                     }
 
                     $matches = 1;
@@ -79,12 +85,12 @@ class MicrosatelliteRepeatsFinder
      * is a numeric value which indicates number of bases always maching  the DNA sequence in 3' end.
      * For example, when $minus is 1, the pattern for "acgt" will be  ".cgt|a.gt|ac.t".
      * Check also IncludeN2 and IncludeN3.
-     * @param   $primer     DNA sequence (oligonucleotide, primer)
-     * @param   $minus      indicates number of bases in 3' which will always much the DNA sequence.
-     * @return  string      pattern
+     * @param   string      $primer     DNA sequence (oligonucleotide, primer)
+     * @param   int         $minus      indicates number of bases in 3' which will always much the DNA sequence.
+     * @return  string                  pattern
      * @throws \Exception
      */
-    public function includeN1($primer,$minus)
+    public function includeN1($primer, $minus)
     {
         try {
             $code = ".".substr($primer,1);
@@ -107,12 +113,12 @@ class MicrosatelliteRepeatsFinder
      * is a numeric value which indicates number of bases always maching  the DNA sequence in 3' end.
      * For example, when $minus is 1, the pattern for "acgt" will be  "..gt|.c.t|a..t".
      * Check also IncludeN1 and IncludeN3.
-     * @param   $primer     DNA sequence (oligonucleotide, primer)
-     * @param   $minus      number of bases in 3' which will always much the DNA sequence.
+     * @param   string      $primer     DNA sequence (oligonucleotide, primer)
+     * @param   string      $minus      number of bases in 3' which will always much the DNA sequence.
      * @return  string
-     * @throws \Exception
+     * @throws  \Exception
      */
-    public function includeN2($primer,$minus)
+    public function includeN2($primer, $minus)
     {
         try {
             $max = strlen($primer) - $minus;
@@ -137,12 +143,12 @@ class MicrosatelliteRepeatsFinder
      *
      * Similar to function IncludeN1 and IncludeN2, but allows two missmaches. The parameter $minus
      * is a numeric value which indicates number of bases always maching  the DNA sequence in 3' end.
-     * @param   $primer     DNA sequence (oligonucleotide, primer)
-     * @param   $minus      indicates number of bases in 3' which will always much the DNA sequence.
+     * @param   string     $primer     DNA sequence (oligonucleotide, primer)
+     * @param   int        $minus      indicates number of bases in 3' which will always much the DNA sequence.
      * @return  string
-     * @throws \Exception
+     * @throws  \Exception
      */
-    public function includeN3($primer,$minus)
+    public function includeN3($primer, $minus)
     {
         try {
             $max = strlen($primer) - $minus;
