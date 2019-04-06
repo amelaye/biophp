@@ -44,6 +44,7 @@
         "symfony/swiftmailer-bundle": "^3.2",
         "symfony/symfony": "3.4.22",
         "twbs/bootstrap": "^4.3",
+        "twig/extensions": "^1.5",
         "twig/twig": "^2.0"
     },
     "require-dev": {

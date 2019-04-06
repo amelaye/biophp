@@ -14,10 +14,13 @@ use AppBundle\Service\OligosManager;
 
 use MinitoolsBundle\Entity\OligoNucleotideFrequency;
 use MinitoolsBundle\Entity\PcrAmplification;
+use MinitoolsBundle\Entity\ProteinToDna;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
+use MinitoolsBundle\Form\ProteinToDnaType;
 use MinitoolsBundle\Service\PcrAmplificationManager;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
+use MinitoolsBundle\Service\ProteinToDnaManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -805,10 +808,35 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/protein-to-dna", name="protein_to_dna")
+     * @param Request $request
+     * @param ProteinToDnaManager $proteinToDnaManager
+     * @return Response
      */
-    public function proteinToDnaAction()
+    public function proteinToDnaAction(Request $request, ProteinToDnaManager $proteinToDnaManager)
     {
-        return $this->render('@Minitools/Minitools/proteinToDna.html.twig');
+        $oProteinToDna           = new ProteinToDna();
+        $sequence = "";
+        $dna = "";
+
+        $form = $this->get('form.factory')->create(ProteinToDnaType::class, $oProteinToDna);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+            $dna = $proteinToDnaManager->translateProteinToDNA(
+                $oProteinToDna->getSequence(),
+                $oProteinToDna->getGeneticCode()
+            );
+        }
+
+
+        return $this->render(
+            '@Minitools/Minitools/proteinToDna.html.twig',
+            [
+                'form'                  => $form->createView(),
+                'sequence'              => $oProteinToDna->getSequence(),
+                'dna'                   => $dna
+            ]
+        );
     }
 
     /**

@@ -120,3 +120,7 @@ services:
     MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager:
         arguments:
             - '@AppBundle\Service\MathematicsManager'
+
+    MinitoolsBundle\Service\ProteinToDnaManager:
+        arguments:
+            - '%triplets_list%'
