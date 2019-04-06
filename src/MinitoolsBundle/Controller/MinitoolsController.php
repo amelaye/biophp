@@ -704,21 +704,25 @@ class MinitoolsController extends Controller
      */
     public function proteinPropertiesAction(Request $request, ProteinPropertiesManager $proteinPropertiesManager)
     {
-        $oProtein = new Protein();
-        $subsequence =  "";
-        $aminoacids = [];
-        $molweight = 0;
-        $abscoef = 0;
-        $charge = 0;
-        $charge2 = 0;
-        $three_letter_code = "";
-        $colored_seq = [];
-        $colored_seq2 = [];
-        $result = "pom";
+        $oProtein           = new Protein();
+        $subsequence        =  "";
+        $aminoacids         = [];
+        $molweight          = 0;
+        $abscoef            = 0;
+        $charge             = 0;
+        $charge2            = 0;
+        $three_letter_code  = "";
+        $colored_seq        = [];
+        $colored_seq2       = [];
+        $results            = false;
 
         $form = $this->get('form.factory')->create(ProteinPropertiesType::class, $oProtein);
 
+        $colors = $this->getParameter('analysis_color');
+
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $results = true;
+
             $pH = $oProtein->getPH();
 
             // remove non coding (works by default)
@@ -768,15 +772,12 @@ class MinitoolsController extends Controller
                 }
             }
 
-            $colors = $this->getParameter('analysis_color');
-
             // colored sequence based in polar/non-plar/charged aminoacids
             if ($oProtein->isType1()) {
                 $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($seq, $colors);
             }
 
             if($oProtein->isType2()) {
-                // get the colored sequence (html code)
                 $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($seq, $colors);
             }
         }
@@ -794,9 +795,10 @@ class MinitoolsController extends Controller
                 'charge'                => $charge,
                 'charge2'               => $charge2,
                 'three_letter_code'     => $three_letter_code,
-                'results'               => $result,
                 'colored_seq'           => $colored_seq,
                 'colored_seq2'          => $colored_seq2,
+                'colors'                => $colors,
+                'results'               => $results
             ]
         );
     }
