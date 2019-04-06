@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 26 march 2019
+ * Last modified 6 april 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -15,12 +15,15 @@ use AppBundle\Service\OligosManager;
 use MinitoolsBundle\Entity\OligoNucleotideFrequency;
 use MinitoolsBundle\Entity\PcrAmplification;
 use MinitoolsBundle\Entity\ProteinToDna;
+use MinitoolsBundle\Entity\RandomSequences;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
 use MinitoolsBundle\Form\ProteinToDnaType;
+use MinitoolsBundle\Form\RandomSequencesType;
 use MinitoolsBundle\Service\PcrAmplificationManager;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
 use MinitoolsBundle\Service\ProteinToDnaManager;
+use MinitoolsBundle\Service\RandomSequencesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -58,6 +61,7 @@ use MinitoolsBundle\Service\MicrosatelliteRepeatsFinderManager;
  * Class MinitoolsController
  * @package MinitoolsBundle\Controller
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @todo : adding more listeners
  */
 class MinitoolsController extends Controller
 {
@@ -336,10 +340,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/find-palindromes", name="find_palindromes")
-     * @param Request $request
-     * @param FindPalindromeManager $oFindPalindromeManager
-     * @return Response
-     * @throws \Exception
+     * @param       Request                 $request
+     * @param       FindPalindromeManager   $oFindPalindromeManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function findPalindromesAction(Request $request, FindPalindromeManager $oFindPalindromeManager)
     {
@@ -450,9 +454,9 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/melting-temperature", name="melting_temperature")
-     * @param   Request $request
-     * @param   MeltingTemperatureManager $oMeltingTemperatureManager
-     * @param   NucleotidsManager $oNucleotidsManager
+     * @param   Request                     $request
+     * @param   MeltingTemperatureManager   $oMeltingTemperatureManager
+     * @param   NucleotidsManager           $oNucleotidsManager
      * @return  Response
      * @throws  \Exception
      */
@@ -514,10 +518,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/micro-array-analysis-adaptive-quantification", name="micro_array_analysis_adaptive_quantification")
-     * @param Request $request
-     * @param MicroarrayAnalysisAdaptiveManager $oMicroarrayAnalysisAdaptiveManager
-     * @return Response
-     * @throws \Exception
+     * @param       Request                             $request
+     * @param       MicroarrayAnalysisAdaptiveManager   $oMicroarrayAnalysisAdaptiveManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function microArrayAnalysisAdaptiveQuantificationAction(
         Request $request,
@@ -546,10 +550,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/microsatellite-repeats-finder", name="microsatellite_repeats_finder")
-     * @param Request $request
-     * @param MicrosatelliteRepeatsFinderManager $oMicrosatelliteRepeatsFinderManager
-     * @return Response
-     * @throws \Exception
+     * @param       Request                             $request
+     * @param       MicrosatelliteRepeatsFinderManager  $oMicrosatelliteRepeatsFinderManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function microsatelliteRepeatsFinderAction (
         Request $request,
@@ -642,10 +646,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/pcr-amplification", name="pcr_amplification")
-     * @param Request $request
-     * @param PcrAmplificationManager $pcrAmplificationManager
-     * @return Response
-     * @throws \Exception
+     * @param       Request                     $request
+     * @param       PcrAmplificationManager     $pcrAmplificationManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function pcrAmplificationAction(Request $request, PcrAmplificationManager $pcrAmplificationManager)
     {
@@ -700,10 +704,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/protein-properties", name="protein_properties")
-     * @param Request $request
-     * @param ProteinPropertiesManager $proteinPropertiesManager
-     * @return Response
-     * @throws \Exception
+     * @param       Request                     $request
+     * @param       ProteinPropertiesManager    $proteinPropertiesManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function proteinPropertiesAction(Request $request, ProteinPropertiesManager $proteinPropertiesManager)
     {
@@ -808,26 +812,24 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/protein-to-dna", name="protein_to_dna")
-     * @param Request $request
-     * @param ProteinToDnaManager $proteinToDnaManager
-     * @return Response
+     * @param       Request                 $request
+     * @param       ProteinToDnaManager     $proteinToDnaManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function proteinToDnaAction(Request $request, ProteinToDnaManager $proteinToDnaManager)
     {
-        $oProteinToDna           = new ProteinToDna();
-        $sequence = "";
-        $dna = "";
+        $oProteinToDna  = new ProteinToDna();
+        $dna            = "";
 
         $form = $this->get('form.factory')->create(ProteinToDnaType::class, $oProteinToDna);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-
             $dna = $proteinToDnaManager->translateProteinToDNA(
                 $oProteinToDna->getSequence(),
                 $oProteinToDna->getGeneticCode()
             );
         }
-
 
         return $this->render(
             '@Minitools/Minitools/proteinToDna.html.twig',
@@ -841,10 +843,66 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/random-seqs", name="random_seqs")
+     * @param       Request                     $request
+     * @param       RandomSequencesManager      $randomSequencesManager
+     * @return      Response
+     * @throws      \Exception
      */
-    public function randomSeqsAction()
+    public function randomSeqsAction(Request $request, RandomSequencesManager $randomSequencesManager)
     {
-        return $this->render('@Minitools/Minitools/randomSeqs.html.twig');
+        $oRandomSequence    = new RandomSequences();
+        $result             = "";
+        $aAminoAcids        = [];
+
+        $form = $this->get('form.factory')->create(RandomSequencesType::class, $oRandomSequence);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            switch($oRandomSequence->getProcedure()) {
+                case "fromseq":
+                    $length1 = $oRandomSequence->getLength1();
+                    $result = $randomSequencesManager->createFromSeq($oRandomSequence->getSeq(), $length1);
+                    break;
+                case "fromACGT":
+                    $length2 = $oRandomSequence->getLength2();
+                    $aAminoAcids["A"] = $oRandomSequence->getDnaA();
+                    $aAminoAcids["C"] = $oRandomSequence->getDnaC();
+                    $aAminoAcids["G"] = $oRandomSequence->getDnaG();
+                    $aAminoAcids["T"] = $oRandomSequence->getDnaT();
+                    $result = $randomSequencesManager->createFromACGT($aAminoAcids, $length2);
+                    break;
+                case "fromAA":
+                    $length3 = $oRandomSequence->getLength3();
+                    $aAminoAcids["A"] = $oRandomSequence->getA();
+                    $aAminoAcids["C"] = $oRandomSequence->getC();
+                    $aAminoAcids["D"] = $oRandomSequence->getD();
+                    $aAminoAcids["E"] = $oRandomSequence->getE();
+                    $aAminoAcids["F"] = $oRandomSequence->getF();
+                    $aAminoAcids["G"] = $oRandomSequence->getG();
+                    $aAminoAcids["H"] = $oRandomSequence->getH();
+                    $aAminoAcids["I"] = $oRandomSequence->getI();
+                    $aAminoAcids["K"] = $oRandomSequence->getK();
+                    $aAminoAcids["L"] = $oRandomSequence->getL();
+                    $aAminoAcids["M"] = $oRandomSequence->getM();
+                    $aAminoAcids["N"] = $oRandomSequence->getN();
+                    $aAminoAcids["P"] = $oRandomSequence->getP();
+                    $aAminoAcids["Q"] = $oRandomSequence->getQ();
+                    $aAminoAcids["R"] = $oRandomSequence->getR();
+                    $aAminoAcids["S"] = $oRandomSequence->getS();
+                    $aAminoAcids["T"] = $oRandomSequence->getT();
+                    $aAminoAcids["V"] = $oRandomSequence->getV();
+                    $aAminoAcids["W"] = $oRandomSequence->getW();
+                    $aAminoAcids["Y"] = $oRandomSequence->getY();
+                    $result = $randomSequencesManager->createFromAA($aAminoAcids, $length3);
+            }
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/randomSeqs.html.twig',
+            [
+                'form'         => $form->createView(),
+                'results'      => $result
+            ]
+        );
     }
 
 
