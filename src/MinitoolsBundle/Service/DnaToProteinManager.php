@@ -1,7 +1,6 @@
 <?php
 /**
  * DNA To Protein Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
  * Last modified 3 march 2019
@@ -11,11 +10,31 @@ namespace MinitoolsBundle\Service;
 
 use MinitoolsBundle\Entity\DnaToProtein;
 
+/**
+ * Class DnaToProteinManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class DnaToProteinManager
 {
+    /**
+     * @var array
+     */
     private $aAminos;
+
+    /**
+     * @var array
+     */
     private $aTriplets;
+
+    /**
+     * @var array
+     */
     private $aTripletsCombinations;
+
+    /**
+     * @var string
+     */
     private $sRvSequence;
 
     /**

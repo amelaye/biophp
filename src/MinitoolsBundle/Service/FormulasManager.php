@@ -9,7 +9,12 @@
  */
 namespace MinitoolsBundle\Service;
 
-
+/**
+ * Class FormulasManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @todo :  la classe n'est pas finie, ni commentée !
+ */
 class FormulasManager
 {
     /**

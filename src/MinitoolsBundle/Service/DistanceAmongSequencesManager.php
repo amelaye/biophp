@@ -1,7 +1,6 @@
 <?php
 /**
  * DistanceAmongSequencesManager
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Last modified 11 march 2019
@@ -11,17 +10,49 @@ namespace MinitoolsBundle\Service;
 
 use MinitoolsBundle\Entity\DistanceAmongSequences;
 
+/**
+ * Class DistanceAmongSequencesManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @todo : enlever l'injection de dépendances
+ * @todo : la classe n'est pas finie !
+ */
 class DistanceAmongSequencesManager
 {
+    /**
+     * @var array
+     */
     private $distanceAmongSequences;
 
+    /**
+     * @var array
+     */
     private $dnaComplements;
 
+    /**
+     * @var int
+     */
     private $x = null;
+
+    /**
+     * @var int
+     */
     private $y = null;
+
+    /**
+     * @var int
+     */
     private $min = null;
+
+    /**
+     * @var int
+     */
     private $cases = null;
 
+    /**
+     * DistanceAmongSequencesManager constructor.
+     * @param $dnaComplements
+     */
     public function __construct($dnaComplements)
     {
         $this->dnaComplements = $dnaComplements;
