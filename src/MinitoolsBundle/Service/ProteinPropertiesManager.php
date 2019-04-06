@@ -295,33 +295,33 @@ class ProteinPropertiesManager
 
     /**
      * Displays the colored aminoacids
-     * @param       string      $seq
-     * @param       array       $colors
+     * @param       string      $sSequence
+     * @param       array       $aColors
      * @return      array
      * @throws      \Exception
      */
-    public function proteinAminoacidNature1($seq, $colors)
+    public function proteinAminoacidNature1($sSequence, $aColors)
     {
         try {
-            $result = [];
-            for($i = 0; $i < strlen($seq); $i++) {
+            $aResult = [];
+            for($i = 0; $i < strlen($sSequence); $i++) {
                 // non-polar aminoacids, yellow
-                if (strpos(" GAPVILFM", substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["nonpolar"]];
+                if (strpos(" GAPVILFM", substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["nonpolar"]];
                     continue;
                 }
                 // polar aminoacids, magenta
-                if (strpos(" SCTNQHYW", substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["polar"]];
+                if (strpos(" SCTNQHYW", substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["polar"]];
                     continue;
                 }
                 // charged aminoacids, red
-                if (strpos(" DEKR", substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["charged"]];
+                if (strpos(" DEKR", substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["charged"]];
                     continue;
                 }
             }
-            return $result;
+            return $aResult;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -329,43 +329,43 @@ class ProteinPropertiesManager
 
     /**
      * Displays the colored aminoacids (tyoe 2)
-     * @param   string      $seq
-     * @param   array      $colors
+     * @param   string      $sSequence
+     * @param   array       $aColors
      * @return  array
      * @throws  \Exception
      */
-    public function proteinAminoacidNature2($seq, $colors)
+    public function proteinAminoacidNature2($sSequence, $aColors)
     {
         try {
-            $result = [];
-            for ($i = 0; $i < strlen($seq); $i++) {
+            $aResult = [];
+            for ($i = 0; $i < strlen($sSequence); $i++) {
                 // Small nonpolar (yellow)
-                if (strpos(" GAST",substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["nonpolar"]];
+                if (strpos(" GAST",substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["nonpolar"]];
                     continue;
                 }
                 // Small hydrophobic (green)
-                if (strpos(" CVILPFYMW",substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["hydrophobic"]];
+                if (strpos(" CVILPFYMW",substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["hydrophobic"]];
                     continue;
                 }
                 // Polar
-                if (strpos(" DQH",substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["polar"]];
+                if (strpos(" DQH",substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["polar"]];
                     continue;
                 }
                 // Negatively charged
-                if (strpos(" NE",substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["negatively_charged"]];
+                if (strpos(" NE",substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["negatively_charged"]];
                     continue;
                 }
                 // Positively charged
-                if (strpos(" KR",substr($seq,$i,1)) > 0) {
-                    $result[] = [substr($seq,$i,1), $colors["positively_charged"]];
+                if (strpos(" KR",substr($sSequence,$i,1)) > 0) {
+                    $aResult[] = [substr($sSequence,$i,1), $aColors["positively_charged"]];
                     continue;
                 }
             }
-            return $result;
+            return $aResult;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -382,56 +382,56 @@ class ProteinPropertiesManager
      * A/DE          Acidic Amino Acids
      * C/KRH         Basic Amino Acids
      * $ X/X
-     * @param $amino_seq
-     * @return string
-     * @throws \Exception
+     * @param       string   $sAminoSeq
+     * @return      string
+     * @throws      \Exception
      */
-    public function proteinAminoacidsChemicalGroup($amino_seq)
+    public function proteinAminoacidsChemicalGroup($sAminoSeq)
     {
         try {
-            $chemgrp_seq = "";
-            $ctr = 0;
+            $sChemgrpSeq = "";
+            $iCtr = 0;
             while(1) {
-                $amino_letter = substr($amino_seq, $ctr, 1);
-                if ($amino_letter == "") {
+                $sAminoLetter = substr($sAminoSeq, $iCtr, 1);
+                if ($sAminoLetter == "") {
                     break;
                 }
-                if (strpos(" GAVLI", $amino_letter) > 0) {
-                    $chemgrp_seq .= "L";
+                if (strpos(" GAVLI", $sAminoLetter) > 0) {
+                    $sChemgrpSeq .= "L";
                 }
-                elseif (($amino_letter == "S") || ($amino_letter == "T")) {
-                    $chemgrp_seq .= "H";
+                elseif (($sAminoLetter == "S") || ($sAminoLetter == "T")) {
+                    $sChemgrpSeq .= "H";
                 }
-                elseif (($amino_letter == "N") || ($amino_letter == "Q")) {
-                    $chemgrp_seq .= "M";
+                elseif (($sAminoLetter == "N") || ($sAminoLetter == "Q")) {
+                    $sChemgrpSeq .= "M";
                 }
-                elseif (strpos(" FYW", $amino_letter)>0) {
-                    $chemgrp_seq .= "R";
+                elseif (strpos(" FYW", $sAminoLetter)>0) {
+                    $sChemgrpSeq .= "R";
                 }
-                elseif (($amino_letter == "C") || ($amino_letter == "M")) {
-                    $chemgrp_seq .= "S";
+                elseif (($sAminoLetter == "C") || ($sAminoLetter == "M")) {
+                    $sChemgrpSeq .= "S";
                 }
-                elseif ($amino_letter == "P") {
-                    $chemgrp_seq .= "I";
+                elseif ($sAminoLetter == "P") {
+                    $sChemgrpSeq .= "I";
                 }
-                elseif (($amino_letter == "D") || ($amino_letter == "E")) {
-                    $chemgrp_seq .= "A";
+                elseif (($sAminoLetter == "D") || ($sAminoLetter == "E")) {
+                    $sChemgrpSeq .= "A";
                 }
-                elseif (($amino_letter == "K") || ($amino_letter == "R") || ($amino_letter == "H")) {
-                    $chemgrp_seq .= "C";
+                elseif (($sAminoLetter == "K") || ($sAminoLetter == "R") || ($sAminoLetter == "H")) {
+                    $sChemgrpSeq .= "C";
                 }
-                elseif ($amino_letter == "*") {
-                    $chemgrp_seq .= "*";
+                elseif ($sAminoLetter == "*") {
+                    $sChemgrpSeq .= "*";
                 }
-                elseif ($amino_letter == "X" or $amino_letter == "N") {
-                    $chemgrp_seq .= "X";
+                elseif ($sAminoLetter == "X" or $sAminoLetter == "N") {
+                    $sChemgrpSeq .= "X";
                 }
                 else {
-                    die("Invalid amino acid symbol in input sequence.");
+                    throw new \Exception("Invalid amino acid symbol in input sequence.");
                 }
-                $ctr++;
+                $iCtr++;
             }
-            return $chemgrp_seq;
+            return $sChemgrpSeq;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

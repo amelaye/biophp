@@ -3,41 +3,71 @@
 {% block body %}
     <h2>Protein sequence information</h2>
 
-    {% if results != "" %}
+    {% if results %}
         <div class="card border-info mb-3" style="font-size:0.9em" id="results">
             <div class="card-header">Results of your request</div>
             <div class="card-body">
                 <p><b>Subsequence used for calculations :</b><br>{{ subsequence }}</p>
-                <p><b>Aminoacid composition of protein:</b><br>
-                    <table border="1">
-                    <th>1 letter</th>
-                    <th>3 letters</th>
-                    <th>count</th>
-                    {% for amino in aminoacids  %}
-                        <tr>
-                            <td>{{ amino.one_letter }}</td>
-                            <td>{{ amino.three_letters }}</td>
-                            <td>{{ amino.count }}</td>
-                        </tr>
-                    {% endfor %}
-                </table></p>
-                <p><b>Molecular weight : </b><br>{{ molweight }} Daltons</p>
-                <p><b>Molar Absorption Coefficient at 280 nm : </b><br>{{ abscoef | round(2) }}</p>
-                <p><b>Isoelectric point of sequence ({{ data_source }}) :</b><br /> {{ charge | round(2) }} </p>
-                <p><b>Charge of sequence at pH = {{ pH }} ({{ data_source }}):</b><br /> {{ charge2 | round(2) }} </p>
-                <p><b>Sequence as three letters aminoacid code:</b><br>{{ three_letter_code }} </p>
-                <p><b><font color=Magenta>Polar</font>, <font color=yellow>Nonpolar</font></b> or <b><font color=red>Charged</font></b> aminoacids:<br>
+
+                {% if aminoacids is not empty %}
+                    <p><b>Aminoacid composition of protein:</b><br>
+                        <table border="1">
+                        <th>1 letter</th>
+                        <th>3 letters</th>
+                        <th>count</th>
+                        {% for amino in aminoacids  %}
+                            <tr>
+                                <td>{{ amino.one_letter }}</td>
+                                <td>{{ amino.three_letters }}</td>
+                                <td>{{ amino.count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table></p>
+                {% endif %}
+
+                {% if molweight != 0 %}
+                    <p><b>Molecular weight : </b><br>{{ molweight }} Daltons</p>
+                {% endif %}
+
+                {% if abscoef != 0 %}
+                    <p><b>Molar Absorption Coefficient at 280 nm : </b><br>{{ abscoef | round(2) }}</p>
+                {% endif %}
+
+                {% if charge != 0 %}
+                    <p><b>Isoelectric point of sequence ({{ data_source }}) :</b><br /> {{ charge | round(2) }} </p>
+                {% endif %}
+
+                {% if charge2 != 0 %}
+                    <p><b>Charge of sequence at pH = {{ pH }} ({{ data_source }}):</b><br /> {{ charge2 | round(2) }} </p>
+                {% endif %}
+
+                {% if three_letter_code != "" %}
+                    <p><b>Sequence as three letters aminoacid code:</b><br>{{ three_letter_code }} </p>
+                {% endif %}
+
+                {% if colored_seq is not empty %}
+                <p><b>
+                        <span style="color: {{ colors.polar }}">Polar</span>,
+                        <span style="color: {{ colors.nonpolar }}">Nonpolar</span></b> or <b>
+                        <span style="color: {{ colors.charged }}">Charged</span></b> aminoacids:<br>
                     {% for seq in colored_seq %}
                         <span style="color:{{ seq.1 }}">{{ seq.0 }}</span>
                     {% endfor %}
-                <p><b><font color=magenta>Polar</font>, <font color=yellow>small non-polar</font>, <font color=green>hydrophobic</font>,
-                        <font color=red>negatively</font></b> or <b><font color=blue>positively</font> charged</b> aminoacids:<br>
+                </p>
+                {% endif %}
+
+                {% if colored_seq2 is not empty %}
+                <p><b>
+                        <span style="color: {{ colors.polar }}">Polar</span>,
+                        <span style="color: {{ colors.nonpolar }}">small non-polar</span>,
+                        <span style="color: {{ colors.hydrophobic }}">hydrophobic</span>,
+                        <span style="color: {{ colors.negatively_charged }}">negatively</span></b> or <b>
+                        <span style="color: {{ colors.positively_charged }}">positively</span> charged</b> aminoacids:<br>
                     {% for seq in colored_seq2 %}
                         <span style="color:{{ seq.1 }}">{{ seq.0 }}</span>
                     {% endfor %}
-                    ----
-
-                {{ results | raw }}
+                </p>
+                {% endif %}
             </div>
         </div>
     {% endif %}
