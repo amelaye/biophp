@@ -3,7 +3,7 @@
  * Proteins properties Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 31 march 2019
+ * Last modified 6 april 2019
  */
 namespace MinitoolsBundle\Service;
 

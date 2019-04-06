@@ -1,7 +1,6 @@
 <?php
 /**
  * Form ProteinPropertiesType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Last modified 26 february 2019
@@ -17,6 +16,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class ProteinPropertiesType
+ * @package MinitoolsBundle\Form
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class ProteinPropertiesType extends AbstractType
 {
     /**
