@@ -17,6 +17,7 @@ use MinitoolsBundle\Entity\PcrAmplification;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
 use MinitoolsBundle\Service\PcrAmplificationManager;
+use MinitoolsBundle\Service\ProteinPropertiesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -696,16 +697,106 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/protein-properties", name="protein_properties")
+     * @param Request $request
+     * @param ProteinPropertiesManager $proteinPropertiesManager
+     * @return Response
+     * @throws \Exception
      */
-    public function proteinPropertiesAction()
+    public function proteinPropertiesAction(Request $request, ProteinPropertiesManager $proteinPropertiesManager)
     {
         $oProtein = new Protein();
+        $subsequence =  "";
+        $aminoacids = [];
+        $molweight = 0;
+        $abscoef = 0;
+        $charge = 0;
+        $charge2 = 0;
+        $three_letter_code = "";
+        $colored_seq = [];
+        $colored_seq2 = [];
+        $result = "pom";
+
         $form = $this->get('form.factory')->create(ProteinPropertiesType::class, $oProtein);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $pH = $oProtein->getPH();
+
+            // remove non coding (works by default)
+            $seq = $proteinPropertiesManager->removeNonCodingProt($oProtein->getSeq());
+
+            // if subsequence is requested
+            if ($oProtein->getStart() != "" || $oProtein->getEnd() != "") {
+                $start = ($oProtein->getStart() != "") ? $oProtein->getStart() - 1 : 0;
+                $end  = ($oProtein->getEnd() != "") ? $oProtein->getEnd() : strlen($seq);
+                $seq = substr($seq, $start,$end - $start);
+                $subsequence = chunk_split($seq, 70);
+            }
+
+            // calculate nucleotide composition
+            $aminoacid_content = $proteinPropertiesManager->aminoacidContent($seq);
+
+            // get pk values for charged aminoacids
+            $pK = $this->getParameter('pk_values')[$oProtein->getDataSource()];
+
+            // prepare nucleotide composition to be printed out
+            if ($oProtein->isComposition()) {
+                $aminoacids = $proteinPropertiesManager->formatAminoacidContent($aminoacid_content);
+            }
+
+             if ($oProtein->isMolweight()) {
+                 $molweight = $proteinPropertiesManager->proteinMolecularWeight($aminoacid_content);
+             }
+
+            if ($oProtein->isAbscoef()) {
+                $abscoef = $proteinPropertiesManager->molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight);
+            }
+
+            if ($oProtein->isCharge()) {
+                // calculate isoelectric point of protein
+                $charge = $proteinPropertiesManager->proteinIsoelectricPoint($pK, $aminoacid_content);
+            }
+
+            if ($oProtein->isCharge2()) {
+                // calculate charge of protein at requested pH
+                $charge2 = $proteinPropertiesManager->proteinCharge($pK, $aminoacid_content, $pH);
+            }
+
+            if ($oProtein->isThreeLetters()) {
+                // colored sequence based in plar/non-plar/charged aminoacids
+                foreach(str_split($seq) as $letter) {
+                    $three_letter_code .= $proteinPropertiesManager->seq1letterTo3letter($letter);
+                }
+            }
+
+            $colors = $this->getParameter('analysis_color');
+
+            // colored sequence based in polar/non-plar/charged aminoacids
+            if ($oProtein->isType1()) {
+                $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($seq, $colors);
+            }
+
+            if($oProtein->isType2()) {
+                // get the colored sequence (html code)
+                $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($seq, $colors);
+            }
+        }
 
         return $this->render(
             '@Minitools/Minitools/proteinProperties.html.twig',
             [
-                'form'              => $form->createView(),
+                'form'                  => $form->createView(),
+                'subsequence'           => $subsequence,
+                'aminoacids'            => $aminoacids,
+                'molweight'             => $molweight,
+                'abscoef'               => $abscoef,
+                'data_source'           => $oProtein->getDataSource(),
+                'pH'                    => $oProtein->getPH(),
+                'charge'                => $charge,
+                'charge2'               => $charge2,
+                'three_letter_code'     => $three_letter_code,
+                'results'               => $result,
+                'colored_seq'           => $colored_seq,
+                'colored_seq2'          => $colored_seq2,
             ]
         );
     }

@@ -27,9 +27,9 @@ class ProteinPropertiesType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $dataSources = array(
-            "EMBOSS",
-            "DTASelect",
-            "Solomon"
+            "EMBOSS" => "EMBOSS",
+            "DTASelect" => "DTASelect",
+            "Solomon" => "Solomon"
         );
 
         $builder->add(
@@ -42,6 +42,7 @@ class ProteinPropertiesType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
+                'data' => "ARNDCEQGHILKMFPSTWYVX*"
             ]
         );
 
@@ -49,10 +50,12 @@ class ProteinPropertiesType extends AbstractType
             'start',
             TextType::class,
             [
-                'data' => 50,
+                'required' => false,
+                'data' => 2,
                 'attr' => [
                     'class' => "form-control"
-                ]
+                ],
+                'label' => "Select subsequence from position "
             ]
         );
 
@@ -60,10 +63,12 @@ class ProteinPropertiesType extends AbstractType
             'end',
             TextType::class,
             [
-                'data' => 50,
+                'required' => false,
+                'data' => 18,
                 'attr' => [
                     'class' => "form-control"
-                ]
+                ],
+                'label' => "to"
             ]
         );
 
@@ -110,7 +115,7 @@ class ProteinPropertiesType extends AbstractType
                 'choices' => $dataSources,
                 'attr' => [
                     'class' => "custom-select d-block w-20"
-                ]
+                ],
             ]
         );
 

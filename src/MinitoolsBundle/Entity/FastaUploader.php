@@ -1,7 +1,6 @@
 <?php
 /**
  * Entity used by form FastaUploaderType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
  * Last modified 18 march 2019
@@ -11,9 +10,15 @@ namespace MinitoolsBundle\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class FastaUploader
+ * @package MinitoolsBundle\Entity
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class FastaUploader
 {
     /**
+     * @var array
      * @Assert\File(
      *     maxSize = "100000k",
      *     mimeTypes = { "text/plain" },
@@ -22,11 +27,17 @@ class FastaUploader
      */
     private $fasta;
 
+    /**
+     * @return array
+     */
     public function getFasta()
     {
         return $this->fasta;
     }
 
+    /**
+     * @param array $fasta
+     */
     public function setFasta($fasta)
     {
         $this->fasta = $fasta;

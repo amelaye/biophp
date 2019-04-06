@@ -3,7 +3,117 @@
 {% block body %}
     <h2>Protein sequence information</h2>
 
-    {{ form(form) }}
+    {% if results != "" %}
+        <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+            <div class="card-header">Results of your request</div>
+            <div class="card-body">
+                <p><b>Subsequence used for calculations :</b><br>{{ subsequence }}</p>
+                <p><b>Aminoacid composition of protein:</b><br>
+                    <table border="1">
+                    <th>1 letter</th>
+                    <th>3 letters</th>
+                    <th>count</th>
+                    {% for amino in aminoacids  %}
+                        <tr>
+                            <td>{{ amino.one_letter }}</td>
+                            <td>{{ amino.three_letters }}</td>
+                            <td>{{ amino.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </table></p>
+                <p><b>Molecular weight : </b><br>{{ molweight }} Daltons</p>
+                <p><b>Molar Absorption Coefficient at 280 nm : </b><br>{{ abscoef | round(2) }}</p>
+                <p><b>Isoelectric point of sequence ({{ data_source }}) :</b><br /> {{ charge | round(2) }} </p>
+                <p><b>Charge of sequence at pH = {{ pH }} ({{ data_source }}):</b><br /> {{ charge2 | round(2) }} </p>
+                <p><b>Sequence as three letters aminoacid code:</b><br>{{ three_letter_code }} </p>
+                <p><b><font color=Magenta>Polar</font>, <font color=yellow>Nonpolar</font></b> or <b><font color=red>Charged</font></b> aminoacids:<br>
+                    {% for seq in colored_seq %}
+                        <span style="color:{{ seq.1 }}">{{ seq.0 }}</span>
+                    {% endfor %}
+                <p><b><font color=magenta>Polar</font>, <font color=yellow>small non-polar</font>, <font color=green>hydrophobic</font>,
+                        <font color=red>negatively</font></b> or <b><font color=blue>positively</font> charged</b> aminoacids:<br>
+                    {% for seq in colored_seq2 %}
+                        <span style="color:{{ seq.1 }}">{{ seq.0 }}</span>
+                    {% endfor %}
+                    ----
+
+                {{ results | raw }}
+            </div>
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form_row(form.seq) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.start) }}</div>
+                <div class="col-md-2">{{ form_widget(form.start) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.end) }}</div>
+                <div class="col-md-2">{{ form_widget(form.end) }}</div>
+                <div class="col-md-4"> (both included) for computation</div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.composition) }}</div>
+                <div class="col-md-6">{{ form_label(form.composition) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.molweight) }}</div>
+                <div class="col-md-6">{{ form_label(form.molweight) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.abscoef) }}</div>
+                <div class="col-md-6">{{ form_label(form.abscoef) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.charge) }}</div>
+                <div class="col-md-4">{{ form_label(form.charge) }}</div>
+                <div class="col-md-2">{{ form_widget(form.data_source) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.charge2) }}</div>
+                <div class="col-md-4">{{ form_label(form.charge2) }}</div>
+                <div class="col-md-2">{{ form_widget(form.pH) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.three_letters) }}</div>
+                <div class="col-md-6">{{ form_label(form.three_letters) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.type1) }}</div>
+                <div class="col-md-6">{{ form_label(form.type1) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.type2) }}</div>
+                <div class="col-md-6">{{ form_label(form.type2) }}</div>
+            </div>
+
+            <p>&nbsp;</p>
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.submit) }}</div>
+            </div>
+
+        </div>
+    </div>
+    {{ form_end(form) }}
 
     <div class="card">
         <h5 class="card-header">Protein sequence information tool</h5>
