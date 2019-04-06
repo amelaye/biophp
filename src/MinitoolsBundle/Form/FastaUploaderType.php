@@ -1,7 +1,6 @@
 <?php
 /**
  * Form DnaToProteinType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
  * Last modified 18 march 2019
@@ -14,6 +13,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
+/**
+ * Class FastaUploaderType
+ * @package MinitoolsBundle\Form
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class FastaUploaderType extends AbstractType
 {
     /**
