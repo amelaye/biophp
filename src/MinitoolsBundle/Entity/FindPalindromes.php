@@ -1,14 +1,17 @@
 <?php
 /**
  * Entity used by form FindPalindromesType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
  * Last modified 18 march 2019
  */
 namespace MinitoolsBundle\Entity;
 
-
+/**
+ * Class FindPalindromes
+ * @package MinitoolsBundle\Entity
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class FindPalindromes
 {
     private $seq;

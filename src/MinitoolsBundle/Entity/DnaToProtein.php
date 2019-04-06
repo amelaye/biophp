@@ -1,7 +1,6 @@
 <?php
 /**
  * Entity used by form DnaToProteinType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 february 2019
  * Last modified 3 march 2019
@@ -11,6 +10,11 @@ namespace MinitoolsBundle\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class DnaToProtein
+ * @package MinitoolsBundle\Entity
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class DnaToProtein
 {
     private $sSequence;

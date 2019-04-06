@@ -1,7 +1,6 @@
 <?php
 /**
  * Chaos Game Representation Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 3 march  2019
  * Last modified 9 march 2019
@@ -12,15 +11,39 @@ namespace MinitoolsBundle\Service;
 use MinitoolsBundle\Entity\ChaosGameRepresentation;
 use AppBundle\Service\OligosManager;
 
+/**
+ * Class ChaosGameRepresentationManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class ChaosGameRepresentationManager
 {
+    /**
+     * @var ChaosGameRepresentation
+     */
     private $chaosGameRepresentation;
 
+    /**
+     * @var OligosManager
+     */
     private $oligosManager;
+
+    /**
+     * @var array
+     */
     private $dnaComplements;
+
+    /**
+     * @var array
+     */
     private $nucleotidsGraphs;
 
-
+    /**
+     * ChaosGameRepresentationManager constructor.
+     * @param   OligosManager   $oligosManager
+     * @param   array           $dnaComplements
+     * @param   array           $nucleotidsGraphs
+     */
     public function __construct(OligosManager $oligosManager, $dnaComplements, $nucleotidsGraphs)
     {
         $this->oligosManager = $oligosManager;
@@ -28,6 +51,9 @@ class ChaosGameRepresentationManager
         $this->nucleotidsGraphs = $nucleotidsGraphs;
     }
 
+    /**
+     * @param ChaosGameRepresentation $chaosGameRepresentation
+     */
     public function setChaosGameRepresentation(ChaosGameRepresentation $chaosGameRepresentation)
     {
         $this->chaosGameRepresentation = $chaosGameRepresentation;

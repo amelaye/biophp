@@ -1,7 +1,6 @@
 <?php
 /**
  * FindPalindromeManager
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Last modified 18 march 2019
@@ -10,10 +9,22 @@ namespace MinitoolsBundle\Service;
 
 use AppBundle\Service\NucleotidsManager;
 
+/**
+ * Class FindPalindromeManager
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class FindPalindromeManager
 {
+    /**
+     * @var NucleotidsManager
+     */
     private $oNucleotidsManager;
 
+    /**
+     * FindPalindromeManager constructor.
+     * @param NucleotidsManager $oNucleotidsManager
+     */
     public function __construct(NucleotidsManager $oNucleotidsManager)
     {
         $this->oNucleotidsManager = $oNucleotidsManager;
@@ -24,7 +35,7 @@ class FindPalindromeManager
      * @param   string  $sSequence      is the sequence to be searched
      * @param   int     $iMin           the minimum length of palindromic sequence to be searched
      * @param   int     $iMax           the maximum length of palindromic sequence to be searched
-     * @return  array   keys are positions in genome, and values are length of palindromic sequences
+     * @return  array                   keys are positions in genome, and values are length of palindromic sequences
      * @throws \Exception
      */
     public function findPalindromicSeqs($sSequence, $iMin, $iMax)
