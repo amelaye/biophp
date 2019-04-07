@@ -124,3 +124,8 @@ services:
     MinitoolsBundle\Service\ProteinToDnaManager:
         arguments:
             - '%triplets_list%'
+
+    MinitoolsBundle\Service\RandomSequencesManager:
+        arguments:
+            - '%dna_complements%'
+            - '%codons%'

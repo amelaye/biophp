@@ -8,6 +8,8 @@
  */
 namespace MinitoolsBundle\Service;
 
+use MinitoolsBundle\Entity\RandomSequences;
+
 /**
  * Class RandomSequencesManager
  * @package MinitoolsBundle\Service
@@ -15,16 +17,34 @@ namespace MinitoolsBundle\Service;
  */
 class RandomSequencesManager
 {
-    private $randomSequence;
+    /**
+     * @var array
+     */
+    private $aAminos;
 
     /**
-     * @param $randomSequence
+     * @var array
      */
-    public function setRandomSequence($randomSequence)
-    {
-        $this->randomSequence = $randomSequence;
-    }
+    private $aProteins;
 
+    /**
+     * RandomSequencesManager constructor.
+     * @param   array   $aAminos
+     * @param   array   $aProteins
+     */
+    public function __construct($aAminos, $aProteins)
+    {
+        $this->aAminos = $aAminos;
+        /* we don't need X and STOP */
+        array_pop($aProteins);
+        array_pop($aProteins);
+
+        foreach($aProteins as $protein) {
+            if(isset($protein[3])) {
+                $this->aProteins[] = $protein[1];
+            }
+        }
+    }
 
     /**
      * Generate a random protein or DNA sequence
@@ -43,7 +63,6 @@ class RandomSequencesManager
 
     /**
      * Creates a random sequence
-     * @todo : refacto cette methode
      * @param       int         $iLength        Length of the sequence
      * @param       string      $sSequence      Sequence
      * @return string
@@ -57,69 +76,40 @@ class RandomSequencesManager
                 $seqACGT = preg_replace("/[^ACGT]/","", $sSequence);
                 // The sequence is DNA if A+C+G+T>70% (so, if $seqACGT is long enough)
                 if(strlen($seqACGT) > strlen($sSequence) * 0.7) {
+                    $acgt = [];
                     $aDNA = [];
+
                     // The sequence is DNA
                     // get the frequencies for each nucleotide
-                    $a = substr_count($sSequence,"A");
-                    $c = substr_count($sSequence,"C");
-                    $g = substr_count($sSequence,"G");
-                    $t = substr_count($sSequence,"T");
-                    $acgt = $a + $c + $g + $t;
+                    foreach($this->aAminos as $amino) {
+                        $$amino = substr_count($sSequence,$amino);
+                        $acgt += $$amino;
+                    }
+
                     // Get number of ocurrences per each nucleotide for a seq with length=$length1
-                    $aDNA["A"] = round($a * $iLength / $acgt);
-                    $aDNA["C"] = round($c * $iLength / $acgt);
-                    $aDNA["G"] = round($g * $iLength / $acgt);
-                    $aDNA["T"] = round($t * $iLength / $acgt);
+                    foreach($this->aAminos as $amino) {
+                        $aDNA[$amino] = round($$amino * $iLength / $acgt);
+                    }
+
                     // get randomized sequence
                     $result = $this->randomize($aDNA);
                 } else {
                     // The sequence is protein
                     $aProteins = [];
+                    $ACDEFGHIKLMNPGRSTVWY = [];
+                    $aListProteins = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"];
+
                     // get the frequencies for each aminoacid
-                    $A = substr_count($sSequence,"A");
-                    $C = substr_count($sSequence,"C");
-                    $D = substr_count($sSequence,"D");
-                    $E = substr_count($sSequence,"E");
-                    $F = substr_count($sSequence,"F");
-                    $G = substr_count($sSequence,"G");
-                    $H = substr_count($sSequence,"H");
-                    $I = substr_count($sSequence,"I");
-                    $K = substr_count($sSequence,"K");
-                    $L = substr_count($sSequence,"L");
-                    $M = substr_count($sSequence,"M");
-                    $N = substr_count($sSequence,"N");
-                    $P = substr_count($sSequence,"P");
-                    $Q = substr_count($sSequence,"Q");
-                    $R = substr_count($sSequence,"R");
-                    $S = substr_count($sSequence,"S");
-                    $T = substr_count($sSequence,"T");
-                    $V = substr_count($sSequence,"V");
-                    $W = substr_count($sSequence,"W");
-                    $Y = substr_count($sSequence,"Y");
-                    $ACDEFGHIKLMNPGRSTVWY = $A + $C + $D + $E + $F + $G + $H + $I + $K + $L + $M + $N + $P
-                        + $Q + $R + $S + $T + $V + $W + $Y;
-                    // Get number of ocurrences per each aminoacid for a seq with length=$length1
-                    $aProteins["A"] = round($A * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["C"] = round($C * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["D"] = round($D * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["E"] = round($E * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["F"] = round($F * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["G"] = round($G * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["H"] = round($H * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["I"] = round($I * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["K"] = round($K * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["L"] = round($L * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["M"] = round($M * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["N"] = round($N * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["P"] = round($P * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["Q"] = round($Q * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["R"] = round($R * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["S"] = round($S * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["T"] = round($T * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["V"] = round($V * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["W"] = round($W * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    $aProteins["Y"] = round($Y * $iLength / $ACDEFGHIKLMNPGRSTVWY);
-                    // get randomized sequence
+                    foreach($aListProteins as $protein) {
+                        $$protein = substr_count($sSequence, $protein);
+                        $ACDEFGHIKLMNPGRSTVWY += $$protein;
+                    }
+
+                    // Get number of ocurrences per each nucleotide for a seq with length=$length1
+                    foreach($aListProteins as $protein) {
+                        $aProteins[$protein] = round($$protein * $iLength / $ACDEFGHIKLMNPGRSTVWY);
+                    }
+
                     $result = $this->randomize($aProteins);
                 }
             } else {
