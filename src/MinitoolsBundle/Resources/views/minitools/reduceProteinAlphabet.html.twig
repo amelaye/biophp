@@ -4,7 +4,7 @@
     <h2>Reduced (redundant or simplified) alphabets for proteins</h2>
     <p></p>
 
-    {% if colored_seq != "" %}
+    {% if reduced_seq != "" %}
         <div class="card border-info mb-3" style="font-size:0.9em" id="results">
             <div class="card-header">Results of your request</div>
             <div class="card-body">
@@ -17,21 +17,30 @@
                     <hr />
                 {% endif %}
 
-                {% if reduced_code_custom is not empty %}
+                {% if mode == "custom" %}
                     <h5>Personalized alphabet</h5>
-                    <pre>Aminoacids   : {{ amino_acids | raw }}<br />Reduced code : {{ reduced_code_custom | raw }} </pre>
+                    <pre>Aminoacids   : {{ "ARNDCEQGHILKMFPSTWYV" | chunk_split(aa_perline) | color_amino_custom(custom_alphabet, custom_alphabet) }}
+Reduced code : {{ custom_alphabet | chunk_split(aa_perline) | color_amino_custom(custom_alphabet, custom_alphabet) }} </pre>
                     <hr />
                 {% endif %}
 
 
-                {% if colored_reduced_seq != "" %}
+                {% if show_reduced %}
                     <h5>Reduced alphabet</h5>
-                    {{ colored_reduced_seq | raw }}
+                    {% if mode == "custom" %}
+                        <b><pre>{{ reduced_seq | chunk_split(aa_perline) | color_amino_custom(reduced_seq, custom_alphabet) }}</pre></b>
+                    {% elseif mode == "pre" %}
+                        <b><pre>{{ reduced_seq | chunk_split(aa_perline) | color_amino(reduced_seq, type) }}</pre></b>
+                    {% endif %}
                     <hr />
                 {% endif %}
 
                 <h5>Colored sequence</h5>
-                <b>{{ colored_seq | raw }}</b>
+                {% if mode == "custom" %}
+                    <b><pre>{{ sequence | chunk_split(aa_perline) | color_amino_custom(reduced_seq, custom_alphabet) }}</pre></b>
+                {% elseif mode == "pre" %}
+                    <b><pre>{{ sequence | chunk_split(aa_perline) | color_amino(reduced_seq, type) }}</pre></b>
+                {% endif %}
             </div>
         </div>
     {% endif %}

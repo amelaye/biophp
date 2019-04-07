@@ -3,7 +3,7 @@
  * Some extensions to format the rending code
  * Freely inspired by BioPHP's project biophp.org
  * Created 6 april 2019
- * Last modified 6 april 2019
+ * Last modified 7 april 2019
  */
 namespace AppBundle\Twig;
 
@@ -18,6 +18,27 @@ use Twig\Extension\AbstractExtension;
 class AppExtension extends AbstractExtension
 {
     /**
+     * @var array
+     */
+    private $protein_colors;
+
+    /**
+     * @var array
+     */
+    private $generic_colors;
+
+    /**
+     * AppExtension constructor.
+     * @param $protein_colors
+     * @param $generic_colors
+     */
+    public function __construct($protein_colors, $generic_colors)
+    {
+        $this->protein_colors = $protein_colors;
+        $this->generic_colors = $generic_colors;
+    }
+
+    /**
      * Creating new filters for my app <3
      * @return array|TwigFilter[]
      */
@@ -25,7 +46,9 @@ class AppExtension extends AbstractExtension
     {
         return [
             new TwigFilter('chunk_split', [$this, '_chunk_split'], ['is_safe' => ['html']]),
-            new TwigFilter('atgc_sublimer', [$this, 'sublimerATGC'], ['is_safe' => ['html']])
+            new TwigFilter('atgc_sublimer', [$this, 'sublimerATGC'], ['is_safe' => ['html']]),
+            new TwigFilter('color_amino_custom', [$this, 'colorAminoCustom'], ['is_safe' => ['html']]),
+            new TwigFilter('color_amino', [$this, 'colorAmino'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -36,7 +59,7 @@ class AppExtension extends AbstractExtension
      * @param   string  $end
      * @return  string
      */
-    public function _chunk_split($subject, $chucklen, $end)
+    public function _chunk_split($subject, $chucklen, $end = "\r\n")
     {
         return chunk_split($subject, $chucklen, $end);
     }
@@ -55,9 +78,80 @@ class AppExtension extends AbstractExtension
         $subject = preg_replace("/T/",'<span style="color:'.$color.'">T</span>',$subject);
 
         // two lines to reduce the code to be transmitted
-        $subject = preg_replace('/<\/span><span style="color:'.$color.'">/',"",$subject);
-        $subject = preg_replace('/<\/span> <span style="color:'.$color.'">>/'," ",$subject);
+        $subject = preg_replace('/<\/span><span style="color:#'.$color.'">/',"",$subject);
+        $subject = preg_replace('/<\/span> <span style="color:#'.$color.'">>/'," ",$subject);
 
         return $subject;
+    }
+
+    /**
+     * Get colored html code for $seq by using the $seq2 (the reduced sequence)
+     * as a reference, and according to the personalized alphabet included in the form
+     * returns an html code
+     * @param       string          $subject
+     * @param       string          $sequence
+     * @param       string          $customAlphabet
+     * @return      string
+     * @throws      \Exception
+     */
+    public function colorAminoCustom($subject, $sequence, $customAlphabet)
+    {
+        try {
+            // get array with letters
+            $a = preg_split("//", $customAlphabet, -1, PREG_SPLIT_NO_EMPTY);
+            $a = array_unique($a);
+
+            foreach ($a as $key => $val) {
+                $letters[$val] = $this->generic_colors[$key];
+            }
+
+            $coloredSeq = "";
+            for ($i = 0; $i < strlen($subject); $i++) {
+                $letterSeq = substr($subject, $i, 1);
+                $letterSeq2 = substr($sequence, $i, 1);
+                if (isset($letters[$letterSeq2]) && $letters[$letterSeq2] != ""){
+                    $coloredSeq .= '<span style="color: #'.strtolower($letters[$letterSeq2]).'">'.$letterSeq.'</span>';
+                } else {
+                    $coloredSeq .= $letterSeq;
+                }
+            }
+
+            return $coloredSeq;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Get colored html code for $seq by using the $seq2 (the reduced sequence)
+     * as a reference, and according to the $type of reduction selected
+     * returns an html code
+     * @param       string          $subject
+     * @param       string          $sequence
+     * @param       string          $sType
+     * @return      string
+     * @throws      \Exception
+     */
+    public function colorAmino($subject, $sequence, $sType)
+    {
+        try {
+            $letters_array = $this->protein_colors;
+            $coloredSeq = "";
+
+            for ($i = 0; $i < strlen($subject); $i ++) {
+                $sLetterSeq = substr($subject,$i,1);
+                $sLetterSeq2 = substr($sequence,$i,1);
+
+                if (isset($letters_array[$sType][$sLetterSeq2]) && $letters_array[$sType][$sLetterSeq2] != "") {
+                    $coloredSeq .= '<span style="color: #'.strtolower($letters_array[$sType][$sLetterSeq2]).'">'.$sLetterSeq.'</span>';
+                } else {
+                    $coloredSeq .= $sLetterSeq;
+                }
+            }
+
+            return $coloredSeq;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 }

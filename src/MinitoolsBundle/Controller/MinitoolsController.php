@@ -911,19 +911,17 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/reduce-protein-alphabet", name="reduce_protein_alphabet")
-     * @param Request $request
-     * @return Response
-     * @throws \Exception
+     * @param       Request                         $request
+     * @param       ReduceProteinAlphabetManager    $reduceProteinAlphabetManager
+     * @return      Response
+     * @throws      \Exception
      */
     public function reduceProteinAlphabetAction(Request $request, ReduceProteinAlphabetManager $reduceProteinAlphabetManager)
     {
         $oReduceAlphabet = new ReduceAlphabet();
         $form = $this->get('form.factory')->create(ReduceAlphabetType::class, $oReduceAlphabet);
         $reducedCode = "";
-        $colored_reduced_seq = "";
-        $colored_seq = "";
-        $aminoAcids = "";
-        $reducedCodeCustom = "";
+        $reducedSeq = "";
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             // REDUCE ALPHABET
@@ -932,75 +930,36 @@ class MinitoolsController extends Controller
                 if ($oReduceAlphabet->getSeq() != ""
                     && $oReduceAlphabet->getType() != ""
                     && $oReduceAlphabet->getAaperline() != "") {
-                    $reduced_seq = $reduceProteinAlphabetManager->reduceAlphabet(
+                    $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet(
                         $oReduceAlphabet->getSeq(),
                         $oReduceAlphabet->getType()
                     );
 
-                    $seq = chunk_split($oReduceAlphabet->getSeq(), $oReduceAlphabet->getAaperline());
-                    $reduced_seq = chunk_split($reduced_seq, $oReduceAlphabet->getAaperline());
-
-                    $colored_seq = $reduceProteinAlphabetManager->color($seq, $reduced_seq, $oReduceAlphabet->getType());
-
-                    $reducedCode = $reduceProteinAlphabetManager->printReducedCodeInfo($oReduceAlphabet->getType());
-                    if($oReduceAlphabet->isShowReduced()) {
-                        $colored_reduced_seq = $reduceProteinAlphabetManager->color(
-                            $reduced_seq,
-                            $reduced_seq,
-                            $oReduceAlphabet->getType()
-                        );
-                    }
+                    $reducedCode = $this->getParameter('types_infos')[$oReduceAlphabet->getType()];
                 }
             } else {
                 // for personalized reduced alphabets
                 if ($oReduceAlphabet->getSeq() != "" && $oReduceAlphabet->getAaperline() != "") {
-
-                    $reduced_seq =  $reduceProteinAlphabetManager->reduceAlphabetCustom(
+                    $reducedSeq =  $reduceProteinAlphabetManager->reduceAlphabetCustom(
                         $oReduceAlphabet->getSeq(),
                         $oReduceAlphabet->getCustomAlphabet()
                     );
-
-                    $reduced_seq = chunk_split($reduced_seq, $oReduceAlphabet->getAaperline());
-                    $reduced_seq = chunk_split($reduced_seq, $oReduceAlphabet->getAaperline());
-
-                    $colored_seq = $reduceProteinAlphabetManager->colorCustom(
-                        $oReduceAlphabet->getSeq(),
-                        $reduced_seq,
-                        $oReduceAlphabet->getCustomAlphabet()
-                    );
-
-                    $aminoAcids = $reduceProteinAlphabetManager->colorCustom(
-                        "ARNDCEQGHILKMFPSTWYV",
-                        $oReduceAlphabet->getCustomAlphabet(),
-                        $oReduceAlphabet->getCustomAlphabet()
-                    );
-                    $reducedCodeCustom = $reduceProteinAlphabetManager->colorCustom(
-                        $oReduceAlphabet->getCustomAlphabet(),
-                        $oReduceAlphabet->getCustomAlphabet(),
-                        $oReduceAlphabet->getCustomAlphabet()
-                    );
-
-                    if($oReduceAlphabet->isShowReduced()) {
-                        $colored_reduced_seq = $reduceProteinAlphabetManager->colorCustom(
-                            $reduced_seq,
-                            $reduced_seq,
-                            $oReduceAlphabet->getCustomAlphabet()
-                        );
-                    }
                 }
             }
         }
-
 
         return $this->render(
             '@Minitools/Minitools/reduceProteinAlphabet.html.twig',
             [
                 'form'                  => $form->createView(),
                 'reduced_code'          => $reducedCode,
-                'colored_reduced_seq'   => $colored_reduced_seq,
-                'colored_seq'           => $colored_seq,
-                'amino_acids'           => $aminoAcids,
-                'reduced_code_custom'   => $reducedCodeCustom
+                'reduced_seq'           => $reducedSeq,
+                'mode'                  => $oReduceAlphabet->getMode(),
+                'custom_alphabet'       => $oReduceAlphabet->getCustomAlphabet(),
+                'sequence'              => $oReduceAlphabet->getSeq(),
+                'show_reduced'          => $oReduceAlphabet->isShowReduced(),
+                'type'                  => $oReduceAlphabet->getType(),
+                'aa_perline'            => $oReduceAlphabet->getAaperline()
             ]
         );
     }

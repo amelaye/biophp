@@ -73,6 +73,11 @@ services:
     AppBundle\Service\MathematicsManager:
         arguments: []
 
+    AppBundle\Twig\AppExtension:
+        arguments:
+            - '%protein_colors%'
+            - '%generic_colors%'
+
     MinitoolsBundle\Controller\:
         resource: '../../src/MinitoolsBundle/Controller'
         public: true
