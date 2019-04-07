@@ -129,3 +129,8 @@ services:
         arguments:
             - '%dna_complements%'
             - '%codons%'
+
+    MinitoolsBundle\Service\ReduceProteinAlphabetManager:
+        arguments:
+            - '%protein_colors%'
+            - '%reductions%'
