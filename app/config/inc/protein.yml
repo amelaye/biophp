@@ -68,6 +68,27 @@ parameters:
     negatively_charged: 'red'
 
   protein_colors:
+    20:
+      A: "CCFFFF"
+      R: "E60606"
+      N: "FF9900"
+      D: "FFCC99"
+      C: "00FFFF"
+      E: "FFCC00"
+      Q: "FF6600"
+      G: "00FF00"
+      H: "FFFF99"
+      I: "000088"
+      L: "3366FF"
+      K: "C64200"
+      M: "99CCFF"
+      F: "00CCFF"
+      P: "FFFF00"
+      S: "CCFF99"
+      T: "00FF99"
+      W: "CC99FF"
+      Y: "CCFFCC"
+      V: "0000FF"
     2:
       P: "0000FF"
       H: "FF0000"
