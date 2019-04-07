@@ -49,16 +49,21 @@ class RandomSequencesManager
     /**
      * Generate a random protein or DNA sequence
      * $a, $c, $g and $t are the number of nucleotides A, C, G or T
-     * @param  array $aElements
-     * @return string
+     * @param   array   $aElements
+     * @return  string
+     * @throws  \Exception
      */
     public function randomize($aElements)
     {
-        $sElements = "";
-        foreach($aElements as $key => $element) {
-            $sElements .= str_repeat($key, $element);
+        try {
+            $sElements = "";
+            foreach($aElements as $key => $element) {
+                $sElements .= str_repeat($key, $element);
+            }
+            return str_shuffle($sElements);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return str_shuffle($sElements);
     }
 
     /**

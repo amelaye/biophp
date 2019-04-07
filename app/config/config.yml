@@ -6,6 +6,7 @@ imports:
     - { resource: inc/triplets.yml }
     - { resource: inc/enzymes.yml }
     - { resource: inc/protein.yml }
+    - { resource: inc/reductions.yml }
     - { resource: security.yml }
     - { resource: services.yml }
 

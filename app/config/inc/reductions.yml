@@ -49,7 +49,7 @@ parameters:
         - "/D|E/"        # Acidic
         - "/N|Q/"        # Amide
         - "/H|K|R/"      # Basic
-      replacement: ["a","f","c","g","s","w","y","p","d","n","h"]
+      reduction: ["a","f","c","g","s","w","y","p","d","n","h"]
     LCAGSTPFWEDNQKH:
       pattern:
         - "/L|V|I|M/"     # Large hydrophobic
@@ -67,7 +67,7 @@ parameters:
         - "/Q/"
         - "/K|R/"         # Long-chain positively charged
         - "/H/"
-      replacement: ["l", "c", "a", "g", "s", "t", "p", "f", "w", "e", "d", "n", "q", "k", "h"]
+      reduction: ["l", "c", "a", "g", "s", "t", "p", "f", "w", "e", "d", "n", "q", "k", "h"]
     LCAGSPFEKH:
       pattern:
         - "/L|V|I|M/"         # Large hydrophobic
@@ -80,7 +80,7 @@ parameters:
         - "/E|D|N|Q/"         # Charged / polar
         - "/K|R/"             # Long-chain positively charged
         - "/H/"
-      replacement: ["l", "c", "a", "g", "s", "p", "f", "e", "k", "h"]
+      reduction: ["l", "c", "a", "g", "s", "p", "f", "e", "k", "h"]
     LASPFEKH:
       pattern:
         - "/L|V|I|M|C/"       # Hydrophobic
@@ -91,14 +91,14 @@ parameters:
         - "/E|D|N|Q/"
         - "/K|R/"             # Long-chain positively charged
         - "/H/"
-      replacement: ["l", "a", "s", "p", "f", "e", "k", "h"]
+      reduction: ["l", "a", "s", "p", "f", "e", "k", "h"]
     LAFE:
       pattern:
         - "/L|V|I|M|C/"       # Hydrophobic
         - "/A|G|S|T|P/"
         - "/F|Y|W/"           # Hydrophobic/aromatic sidechains
         - "/E|D|N|Q|K|R|H/"
-      replacement: ["l", "a", "f", "e"]
+      reduction: ["l", "a", "f", "e"]
     PE:
       pattern:
         - "/L|V|I|M|C|A|G|S|T|P|F|Y|W/"   #Hydrophobic
@@ -111,7 +111,7 @@ parameters:
         - "/G|P/"
         - "/D|E/"
         - "/S|N|Q|R|K/"
-      replacement: ["i", "a", "g", "e", "k"]
+      reduction: ["i", "a", "g", "e", "k"]
     ILAEK:
       pattern:
         - "/C|M|F|I/"
@@ -119,18 +119,18 @@ parameters:
         - "/A|T|G|S/"
         - "/N|Q|D|E/"
         - "/H|P|R|K/"
-      replacement: ["i", "l", "a", "e", "k"]
+      reduction: ["i", "l", "a", "e", "k"]
     IAE:
       pattern:
         - "/C|M|F|I|L|V|W|Y/"
         - "/A|T|H|G|P|R/"
         - "/D|E|S|N|Q|K/"
-      replacement: ["i", "a", "e"]
+      reduction: ["i", "a", "e"]
     IA:
       pattern:
         - "/C|M|F|I|L|V|W|Y/"
         - "/A|T|H|G|P|R|D|E|S|N|Q|K/"
-      replacement: ["i", "a"]
+      reduction: ["i", "a"]
     CYLVGPSNEK:
       pattern:
         - "/C/"
@@ -143,7 +143,7 @@ parameters:
         - "/N|H/"
         - "/Q|E|D/"
         - "/R|K/"
-      replacement: ["c", "y", "l", "v", "g", "p", "s", "n", "e", "k"]
+      reduction: ["c", "y", "l", "v", "g", "p", "s", "n", "e", "k"]
     YIGSE:
       pattern:
         - "/C|F|Y|W/"
@@ -151,17 +151,17 @@ parameters:
         - "/G/"
         - "/P|A|T|S/"
         - "/N|H|Q|E|D|R|K/"
-      replacement: ["y", "i", "g", "s", "e"]
+      reduction: ["y", "i", "g", "s", "e"]
     YISE:
       pattern:
         - "/C|F|Y|W/"
         - "/M|L|I|V/"
         - "/G|P|A|T|S/"
         - "/N|H|Q|E|D|R|K/"
-      remplacement: ["y", "i", "s", "e"]
+      reduction: ["y", "i", "s", "e"]
     ISE:
       pattern:
         - "/C|F|Y|W|M|L|I|V/"
         - "/G|P|A|T|S/"
         - "/N|H|Q|E|D|R|K/"
-      remplacement: ["i", "s", "e"]
+      reduction: ["i", "s", "e"]
