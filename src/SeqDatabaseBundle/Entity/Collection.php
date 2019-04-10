@@ -1,6 +1,6 @@
 <?php
 /**
- * Replaces the .dir file
+ * Replaces the .idx file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
  * Last modified 10 april 2019
@@ -14,26 +14,25 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name = "database")
+ * @ORM\Table(name = "collection")
  */
-class Database
+class Collection
 {
     /**
      * @var int
      * @ORM\Id
      * @ORM\Column(
      *     type = "integer",
-     *     length = 5
+     *     length = 5,
+     *     nullable = false,
+     *     name = "id"
+     * )
+     * @ORM\OneToMany(
+     *     targetEntity = "SeqDatabaseBundle\Entity\CollectionElement",
+     *     mappedBy = "collection",
+     *     cascade = {"persist"}
      * )
      * @ORM\GeneratedValue
-     * @ORM\OneToMany(
-     *     targetEntity = "SeqDatabaseBundle\Entity\DbInfos",
-     *     mappedBy = "database"
-     * )
-     * @ORM\JoinColumn(
-     *     name = "database",
-     *     referencedColumnName = "database"
-     * )
      */
     private $id;
 
@@ -45,10 +44,10 @@ class Database
      *     nullable = false
      * )
      */
-    private $fileName;
+    private $nomCollection;
 
     /**
-     * @return int
+     * @return string
      */
     public function getId()
     {
@@ -56,7 +55,7 @@ class Database
     }
 
     /**
-     * @param int $id
+     * @param string $id
      */
     public function setId($id)
     {
@@ -66,16 +65,16 @@ class Database
     /**
      * @return string
      */
-    public function getFileName()
+    public function getNomCollection()
     {
-        return $this->fileName;
+        return $this->nomCollection;
     }
 
     /**
-     * @param string $fileName
+     * @param string $nomCollection
      */
-    public function setFileName($fileName)
+    public function setNomCollection($nomCollection)
     {
-        $this->fileName = $fileName;
+        $this->nomCollection = $nomCollection;
     }
 }

@@ -7,13 +7,14 @@
  */
 namespace AppBundle\Controller;
 
+use SeqDatabaseBundle\Entity\CollectionElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
-use AppBundle\Entity\Database;
+//use AppBundle\Entity\Database;
 use AppBundle\Service\DatabaseManager;
 
 /**
@@ -59,13 +60,16 @@ class DemoController extends Controller
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
-        $database = new Database("humandb", "GENBANK", "human.seq"); // GENBANK
+        //$database = new Database("humandb", "GENBANK", array("human.seq")); // GENBANK
+        //$database = new Database();
+        //$database->setDbFormat("GENBANK");
+        //$database->setDbName("humandb");
 
-        $databaseManager->setDatabase($database);
+        //$databaseManager->setDatabase($database, array("human.seq"));
 
-        $databaseManager->buffering(); // Creates the .IDX and .DIR
-        $oSequence = $databaseManager->fetch("NM_031438");
-        //$oSequence = new Sequence();
+        $databaseManager->buffering("humandb", "GENBANK", "human.seq", "demo.seq"); // Creates the .IDX and .DIR
+        //$oSequence = $databaseManager->fetch("NM_031438");
+        $oSequence = new Sequence();
 
         return $this->render('@App/demo/parseseqdb.html.twig',
             ["sequence" => $oSequence]
