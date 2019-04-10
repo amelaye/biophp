@@ -27,7 +27,20 @@ class DemoControllerTest extends WebTestCase
 
     public function testParseaseqdb()
     {
-        $this->client->request('GET', '/read-sequence-genbank');
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $crawler = $this->client->request('GET', '/read-sequence-genbank');
+        $response = $this->client->getResponse();
+
+        //$crawler = $this->client->request('GET', '/minitools/chaos-game-representation/FCGR');
+        //static::assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        if (!$response->isSuccessful()) {
+            $block = $crawler->filter('title');
+            if ($block->count()) {
+                $error = $block->text();
+                dump($error);
+            }
+        }
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }

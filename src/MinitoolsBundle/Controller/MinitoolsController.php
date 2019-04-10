@@ -970,9 +970,9 @@ class MinitoolsController extends Controller
     public function restrictionDigestAction()
     {
         $typeIIEndonucleases = array_keys($this->getParameter('typeII_endonucleolases'));
-        dump($typeIIEndonucleases);
-        $vendors = array_keys($this->getParameter('vendors'));
-        dump($vendors);
+        //dump($typeIIEndonucleases);
+        //$vendors = array_keys($this->getParameter('vendors'));
+        //dump($vendors);
 
 
         return $this->render('@Minitools/Minitools/restrictionDigest.html.twig');

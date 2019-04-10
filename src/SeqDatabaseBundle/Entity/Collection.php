@@ -29,7 +29,7 @@ class Collection
      * )
      * @ORM\OneToMany(
      *     targetEntity = "SeqDatabaseBundle\Entity\CollectionElement",
-     *     mappedBy = "collection",
+     *     mappedBy = "id_collection",
      *     cascade = {"persist"}
      * )
      * @ORM\GeneratedValue
