@@ -82,11 +82,11 @@ class DemoController extends Controller
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        $database = new Database("humandbBis", "SWISSPROT", "Q5K4E3.txt"); // SWISSPROT
+        /*$database = new Database("humandbBis", "SWISSPROT", "Q5K4E3.txt"); // SWISSPROT
         $databaseManager->setDatabase($database);
         $databaseManager->buffering(); // Creates the .IDX and .DIR
         //$databaseManager->fetch("NM_031438");
 
-        return $this->render('@App/demo/parseswissprotdb.html.twig');
+        return $this->render('@App/demo/parseswissprotdb.html.twig');*/
     }
 }
