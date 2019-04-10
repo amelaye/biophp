@@ -4,340 +4,240 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 february 2019
+ * Last modified 10 april 2019
  */
 namespace AppBundle\Service;
 
+
+use Doctrine\ORM\EntityManager;
+use SeqDatabaseBundle\Entity\Collection;
+use SeqDatabaseBundle\Entity\CollectionElement;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\ParseGenbankManager;
 use AppBundle\Service\ParseSwissprotManager;
-use AppBundle\Entity\Database;
 
+
+/**
+ * This class does many things like create
+ * and/or read a collection of database's index files, initialize certain SeqDB properties, etc.
+ * Syntax: $seqdb = new seqdb($dbname, $dbformat, $file1, $file2, ...);
+ * Behavior: if $dbname exists and user gave no specific values for $file1, $file2, ...
+ * then seqdb() object USES/OPENS existing database (index files).
+ * if $dbname exists and user gave specific values for $file1, $file2, ...
+ * then seqdb() object OVERWRITES existing database (index files).
+ * if $dbname does not exist, then seqdb() object CREATES new database.
+ * even if $file1, $file2, ... are not specified.
+ * We provide the create() method to explicitly create a new database.
+ * We provide the use() or open() method to explicitly use an existing database.
+ * @package AppBundle\Service
+ */
 class DatabaseManager
 {
-    private $database;
-    private $swissprot;
-    private $genbank;
-    public  $byteoff;
-    private $aLines;
+    var $dbname;
+    var $data_fn;
+    var $data_fp;
+    var $dir_fn;
+    var $dir_fp;
+    var $seqptr;
+    var $seqcount;
+    var $dbformat;
+    var $bof;
+    var $eof;
 
-    /**
-     * Constructor
-     * @param ParseGenbankManager   $oGenbank
-     * @param ParseSwissprotManager $oSwissprot
-     */
-    public function __construct(ParseGenbankManager $oGenbank, ParseSwissprotManager $oSwissprot) {
-        $this->genbank      = $oGenbank;
-        $this->swissprot    = $oSwissprot;
-        $this->byteoff      = 0;
+    protected $em;
+    protected $parseGenbankManager;
+    protected $parseSwissprotManager;
+
+    public function __construct(
+        EntityManager $em,
+        ParseGenbankManager $parseGenbankManager,
+        ParseSwissprotManager $parseSwissprotManager
+    ) {
+        $this->em = $em;
+        $this->parseGenbankManager = $parseGenbankManager;
+        $this->parseSwissprotManager = $parseSwissprotManager;
     }
 
 
-    /**
-     * Setting the database into the service
-     * @param Database $database
-     */
-    public function setDatabase(Database $database)
+// fetch() retrieves all data from the specified sequence record and returns them in the
+// form of a Seq object.  This method invokes one of several parser methods.
+    function fetch()
     {
-        $this->database     = $database;
+        if ($this->data_fn == "") die("Cannot invoke fetch() method from a closed object.");
+        $seqid = func_get_arg(0);
+/*
+        // IDX and DIR files remain open for the duration of the FETCH() method.
+        $fp = fopen($this->data_fn, "r");
+        $fpdir = fopen($this->dir_fn, "r");
+
+        if ($seqid != FALSE)
+        {
+            $idx_r = $this->bsrch_tabfile($fp, 0, $seqid);
+            if ($idx_r == FALSE) return FALSE;
+            else $this->seqptr = $idx_r[3];
+        }
+        else
+        {
+            // For now, SEQPTR determines CURRENT SEQUENCE ID.  Alternative is to track curr line.
+            $this->fseekline($fp, $this->seqptr);
+            $idx_r = preg_split("/\s+/", trim(fgets($fp, 81)));
+        }
+        $dir_r = $this->bsrch_tabfile($fpdir, 0, $idx_r[1]);
+
+        $fpseq = fopen($dir_r[1], "r");
+        $this->fseekline($fpseq, $idx_r[2]);
+
+        $flines = $this->line2r($fpseq);
+
+        $myseq = new Sequence();
+        if ($this->dbformat == "GENBANK")
+            dump("C'est du genbank");
+            //$myseq = $this->parse_id($flines);
+        elseif ($this->dbformat == "SWISSPROT")
+            dump("C'est du swissprot");
+            //$myseq = $this->parse_swissprot($flines);
+
+        fclose($fp);
+        fclose($fpdir);
+        fclose($fpseq);
+
+        return $myseq;*/
+return true;
     }
 
 
     /**
-     * Retrieves all data from the specified sequence record and returns them in the 
-     * form of a Seq object.
-     * This method invokes one of several parser methods.
-     * @param       string      $seqid
-     * @return      Sequence    $oMySequence
+     * Records the new elements of a collection, reads a collection
+     * @throws \Exception
+     */
+    public function buffering()
+    {
+        try {
+            // Get all the arguments passed to this function.
+            $args = func_get_args();
+
+            $dbname = $args[0];
+            $dbformat = strtoupper($args[1]);
+
+            if (strlen($dbformat) == 0) {
+                $dbformat = "GENBANK";
+            }
+
+            $datafile = array();
+            for ($i = 2; $i < count($args); $i++) {
+                $datafile[] = $args[$i];
+            }
+
+            /* db exists   fileX args   ACTION   TESTED
+                    Y            Y        create   okay
+                    Y            N        use
+                    N            Y        create    okay
+                    N            N        create    okay
+            */
+            $collection = new Collection();
+            $collection->setNomCollection($dbname);
+
+            $collectionExists = $this->em->getRepository(Collection::class)
+                ->findBy(['nomCollection' => $dbname]);
+
+            // if user provided specific values for $file1, $file2, ... parameters.
+            if ((empty($collectionExists)) and (count($datafile) > 0)) {
+                // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
+                $this->em->persist($collection);
+                $this->em->flush();
+            }
+
+            // if user did not provide any datafile name.
+            if (count($datafile) == 0) {
+                throw new \Exception("No files provided !");
+            }
+
+            $temp_r = array();
+
+            foreach($datafile as $fileno => $filename) {
+                // Automatically create an index file containing info across all data files.
+                $flines = file($filename);
+
+                foreach($flines as $lineno => $linestr) {
+                    if ($this->atEntrystart($linestr, $dbformat)) {
+                        $current_id =  $this->getEntryid($flines, $linestr, $dbformat);
+                        $temp_r[$current_id] = array(
+                            "id_element" => $current_id,
+                            "filename" => $filename,
+                            "dbformat" => $dbformat,
+                            "line_no" => $lineno
+                        );
+                    }
+                }
+            }
+            $this->seqcount = count($temp_r);
+
+            foreach($temp_r as $seqid => $line_r) {
+                $collectionElement = new CollectionElement();
+                $collectionElement->setIdElement($line_r["id_element"]);
+                $collectionElement->setCollection($collection);
+                $collectionElement->setFileName($line_r["filename"]);
+                $collectionElement->setSeqCount(count($temp_r));
+                $collectionElement->setLineNo($line_r["line_no"]);
+                $collectionElement->setDbFormat($line_r["dbformat"]);
+
+                $this->em->persist($collectionElement);
+                $this->em->flush();
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Tests if the file pointer is at the start of a new sequence entry.
+     * @param       string      $linestr        The line to analyze
+     * @param       string      $dbformat       Original DB format (Swissprot, Genbank)
+     * @return      bool
      * @throws      \Exception
      */
-    public function fetch($seqid)
-    {
-        try {
-
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Creates .dir and .idx files
-     * @return bool
-     * @throws \Exception
-     * @todo buffer more than 1 DB in the files
-     */
-    public function buffering($sPathDataFile = ".", $SPathInternalDB = "./web/public")
-    {
-        try {
-            $fileSystem = new Filesystem();
-
-            $datafile = $this->database->getDatafile();
-
-            if (!$fileSystem->exists($sPathDataFile.'/'.$this->database->getDatafile())) {
-                throw new \Exception("Database not specified !");
-            }
-
-            $dbName = $SPathInternalDB.'/'.$this->database->getDbname().".idx";
-
-            if ($fileSystem->exists($dbName)) {
-                $this->open($this->database->getDbname());
-            } else {
-                $fileSystem->touch($this->database->getDbname() . ".idx");
-                $fileSystem->touch($this->database->getDbname() . ".dir");
-
-                $this->open($this->database->getDbname());
-
-                // Build our *.dir file
-                $fpdir = fopen($this->database->getDbname() . ".dir", "w+");
-                $outline = "0 $datafile\n";
-                fputs($fpdir, $outline);
-                fclose($fpdir);
-
-                $flines = file($datafile);
-                $dbformat = $this->database->getDbformat();
-                $this->aLines = new \ArrayIterator($flines);
-
-                $this->database->setSeqcount($this->aLines->count());
-
-                // Build our *.idx array.
-                $fp = fopen($this->database->getDbname() . ".idx", "w+");
-                foreach($this->aLines as $lineno => $linestr) {
-                    if ($this->checkFormat($dbformat)) {
-                        $current_id = $this->get_entryid($dbformat);
-                        $outline = $current_id . " " . 0 . " " . $lineno . "\n"; // id + idfile + idline
-                        fputs($fp, $outline);
-                    }
-                };
-                fclose($fp);
-            }
-
-            return true;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Opens or prepares the SeqDB for processing.  Opposite of close().
-     * @param  string $dbname
-     * @throws \Exception
-     */
-    public function open($dbname)
-    {
-        try {
-            $fileSystem = new Filesystem();
-
-            if (!$fileSystem->exists($dbname . ".idx")) {
-                throw new \Exception("ERROR: Index file $dbname.IDX does not exist!");
-            }
-
-            if (!$fileSystem->exists($dbname . ".dir")) {
-                throw new \Exception("ERROR: Index file $dbname.DIR does not exist!");
-            }
-
-            $this->database->setDbname($dbname);
-            $this->database->setDataFn($dbname . ".idx");
-            $this->database->setDirFn($dbname . ".dir");
-            $this->database->setSeqptr(0);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Closes the SeqDB database after we're through using it.  Opposite of open() method.
-     * Close simply assigns null values to attributes of the seqdb() object.
-     * Methods like fetch would not function properly if these values are null.
-     */
-    public function close()
-    { 
-        try {
-            $this->database->setDbname("");
-            $this->database->setDataFn("");
-            $this->database->setDirFn("");
-            $this->database->setSeqptr(-1);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Lauches the sequencing
-     * @param   array       $flines
-     * @return  Sequence    $oSequence
-     * @throws  \Exception
-     */
-    private function launchParsing($flines)
-    {
-        try {
-            if ($this->database->getDbformat() == "GENBANK") {
-                $oMySequence = $this->genbank->parseDataFile($flines);
-            } elseif ($this->database->getDbformat() == "SWISSPROT") {
-                $oMySequence = $this->swissprot->parseDataFile($flines);
-            }
-            return $oMySequence;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Gets the seq file with its id
-     * @param   string  $file
-     * @param   int     $index
-     * @return  string
-     * @throws  \Exception
-     */
-    private function getFileInDirWithIndex($file, $index)
-    {
-        try {
-            $fichier = $file;
-            $tabfich = file($fichier);
-            foreach($tabfich as $ligne) {
-                $aLine = explode(" ",$ligne);
-                if($aLine[0] == $index) {
-                    return rtrim($aLine[1], "\n");
-                }
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Searches the provided id into the database file
-     * @param   string $file
-     * @param   string $searchfor
-     * @return  array
-     * @throws \Exception
-     */
-    private function searchIdInIdx($file, $searchfor)
-    {
-        try {
-            $contents = file_get_contents($file);
-            $pattern = preg_quote($searchfor, '/');
-            $pattern = "/^.*$pattern.*\$/m";
-            if(preg_match_all($pattern, $contents, $matches)){
-                $aResults = [];
-                $aMatches = explode(" ", $matches[0][0]);
-                foreach($aMatches as $field) {
-                    if($field != "") {
-                        $aResults[] = $field;
-                    }
-                }
-                return $aResults;
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Checks the format within the file
-     * @param   string $dbformat
-     * @return  string
-     * @throws  \Exception
-     */
-    private function checkFormat($dbformat)
+    public function atEntrystart($linestr, $dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
-                $locus = substr($this->aLines->current(),0,5);
-                return ($locus == "LOCUS");
+                return (substr($linestr,0,5) == "LOCUS");
             } elseif ($dbformat == "SWISSPROT") {
-                return (substr($this->aLines->current(),0,2) == "ID");
-            } 
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+                return (substr($linestr,0,2) == "ID");
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
-
     /**
-     * gets the primary accession number of the sequence entry which we are
+     * Gets the primary accession number of the sequence entry which we are
      * currently processing.  This uniquely identifies a sequence entry.
-     * @param   string $dbformat
-     * @return  int
-     * @throws \Exception
+     * @param       array       $flines     Buffed file as array
+     * @param       string      $linestr    Current line
+     * @param       string      $dbformat   Original DB format (Swissprot, Genbank)
+     * @return      string
+     * @throws      \Exception
      */
-    private function get_entryid($dbformat)
+    public function getEntryid(&$flines, $linestr, $dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
-                return trim(substr($this->aLines->current(), 12, 16));
+                $locus = preg_split("/\s+/", trim($linestr));
+                $entyId = $locus[1];
+                return trim($entyId);
             } elseif ($dbformat == "SWISSPROT") {
-                while(1) {
-                    $this->aLines->next();
-                    if (substr($this->aLines->current(),0,2) == "AC") {
-                        break;
+                foreach ($flines as $lineno => $linestr) {
+                    if (substr($linestr,0,2) == "AC") {
+                        $words = preg_split("/;/", intrim(substr($linestr,5)));
+                        prev($flines);
+                        return $words[0];
                     }
                 }
-                $words = preg_split("/;/", preg_replace('/\s/', '', substr($this->aLines->current(),5)));
-                return $words[0];
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
-
-
-    /**
-     * Gets the byte offset (from beginning of file) of a particular line.  The file is
-     * identified by $fp file pointer, while the line is identified by $lineno, which is zero-based.
-     * @param   string  $fp
-     * @param   int     $lineno
-     * @return  int
-     * @throws \Exception
-     */
-    private function fseekline($fp, $lineno)
-    {
-        try {
-            $linectr = 0;
-            fseek($fp, 0);
-            while(!feof($fp)) {
-                $linestr = fgets($fp,101);
-                if ($linectr == $lineno) {
-                    fseek($fp, $this->byteoff);
-                    return $this->byteoff;
-                }
-                $linectr++;
-                $this->byteoff = ftell($fp);
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-
-    /**
-     * Copies the lines belonging to a single sequence entry into an array.
-     * @param   string      $fpseq
-     * @return  boolean
-     * @throws  \Exception
-     */
-    /*private function line2r($fpseq)
-    {
-        try {
-            $flines = array();
-            while(1) {
-                $linestr = fgets($fpseq, 101);
-                $flines[] = $linestr;
-                if(substr($linestr, 0, 2) == '//') {
-                    return $flines;
-                }
-            }
-            return false;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }*/
 } 
