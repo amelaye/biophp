@@ -5,7 +5,6 @@
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 21 february 2019
- * @Todo : utilise Finder, bécasse ! https://symfony.com/doc/3.4/components/finder.html
  */
 namespace AppBundle\Service;
 
@@ -95,48 +94,49 @@ class DatabaseManager
      * @throws \Exception
      * @todo buffer more than 1 DB in the files
      */
-    public function buffering()
+    public function buffering($sPathDataFile = ".", $SPathInternalDB = "./web/public")
     {
         try {
+            $fileSystem = new Filesystem();
+
             $datafile = $this->database->getDatafile();
-            if (count($datafile) == 0) {
+
+            if (!$fileSystem->exists($sPathDataFile.'/'.$this->database->getDatafile())) {
                 throw new \Exception("Database not specified !");
             }
 
-            if (file_exists($this->database->getDbname())) {
+            $dbName = $SPathInternalDB.'/'.$this->database->getDbname().".idx";
+
+            if ($fileSystem->exists($dbName)) {
                 $this->open($this->database->getDbname());
             } else {
-                $fp = fopen($this->database->getDbname() . ".idx", "w+");
-                $fpdir = fopen($this->database->getDbname() . ".dir", "w+");
+                $fileSystem->touch($this->database->getDbname() . ".idx");
+                $fileSystem->touch($this->database->getDbname() . ".dir");
+
                 $this->open($this->database->getDbname());
-                $temp_r = array();
 
                 // Build our *.dir file
+                $fpdir = fopen($this->database->getDbname() . ".dir", "w+");
                 $outline = "0 $datafile\n";
                 fputs($fpdir, $outline);
+                fclose($fpdir);
 
-                // Automatically create an index file containing info across all data files.
                 $flines = file($datafile);
                 $dbformat = $this->database->getDbformat();
-
                 $this->aLines = new \ArrayIterator($flines);
 
+                $this->database->setSeqcount($this->aLines->count());
+
+                // Build our *.idx array.
+                $fp = fopen($this->database->getDbname() . ".idx", "w+");
                 foreach($this->aLines as $lineno => $linestr) {
                     if ($this->checkFormat($dbformat)) {
                         $current_id = $this->get_entryid($dbformat);
-                        $temp_r[$current_id] = array($current_id, 0, $lineno);
+                        $outline = $current_id . " " . 0 . " " . $lineno . "\n"; // id + idfile + idline
+                        fputs($fp, $outline);
                     }
                 };
-
-                // Build our *.idx array.
-                $this->database->setSeqcount($this->aLines->count());
-                foreach($temp_r as $seqid => $line_r) {
-                    $outline = $line_r[0] . " " . $line_r[1] . " " . $line_r[2] . "\n"; // id + idfile + idline
-                    fputs($fp, $outline);
-                }
-
                 fclose($fp);
-                fclose($fpdir);
             }
 
             return true;
@@ -349,7 +349,7 @@ class DatabaseManager
      * @return  boolean
      * @throws  \Exception
      */
-    private function line2r($fpseq)
+    /*private function line2r($fpseq)
     {
         try {
             $flines = array();
@@ -364,5 +364,5 @@ class DatabaseManager
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
-    }
+    }*/
 } 

@@ -1,7 +1,6 @@
 <?php
 /**
  * SeqAlign Managing
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 14 february 2019
@@ -9,16 +8,18 @@
  */
 namespace AppBundle\Service;
 
-/* SeqAlign - represents the result of an alignment performed by various third-party 
-        software such as ClustalW.  The alignment is usually found in a file that uses
-        a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
-
-    SeqAlign properties and methods allow users to perform post-alignment operations, 
-    manipulations, etc.
-*/
-
 use AppBundle\Entity\SeqAlign;
 
+/**
+ * SeqAlign - represents the result of an alignment performed by various third-party
+ * software such as ClustalW.  The alignment is usually found in a file that uses
+ * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
+ *
+ * SeqAlign properties and methods allow users to perform post-alignment operations,
+ * manipulations, etc.
+ * @package AppBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class SeqAlignManager
 {
     /**
