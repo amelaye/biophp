@@ -50,6 +50,7 @@ class DemoController extends Controller
         );
     }
 
+
     /**
      * Read a sequence from a database
      * Generates .idx and .dir files
@@ -60,14 +61,7 @@ class DemoController extends Controller
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
-        //$database = new Database("humandb", "GENBANK", array("human.seq")); // GENBANK
-        //$database = new Database();
-        //$database->setDbFormat("GENBANK");
-        //$database->setDbName("humandb");
-
-        //$databaseManager->setDatabase($database, array("human.seq"));
-
-        $databaseManager->buffering("humandb", "GENBANK", "human.seq", "demo.seq"); // Creates the .IDX and .DIR
+        $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq"); // Creates the .IDX and .DIR
         //$oSequence = $databaseManager->fetch("NM_031438");
         $oSequence = new Sequence();
 

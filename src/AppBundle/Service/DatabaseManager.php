@@ -1,7 +1,6 @@
 <?php
 /**
- * Database Managing
- * @author Amélie DUVERNET akka Amelaye
+ * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 10 april 2019
@@ -9,14 +8,14 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Interfaces\RecordingOnLocalDb;
 use Doctrine\ORM\EntityManager;
 use SeqDatabaseBundle\Entity\Collection;
 use SeqDatabaseBundle\Entity\CollectionElement;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\ParseGenbankManager;
 use AppBundle\Service\ParseSwissprotManager;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 
 /**
@@ -32,24 +31,32 @@ use AppBundle\Service\ParseSwissprotManager;
  * We provide the create() method to explicitly create a new database.
  * We provide the use() or open() method to explicitly use an existing database.
  * @package AppBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  */
-class DatabaseManager
+class DatabaseManager implements RecordingOnLocalDb
 {
-    var $dbname;
-    var $data_fn;
-    var $data_fp;
-    var $dir_fn;
-    var $dir_fp;
-    var $seqptr;
-    var $seqcount;
-    var $dbformat;
-    var $bof;
-    var $eof;
-
+    /**
+     * @var EntityManager
+     */
     protected $em;
+
+    /**
+     * @var ParseGenbankManager
+     */
     protected $parseGenbankManager;
+
+    /**
+     * @var ParseSwissprotManager
+     */
     protected $parseSwissprotManager;
 
+
+    /**
+     * DatabaseManager constructor.
+     * @param EntityManager         $em                         Entity Manager, for Doctrine
+     * @param ParseGenbankManager   $parseGenbankManager        Service for GENBANK data
+     * @param ParseSwissprotManager $parseSwissprotManager      Service for SwissProt data
+     */
     public function __construct(
         EntityManager $em,
         ParseGenbankManager $parseGenbankManager,
@@ -61,61 +68,57 @@ class DatabaseManager
     }
 
 
-// fetch() retrieves all data from the specified sequence record and returns them in the
-// form of a Seq object.  This method invokes one of several parser methods.
-    function fetch()
+    /**
+     * Retrieves all data from the specified sequence record and returns them in the
+     * form of a Seq object.  This method invokes one of several parser methods.
+     * @param       string          $sSeqId     The id of the seq obj.
+     * @return      Sequence|bool
+     * @throws      \Exception
+     */
+    public function fetch($sSeqId)
     {
-        if ($this->data_fn == "") die("Cannot invoke fetch() method from a closed object.");
-        $seqid = func_get_arg(0);
-/*
-        // IDX and DIR files remain open for the duration of the FETCH() method.
-        $fp = fopen($this->data_fn, "r");
-        $fpdir = fopen($this->dir_fn, "r");
+        try {
+            $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
 
-        if ($seqid != FALSE)
-        {
-            $idx_r = $this->bsrch_tabfile($fp, 0, $seqid);
-            if ($idx_r == FALSE) return FALSE;
-            else $this->seqptr = $idx_r[3];
+            if (empty($collectionDB)) {
+                return false;
+            }
+
+            if(!is_file($collectionDB->getFileName())) {
+                throw new FileException("The file ".$collectionDB->getFileName()." doesn't exist !");
+            }
+
+            $fpSeq = fopen($collectionDB->getFileName(), "r");
+            $aFlines = $this->line2r($fpSeq);
+
+            if ($collectionDB->getDbFormat() == "GENBANK") {
+                $oSequence = $this->parseGenbankManager->parseDataFile($aFlines);
+            }
+            elseif ($collectionDB->getDbFormat() == "SWISSPROT") {
+                $oSequence = $this->parseSwissprotManager->parseDataFile($aFlines);
+            }
+            else {
+                throw new \Exception("Unknown database format ! ");
+            }
+            return $oSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        else
-        {
-            // For now, SEQPTR determines CURRENT SEQUENCE ID.  Alternative is to track curr line.
-            $this->fseekline($fp, $this->seqptr);
-            $idx_r = preg_split("/\s+/", trim(fgets($fp, 81)));
-        }
-        $dir_r = $this->bsrch_tabfile($fpdir, 0, $idx_r[1]);
-
-        $fpseq = fopen($dir_r[1], "r");
-        $this->fseekline($fpseq, $idx_r[2]);
-
-        $flines = $this->line2r($fpseq);
-
-        $myseq = new Sequence();
-        if ($this->dbformat == "GENBANK")
-            dump("C'est du genbank");
-            //$myseq = $this->parse_id($flines);
-        elseif ($this->dbformat == "SWISSPROT")
-            dump("C'est du swissprot");
-            //$myseq = $this->parse_swissprot($flines);
-
-        fclose($fp);
-        fclose($fpdir);
-        fclose($fpseq);
-
-        return $myseq;*/
-return true;
     }
 
 
     /**
      * Records the new elements of a collection, reads a collection
+     *  db exists   fileX args   ACTION
+     *     Y            Y        create
+     *     Y            N        use
+     *     N            Y        create
+     *     N            N        create
      * @throws \Exception
      */
-    public function buffering()
+    public function recording()
     {
         try {
-            // Get all the arguments passed to this function.
             $args = func_get_args();
 
             $dbname = $args[0];
@@ -130,23 +133,19 @@ return true;
                 $datafile[] = $args[$i];
             }
 
-            /* db exists   fileX args   ACTION   TESTED
-                    Y            Y        create   okay
-                    Y            N        use
-                    N            Y        create    okay
-                    N            N        create    okay
-            */
             $collection = new Collection();
             $collection->setNomCollection($dbname);
 
             $collectionExists = $this->em->getRepository(Collection::class)
-                ->findBy(['nomCollection' => $dbname]);
+                ->findOneBy(['nomCollection' => $dbname]);
 
             // if user provided specific values for $file1, $file2, ... parameters.
             if ((empty($collectionExists)) and (count($datafile) > 0)) {
                 // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
                 $this->em->persist($collection);
                 $this->em->flush();
+            } else {
+                $collection = $collectionExists;
             }
 
             // if user did not provide any datafile name.
@@ -175,16 +174,21 @@ return true;
             $this->seqcount = count($temp_r);
 
             foreach($temp_r as $seqid => $line_r) {
-                $collectionElement = new CollectionElement();
-                $collectionElement->setIdElement($line_r["id_element"]);
-                $collectionElement->setCollection($collection);
-                $collectionElement->setFileName($line_r["filename"]);
-                $collectionElement->setSeqCount(count($temp_r));
-                $collectionElement->setLineNo($line_r["line_no"]);
-                $collectionElement->setDbFormat($line_r["dbformat"]);
+                // Check if the file already exists
+                $collectionElementExists = $this->em->getRepository(CollectionElement::class)->findOneBy(['fileName' => $line_r["filename"]]);
 
-                $this->em->persist($collectionElement);
-                $this->em->flush();
+                if(empty($collectionElementExists)) {
+                    $collectionElement = new CollectionElement();
+                    $collectionElement->setIdElement($line_r["id_element"]);
+                    $collectionElement->setCollection($collection);
+                    $collectionElement->setFileName($line_r["filename"]);
+                    $collectionElement->setSeqCount(count($temp_r));
+                    $collectionElement->setLineNo($line_r["line_no"]);
+                    $collectionElement->setDbFormat($line_r["dbformat"]);
+
+                    $this->em->persist($collectionElement);
+                    $this->em->flush();
+                }
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -198,7 +202,7 @@ return true;
      * @return      bool
      * @throws      \Exception
      */
-    public function atEntrystart($linestr, $dbformat)
+    private function atEntrystart($linestr, $dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
@@ -220,7 +224,7 @@ return true;
      * @return      string
      * @throws      \Exception
      */
-    public function getEntryid(&$flines, $linestr, $dbformat)
+    private function getEntryid(&$flines, $linestr, $dbformat)
     {
         try {
             if ($dbformat == "GENBANK") {
@@ -236,6 +240,29 @@ return true;
                     }
                 }
             }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Copies the lines belonging to a single sequence entry into an array.
+     * @param   $fpseq
+     * @return  array|bool
+     * @throws  \Exception
+     */
+    private function line2r($fpseq)
+    {
+        try {
+            $flines = array();
+            while(1) {
+                $linestr = fgets($fpseq, 101);
+                $flines[] = $linestr;
+                if (substr($linestr, 0, 2) == '//') {
+                    return $flines;
+                }
+            }
+            return false;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
