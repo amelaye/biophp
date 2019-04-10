@@ -56,32 +56,7 @@ class DatabaseManager
     public function fetch($seqid)
     {
         try {
-            $fileSystem = new Filesystem();
 
-            if ($this->database->getDataFn() == ""){
-                throw new \Exception("Cannot invoke fetch() method from a closed object.");
-            }
-
-            if($fileSystem->exists($this->database->getDataFn())) {
-                $idx_r = $this->searchIdInIdx($this->database->getDataFn(), $seqid);
-            } else {
-                throw new \Exception("Unable to open ".$this->database->getDataFn());
-            }
-
-            if (!$idx_r) {
-                return false;
-            } else {
-                $this->database->setSeqptr($idx_r[2]); // I got my id <3
-            }
- 
-            $dir_r = $this->getFileInDirWithIndex($this->database->getDirFn(), $idx_r[2]);
-            $fpseq = fopen($dir_r, "r");
-
-            $this->fseekline($fpseq, $idx_r[1]);
-            $flines = $this->line2r($fpseq);
-
-            $oMysequence = $this->launchParsing($flines);
-            return $oMysequence;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
