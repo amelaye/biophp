@@ -60,9 +60,12 @@ class DemoController extends Controller
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
         $database = new Database("humandb", "GENBANK", "human.seq"); // GENBANK
+
         $databaseManager->setDatabase($database);
+
         $databaseManager->buffering(); // Creates the .IDX and .DIR
         $oSequence = $databaseManager->fetch("NM_031438");
+        //$oSequence = new Sequence();
 
         return $this->render('@App/demo/parseseqdb.html.twig',
             ["sequence" => $oSequence]

@@ -136,7 +136,8 @@ class ReduceAlphabetType extends AbstractType
                     'class' => "btn btn-primary"
                 ]
             ]
-        );    }
+        );
+    }
 
     /**
      * Entity for builder
