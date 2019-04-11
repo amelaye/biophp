@@ -1,0 +1,67 @@
+MinitoolsBundle\:
+  resource: '../../src/MinitoolsBundle/*'
+  # you can exclude directories or files
+  # but if a service is unused, it's removed anyway
+  exclude: '../../src/MinitoolsBundle/{Entity,Repository,Tests,Legacy}'
+
+  MinitoolsBundle\Controller\:
+    resource: '../../src/MinitoolsBundle/Controller'
+    public: true
+    tags: ['controller.service_arguments']
+
+  MinitoolsBundle\Service\DnaToProteinManager:
+    arguments:
+      - "%codons%"
+      - "%triplets%"
+      - "%triplets_combinations%"
+
+  MinitoolsBundle\Service\ProteinPropertiesManager:
+    arguments:
+      - "%codons%"
+      - "%triplets%"
+      - "%triplets_combinations%"
+
+  MinitoolsBundle\Listener\DnaToProteinListener:
+    arguments:
+      - '@MinitoolsBundle\Service\DnaToProteinManager'
+
+  MinitoolsBundle\Service\ChaosGameRepresentationManager:
+    arguments:
+      - '@AppBundle\Service\OligosManager'
+      - '%dna_complements%'
+      - '%nucleotids_graphs%'
+      -
+  MinitoolsBundle\Service\DistanceAmongSequencesManager:
+    arguments:
+      - '@AppBundle\Service\OligosManager'
+      - '%dna_complements%'
+
+  MinitoolsBundle\Service\MeltingTemperatureManager:
+    arguments:
+      - '@AppBundle\Service\NucleotidsManager'
+      - '%dna_weights%'
+      - '%rna_weights%'
+      - '%tm_base_stacking%'
+      - '%elements%'
+
+  MinitoolsBundle\Service\FindPalindromeManager:
+    arguments:
+      - '@AppBundle\Service\NucleotidsManager'
+
+  MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager:
+    arguments:
+      - '@AppBundle\Service\MathematicsManager'
+
+  MinitoolsBundle\Service\ProteinToDnaManager:
+    arguments:
+      - '%triplets_list%'
+
+  MinitoolsBundle\Service\RandomSequencesManager:
+    arguments:
+      - '%dna_complements%'
+      - '%codons%'
+
+  MinitoolsBundle\Service\ReduceProteinAlphabetManager:
+    arguments:
+      - '%protein_colors%'
+      - '%reductions%'
