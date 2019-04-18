@@ -1,13 +1,18 @@
 <?php
 /**
  * Restrictions Digest  Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 27 february 2019 - RIP Pasha =^._.^= ∫
+ * Modified 27 february 2019 - RIP Pasha =^._.^= ∫
+ * last modified 18 april 2019
  */
 namespace MinitoolsBundle\Service;
 
+/**
+ * Class RestrictionDigestManager
+ * @package MinitoolsBundle\Service
+ * @author Amelie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class RestrictionDigestManager
 {
     /**
@@ -20,47 +25,54 @@ class RestrictionDigestManager
     }
 
     /**
-     * @param $enzymes_array
-     * @param $minimun
-     * @param $retype
-     * @param $defined_sq
-     * @param $wre
-     * @return mixed
+     * Remove from the list of endonucleases the ones not matching the criteria in the form:
+     * $minimum, $retype and $defined_sq
+     * @param       array       $enzymes_array
+     * @param       int         $minimun
+     * @param       int         $retype
+     * @param       bool        $defined_sq
+     * @param       string      $wre
+     * @return      mixed
+     * @throws      \Exception
      */
     public function reduceEnzymesArray($enzymes_array, $minimun, $retype, $defined_sq, $wre)
     {
-        // if $wre => all endonucleases but the selected one must be removed
-        if($wre) {
-            foreach($enzymes_array as $key => $val) {
-                if (strpos(" ,".$enzymes_array[$key][0].",",$wre)>0){
-                    $new_array[$wre] = $enzymes_array[$key];
-                    return $new_array;
+        try {
+            // if $wre => all endonucleases but the selected one must be removed
+            if($wre) {
+                foreach($enzymes_array as $key => $val) {
+                    if (strpos(" ,".$enzymes_array[$key][0].",",$wre)>0){
+                        $new_array[$wre] = $enzymes_array[$key];
+                        return $new_array;
+                    }
                 }
             }
-        }
-        // remove endonucleases which do not match requeriments
-        foreach($enzymes_array as $enzyme => $val) {
-            // if retype==1 -> only Blund ends (continue for rest)
-            if ($retype == 1 && $enzymes_array[$enzyme][5] != 0) {
-                continue;
-            }
-            // if retype==2 -> only Overhang end (continue for rest)
-            if ($retype==2 && $enzymes_array[$enzyme][5] == 0) {
-                continue;
-            }
-            // Only endonucleases with which recognized in template a minimum of bases (continue for rest)
-            if ($minimun > $enzymes_array[$enzyme][6]) {
-                continue;
-            }
-            // if defined sequence selected, no N (".") or "|" in pattern
-            if ($defined_sq == 1) {
-                if (strpos($enzymes_array[$enzyme][2],".") >0 || strpos($enzymes_array[$enzyme][2],"|")>0){
+            // remove endonucleases which do not match requeriments
+            foreach($enzymes_array as $enzyme => $val) {
+                // if retype==1 -> only Blund ends (continue for rest)
+                if ($retype == 1 && $enzymes_array[$enzyme][5] != 0) {
                     continue;
                 }
+                // if retype==2 -> only Overhang end (continue for rest)
+                if ($retype==2 && $enzymes_array[$enzyme][5] == 0) {
+                    continue;
+                }
+                // Only endonucleases with which recognized in template a minimum of bases (continue for rest)
+                if ($minimun > $enzymes_array[$enzyme][6]) {
+                    continue;
+                }
+                // if defined sequence selected, no N (".") or "|" in pattern
+                if ($defined_sq == 1) {
+                    if (strpos($enzymes_array[$enzyme][2],".") >0 || strpos($enzymes_array[$enzyme][2],"|")>0){
+                        continue;
+                    }
+                }
+                $enzymes_array2[$enzyme] = $enzymes_array[$enzyme];
             }
-            $enzymes_array2[$enzyme] = $enzymes_array[$enzyme];
+            return $enzymes_array2;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $enzymes_array2;
     }
 
 
@@ -116,27 +128,34 @@ class RestrictionDigestManager
     }
 
     /**
-     * @param $text
-     * @return mixed
+     * Extract sequences, which will be stored in an array
+     * @param   string      $sSequence
+     * @return  array
+     * @throws  \Exception
      */
-    public function extractSequences($text)
+    public function extractSequences($sSequence)
     {
-        if (substr_count($text,">") == 0) {
-            $sequence[0]["seq"] = preg_replace("/\W|\d/", "", strtoupper ($text));
-        } else {
-            $arraysequences = preg_split("/>/", $text,-1,PREG_SPLIT_NO_EMPTY);
-            $counter = 0;
-            foreach($arraysequences as $key => $val) {
-                $seq = substr($val,strpos($val,"\n"));
-                $seq = preg_replace ("/\W|\d/", "", strtoupper($seq));
-                if (strlen($seq)>0){
-                    $sequence[$counter]["seq"] = $seq;
-                    $sequence[$counter]["name"] = substr($val,0,strpos($val,"\n"));
-                    $counter++;
+        try {
+            $aSequence = [];
+            if (substr_count($sSequence,">") == 0) {
+                $aSequence[0]["seq"] = preg_replace("/\W|\d/", "", strtoupper($sSequence));
+            } else {
+                $aExtractSequences = preg_split("/>/", $sSequence,-1,PREG_SPLIT_NO_EMPTY);
+                $iCounter = 0;
+                foreach($aExtractSequences as $key => $val) {
+                    $sSeq = substr($val,strpos($val,"\n"));
+                    $sSeq = preg_replace ("/\W|\d/", "", strtoupper($sSeq));
+                    if (strlen($sSeq)>0){
+                        $aSequence[$iCounter]["seq"] = $sSeq;
+                        $aSequence[$iCounter]["name"] = substr($val,0,strpos($val,"\n"));
+                        $iCounter++;
+                    }
                 }
             }
+            return $aSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $sequence;
     }
 
 

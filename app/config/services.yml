@@ -140,3 +140,11 @@ services:
         arguments:
             - '%protein_colors%'
             - '%reductions%'
+
+    MinitoolsBundle\Form\RestrictionEnzymeDigestType:
+        arguments:
+            - '%enzymes%'
+
+    MinitoolsBundle\Service\RestrictionDigestManager:
+        arguments:
+            - '%enzymes%'
