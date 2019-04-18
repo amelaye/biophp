@@ -8,7 +8,7 @@
  */
 namespace MinitoolsBundle\Controller;
 
-use AppBundle\Entity\Fasta;
+
 use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 
@@ -17,11 +17,13 @@ use MinitoolsBundle\Entity\PcrAmplification;
 use MinitoolsBundle\Entity\ProteinToDna;
 use MinitoolsBundle\Entity\RandomSequences;
 use MinitoolsBundle\Entity\ReduceAlphabet;
+use MinitoolsBundle\Entity\RestrictionEnzymeDigest;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
 use MinitoolsBundle\Form\ProteinToDnaType;
 use MinitoolsBundle\Form\RandomSequencesType;
 use MinitoolsBundle\Form\ReduceAlphabetType;
+use MinitoolsBundle\Form\RestrictionEnzymeDigestType;
 use MinitoolsBundle\Service\PcrAmplificationManager;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
 use MinitoolsBundle\Service\ProteinToDnaManager;
@@ -59,6 +61,7 @@ use MinitoolsBundle\Service\FindPalindromeManager;
 use MinitoolsBundle\Service\MeltingTemperatureManager;
 use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
 use MinitoolsBundle\Service\MicrosatelliteRepeatsFinderManager;
+use MinitoolsBundle\Service\RestrictionDigestManager;
 
 /**
  * Class MinitoolsController
@@ -967,15 +970,45 @@ class MinitoolsController extends Controller
     /**
      * @Route("/minitools/restriction-digest", name="restriction_digest")
      */
-    public function restrictionDigestAction()
+    public function restrictionDigestAction(Request $request, RestrictionDigestManager $restrictionDigestMananger)
     {
-        $typeIIEndonucleases = array_keys($this->getParameter('typeII_endonucleolases'));
-        //dump($typeIIEndonucleases);
-        //$vendors = array_keys($this->getParameter('vendors'));
-        //dump($vendors);
+        $oRestrictionEnzimeDigest = new RestrictionEnzymeDigest();
+        $form = $this->get('form.factory')->create(RestrictionEnzymeDigestType::class, $oRestrictionEnzimeDigest);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $aSequence = $restrictionDigestMananger->extractSequences($oRestrictionEnzimeDigest->getSequence());
+
+            // We will get info for endonucleases. The info is included within 3 different functions in the bottom (for Type II, IIb and IIs enzymes)
+            // Type II endonucleases are always used
+            $enzymes_array = $this->getParameter('enzymes')['typeII_endonucleases'];
+
+            // if TypeIIs endonucleases are requested, get them
+            if (($oRestrictionEnzimeDigest->isIIs() && !$oRestrictionEnzimeDigest->isDefined())) {
+                $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIs_endonucleases']);
+                asort($enzymes_array);
+            }
+            // if TypeIIb endonucleases are requested, get them
+            if (($oRestrictionEnzimeDigest->isIIb() && !$oRestrictionEnzimeDigest->isDefined())) {
+                $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIb_endonucleases']);
+                asort($enzymes_array);
+            }
 
 
-        return $this->render('@Minitools/Minitools/restrictionDigest.html.twig');
+            $enzymes_array = $restrictionDigestMananger->reduceEnzymesArray(
+                $enzymes_array,
+                $oRestrictionEnzimeDigest->getMinimum(),
+                $oRestrictionEnzimeDigest->getRetype(),
+                $oRestrictionEnzimeDigest->isDefined(),
+                $oRestrictionEnzimeDigest->getWre()
+            );
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/restrictionDigest.html.twig',
+            [
+                'form'                  => $form->createView(),
+            ]
+        );
     }
 
     /**

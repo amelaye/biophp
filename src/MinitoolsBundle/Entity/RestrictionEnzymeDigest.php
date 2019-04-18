@@ -3,9 +3,11 @@
  * Class RestrictionEnzymeDigestType
  * Freely inspired by BioPHP's project biophp.org
  * Created 7 april 2019
- * Last modified 7 april 2019
+ * Last modified 19 april 2019
  */
 namespace MinitoolsBundle\Entity;
+
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Entity RestrictionEnzymeDigest for RestrictionEnzymeDigestType
@@ -16,13 +18,18 @@ class RestrictionEnzymeDigest
 {
     /**
      * @var int
+     *
+     * @Assert\Length(
+     *     max = 1000000,
+     *     maxMessage = "The maximum length of input string accepted is {{ limit }} characters"
+     * )
      */
     private $sequence;
 
     /**
      * @var bool
      */
-    private $showCode;
+    private $showcode;
 
     /**
      * @var int
@@ -78,17 +85,17 @@ class RestrictionEnzymeDigest
     /**
      * @return bool
      */
-    public function isShowCode()
+    public function isShowcode()
     {
-        return $this->showCode;
+        return $this->showcode;
     }
 
     /**
-     * @param bool $showCode
+     * @param bool $showcode
      */
-    public function setShowCode($showCode)
+    public function setShowcode($showcode)
     {
-        $this->showCode = $showCode;
+        $this->showcode = $showcode;
     }
 
     /**

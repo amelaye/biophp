@@ -1,4 +1,73 @@
 {% extends '@App/base.html.twig' %}
+{% block title %}Restriction enzyme digest of DNA{% endblock %}
 {% block body %}
-    <p>Coming soon :)</p>
+    <h2>Restriction enzyme digest of DNA</h2>
+    <h3>with commercially available restriction enzymes</h3>
+    <p></p>
+
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form_row(form.sequence) }}
+                </div>
+            </div>
+            <p></p>
+
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.showcode) }}</div>
+                <div class="col-md-2">{{ form_widget(form.showcode) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.minimum) }}</div>
+                <div class="col-md-2">{{ form_widget(form.minimum) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.retype) }}</div>
+                <div class="col-md-2">{{ form_widget(form.retype) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5">{{ form_label(form.wre) }}</div>
+                <div class="col-md-2">{{ form_widget(form.wre) }}</div>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.defined) }}</div>
+                <div class="col-md-10">{{ form_label(form.defined) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.IIb) }}</div>
+                <div class="col-md-10">{{ form_label(form.IIb) }}</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.IIs) }}</div>
+                <div class="col-md-10">{{ form_label(form.IIs) }}</div>
+            </div>
+
+            <hr />
+
+            <p>When two or more input sequences are searched : </p>
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.onlydiff) }}</div>
+                <div class="col-md-10">{{ form_label(form.onlydiff) }}</div>
+            </div>
+
+
+            <p>&nbsp;</p>
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.submit) }}</div>
+            </div>
+
+        </div>
+    </div>
+    {{ form_end(form) }}
 {% endblock %}
