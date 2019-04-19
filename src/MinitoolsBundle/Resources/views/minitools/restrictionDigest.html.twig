@@ -5,6 +5,7 @@
     <h3>with commercially available restriction enzymes</h3>
     <p></p>
 
+    {% if digestion is not empty %}
     <div class="card border-info mb-3" style="font-size:0.9em" id="results">
         <div class="card-header">Results of your request</div>
         <div class="card-body">
@@ -58,10 +59,8 @@
                                         </td>
                                         <td>
                                             {% if '#' in enzyme %}
-                                                {% dump(digestion[0][enzyme]["cuts"]) %}
                                                 {{ (digestion[0][enzyme]["cuts"] | length) * 2 }}
                                             {% else %}
-                                                {% dump(digestion[0][enzyme]["cuts"]) %}
                                                 {{ (digestion[0][enzyme]["cuts"] | length) }}
                                             {% endif %}
                                         </td>
@@ -80,35 +79,33 @@
                             {% else %}
                                 <!-- Two or more sequence available -->
                                 {% dump(digestion) %}
-                                {% for enzyme, val in digestion.0 %}
-                                    <tr>
-                                        <td style="width:300px">
-                                            <a href="">{{ enzymes_array[enzyme][0] }}</a>
-                                            <pre>{{ enzymes_array[enzyme][1] }}</pre>
-                                        </td>
-                                        {% for number, val2 in sequence %}
-                                            {% if(digestion[number][enzyme]) %}
-                                                <td valign=top nowrap>
-                                                    <pre>
-                                                        {% for pos, nothing in digestion[number][enzyme]["cuts"] %}
-                                                            {% if "#" in enzyme %}
-                                                                {% set second_cut = pos + enzymes_array[enzyme][3] - enzymes_array[enzyme][4] %}
-                                                                {{ pos / second_cut }}
-                                                            {% else %}
-                                                                {{ pos }}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </pre>
+                                {% for enzyme, val in enzymes_array %}
+                                    {% for key, data in digestion_multi %}
+                                        {% if data == enzyme %}
+                                            <tr>
+                                                <td style="width:300px">
+                                                    <a href="">{{ enzymes_array[enzyme][0] }}</a>
+                                                    <pre>{{ enzymes_array[enzyme][1] }}</pre>
                                                 </td>
-                                            {% else %}
-                                                <td>&nbsp;</td>
-                                            {% endif %}
-
-                                        {% endfor %}
-
-
-
-                                    </tr>
+                                                {% for number, val2 in sequence %}
+                                                    {% if digestion[number][enzyme] is defined %}
+                                                        <td valign=top nowrap>
+                                                            {% for pos, nothing in digestion[number][enzyme]["cuts"] %}
+                                                                {% if "#" in enzyme %}
+                                                                    {% set second_cut = pos + enzymes_array[enzyme][3] - enzymes_array[enzyme][4] %}
+                                                                    {{ pos / second_cut }}
+                                                                {% else %}
+                                                                    {{ pos }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    {% else %}
+                                                        <td>&nbsp;</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
                             {% endif %}
                         </table>
@@ -117,6 +114,7 @@
             </table>
         </div>
     </div>
+    {% endif %}
 
     {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
     <div class="card bg-light mb-3">
