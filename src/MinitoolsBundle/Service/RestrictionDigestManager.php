@@ -79,38 +79,44 @@ class RestrictionDigestManager
             foreach ($aEnzymes as $sEnzyme => $aVal) {
                 // this is to put together results for IIb endonucleases, which are computed as "enzyme_name" and "enzyme_name@"
                 $aNewEnzyme = str_replace("@","", $sEnzyme);
+
                 // split sequence based on pattern from restriction enzyme
                 $aFragments = preg_split("/".$aEnzymes[$sEnzyme][2]."/", $sSequence,-1,PREG_SPLIT_DELIM_CAPTURE);
                 reset($aFragments);
                 $iMaxFragments = sizeof($aFragments);
+
                 // when sequence is cleaved ($iMaxFragments > 1) start further calculations
                 if($iMaxFragments > 1) {
                     $iRecognitionPosition = strlen($aFragments[0]);
                     // for each frament generated, calculate cleavage position,
                     // add it to a list, and add 1 to counter
                     for($i = 2; $i < $iMaxFragments; $i += 2) {
+                        $iCleavagePosition = $iRecognitionPosition + $aEnzymes[$sEnzyme][4];
+                        $aDigestion[$aNewEnzyme]["cuts"][$iCleavagePosition] = "";
+
+                        // As overlapping may occur for many endonucleases,
+                        // a subsequence starting in position 2 of fragment is calculate
                         if(isset($aFragments[$i+1])) {
-                            $iCleavagePosition = $iRecognitionPosition + $aEnzymes[$sEnzyme][4];
-                            $aDigestion[$aNewEnzyme]["cuts"][$iCleavagePosition] = "";
-                            // As overlapping may occur for many endonucleases,
-                            // a subsequence starting in position 2 of fragment is calculate
                             $sSubSequence = substr($aFragments[$i-1],1)
                                 .$aFragments[$i]
                                 .substr($aFragments[$i+1],0,40);
-                            $sSubSequence = substr($sSubSequence,0,2 * $aEnzymes[$sEnzyme][3] - 2);
-                            // Previous process is repeated
-                            // split subsequence based on pattern from restriction enzyme
-                            $aFragmentsSubsequence = preg_split($aEnzymes[$sEnzyme][2],$sSubSequence);
-                            // when subsequence is cleaved start further calculations
-                            if(sizeof($aFragmentsSubsequence) > 1) {
-                                // for each fragment of subsequence, calculate overlapping cleavage position,
-                                //    add it to a list, and add 1 to counter
-                                $iOverlappedCleavage = $iRecognitionPosition + 1 + strlen($aFragmentsSubsequence[0]) + $aEnzymes[$sEnzyme][4];
-                                $aDigestion[$aNewEnzyme]["cuts"][$iOverlappedCleavage]="";
-                            }
-                            // this is a counter for position
-                            $iRecognitionPosition += strlen($aFragments[$i-1]) + strlen($aFragments[$i]);
+                        } else {
+                            $sSubSequence = substr($aFragments[$i-1],1) . $aFragments[$i];
                         }
+
+                        $sSubSequence = substr($sSubSequence,0,2 * $aEnzymes[$sEnzyme][3] - 2);
+                        // Previous process is repeated
+                        // split subsequence based on pattern from restriction enzyme
+                        $aFragmentsSubsequence = preg_split($aEnzymes[$sEnzyme][2],$sSubSequence);
+                        // when subsequence is cleaved start further calculations
+                        if(sizeof($aFragmentsSubsequence) > 1) {
+                            // for each fragment of subsequence, calculate overlapping cleavage position,
+                            //    add it to a list, and add 1 to counter
+                            $iOverlappedCleavage = $iRecognitionPosition + 1 + strlen($aFragmentsSubsequence[0]) + $aEnzymes[$sEnzyme][4];
+                            $aDigestion[$aNewEnzyme]["cuts"][$iOverlappedCleavage]="";
+                        }
+                        // this is a counter for position
+                        $iRecognitionPosition += strlen($aFragments[$i-1]) + strlen($aFragments[$i]);
                     }
                 }
             }
