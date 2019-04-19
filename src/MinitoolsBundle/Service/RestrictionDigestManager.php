@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Modified 27 february 2019 - RIP Pasha =^._.^= ∫
- * last modified 18 april 2019
+ * last modified 19 april 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -16,60 +16,48 @@ namespace MinitoolsBundle\Service;
 class RestrictionDigestManager
 {
     /**
-     * RestrictionDigestManager constructor.
-     * @param $aEnzymes
-     */
-    public function __construct($aEnzymes)
-    {
-        $this->aEnzymes = $aEnzymes;
-    }
-
-    /**
      * Remove from the list of endonucleases the ones not matching the criteria in the form:
      * $minimum, $retype and $defined_sq
-     * @param       array       $enzymes_array
-     * @param       int         $minimun
-     * @param       int         $retype
-     * @param       bool        $defined_sq
-     * @param       string      $wre
+     * @param       array       $aEnzymes
+     * @param       int         $iMinimun
+     * @param       int         $iRetype
+     * @param       bool        $bDefinedSq
+     * @param       string      $sWre
      * @return      mixed
      * @throws      \Exception
      */
-    public function reduceEnzymesArray($enzymes_array, $minimun, $retype, $defined_sq, $wre)
+    public function reduceEnzymesArray($aEnzymes, $iMinimun, $iRetype, $bDefinedSq, $sWre)
     {
         try {
-            // if $wre => all endonucleases but the selected one must be removed
-            if($wre) {
-                foreach($enzymes_array as $key => $val) {
-                    if (strpos(" ,".$enzymes_array[$key][0].",",$wre)>0){
-                        $new_array[$wre] = $enzymes_array[$key];
-                        return $new_array;
+            $aNewEnzymes = [];
+            // if $wre not null => all endonucleases but the selected one must be removed
+            if($sWre != null) {
+                foreach($aEnzymes as $key => $val) {
+                    if (strpos(" ,".$aEnzymes[$key][0].",",$sWre) > 0) {
+                        $aNewEnzymes[$sWre] = $aEnzymes[$key];
+                        return $aNewEnzymes;
                     }
                 }
             }
             // remove endonucleases which do not match requeriments
-            foreach($enzymes_array as $enzyme => $val) {
-                // if retype==1 -> only Blund ends (continue for rest)
-                if ($retype == 1 && $enzymes_array[$enzyme][5] != 0) {
-                    continue;
+            foreach($aEnzymes as $enzyme => $val) {
+                if ($iRetype == 1 && $aEnzymes[$enzyme][5] != 0) {
+                    continue; // if retype==1 -> only Blund ends (continue for rest)
                 }
-                // if retype==2 -> only Overhang end (continue for rest)
-                if ($retype==2 && $enzymes_array[$enzyme][5] == 0) {
-                    continue;
+                if ($iRetype == 2 && $aEnzymes[$enzyme][5] == 0) {
+                    continue; // if retype==2 -> only Overhang end (continue for rest)
                 }
-                // Only endonucleases with which recognized in template a minimum of bases (continue for rest)
-                if ($minimun > $enzymes_array[$enzyme][6]) {
-                    continue;
+                if ($iMinimun > $aEnzymes[$enzyme][6]) {
+                    continue; // Only endonucleases with which recognized in template a minimum of bases (continue for rest)
                 }
-                // if defined sequence selected, no N (".") or "|" in pattern
-                if ($defined_sq == 1) {
-                    if (strpos($enzymes_array[$enzyme][2],".") >0 || strpos($enzymes_array[$enzyme][2],"|")>0){
-                        continue;
+                if ($bDefinedSq == 1) {
+                    if (strpos($aEnzymes[$enzyme][2],".") > 0 || strpos($aEnzymes[$enzyme][2],"|") > 0) {
+                        continue; // if defined sequence selected, no N (".") or "|" in pattern
                     }
                 }
-                $enzymes_array2[$enzyme] = $enzymes_array[$enzyme];
+                $aNewEnzymes[$enzyme] = $aEnzymes[$enzyme];
             }
-            return $enzymes_array2;
+            return $aNewEnzymes;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -79,52 +67,57 @@ class RestrictionDigestManager
     /**
      * Calculate digestion results - will return an array like this
      * $digestion[$enzyme]["cuts"] - with number of cuts within the sequence
-     * @param $enzymes_array
-     * @param $sequence
-     * @return mixed
+     * @param       array       $aEnzymes   List of available enzymes
+     * @param       string      $sSequence  Sequence to analyze
+     * @return      array
+     * @throws      \Exception
      */
-    public function restrictionDigest($enzymes_array, $sequence)
+    public function restrictionDigest($aEnzymes, $sSequence)
     {
-        foreach ($enzymes_array as $enzyme => $val) {
-            // this is to put together results for IIb endonucleases, which are computed as "enzyme_name" and "enzyme_name@"
-            $enzyme2 = str_replace("@","",$enzyme);
-
-            // split sequence based on pattern from restriction enzyme
-            $fragments = preg_split("/".$enzymes_array[$enzyme][2]."/", $sequence,-1,PREG_SPLIT_DELIM_CAPTURE);
-            reset ($fragments);
-            $maxfragments = sizeof($fragments);
-            // when sequence is cleaved ($maxfragments>1) start further calculations
-            if($maxfragments > 1) {
-                $recognitionposition = strlen($fragments[0]);
-                $counter_cleavages = 0;
-                $list_of_cleavages = "";
-                // for each frament generated, calculate cleavage position,
-                // add it to a list, and add 1 to counter
-                for($i = 2; $i < $maxfragments; $i += 2) {
-                    $cleavageposition = $recognitionposition + $enzymes_array[$enzyme][4];
-                    $digestion[$enzyme2]["cuts"][$cleavageposition] = "";
-                    // As overlapping may occur for many endonucleases,
-                    //   a subsequence starting in position 2 of fragment is calculate
-                    $subsequence = substr($fragments[$i-1],1)
-                        .$fragments[$i]
-                        .substr($fragments[$i+1],0,40);
-                    $subsequence = substr($subsequence,0,2 * $enzymes_array[$enzyme][3] - 2);
-                    //Previous process is repeated
-                    // split subsequence based on pattern from restriction enzyme
-                    $fragments_subsequence = preg_split($enzymes_array[$enzyme][2],$subsequence);
-                    // when subsequence is cleaved start further calculations
-                    if(sizeof($fragments_subsequence) > 1) {
-                        // for each fragment of subsequence, calculate overlapping cleavage position,
-                        //    add it to a list, and add 1 to counter
-                        $overlapped_cleavage = $recognitionposition + 1 + strlen($fragments_subsequence[0]) + $enzymes_array[$enzyme][4];
-                        $digestion[$enzyme2]["cuts"][$overlapped_cleavage]="";
+        try {
+            $aDigestion = [];
+            foreach ($aEnzymes as $sEnzyme => $aVal) {
+                // this is to put together results for IIb endonucleases, which are computed as "enzyme_name" and "enzyme_name@"
+                $aNewEnzyme = str_replace("@","", $sEnzyme);
+                // split sequence based on pattern from restriction enzyme
+                $aFragments = preg_split("/".$aEnzymes[$sEnzyme][2]."/", $sSequence,-1,PREG_SPLIT_DELIM_CAPTURE);
+                reset($aFragments);
+                $iMaxFragments = sizeof($aFragments);
+                // when sequence is cleaved ($iMaxFragments > 1) start further calculations
+                if($iMaxFragments > 1) {
+                    $iRecognitionPosition = strlen($aFragments[0]);
+                    // for each frament generated, calculate cleavage position,
+                    // add it to a list, and add 1 to counter
+                    for($i = 2; $i < $iMaxFragments; $i += 2) {
+                        if(isset($aFragments[$i+1])) {
+                            $iCleavagePosition = $iRecognitionPosition + $aEnzymes[$sEnzyme][4];
+                            $aDigestion[$aNewEnzyme]["cuts"][$iCleavagePosition] = "";
+                            // As overlapping may occur for many endonucleases,
+                            // a subsequence starting in position 2 of fragment is calculate
+                            $sSubSequence = substr($aFragments[$i-1],1)
+                                .$aFragments[$i]
+                                .substr($aFragments[$i+1],0,40);
+                            $sSubSequence = substr($sSubSequence,0,2 * $aEnzymes[$sEnzyme][3] - 2);
+                            // Previous process is repeated
+                            // split subsequence based on pattern from restriction enzyme
+                            $aFragmentsSubsequence = preg_split($aEnzymes[$sEnzyme][2],$sSubSequence);
+                            // when subsequence is cleaved start further calculations
+                            if(sizeof($aFragmentsSubsequence) > 1) {
+                                // for each fragment of subsequence, calculate overlapping cleavage position,
+                                //    add it to a list, and add 1 to counter
+                                $iOverlappedCleavage = $iRecognitionPosition + 1 + strlen($aFragmentsSubsequence[0]) + $aEnzymes[$sEnzyme][4];
+                                $aDigestion[$aNewEnzyme]["cuts"][$iOverlappedCleavage]="";
+                            }
+                            // this is a counter for position
+                            $iRecognitionPosition += strlen($aFragments[$i-1]) + strlen($aFragments[$i]);
+                        }
                     }
-                    // this is a counter for position
-                    $recognitionposition += strlen($fragments[$i-1]) + strlen($fragments[$i]);
                 }
             }
+            return $aDigestion;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $digestion;
     }
 
     /**
@@ -157,50 +150,6 @@ class RestrictionDigestManager
             throw new \Exception($e);
         }
     }
-
-
-    /**
-     * this array includes all endonucleases related information required in this script
-     * All enzymes with the same recognition pattern are grouped
-     * @return mixed
-     */
-    public function getArrayOfTypeIIEndonucleases()
-    {
-        $enzymes_array = $this->aEnzymes["typeII_endonucleolases"];
-        return $enzymes_array;
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getArrayOfTypeIIsEndonucleases()
-    {
-        $enzymes_array = $this->aEnzymes["typeIIs_endonucleolases"];
-        return $enzymes_array;
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getArrayOfTypeIIbEndonucleases()
-    {
-        $enzymes_array = $this->aEnzymes["type_IIb_endonucleases"];
-        return $enzymes_array;
-    }
-
-
-    /**
-     * This function return the list of sellers for all endonucleases included in this script
-     * @return array
-     */
-    public function endonucleaseVendors()
-    {
-        $vendors = $this->aEnzymes["vendors"];
-        return $vendors;
-    }
-
 
     /**
      * @param $company

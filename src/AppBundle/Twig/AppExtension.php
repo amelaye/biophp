@@ -49,6 +49,7 @@ class AppExtension extends AbstractExtension
             new TwigFilter('atgc_sublimer', [$this, 'sublimerATGC'], ['is_safe' => ['html']]),
             new TwigFilter('color_amino_custom', [$this, 'colorAminoCustom'], ['is_safe' => ['html']]),
             new TwigFilter('color_amino', [$this, 'colorAmino'], ['is_safe' => ['html']]),
+            new TwigFilter('digest_code', [$this, 'disposeDigestedCode'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -152,6 +153,25 @@ class AppExtension extends AbstractExtension
             return $coloredSeq;
         } catch (\Exception $e) {
             throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Renders beautifully the analyzed code
+     * @param   string      $subject
+     */
+    public function disposeDigestedCode($subject)
+    {
+        $s = 0;
+        $rtop = chunk_split($subject,10,' ');
+        while ($s <= strlen($rtop)) {
+            $rline = substr($rtop, $s, 110);
+            print "$rline ";
+            $s = $s + 110;
+            if (strlen($rline) == 110){
+                print $s / 1.1;
+            }
+            print "<br />";
         }
     }
 }

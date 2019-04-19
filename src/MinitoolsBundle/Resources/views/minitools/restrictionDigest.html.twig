@@ -5,6 +5,119 @@
     <h3>with commercially available restriction enzymes</h3>
     <p></p>
 
+    <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+        <div class="card-header">Results of your request</div>
+        <div class="card-body">
+            {% if show_code %}
+                <table>
+                    {% for key, val in sequence %}
+                        {% if sequence.key['name'] is defined %}
+                            <tr>
+                                <td style="background-color: #DDDDFF">{{ sequence.key['name'] }}</td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td>
+                                {% set seq = sequence[key]['seq'] %}
+                                {% set countG = seq|split('G')|length - 1 %}
+                                {% set countC = seq|split('C')|length - 1 %}
+                                {% set result = (countG + countC ) * 100 / seq | length %}
+                                <b>Lengh of code: {{ seq|length }}</b><br />G + C = {{ result | round(1, 'floor') }} %
+                                <br /><br />
+                                <p>{{ seq | digest_code }}</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+
+
+            <!-- OUTPUT RESTRICTION RESULTS: Start table -->
+            <table>
+                <tr>
+                    <td>
+                        <table class="biotable">
+                            <tr>
+                                <td style="background-color: #8888AA">Restriction enzyme </td>
+                                {% if sequence | length == 1 %}
+                                    <td style="background-color: #8888AA">Cuts</td>
+                                    <td style="background-color: #8888AA">Positions</td></tr>
+                                {% else %}
+                                    {% for key, val in sequence %}
+                                        <td style="background-color: #8888AA">Seq. {{ key + 1 }}</td>
+                                    {% endfor %}
+                                {% endif %}
+                            </tr>
+                            {% if sequence | length == 1 %}
+                                <!-- Only one input sequence available -->
+                                {% for enzyme, val in digestion.0 %}
+                                    <tr>
+                                        <td style="width:300px">
+                                            <a href="">{{ enzymes_array[enzyme][0] }}</a>
+                                            <pre>{{ enzymes_array[enzyme][1] }}</pre>
+                                        </td>
+                                        <td>
+                                            {% if '#' in enzyme %}
+                                                {% dump(digestion[0][enzyme]["cuts"]) %}
+                                                {{ (digestion[0][enzyme]["cuts"] | length) * 2 }}
+                                            {% else %}
+                                                {% dump(digestion[0][enzyme]["cuts"]) %}
+                                                {{ (digestion[0][enzyme]["cuts"] | length) }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% for pos, v in digestion[0][enzyme]["cuts"] %}
+                                                {% if '#' in enzyme %}
+                                                    {% set second_cut = pos + enzymes_array[enzyme][3] - enzymes_array[enzyme][4] %}
+                                                    {{ pos / second_cut }}
+                                                {% else %}
+                                                    {{ pos }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Two or more sequence available -->
+                                {% dump(digestion) %}
+                                {% for enzyme, val in digestion.0 %}
+                                    <tr>
+                                        <td style="width:300px">
+                                            <a href="">{{ enzymes_array[enzyme][0] }}</a>
+                                            <pre>{{ enzymes_array[enzyme][1] }}</pre>
+                                        </td>
+                                        {% for number, val2 in sequence %}
+                                            {% if(digestion[number][enzyme]) %}
+                                                <td valign=top nowrap>
+                                                    <pre>
+                                                        {% for pos, nothing in digestion[number][enzyme]["cuts"] %}
+                                                            {% if "#" in enzyme %}
+                                                                {% set second_cut = pos + enzymes_array[enzyme][3] - enzymes_array[enzyme][4] %}
+                                                                {{ pos / second_cut }}
+                                                            {% else %}
+                                                                {{ pos }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </pre>
+                                                </td>
+                                            {% else %}
+                                                <td>&nbsp;</td>
+                                            {% endif %}
+
+                                        {% endfor %}
+
+
+
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
     <div class="card bg-light mb-3">
         <div class="card-body">

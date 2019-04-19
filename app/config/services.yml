@@ -144,7 +144,3 @@ services:
     MinitoolsBundle\Form\RestrictionEnzymeDigestType:
         arguments:
             - '%enzymes%'
-
-    MinitoolsBundle\Service\RestrictionDigestManager:
-        arguments:
-            - '%enzymes%'
