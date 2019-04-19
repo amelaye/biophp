@@ -1016,51 +1016,14 @@ class MinitoolsController extends Controller
                 $digestion[$number] = $restrictionDigestManager->restrictionDigest($enzymes_array, $sequence[$number]["seq"]);
             }
 
-            //dump($digestion);
-
-            $digestiontest = [];
-
             if (sizeof($sequence) > 1) {
-                // Two or more sequence available
-                foreach($enzymes_array as $enzyme => $val) {
-                    if ($oRestrictionEnzimeDigest->isOnlydiff() == false || $oRestrictionEnzimeDigest->getWre() != ""){
-                        // Show all restriction results, when endonuclease cuts at least one sequence
-                        foreach($sequence as $number =>$val2){
-                            if (isset($digestion[$number][$enzyme]) && sizeof($digestion[$number][$enzyme]["cuts"]) > 0) {
-                                $digestionMulti[] = $enzyme;
-                            }
-                        }
-                    } else {
-                        $temp_array = [];
-                        if(isset($digestion[0][$enzyme])) {
-                            // Show restriction results when they are different
-                            $temp_data = sizeof($digestion[0][$enzyme]["cuts"]);
-                            if ($temp_data > 0){
-                                $temp_array = $digestion[0][$enzyme]["cuts"];
-                            }
-                        }
-
-                        foreach($sequence as $number => $val2) {
-                            if ($number == 0) {
-                                continue;
-                            }
-                            if(isset($digestion[$number][$enzyme])) {
-                                $temp_data2 = sizeof($digestion[$number][$enzyme]["cuts"]);
-                                if ($temp_data != $temp_data2) {
-                                    $digestionMulti[] = $enzyme;
-                                    break;
-                                }
-                                if ($temp_data2>0){
-                                    $temp_array = array_diff($temp_array,$digestion[$number][$enzyme]["cuts"]);
-                                    if (sizeof($temp_array) > 0) {
-                                        $digestionMulti[] = $enzyme;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                $digestionMulti = $restrictionDigestManager->enzymesForMultiSeq(
+                    $sequence,
+                    $digestion,
+                    $enzymes_array,
+                    $oRestrictionEnzimeDigest->isOnlydiff(),
+                    $oRestrictionEnzimeDigest->getWre()
+                );
             }
         }
 

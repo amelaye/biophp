@@ -158,6 +158,68 @@ class RestrictionDigestManager
     }
 
     /**
+     * Gets the names of the enzymes involved in digestion when more than one sequence
+     * @param       array       $aSequence
+     * @param       array       $aDigestion
+     * @param       array       $aEnzymes
+     * @param       bool        $bIsOnlyDiff
+     * @param       string      $sWre
+     * @return      array
+     * @throws      \Exception
+     */
+    public function enzymesForMultiSeq($aSequence, $aDigestion, $aEnzymes, $bIsOnlyDiff, $sWre)
+    {
+        try {
+            $digestionMulti = [];
+            $aTempData = [];
+
+            // Two or more sequence available
+            foreach($aEnzymes as $enzyme => $val) {
+                if ($bIsOnlyDiff == false || $sWre != ""){
+                    // Show all restriction results, when endonuclease cuts at least one sequence
+                    foreach($aSequence as $number => $val2){
+                        if (isset($aDigestion[$number][$enzyme]) && sizeof($aDigestion[$number][$enzyme]["cuts"]) > 0) {
+                            $digestionMulti[] = $enzyme;
+                        }
+                    }
+                } else {
+                    $aTemp = [];
+                    if(isset($aDigestion[0][$enzyme])) {
+                        // Show restriction results when they are different
+                        $aTempData = sizeof($aDigestion[0][$enzyme]["cuts"]);
+                        if ($aTemp > 0){
+                            $aTemp = $aDigestion[0][$enzyme]["cuts"];
+                        }
+                    }
+
+                    foreach($aSequence as $number => $val2) {
+                        if ($number == 0) {
+                            continue;
+                        }
+                        if(isset($aDigestion[$number][$enzyme])) {
+                            $aTempData2 = sizeof($aDigestion[$number][$enzyme]["cuts"]);
+                            if ($aTempData != $aTempData2) {
+                                $digestionMulti[] = $enzyme;
+                                break;
+                            }
+                            if ($aTempData2>0){
+                                $aTemp = array_diff($aTemp, $aDigestion[$number][$enzyme]["cuts"]);
+                                if (sizeof($aTemp) > 0) {
+                                    $digestionMulti[] = $enzyme;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return $digestionMulti;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
      * @param $company
      * @param $enzyme
      * @return string
