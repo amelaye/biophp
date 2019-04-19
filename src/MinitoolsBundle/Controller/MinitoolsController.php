@@ -969,14 +969,18 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/restriction-digest", name="restriction_digest")
+     * @param       Request                     $request
+     * @param       RestrictionDigestManager    $restrictionDigestManager
+     * @return      Response
+     * @throws      \Exception
      */
-    public function restrictionDigestAction(Request $request, RestrictionDigestManager $restrictionDigestMananger)
+    public function restrictionDigestAction(Request $request, RestrictionDigestManager $restrictionDigestManager)
     {
         $oRestrictionEnzimeDigest = new RestrictionEnzymeDigest();
         $form = $this->get('form.factory')->create(RestrictionEnzymeDigestType::class, $oRestrictionEnzimeDigest);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $aSequence = $restrictionDigestMananger->extractSequences($oRestrictionEnzimeDigest->getSequence());
+            $sequence = $restrictionDigestManager->extractSequences($oRestrictionEnzimeDigest->getSequence());
 
             // We will get info for endonucleases. The info is included within 3 different functions in the bottom (for Type II, IIb and IIs enzymes)
             // Type II endonucleases are always used
@@ -994,19 +998,33 @@ class MinitoolsController extends Controller
             }
 
 
-            $enzymes_array = $restrictionDigestMananger->reduceEnzymesArray(
+            $enzymes_array = $restrictionDigestManager->reduceEnzymesArray(
                 $enzymes_array,
                 $oRestrictionEnzimeDigest->getMinimum(),
                 $oRestrictionEnzimeDigest->getRetype(),
                 $oRestrictionEnzimeDigest->isDefined(),
                 $oRestrictionEnzimeDigest->getWre()
             );
+
+            // RESTRICTION DIGEST OF SEQUENCE
+            foreach($sequence as $number => $val) {
+                $digestion[$number] = $restrictionDigestManager->restrictionDigest($enzymes_array, $sequence[$number]["seq"]);
+            }
+
+
+
+
         }
+
 
         return $this->render(
             '@Minitools/Minitools/restrictionDigest.html.twig',
             [
-                'form'                  => $form->createView(),
+                'form'              => $form->createView(),
+                'show_code'         => $oRestrictionEnzimeDigest->isShowcode(),
+                'sequence'          => $sequence,
+                'digestion'         => $digestion,
+                'enzymes_array'     => $enzymes_array
             ]
         );
     }

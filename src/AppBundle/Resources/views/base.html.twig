@@ -6,6 +6,18 @@
     {% block stylesheets %}{% endblock %}
     <link rel="stylesheet" href="{{ asset('public/css/bootstrap.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <style>
+        table .biotable, .biotable th, .biotable td {
+            border: 1px solid black;
+        }
+        td {
+            vertical-align: top;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
     <div class="container">

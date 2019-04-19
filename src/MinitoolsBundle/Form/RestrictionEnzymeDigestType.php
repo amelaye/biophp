@@ -43,15 +43,12 @@ class RestrictionEnzymeDigestType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $wre["Select"] = "";
         foreach($this->typeII_endonucleolases as $key => $data) {
             $wre[$key] = $key;
         }
 
-        $textSequence = "GGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGG\r";
-        $textSequence .= "GAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGG\r";
-        $textSequence .= "AGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGCGGA\r";
-        $textSequence .= "GTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGAGT\r";
-        $textSequence .= "GAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTG\r";
+        $textSequence = "ACGTACGTACGTTAGCTAGCTAGCTAGC";
 
         $builder->add(
             'sequence',
@@ -122,7 +119,8 @@ class RestrictionEnzymeDigestType extends AbstractType
                 'attr' => [
                     'class' => "custom-select d-block w-20"
                 ],
-                'label' => "Only use this endonuclease"
+                'label' => "Only use this endonuclease",
+                'required' => false,
             ]
         );
 
