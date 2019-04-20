@@ -50,6 +50,7 @@ class AppExtension extends AbstractExtension
             new TwigFilter('color_amino_custom', [$this, 'colorAminoCustom'], ['is_safe' => ['html']]),
             new TwigFilter('color_amino', [$this, 'colorAmino'], ['is_safe' => ['html']]),
             new TwigFilter('digest_code', [$this, 'disposeDigestedCode'], ['is_safe' => ['html']]),
+            new TwigFilter('dispose_sequences', [$this, 'disposeAlignmentSequences'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -173,5 +174,26 @@ class AppExtension extends AbstractExtension
             }
             print "<br />";
         }
+    }
+
+    /**
+     * Renders beautifully two sequences for comparaison
+     * @param $compare
+     * @param $align_seqa
+     * @param $align_seqb
+     */
+    public function disposeAlignmentSequences($compare, $align_seqa, $align_seqb)
+    {
+        print "<pre>";
+        $i=0;
+        while($i<strlen($align_seqa)){
+            $ii=$i+100;
+            if ($ii>strlen($align_seqa)){$ii=strlen($align_seqa);}
+            print substr($align_seqa,$i,100)."  $ii\n";
+            print substr($compare,$i,100)."\n";
+            print substr($align_seqb,$i,100)."  $ii\n\n";
+            $i+=100;
+        }
+        print "</pre>";
     }
 }
