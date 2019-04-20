@@ -244,9 +244,8 @@ class RestrictionDigestManager
         $enzyme_array = [];
 
         $enzyme_array["company"] = ["name" => $company, "url" => "http://rebase.neb.com/rebase/enz/$enzyme.html"];
-
         foreach($this->vendorLinks as $key => $data) {
-            if(strpos($company, $key) > 0) {
+            if(strpos($company, $key) !== false) {
                 $enzyme_array["links"][] = $data;
             }
         }
