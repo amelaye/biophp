@@ -25,15 +25,15 @@ class RestrictionEnzymeDigestType extends AbstractType
     /**
      * @var array
      */
-    private $typeII_endonucleolases;
+    private $vendors;
 
     /**
      * RestrictionEnzymeDigestType constructor.
-     * @param array $enzymes
+     * @param   array   $vendors
      */
-    public function __construct($enzymes)
+    public function __construct($vendors)
     {
-        $this->typeII_endonucleolases = $enzymes["typeII_endonucleases"];
+        $this->vendors = $vendors;
     }
 
     /**
@@ -44,7 +44,7 @@ class RestrictionEnzymeDigestType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $wre["Select"] = "";
-        foreach($this->typeII_endonucleolases as $key => $data) {
+        foreach($this->vendors as $key => $data) {
             $wre[$key] = $key;
         }
 

@@ -184,6 +184,24 @@
 {% endblock %}
 {% block js_scripts %}
         $(".vendor_link").click(function() {
-            alert( "Handler for .click() called." );
+            $.ajax({
+                url : '/minitools/show-vendors/' + $(this).attr("id"),
+                type: 'GET',
+                dataType: 'json'
+            })
+            .done(function(data) {
+                $("#vendors").html('');
+                $("#vendors").append('<br />');
+                $("#vendors").append('<p>'+data.message+'</p>');
+                $.each(data.vendors, function( index, value ) {
+                    $("#vendors").append('<h5>'+index+'</h5> > <a href="'+value.company.url+'">REBASE</a>');
+                    var urls = '<br />';
+                    $.each(value.links, function( key, url ) {
+                        urls = urls + '<li><a href="'+url.url+'">'+url.name+'</a></li>';
+                    });
+                    $("#vendors").append('<ul>'+urls+'</ul>');
+                    $("#vendors").append('<hr />');
+                });
+            });
         });
 {% endblock %}

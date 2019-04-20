@@ -32,6 +32,7 @@ use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -1002,7 +1003,6 @@ class MinitoolsController extends Controller
                 asort($enzymes_array);
             }
 
-
             $enzymes_array = $restrictionDigestManager->reduceEnzymesArray(
                 $enzymes_array,
                 $oRestrictionEnzimeDigest->getMinimum(),
@@ -1038,6 +1038,32 @@ class MinitoolsController extends Controller
                 'enzymes_array'     => $enzymes_array
             ]
         );
+    }
+
+    /**
+     * @Route("/minitools/show-vendors/{enzyme}", name="show_vendors")
+     * @param string $enzyme
+     * @param RestrictionDigestManager $restrictionDigestManager
+     * @return JsonResponse
+     */
+    public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager)
+    {
+        $message = "";
+        $enzyme_array = [];
+        // Get array of companies selling each endonuclease
+        $vendors = $this->getParameter('vendors');
+
+        $endonuclease = preg_split("/,/", $enzyme);
+        if (strpos($enzyme,",") > 0) {
+            $message = "All endonucleases bellow are isoschizomers";
+        }
+
+        // print vendor for each endonuclease (uses a function)
+        foreach ($endonuclease as $enzyme) {
+            $enzyme_array[$enzyme] = $restrictionDigestManager->showVendors($vendors[$enzyme], $enzyme);
+        }
+
+        return new JsonResponse(["message" => $message, "vendors" => $enzyme_array]);
     }
 
     /**
