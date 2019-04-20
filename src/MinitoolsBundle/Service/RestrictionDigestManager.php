@@ -235,21 +235,25 @@ class RestrictionDigestManager
 
     /**
      * Gets the commercial links to buy the enzymes
-     * @param   string      $company
-     * @param   string      $enzyme
-     * @return  array
+     * @param       string          $sCompany
+     * @param       string          $sEnzyme
+     * @return      array
+     * @throws      \Exception
      */
-    public function showVendors($company, $enzyme)
+    public function showVendors($sCompany, $sEnzyme)
     {
-        $enzyme_array = [];
+        try {
+            $aEnzymeVendors = [];
 
-        $enzyme_array["company"] = ["name" => $company, "url" => "http://rebase.neb.com/rebase/enz/$enzyme.html"];
-        foreach($this->vendorLinks as $key => $data) {
-            if(strpos($company, $key) !== false) {
-                $enzyme_array["links"][] = $data;
+            $aEnzymeVendors["company"] = ["name" => $sCompany, "url" => "http://rebase.neb.com/rebase/enz/$sEnzyme.html"];
+            foreach($this->vendorLinks as $key => $data) {
+                if(strpos($sCompany, $key) !== false) {
+                    $aEnzymeVendors["links"][] = $data;
+                }
             }
+            return $aEnzymeVendors;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-
-        return $enzyme_array;
     }
 }

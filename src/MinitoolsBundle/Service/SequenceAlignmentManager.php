@@ -1,23 +1,27 @@
 <?php
 /**
- * Sequence Alignment Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 28 february 2019
- * Last modified 28 february 2019
+ * Last modified 20 april 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * @todo : refactoriser un max la création des matrices
  */
 namespace MinitoolsBundle\Service;
 
+/**
+ * Class SequenceAlignmentManager : Sequence Alignment Functions
+ * @package MinitoolsBundle\Service
+ * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ */
 class SequenceAlignmentManager
 {
+    /**
+     * @var array
+     */
     private $pam250Matrix;
-
 
     /**
      * SequenceAlignmentManager constructor.
-     * @param $pam250Matrix
+     * @param   array   $pam250Matrix
      */
     public function __construct($pam250Matrix)
     {
@@ -33,8 +37,8 @@ class SequenceAlignmentManager
     public function alignDNA($seqa, $seqb)
     {
         $match = 2;
-        $mismatch = -1;
-        $gap = -4;
+        //$mismatch = -1;
+        //$gap = -4;
         $matriz = array();
 
         $a = preg_split('//', $seqa, -1, PREG_SPLIT_NO_EMPTY);
@@ -48,14 +52,37 @@ class SequenceAlignmentManager
         // Con matrices muy grandes, PHP no sabe trabajar muy bien (es poco eficaz).
         $mx = 0;
         for($i = 0; $i < $maxa; $i ++) {
-            for ($j=0; $j < $maxb; $j++) {
+            for ($j = 0; $j < $maxb; $j++) {
                 if($b[$j] == $a[$i]) {
-                    $x = $matriz[$j-1][$i-1] + $match;
+                    if(!isset($matriz[$j-1][$i - 1])) {
+                        $x = 0 + $match;
+                    } else {
+                        $x = $matriz[$j - 1][$i - 1] + $match;
+                    }
                 } else {
-                    $x = max(0,$matriz[$j-1][$i-1]-1,$matriz[$j][$i-1]-4,$matriz[$j-1][$i]-4);
+                    if(isset($matriz[$j-1][$i-1])) {
+                        $value2 = $matriz[$j-1][$i-1] - 1;
+                    } else {
+                        $value2 = - 1;
+                    }
+
+                    if(isset($matriz[$j][$i-1])) {
+                        $value3 = $matriz[$j][$i-1] - 4;
+                    } else {
+                        $value3 = -4;
+                    }
+
+                    if(isset($matriz[$j-1][$i])){
+                        $value4 = $matriz[$j-1][$i] - 4;
+                    } else {
+                        $value4 = -4;
+                    }
+
+                    $x = max(0, $value2, $value3, $value4);
+
                 }
                 $matriz[$j][$i] = $x;
-                if ($mx<$x) {
+                if ($mx < $x) {
                     $mx = $x;
                     $mj = $j;
                     $mi = $i;
@@ -70,9 +97,21 @@ class SequenceAlignmentManager
         $matrizz[$j][$i] = 1;
 
         while ($i > 0 || $j > 0) {
-            $aa = $matriz[$j-1][$i-1];
-            $ab = $matriz[$j][$i-1];
-            $ac = $matriz[$j-1][$i];
+            if(isset($matriz[$j-1][$i-1]))
+                $aa = $matriz[$j-1][$i-1];
+            else
+                $aa = 0;
+
+            if(isset($matriz[$j][$i-1]))
+                $ab = $matriz[$j][$i-1];
+            else
+                $ab = 0;
+
+            if(isset($matriz[$j-1][$i]))
+                $ac = $matriz[$j-1][$i];
+            else
+                $ac = 0;
+
             if($aa != '//' || $aa == 0) {
                 if($aa >= $ab && $aa >= $ac) {
                     $j = $j-1;
@@ -106,9 +145,21 @@ class SequenceAlignmentManager
         $i = $mi;
 
         while($i < strlen($seqa)-1 || $j < strlen($seqb)-1) {
-            $aa = $matriz[$j+1][$i+1];
-            $ab = $matriz[$j][$i+1];
-            $ac = $matriz[$j+1][$i];
+            if(isset($matriz[$j+1][$i+1]))
+                $aa = $matriz[$j+1][$i+1];
+            else
+                $aa = 0;
+
+            if(isset($matriz[$j][$i+1]))
+                $ab = $matriz[$j][$i+1];
+            else
+                $ab = 0;
+
+            if(isset($matriz[$j+1][$i]))
+                $ac = $matriz[$j+1][$i];
+            else
+                $ac = 0;
+
             if($aa != '//') {
                 if($aa >= $ab && $aa >= $ac) {
                     $j = $j+1;
@@ -141,22 +192,25 @@ class SequenceAlignmentManager
         $i = 0;
         $t = 1;
 
+        $sseqa = "";
+        $sseqb = "";
+
         while ($i < strlen($seqa)-2 && $j < strlen($seqb)-2 && $t = 1) {
             $t = 0;
-            if($matrizz[$j+1][$i+1] == 1) {
-                $t=1;
+            if(isset($matrizz[$j+1][$i+1]) && $matrizz[$j+1][$i+1] == 1) {
+                $t = 1;
                 $sseqa .= $a[$i];
                 $sseqb .= $b[$j];
                 $i = $i+1;
                 $j = $j+1;
             }
-            if($matrizz[$j][$i+1] == 1) {
+            if(isset($matrizz[$j][$i+1]) && $matrizz[$j][$i+1] == 1) {
                 $t = 1;
                 $sseqa .= $a[$i];
                 $sseqb .= "-";
                 $i = $i+1;
             }
-            if($matrizz[$j+1][$i] == 1) {
+            if(isset($matrizz[$j+1][$i]) && $matrizz[$j+1][$i] == 1) {
                 $t = 1;
                 $sseqa .= "-";
                 $sseqb .= $b[$j];
