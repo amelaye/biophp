@@ -18,17 +18,20 @@ use MinitoolsBundle\Entity\ProteinToDna;
 use MinitoolsBundle\Entity\RandomSequences;
 use MinitoolsBundle\Entity\ReduceAlphabet;
 use MinitoolsBundle\Entity\RestrictionEnzymeDigest;
+use MinitoolsBundle\Entity\SequenceAlignment;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
 use MinitoolsBundle\Form\ProteinToDnaType;
 use MinitoolsBundle\Form\RandomSequencesType;
 use MinitoolsBundle\Form\ReduceAlphabetType;
 use MinitoolsBundle\Form\RestrictionEnzymeDigestType;
+use MinitoolsBundle\Form\SequenceAlignmentType;
 use MinitoolsBundle\Service\PcrAmplificationManager;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
 use MinitoolsBundle\Service\ProteinToDnaManager;
 use MinitoolsBundle\Service\RandomSequencesManager;
 use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
+use MinitoolsBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -1042,9 +1045,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/show-vendors/{enzyme}", name="show_vendors")
-     * @param string $enzyme
-     * @param RestrictionDigestManager $restrictionDigestManager
-     * @return JsonResponse
+     * @param   string                      $enzyme
+     * @param   RestrictionDigestManager    $restrictionDigestManager
+     * @return  JsonResponse
+     * @throws  \Exception
      */
     public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager)
     {
@@ -1068,10 +1072,50 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/seq-alignment", name="seq_alignment")
+     * @param   Request $request
+     * @param   SequenceAlignmentManager $sequenceAlignmentManager
+     * @return  Response
+     * @throws \Exception
      */
-    public function seqAlignmentAction()
+    public function seqAlignmentAction(Request $request, SequenceAlignmentManager $sequenceAlignmentManager)
     {
-        return $this->render('@Minitools/Minitools/seqAlignment.html.twig');
+        $oSequenceAlignment = new SequenceAlignment();
+        $form = $this->get('form.factory')->create(SequenceAlignmentType::class, $oSequenceAlignment);
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            /**
+             * Limit sequence length to limit memory usage
+             * This script creates a big array that requires a huge amount of memory
+             * Do not use sequences longer than 700 bases each (1400 for both sequences)
+             * In this demo, the limit has been set up to 300 bases.
+             */
+            $limit = 300;
+            if ((strlen($oSequenceAlignment->getSequence()) + strlen($oSequenceAlignment->getSequence2())) > $limit) {
+                throw new \Exception ("The maximum length of code accepted for both sequences is $limit nucleotides");
+            }
+
+            // CHECK WHETHER THEY ARE DNA OR PROTEIN, AND ALIGN SEQUENCES
+            if ((substr_count($oSequenceAlignment->getSequence(),"A")
+                    + substr_count($oSequenceAlignment->getSequence(),"C")
+                    + substr_count($oSequenceAlignment->getSequence(),"G")
+                    + substr_count($oSequenceAlignment->getSequence(),"T")
+                ) > (strlen($oSequenceAlignment->getSequence()) / 2)) {
+                // if A+C+G+T is at least half of the sequence, it is a DNA
+                $alignment = $sequenceAlignmentManager->alignDNA($oSequenceAlignment->getSequence(), $oSequenceAlignment->getSequence2());
+                dump($alignment);
+            } else {
+                // else is protein
+                $alignment = $sequenceAlignmentManager->alignProteins($oSequenceAlignment->getSequence(), $oSequenceAlignment->getSequence2());
+            }
+
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/seqAlignment.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
