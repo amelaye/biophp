@@ -16,6 +16,20 @@ namespace MinitoolsBundle\Service;
 class RestrictionDigestManager
 {
     /**
+     * @var array
+     */
+    private $vendorLinks;
+
+    /**
+     * RestrictionDigestManager constructor.
+     * @param   array   $vendorLinks
+     */
+    public function __construct($vendorLinks)
+    {
+        $this->vendorLinks = $vendorLinks;
+    }
+
+    /**
      * Remove from the list of endonucleases the ones not matching the criteria in the form:
      * $minimum, $retype and $defined_sq
      * @param       array       $aEnzymes
@@ -220,67 +234,23 @@ class RestrictionDigestManager
     }
 
     /**
-     * @param $company
-     * @param $enzyme
-     * @return string
-     * @todo better integrate in twig
+     * Gets the commercial links to buy the enzymes
+     * @param   string      $company
+     * @param   string      $enzyme
+     * @return  array
      */
     public function showVendors($company, $enzyme)
     {
-        $company = " ".$company;
-        $sMessage = '<b>'.$enzyme.'</b><a href="http://rebase.neb.com/rebase/enz/'.$enzyme.'.html">REBASE</a>\n<pre>';
-        if(strpos($company,"C") > 0) {
-            $sMessage .= ' <a href="http://www.minotech.gr">Minotech Biotechnology</a>\n';
+        $enzyme_array = [];
+
+        $enzyme_array["company"] = ["name" => $company, "url" => "http://rebase.neb.com/rebase/enz/$enzyme.html"];
+
+        foreach($this->vendorLinks as $key => $data) {
+            if(strpos($company, $key) > 0) {
+                $enzyme_array["links"][] = $data;
+            }
         }
-        if(strpos($company,"E") > 0) {
-            $sMessage .= ' <a href="http://www.stratagene.com">Stratagene</a>\n';
-        }
-        if(strpos($company,"F") > 0) {
-            $sMessage .= ' <a href="http://www.fermentas.com/catalog/re/'.$re.'.htm">Fermentas AB</a>\n';
-        }
-        if(strpos($company,"H") > 0) {
-            $sMessage .= ' <a href="http://www.aablabs.com/">American Allied Biochemical, Inc.</a>\n';
-        }
-        if(strpos($company,"I") > 0) {
-            $sMessage .= ' <a href="http://www.sibenzyme.com">SibEnzyme Ltd.</a>\n';
-        }
-        if(strpos($company,"J") > 0) {
-            $sMessage .= ' <a href="http://www.nippongene.jp/">Nippon Gene Co., Ltd.</a>\n';
-        }
-        if(strpos($company,"K") > 0) {
-            $sMessage .= ' <a href="http://www.takarashuzo.co.jp/english/index.htm">Takara Shuzo Co. Ltd.</a>\n';
-        }
-        if(strpos($company,"M") > 0) {
-            $sMessage .= ' <a href="http://www.roche.com">Roche Applied Science</a>\n';
-        }
-        if(strpos($company,"N") > 0) {
-            $sMessage .= ' <a href="http://www.neb.com">New England Biolabs</a>\n';
-        }
-        if(strpos($company,"O") > 0) {
-            $sMessage .= ' <a href="http://www.toyobo.co.jp/e/">Toyobo Biochemicals</a>\n';
-        }
-        if(strpos($company,"P") > 0) {
-            $sMessage .= ' <a href="http://www.cvienzymes.com/">Megabase Research Products</a>\n';
-        }
-        if(strpos($company,"Q") > 0) {
-            $sMessage .= ' <a href="http://www.CHIMERx.com">CHIMERx</a>\n';
-        }
-        if(strpos($company,"R") > 0) {
-            $sMessage .= ' <a href="http://www.promega.com">Promega Corporation</a>\n';
-        }
-        if(strpos($company,"S") > 0) {
-            $sMessage .= ' <a href="http://www.sigmaaldrich.com/">Sigma Chemical Corporation</a>n\n';
-        }
-        if(strpos($company,"U") > 0) {
-            $sMessage .= ' <a href="http://www.bangaloregenei.com/">Bangalore Genei</a>\n';
-        }
-        if(strpos($company,"V") > 0) {
-            $sMessage .= ' <a href="http://www.mrc-holland.com">MRC-Holland</a>\n';
-        }
-        if(strpos($company,"X") > 0) {
-            $sMessage .= ' <a href="http://www.eurx.com.pl/index.php?op=catalog&cat=8">EURx Ltd.</a>\n';
-        }
-        $sMessage .= "</pre>";
-        return $sMessage;
+
+        return $enzyme_array;
     }
 }
