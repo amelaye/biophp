@@ -32,29 +32,26 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
+    MinitoolsBundle\Controller\:
+        resource: '../../src/MinitoolsBundle/Controller'
+        public: true
+        tags: ['controller.service_arguments']
 
-    app.parse_genbank_manager:
-        class: AppBundle\Service\ParseGenbankManager
+    AppBundle\Service\ParseGenbankManager: ~
     
-    app.parse_swissprot_manager:
-        class: AppBundle\Service\ParseSwissprotManager
-    
-    app.database_manager:
-        class: AppBundle\Service\DatabaseManager
+    AppBundle\Service\ParseSwissprotManager: ~
 
-    app.protein_manager:
-        class: AppBundle\Service\ProteinManager
+    AppBundle\Service\DatabaseManager: ~
+
+    AppBundle\Service\ProteinManager:
         arguments:
             - "%wts%"
 
-    app.oligos_manager:
-        class: AppBundle\Service\OligosManager
+    AppBundle\Service\OligosManager: ~
 
-    app.restriction_enzyme_manager:
-        class: AppBundle\Service\RestrictionEnzymeManager
+    AppBundle\Service\RestrictionEnzymeManager: ~
 
-    app.sequence_manager:
-        class: AppBundle\Service\SequenceManager
+    AppBundle\Service\SequenceManager:
         arguments:
             - "%dna_complements%"
             - "%rna_complements%"
@@ -62,71 +59,52 @@ services:
             - "%chemical_groups%"
             - "%codons%"
 
-    app.nucleotids_manager:
-        class: AppBundle\Service\NucleotidsManager
+    AppBundle\Service\NucleotidsManager: ~
 
-    app.seq_align_manager:
-        class: AppBundle\Service\SeqAlignManager
+    AppBundle\Service\SeqAlignManager:
         arguments:
             - "%alphabet%"
 
-    app.mathematics_manager:
-        class: AppBundle\Service\MathematicsManager
+    AppBundle\Service\MathematicsManager: ~
 
     AppBundle\Twig\AppExtension:
-        class: AppBundle\Twig\AppExtension
         arguments:
             - '%protein_colors%'
             - '%generic_colors%'
 
-    MinitoolsBundle\Controller\:
-        resource: '../../src/MinitoolsBundle/Controller'
-        public: true
-        tags: ['controller.service_arguments']
-
-    minitools.dna_to_protein_manager:
-        class: MinitoolsBundle\Service\DnaToProteinManager
+    MinitoolsBundle\Service\DnaToProteinManager:
         arguments:
             - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
 
-    minitools.protein_properties_manager:
-        class: MinitoolsBundle\Service\ProteinPropertiesManager
+    MinitoolsBundle\Service\ProteinPropertiesManager:
         arguments:
             - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
 
-    minitools.dna_to_protein_listener:
-        class: MinitoolsBundle\Listener\DnaToProteinListener
+    MinitoolsBundle\Listener\DnaToProteinListener: ~
 
-    minitools.chaos_game_representation_manager:
-        class: MinitoolsBundle\Service\ChaosGameRepresentationManager
+    MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
             - '%dna_complements%'
             - '%nucleotids_graphs%'
 
-    minitools.distance_among_sequences_manager:
-        class: MinitoolsBundle\Service\DistanceAmongSequencesManager
+    MinitoolsBundle\Service\DistanceAmongSequencesManager:
         arguments:
             - '%dna_complements%'
 
-    minitools.melting_temperature_manager:
-        class: MinitoolsBundle\Service\MeltingTemperatureManager
+    MinitoolsBundle\Service\MeltingTemperatureManager:
         arguments:
             - '%dna_weights%'
             - '%rna_weights%'
             - '%tm_base_stacking%'
             - '%elements%'
 
-    MinitoolsBundle\Service\FindPalindromeManager:
-        arguments:
-            - '@AppBundle\Service\NucleotidsManager'
+    MinitoolsBundle\Service\FindPalindromeManager: ~
 
-    MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager:
-        arguments:
-            - '@AppBundle\Service\MathematicsManager'
+    MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager: ~
 
     MinitoolsBundle\Service\ProteinToDnaManager:
         arguments:
