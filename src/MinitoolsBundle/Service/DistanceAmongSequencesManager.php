@@ -53,7 +53,7 @@ class DistanceAmongSequencesManager
      * DistanceAmongSequencesManager constructor.
      * @param $dnaComplements
      */
-    public function __construct($dnaComplements)
+    public function __construct(array $dnaComplements = [])
     {
         $this->dnaComplements = $dnaComplements;
     }

@@ -14,6 +14,7 @@ use Twig\Extension\AbstractExtension;
  * Class AppExtension
  * @package AppBundle\Twig
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @TODO : revoir pour le tagging as a service
  */
 class AppExtension extends AbstractExtension
 {
@@ -32,7 +33,7 @@ class AppExtension extends AbstractExtension
      * @param $protein_colors
      * @param $generic_colors
      */
-    public function __construct($protein_colors, $generic_colors)
+    public function __construct(array $protein_colors = [], array $generic_colors = [])
     {
         $this->protein_colors = $protein_colors;
         $this->generic_colors = $generic_colors;

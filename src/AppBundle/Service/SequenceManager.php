@@ -22,14 +22,19 @@ class SequenceManager
     
     /**
      * Constructor
-     * @param type $aDnaComplements
-     * @param type $aRnaComplements
-     * @param type $aElements
-     * @param type $aChemicalGroups
-     * @param type $aCodons
+     * @param array $aDnaComplements
+     * @param array $aRnaComplements
+     * @param array $aElements
+     * @param array $aChemicalGroups
+     * @param array $aCodons
      */
-    public function __construct($aDnaComplements, $aRnaComplements, $aElements, $aChemicalGroups, $aCodons)
-    {
+    public function __construct(
+        array $aDnaComplements = [],
+        array $aRnaComplements = [],
+        array $aElements = [],
+        array $aChemicalGroups = [],
+        array $aCodons = []
+    ) {
         $this->aDnaComplements  = $aDnaComplements;
         $this->aRnaComplements  = $aRnaComplements;
         $this->aElements        = $aElements;

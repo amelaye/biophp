@@ -43,7 +43,7 @@ class DnaToProteinManager
      * @param   array   $aTriplets
      * @param   array   $aTripletsCombinations
      */
-    public function __construct($aAminos, $aTriplets, $aTripletsCombinations)
+    public function __construct(array $aAminos = [], array $aTriplets = [], array $aTripletsCombinations = [])
     {
         $this->aAminos                  = $aAminos;
         $this->aTriplets                = $aTriplets;

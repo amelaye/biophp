@@ -4,7 +4,7 @@ services:
     # default configuration for services in *this* file
     _defaults:
         # automatically injects dependencies in your services
-        autowire: false
+        autowire: true
         # automatically registers your services as commands, event subscribers, etc.
         autoconfigure: true
         # this means you cannot fetch services directly from the container via $container->get()
@@ -32,31 +32,29 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    AppBundle\Service\ParseGenbankManager:
-        arguments: []
-    
-    AppBundle\Service\ParseSwissprotManager:
-        arguments: []
-    
-    AppBundle\Service\DatabaseManager:
-        arguments:
-            - '@doctrine.orm.entity_manager'
-            - '@AppBundle\Service\ParseGenbankManager'
-            - '@AppBundle\Service\ParseSwissprotManager'
 
-    AppBundle\Service\ProteinManager:
-        arguments: 
-            - '@AppBundle\Entity\Protein'
+    app.parse_genbank_manager:
+        class: AppBundle\Service\ParseGenbankManager
+    
+    app.parse_swissprot_manager:
+        class: AppBundle\Service\ParseSwissprotManager
+    
+    app.database_manager:
+        class: AppBundle\Service\DatabaseManager
+
+    app.protein_manager:
+        class: AppBundle\Service\ProteinManager
+        arguments:
             - "%wts%"
 
-    AppBundle\Service\OligosManager:
-        arguments: []
+    app.oligos_manager:
+        class: AppBundle\Service\OligosManager
 
-    AppBundle\Service\RestrictionEnzymeManager:
-        arguments:
-            - '@AppBundle\Entity\RestrictionEnzyme'
+    app.restriction_enzyme_manager:
+        class: AppBundle\Service\RestrictionEnzymeManager
 
-    AppBundle\Service\SequenceManager:
+    app.sequence_manager:
+        class: AppBundle\Service\SequenceManager
         arguments:
             - "%dna_complements%"
             - "%rna_complements%"
@@ -64,17 +62,19 @@ services:
             - "%chemical_groups%"
             - "%codons%"
 
-    AppBundle\Service\NucleotidsManager:
-        arguments: []
+    app.nucleotids_manager:
+        class: AppBundle\Service\NucleotidsManager
 
-    AppBundle\Service\SeqAlignManager:
+    app.seq_align_manager:
+        class: AppBundle\Service\SeqAlignManager
         arguments:
             - "%alphabet%"
 
-    AppBundle\Service\MathematicsManager:
-        arguments: []
+    app.mathematics_manager:
+        class: AppBundle\Service\MathematicsManager
 
     AppBundle\Twig\AppExtension:
+        class: AppBundle\Twig\AppExtension
         arguments:
             - '%protein_colors%'
             - '%generic_colors%'
@@ -84,36 +84,37 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    MinitoolsBundle\Service\DnaToProteinManager:
+    minitools.dna_to_protein_manager:
+        class: MinitoolsBundle\Service\DnaToProteinManager
         arguments:
             - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
 
-    MinitoolsBundle\Service\ProteinPropertiesManager:
+    minitools.protein_properties_manager:
+        class: MinitoolsBundle\Service\ProteinPropertiesManager
         arguments:
             - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
 
-    MinitoolsBundle\Listener\DnaToProteinListener:
-        arguments:
-            - '@MinitoolsBundle\Service\DnaToProteinManager'
+    minitools.dna_to_protein_listener:
+        class: MinitoolsBundle\Listener\DnaToProteinListener
 
-    MinitoolsBundle\Service\ChaosGameRepresentationManager:
+    minitools.chaos_game_representation_manager:
+        class: MinitoolsBundle\Service\ChaosGameRepresentationManager
         arguments:
-            - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
             - '%nucleotids_graphs%'
-            -
-    MinitoolsBundle\Service\DistanceAmongSequencesManager:
+
+    minitools.distance_among_sequences_manager:
+        class: MinitoolsBundle\Service\DistanceAmongSequencesManager
         arguments:
-            - '@AppBundle\Service\OligosManager'
             - '%dna_complements%'
 
-    MinitoolsBundle\Service\MeltingTemperatureManager:
+    minitools.melting_temperature_manager:
+        class: MinitoolsBundle\Service\MeltingTemperatureManager
         arguments:
-            - '@AppBundle\Service\NucleotidsManager'
             - '%dna_weights%'
             - '%rna_weights%'
             - '%tm_base_stacking%'
