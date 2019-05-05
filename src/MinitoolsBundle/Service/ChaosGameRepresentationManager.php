@@ -44,7 +44,7 @@ class ChaosGameRepresentationManager
      * @param   array           $dnaComplements
      * @param   array           $nucleotidsGraphs
      */
-    public function __construct(OligosManager $oligosManager, $dnaComplements, $nucleotidsGraphs)
+    public function __construct(OligosManager $oligosManager, array $dnaComplements = [], array $nucleotidsGraphs = [])
     {
         $this->oligosManager = $oligosManager;
         $this->dnaComplements = $dnaComplements;

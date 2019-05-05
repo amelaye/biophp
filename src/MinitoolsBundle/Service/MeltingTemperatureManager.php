@@ -52,10 +52,10 @@ class MeltingTemperatureManager
      */
     public function __construct(
         NucleotidsManager $oNucleotidsManager,
-        array $dnaWeights,
-        array $rnaWeights,
-        array $tmBaseStacking,
-        array $elements
+        array $dnaWeights = [],
+        array $rnaWeights = [],
+        array $tmBaseStacking = [],
+        array $elements = []
     )
     {
         $this->oNucleotidsManager   = $oNucleotidsManager;

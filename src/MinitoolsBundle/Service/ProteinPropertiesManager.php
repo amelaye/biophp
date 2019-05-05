@@ -35,7 +35,7 @@ class ProteinPropertiesManager
      * @param   array   $aTriplets
      * @param   array   $aTripletsCombinations
      */
-    public function __construct($aCodons, $aTriplets, $aTripletsCombinations)
+    public function __construct(array $aCodons = [], array $aTriplets = [], array $aTripletsCombinations = [])
     {
         $this->aCodons                  = $aCodons;
         $this->aTriplets                = $aTriplets;

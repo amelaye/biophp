@@ -9,7 +9,7 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Interfaces\RecordingOnLocalDb;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use SeqDatabaseBundle\Entity\Collection;
 use SeqDatabaseBundle\Entity\CollectionElement;
 use AppBundle\Entity\Sequence;
@@ -53,12 +53,12 @@ class DatabaseManager implements RecordingOnLocalDb
 
     /**
      * DatabaseManager constructor.
-     * @param EntityManager         $em                         Entity Manager, for Doctrine
+     * @param EntityManagerInterface         $em                         Entity Manager, for Doctrine
      * @param ParseGenbankManager   $parseGenbankManager        Service for GENBANK data
      * @param ParseSwissprotManager $parseSwissprotManager      Service for SwissProt data
      */
     public function __construct(
-        EntityManager $em,
+        EntityManagerInterface $em,
         ParseGenbankManager $parseGenbankManager,
         ParseSwissprotManager $parseSwissprotManager
     ) {

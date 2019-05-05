@@ -11,7 +11,7 @@ namespace AppBundle\Service;
 use AppBundle\Entity\Sequence;
 use AppBundle\Entity\RestrictionEnzime;
 
-class RestrictionEnzimeManager
+class RestrictionEnzymeManager
 {
     private $resten;
     private $aRestEnzimDB;
