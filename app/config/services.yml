@@ -37,19 +37,9 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    AppBundle\Service\ParseGenbankManager: ~
-    
-    AppBundle\Service\ParseSwissprotManager: ~
-
-    AppBundle\Service\DatabaseManager: ~
-
     AppBundle\Service\ProteinManager:
         arguments:
             - "%wts%"
-
-    AppBundle\Service\OligosManager: ~
-
-    AppBundle\Service\RestrictionEnzymeManager: ~
 
     AppBundle\Service\SequenceManager:
         arguments:
@@ -59,13 +49,9 @@ services:
             - "%chemical_groups%"
             - "%codons%"
 
-    AppBundle\Service\NucleotidsManager: ~
-
     AppBundle\Service\SeqAlignManager:
         arguments:
             - "%alphabet%"
-
-    AppBundle\Service\MathematicsManager: ~
 
     AppBundle\Twig\AppExtension:
         arguments:
@@ -84,8 +70,6 @@ services:
             - "%triplets%"
             - "%triplets_combinations%"
 
-    MinitoolsBundle\Listener\DnaToProteinListener: ~
-
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
             - '%dna_complements%'
@@ -101,10 +85,6 @@ services:
             - '%rna_weights%'
             - '%tm_base_stacking%'
             - '%elements%'
-
-    MinitoolsBundle\Service\FindPalindromeManager: ~
-
-    MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager: ~
 
     MinitoolsBundle\Service\ProteinToDnaManager:
         arguments:
