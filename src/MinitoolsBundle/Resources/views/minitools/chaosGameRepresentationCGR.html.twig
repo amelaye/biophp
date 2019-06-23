@@ -3,12 +3,14 @@
 {% block body %}
     <h1>Graphical representation of genomes and oligonucleotide frequencies (CGR)</h1>
 
-    <div class="card border-info mb-3" style="font-size:0.9em">
-        <div class="card-header">Results of your request</div>
-        <div class="card-body">
-            <img src="/CGR.png?{{ "now"|date("U") }}" border="1" />
+    {% if is_computed %}
+        <div class="card border-info mb-3" style="font-size:0.9em">
+            <div class="card-header">Results of your request</div>
+            <div class="card-body">
+                <img src="/CGR.png?{{ "now"|date("U") }}" border="1" />
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     <p>&nbsp;</p>
     {{ form_start(form) }}

@@ -17,6 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 
 class ChaosGameRepresentationType extends AbstractType
 {
@@ -108,7 +109,15 @@ class ChaosGameRepresentationType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
-                'data'  => $sampleADN
+                'data'  => $sampleADN,
+                'constraints' => array(
+                    new Length([
+                        'min' => 50,
+                        'max' => 50000,
+                        'minMessage' => 'Minumum sequence length: {{ limit }} bp',
+                        'maxMessage' => 'Sequence is longer than {{ limit }} bp. At this moment we can not provide this service to such a long sequences.'
+                    ]),
+                )
             ]
         );
 
@@ -140,17 +149,5 @@ class ChaosGameRepresentationType extends AbstractType
                 ]
             ]
         );
-    }
-
-
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        /*$resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\ChaosGameRepresentation'
-        ));*/
     }
 }
