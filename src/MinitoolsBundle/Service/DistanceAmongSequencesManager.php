@@ -3,7 +3,7 @@
  * DistanceAmongSequencesManager
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 11 march 2019
+ * Last modified 29 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;

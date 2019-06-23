@@ -9,6 +9,7 @@
 namespace MinitoolsBundle\Controller;
 
 
+use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 
@@ -74,12 +75,23 @@ use MinitoolsBundle\Service\RestrictionDigestManager;
  */
 class MinitoolsController extends Controller
 {
+    private $dnaComplements;
+
+    /**
+     * MinitoolsController constructor.
+     * @param Bioapi $bioapi
+     */
+    public function __construct(Bioapi $bioapi)
+    {
+        $this->dnaComplements = $bioapi->getDNAComplement();
+    }
+
     /**
      * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
-     * @param   string $schema
-     * @param   Request $request
-     * @param   ChaosGameRepresentationManager $chaosGameReprentationManager
-     * @param   OligosManager $oligosManager
+     * @param   string                          $schema
+     * @param   Request                         $request
+     * @param   ChaosGameRepresentationManager  $chaosGameReprentationManager
+     * @param   OligosManager                   $oligosManager
      * @return  Response
      * @throws  \Exception
      */
@@ -152,10 +164,15 @@ class MinitoolsController extends Controller
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
 
-            $aSeqData = $chaosGameReprentationManager->FCGRCompute($formData["seq"], $formData["len"], $formData["s"]);
+            $aSeqData = $chaosGameReprentationManager->FCGRCompute(
+                $formData["seq"],
+                $formData["len"],
+                $formData["s"],
+                $this->dnaComplements
+            );
 
             // compute nucleotide frequencies
-            foreach($this->getParameter('dna_complements') as $sNucleotide) {
+            foreach($this->dnaComplements as $sNucleotide) {
                 $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
             }
 
@@ -164,7 +181,7 @@ class MinitoolsController extends Controller
             $aOligos = $oligosManager->findOligos(
                 $aSeqData["sequence"],
                 $aSeqData["length"],
-                array_values($this->getParameter('dna_complements'))
+                array_values($this->dnaComplements)
             );
 
             // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
