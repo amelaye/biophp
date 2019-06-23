@@ -77,9 +77,10 @@ class MinitoolsController extends Controller
 {
     /**
      * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
-     * @param   Request                         $request
-     * @param   ChaosGameRepresentationManager  $chaosGameReprentationManager
-     * @param   OligosManager                   $oligosManager
+     * @param   string $schema
+     * @param   Request $request
+     * @param   ChaosGameRepresentationManager $chaosGameReprentationManager
+     * @param   OligosManager $oligosManager
      * @return  Response
      * @throws  \Exception
      */
@@ -94,67 +95,99 @@ class MinitoolsController extends Controller
         $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class, $oChaosGameRepresentation);
 
         if ($schema == "FCGR") {
-            $aOligos = null;
-            $for_map = null;
-            $aNucleotides = [];
-
-            if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-
-                $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
-
-                $aSeqData = $chaosGameReprentationManager->FCGRCompute();
-
-                // compute nucleotide frequencies
-                foreach($this->getParameter('dna_complements') as $sNucleotide) {
-                    $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
-                }
-
-                // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-                //      frequencies are saved to an array named $aOligos
-                $aOligos = $oligosManager->findOligos(
-                    $aSeqData["sequence"],
-                    $aSeqData["length"],
-                    array_values($this->getParameter('dna_complements'))
-                );
-
-                // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
-                //      check the function for more info on parameters
-                //      $data contains a string with the data to be used to create the image map
-                $for_map = $chaosGameReprentationManager->createFCGRImage(
-                    $aOligos,
-                    $oChaosGameRepresentation->getSeqName(),
-                    $aNucleotides,
-                    strlen($oChaosGameRepresentation->getSeq()),
-                    $oChaosGameRepresentation->getS(),
-                    $oChaosGameRepresentation->getLen()
-                );
-            }
-
-            return $this->render(
-                '@Minitools/Minitools/chaosGameRepresentationFCGR.html.twig',
-                [
-                    'form'              => $form->createView(),
-                    'oligos'            => $aOligos,
-                    'areas'             => $for_map,
-                    'is_map'            => $oChaosGameRepresentation->getMap(),
-                    'show_as_freq'      => $oChaosGameRepresentation->getFreq()
-                ]
-            );
+            return $this->fcgrCompute($request, $chaosGameReprentationManager, $form, $oChaosGameRepresentation, $oligosManager);
         }
 
         if ($schema == "CGR") {
-            if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-                $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
-                $chaosGameReprentationManager->CGRCompute();
+            return $this->cgrCompute($request, $chaosGameReprentationManager, $form, $oChaosGameRepresentation);
+        }
+    }
+
+
+    /**
+     * @param Request $request
+     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
+     * @param $form
+     * @param $oChaosGameRepresentation
+     * @return Response
+     * @throws \Exception
+     */
+    public function cgrCompute(Request $request, ChaosGameRepresentationManager $chaosGameReprentationManager,
+                               $form, $oChaosGameRepresentation)
+    {
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
+            $chaosGameReprentationManager->CGRCompute();
+        }
+
+        return $this->render(
+            '@Minitools/Minitools/chaosGameRepresentationCGR.html.twig',
+            [
+                'form'              => $form->createView(),
+            ]
+        );
+    }
+
+
+    /**
+     * @param Request $request
+     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
+     * @param $form
+     * @param $oChaosGameRepresentation
+     * @param $oligosManager
+     * @return Response
+     * @throws \Exception
+     */
+    public function fcgrCompute(Request $request,
+                                ChaosGameRepresentationManager $chaosGameReprentationManager,
+                                $form, $oChaosGameRepresentation, $oligosManager)
+    {
+        $aOligos = null;
+        $for_map = null;
+        $aNucleotides = [];
+
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+            $chaosGameReprentationManager->setChaosGameRepresentation($oChaosGameRepresentation);
+
+            $aSeqData = $chaosGameReprentationManager->FCGRCompute();
+
+            // compute nucleotide frequencies
+            foreach($this->getParameter('dna_complements') as $sNucleotide) {
+                $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
             }
 
-            return $this->render(
-                '@Minitools/Minitools/chaosGameRepresentationCGR.html.twig',
-                [
-                    'form'              => $form->createView(),
-                ]
+            // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
+            //      frequencies are saved to an array named $aOligos
+            $aOligos = $oligosManager->findOligos(
+                $aSeqData["sequence"],
+                $aSeqData["length"],
+                array_values($this->getParameter('dna_complements'))
+            );
+
+            // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
+            //      check the function for more info on parameters
+            //      $data contains a string with the data to be used to create the image map
+            $for_map = $chaosGameReprentationManager->createFCGRImage(
+                $aOligos,
+                $oChaosGameRepresentation->getSeqName(),
+                $aNucleotides,
+                strlen($oChaosGameRepresentation->getSeq()),
+                $oChaosGameRepresentation->getS(),
+                $oChaosGameRepresentation->getLen()
             );
         }
+
+        return $this->render(
+            '@Minitools/Minitools/chaosGameRepresentationFCGR.html.twig',
+            [
+                'form'              => $form->createView(),
+                'oligos'            => $aOligos,
+                'areas'             => $for_map,
+                'is_map'            => $oChaosGameRepresentation->getMap(),
+                'show_as_freq'      => $oChaosGameRepresentation->getFreq()
+            ]
+        );
     }
 
     /**
@@ -202,8 +235,6 @@ class MinitoolsController extends Controller
             // at this moment two arrays are available: $seqs (with sequences) and $seq_names (with name of sequences)
             // EUCLIDEAN DISTANCE
             if ($oDistanceAmongSequences->getMethod() == "euclidean") {
-                $seq_and_revseq = "";
-
                 // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
                 foreach ($seqs as $key => $val) {
                     // to compute oligonucleotide frequencies, both strands are used

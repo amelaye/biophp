@@ -3,13 +3,14 @@
  * Chaos Game Representation Functions
  * Inspired by BioPHP's project biophp.org
  * Created 3 march  2019
- * Last modified 9 march 2019
+ * Last modified 23 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use MinitoolsBundle\Entity\ChaosGameRepresentation;
 use AppBundle\Service\OligosManager;
+use AppBundle\Bioapi\Bioapi;
 
 /**
  * Class ChaosGameRepresentationManager
@@ -31,24 +32,31 @@ class ChaosGameRepresentationManager
     /**
      * @var array
      */
-    private $dnaComplements;
-
-    /**
-     * @var array
-     */
     private $nucleotidsGraphs;
+
+    private $bioapi;
 
     /**
      * ChaosGameRepresentationManager constructor.
      * @param   OligosManager   $oligosManager
-     * @param   array           $dnaComplements
      * @param   array           $nucleotidsGraphs
+     * @param   Bioapi          $bioapi
      */
-    public function __construct(OligosManager $oligosManager, array $dnaComplements = [], array $nucleotidsGraphs = [])
+    public function __construct(array $nucleotidsGraphs = [], OligosManager $oligosManager, Bioapi $bioapi)
     {
         $this->oligosManager = $oligosManager;
-        $this->dnaComplements = $dnaComplements;
         $this->nucleotidsGraphs = $nucleotidsGraphs;
+        $this->bioapi = $bioapi;
+    }
+
+    public function getDNAComplements()
+    {
+        $nucleos = $this->bioapi->getNucleotidsDNA();
+        $dnaComplements = array();
+        foreach($nucleos as $nucleo) {
+            $dnaComplements[$nucleo["letter"]] = $nucleo["complement"];
+        }
+        return $dnaComplements;
     }
 
     /**
@@ -106,7 +114,7 @@ class ChaosGameRepresentationManager
             // If double strand is requested to be computed...
             if ($this->chaosGameRepresentation->getS() == 2) {
                 $seqRevert = strrev($sSequence);
-                foreach ($this->dnaComplements as $nucleotide => $complement) {
+                foreach ($this->getDNAComplements() as $nucleotide => $complement) {
                     $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
                 }
                 $sSequence .= " ".strtoupper($seqRevert);

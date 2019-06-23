@@ -19,6 +19,8 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new MinitoolsBundle\MinitoolsBundle(),
             new SeqDatabaseBundle\SeqDatabaseBundle(),
+            new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
+            new JMS\SerializerBundle\JMSSerializerBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

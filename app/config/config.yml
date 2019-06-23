@@ -1,3 +1,9 @@
+csa_guzzle:
+    clients:
+        bioapi:
+            config:
+                base_uri: http://api.amelayes-biophp.net
+
 imports:
     - { resource: parameters.yml }
     - { resource: inc/chemical.yml }
