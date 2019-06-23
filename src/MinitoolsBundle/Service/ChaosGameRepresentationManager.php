@@ -8,8 +8,6 @@
  */
 namespace MinitoolsBundle\Service;
 
-use MinitoolsBundle\Entity\ChaosGameRepresentation;
-use AppBundle\Service\OligosManager;
 use AppBundle\Bioapi\Bioapi;
 
 /**
@@ -19,11 +17,6 @@ use AppBundle\Bioapi\Bioapi;
  */
 class ChaosGameRepresentationManager
 {
-    /**
-     * @var OligosManager
-     */
-    private $oligosManager;
-
     /**
      * @var array
      */
@@ -36,13 +29,11 @@ class ChaosGameRepresentationManager
 
     /**
      * ChaosGameRepresentationManager constructor.
-     * @param   OligosManager   $oligosManager
      * @param   array           $nucleotidsGraphs
      * @param   Bioapi          $bioapi
      */
-    public function __construct(array $nucleotidsGraphs, OligosManager $oligosManager, Bioapi $bioapi)
+    public function __construct(array $nucleotidsGraphs, Bioapi $bioapi)
     {
-        $this->oligosManager = $oligosManager;
         $this->nucleotidsGraphs = $nucleotidsGraphs;
         $this->bioapi = $bioapi;
     }
