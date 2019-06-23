@@ -8,8 +8,6 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
-
 /**
  * Class ChaosGameRepresentationManager
  * @package MinitoolsBundle\Service

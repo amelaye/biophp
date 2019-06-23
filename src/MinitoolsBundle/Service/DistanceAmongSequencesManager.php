@@ -3,27 +3,20 @@
  * DistanceAmongSequencesManager
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 29 june 2019
+ * Last modified 23 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Service\OligosManager;
-use MinitoolsBundle\Entity\DistanceAmongSequences;
 
 /**
  * Class DistanceAmongSequencesManager
  * @package MinitoolsBundle\Service
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
- * @todo : la classe n'est pas finie !
  */
 class DistanceAmongSequencesManager
 {
-    /**
-     * @var array
-     */
-    private $dnaComplements;
-
     /**
      * @var int
      */
@@ -34,47 +27,24 @@ class DistanceAmongSequencesManager
      */
     private $y = null;
 
-    /**
-     * @var int
-     */
-    private $min = null;
 
     /**
      * @var int
      */
     private $cases = null;
 
+    /**
+     * @var OligosManager
+     */
     private $oligosManager;
 
     /**
      * DistanceAmongSequencesManager constructor.
-     * @param array $dnaComplements
      * @param OligosManager $oligosManager
      */
-    public function __construct(array $dnaComplements, OligosManager $oligosManager)
+    public function __construct(OligosManager $oligosManager)
     {
-        $this->dnaComplements = $dnaComplements;
         $this->oligosManager = $oligosManager;
-    }
-
-    public function getX()
-    {
-        return $this->x;
-    }
-
-    public function getY()
-    {
-        return $this->y;
-    }
-
-    public function getMin()
-    {
-        return $this->min;
-    }
-
-    public function getCases()
-    {
-        return $this->cases;
     }
 
     /**
@@ -101,12 +71,13 @@ class DistanceAmongSequencesManager
      * @return mixed
      * @throws \Exception
      */
-    public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len)
+    public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len, $dnaComplements)
     {
+        $oligo_array = [];
         foreach ($seqs as $key => $val) {
             // to compute oligonucleotide frequencies, both strands are used
             $valRevert = strrev($val);
-            foreach ($this->dnaComplements as $nucleotide => $complement) {
+            foreach ($dnaComplements as $nucleotide => $complement) {
                 $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
             }
             $seq_and_revseq = $val." ".strtoupper($valRevert);
@@ -114,7 +85,7 @@ class DistanceAmongSequencesManager
             $oligos = $this->oligosManager->findOligos(
                 $seq_and_revseq,
                 $len,
-                array_values($this->dnaComplements)
+                array_values($dnaComplements)
             );
 
             $oligo_array[$key] = $this->standardFrecuencies($oligos, $len);
@@ -128,14 +99,15 @@ class DistanceAmongSequencesManager
      * @return mixed
      * @throws \Exception
      */
-    public function computeOligonucleotidsFrequencies($seqs)
+    public function computeOligonucleotidsFrequencies($seqs, $dnaComplements)
     {
+        $oligo_array = [];
         foreach ($seqs as $key => $theseq) {
             $aComputeZscores = $this->computeZscoresForTetranucleotides($theseq);
             $oligo_array[$key] = $this->oligosManager->findOligos(
                 $aComputeZscores,
                 4,
-                array_values($this->dnaComplements)
+                array_values($dnaComplements)
             );
         }
         return $oligo_array;
@@ -153,6 +125,7 @@ class DistanceAmongSequencesManager
      */
     public function computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array, $len)
     {
+        $data = [];
         foreach ($seqs as $key => $val) {
             foreach($seqs as $key2 => $val2) {
                 if ($key >= $key2) {
@@ -179,6 +152,7 @@ class DistanceAmongSequencesManager
      */
     public function computeDistancesAmongFrequencies($seqs, $oligo_array)
     {
+        $data = [];
         foreach($seqs as $key => $val){
             foreach($seqs as $key2 => $val2){
                 if ($key >= $key2) {
@@ -233,33 +207,33 @@ class DistanceAmongSequencesManager
 
                 // next 3 lines are required in windows for correct comparison
                 settype($key, "string");
-                settype($this->getX(), "string");
-                settype($this->getY(), "string");
+                settype($this->x, "string");
+                settype($this->y, "string");
 
-                if($key == $this->getX() || $key == $this->getY()) {
+                if($key == $this->x || $key == $this->y) {
                     continue;
                 }
-                if($a[$key][$this->getX()] != "") {
-                    if($a[$key][$this->getY()] != "") {
-                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$key][$this->getY()])/2;
+                if($a[$key][$this->x] != "") {
+                    if($a[$key][$this->y] != "") {
+                        $temp_a[$key]["($this->x,$this->y)"] = ($a[$key][$this->x]+$a[$key][$this->y])/2;
                     }
-                    if($a[$this->getX()][$key] != "") {
-                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$this->getX()][$key])/2;
+                    if($a[$this->x][$key] != "") {
+                        $temp_a[$key]["($this->x,$this->y)"] = ($a[$key][$this->x]+$a[$this->x][$key])/2;
                     }
-                    if($a[$this->getY()][$key] != "") {
-                        $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getX()]+$a[$this->getY()][$key])/2;
+                    if($a[$this->y][$key] != "") {
+                        $temp_a[$key]["($this->x,$this->y)"] = ($a[$key][$this->x]+$a[$this->y][$key])/2;
                     }
                 } else {
-                    if($a[$key][$this->getY()] != "") {
-                        if ($a[$this->getX()][$key] != "") {
-                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getY()]+$a[$this->getX()][$key])/2;
+                    if($a[$key][$this->y] != "") {
+                        if ($a[$this->x][$key] != "") {
+                            $temp_a[$key]["($this->x,$this->y)"] = ($a[$key][$this->y]+$a[$this->x][$key])/2;
                         }
-                        if($a[$this->getY()][$key] != "") {
-                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$key][$this->getY()]+$a[$this->getY()][$key])/2;
+                        if($a[$this->y][$key] != "") {
+                            $temp_a[$key]["($this->x,$this->y)"] = ($a[$key][$this->y]+$a[$this->y][$key])/2;
                         }
                     } else {
-                        if($a[$this->getY()][$key] != "") {
-                            $temp_a[$key]["($this->getX(),$this->getY())"] = ($a[$this->getY()][$key]+$a[$this->getY()][$key])/2;
+                        if($a[$this->y][$key] != "") {
+                            $temp_a[$key]["($this->x,$this->y)"] = ($a[$this->y][$key]+$a[$this->y][$key])/2;
                         }
                     }
                 }
@@ -267,7 +241,7 @@ class DistanceAmongSequencesManager
                 for($i = $j+1; $i < sizeof($cases); $i++) {
                     $key2 = $cases[$i];
                     settype($key2, "string");
-                    if ($key == $key2 || $key2 == $this->getX() || $key2 == $this->getY()) {
+                    if ($key == $key2 || $key2 == $this->x || $key2 == $this->y) {
                         continue;
                     }
                     if ($a[$key][$key2] != "") {
@@ -593,14 +567,14 @@ class DistanceAmongSequencesManager
     {
         while (sizeof($data) > 1) {
             $min = $this->minArray($data);
-            $comp[$this->getX()][$this->getY()] = $min;
+            $comp[$this->x][$this->y] = $min;
             $data = $this->newArray($data);
         }
 
         $min = $this->minArray($data);
 
-        $x = $this->getX();
-        $y = $this->getY();
+        $x = $this->x;
+        $y = $this->y;
 
         /*
          * end of clustering
