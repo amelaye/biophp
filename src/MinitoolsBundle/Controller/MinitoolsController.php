@@ -241,11 +241,11 @@ class MinitoolsController extends Controller
 
             // at this moment two arrays are available: $seqs (with sequences) and $seq_names (with name of sequences)
             if ($formData["method"] == "euclidean") { // EUCLIDEAN DISTANCE
-                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs, $length);
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs, $length, $this->dnaComplements);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array,$length);
             } else {
                 // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs);
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs, $this->dnaComplements);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }
 

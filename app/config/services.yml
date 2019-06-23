@@ -79,10 +79,6 @@ services:
         arguments:
             - '%nucleotids_graphs%' # keep it
 
-    MinitoolsBundle\Service\DistanceAmongSequencesManager:
-        arguments:
-            - '%dna_complements%'
-
     MinitoolsBundle\Service\MeltingTemperatureManager:
         arguments:
             - '%dna_weights%'
