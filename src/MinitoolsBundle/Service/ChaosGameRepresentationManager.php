@@ -31,6 +31,7 @@ class ChaosGameRepresentationManager
         $this->nucleotidsGraphs = $nucleotidsGraphs;
     }
 
+
     /**
      * Analyses Data before sending the image
      * @param   string  $sSeqName

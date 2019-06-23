@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 11 march 2019
+ * Last modified 23 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Form;
@@ -14,7 +14,9 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class DistanceAmongSequencesType extends AbstractType
 {
@@ -43,6 +45,12 @@ class DistanceAmongSequencesType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
+                'constraints' => array(
+                    new Length([
+                        'max' => 20000,
+                        'maxMessage' => 'This service does not handle input requests longer than {{ limit }} bp.'
+                    ]),
+                )
             ]
         );
 
@@ -80,17 +88,22 @@ class DistanceAmongSequencesType extends AbstractType
                 ]
             ]
         );
-    }
 
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+            if (isset($data['seq'])) {
+                // remove a couple of things from sequence
+                // whatever is before ">", which is the start of the first sequence
+                $allsequences = substr($data['seq'], strpos($data['seq'],">"));
+                // remove carriage returns ("\r"), but do not remove line feeds ("\n")
+                $allsequences = preg_replace("/\r/","", $allsequences);
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\DistanceAmongSequences'
-        ));
+                $data['seq'] = $allsequences;
+                $event->setData($data);
+            }
+        });
     }
 }

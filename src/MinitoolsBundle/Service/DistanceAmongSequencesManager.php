@@ -8,22 +8,17 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Service\OligosManager;
 use MinitoolsBundle\Entity\DistanceAmongSequences;
 
 /**
  * Class DistanceAmongSequencesManager
  * @package MinitoolsBundle\Service
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
- * @todo : enlever l'injection de dépendances
  * @todo : la classe n'est pas finie !
  */
 class DistanceAmongSequencesManager
 {
-    /**
-     * @var array
-     */
-    private $distanceAmongSequences;
-
     /**
      * @var array
      */
@@ -49,18 +44,17 @@ class DistanceAmongSequencesManager
      */
     private $cases = null;
 
+    private $oligosManager;
+
     /**
      * DistanceAmongSequencesManager constructor.
-     * @param $dnaComplements
+     * @param array $dnaComplements
+     * @param OligosManager $oligosManager
      */
-    public function __construct(array $dnaComplements = [])
+    public function __construct(array $dnaComplements, OligosManager $oligosManager)
     {
         $this->dnaComplements = $dnaComplements;
-    }
-
-    public function setDistanceAmongSequence(DistanceAmongSequences $distanceAmongSequences)
-    {
-        $this->distanceAmongSequences = $distanceAmongSequences;
+        $this->oligosManager = $oligosManager;
     }
 
     public function getX()
@@ -83,10 +77,122 @@ class DistanceAmongSequencesManager
         return $this->cases;
     }
 
-    public function computeEuclidianData()
+    /**
+     * Get the name of each sequence (save names to array $seq_name)
+     * @param $seqs
+     * @return array[]|false|string[]
+     */
+    public function formatSequences($seqs)
     {
-
+        $seqs = preg_split("/>/", $seqs,-1,PREG_SPLIT_NO_EMPTY);
+        foreach ($seqs as $key => $val) {
+            $seq_name[$key] = substr($val,0,strpos($val,"\n"));
+            $temp_val = substr($val,strpos($val,"\n"));
+            $temp_val = preg_replace("/\W|\d/","",$temp_val);
+            $seqs[$key] = strtoupper($temp_val);
+        }
+        return $seqs;
     }
+
+    /**
+     * COMPUTE OLIGONUCLEOTIDE FREQUENCIES
+     * @param $seqs
+     * @param $len
+     * @return mixed
+     * @throws \Exception
+     */
+    public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len)
+    {
+        foreach ($seqs as $key => $val) {
+            // to compute oligonucleotide frequencies, both strands are used
+            $valRevert = strrev($val);
+            foreach ($this->dnaComplements as $nucleotide => $complement) {
+                $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
+            }
+            $seq_and_revseq = $val." ".strtoupper($valRevert);
+
+            $oligos = $this->oligosManager->findOligos(
+                $seq_and_revseq,
+                $len,
+                array_values($this->dnaComplements)
+            );
+
+            $oligo_array[$key] = $this->standardFrecuencies($oligos, $len);
+        }
+        return $oligo_array;
+    }
+
+    /**
+     * COMPUTE OLIGONUCLEOTIDE FREQUENCIES
+     * @param $seqs
+     * @return mixed
+     * @throws \Exception
+     */
+    public function computeOligonucleotidsFrequencies($seqs)
+    {
+        foreach ($seqs as $key => $theseq) {
+            $aComputeZscores = $this->computeZscoresForTetranucleotides($theseq);
+            $oligo_array[$key] = $this->oligosManager->findOligos(
+                $aComputeZscores,
+                4,
+                array_values($this->dnaComplements)
+            );
+        }
+        return $oligo_array;
+    }
+
+    /**
+     * COMPUTE DISTANCES AMONG SEQUENCES
+     * by computing Euclidean distance
+     *  standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
+     * @param $seqs
+     * @param $oligo_array
+     * @param $len
+     * @return mixed
+     * @throws \Exception
+     */
+    public function computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array, $len)
+    {
+        foreach ($seqs as $key => $val) {
+            foreach($seqs as $key2 => $val2) {
+                if ($key >= $key2) {
+                    continue;
+                }
+                $data[$key][$key2] = $this->euclidDistance(
+                    $oligo_array[$key],
+                    $oligo_array[$key2],
+                    $len
+                );
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * COMPUTE DISTANCES AMONG SEQUENCES
+     * by computing Pearson distance
+     * standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
+     * @param $seqs
+     * @param $oligo_array
+     * @return mixed
+     * @throws \Exception
+     */
+    public function computeDistancesAmongFrequencies($seqs, $oligo_array)
+    {
+        foreach($seqs as $key => $val){
+            foreach($seqs as $key2 => $val2){
+                if ($key >= $key2) {
+                    continue;
+                }
+                $data[$key][$key2]= $this->pearsonDistance(
+                    $oligo_array[$key],
+                    $oligo_array[$key2]
+                );
+            }
+        }
+        return $data;
+    }
+
 
     /**
      * @param $a
@@ -220,7 +326,7 @@ class DistanceAmongSequencesManager
      * @param $comp
      * @throws \Exception
      */
-    public function createDendrogram($str, $comp, $dendogramFile)
+    public function createDendrogram($str, $comp, $dendogramFile, $method, $len)
     {
         try {
             $w      = 20;          //height for each line (case)
@@ -332,8 +438,8 @@ class DistanceAmongSequencesManager
             imageline($im, $val4+20, ($pos1b+$pos2b)*$w/2, $val4+40, ($pos1b+$pos2b)*$w/2, $black);
             imageline($im, 20, $y, $width*1.2, $y, $black);
 
-            if ($this->distanceAmongSequences->getMethod() == "euclidean") {
-                imagestring($im, 2, 5, $rows*$w+25,  "Euclidean distance for ".$this->distanceAmongSequences->getLen()." bases long oligonucleotides.", $red);
+            if ($method == "euclidean") {
+                imagestring($im, 2, 5, $rows*$w+25,  "Euclidean distance for ".$len." bases long oligonucleotides.", $red);
             } else {
                 imagestring($im, 2, 5, $rows*$w+25,  "Pearson distance for z-scores of tetranucleotides.", $red);
             }
@@ -352,12 +458,12 @@ class DistanceAmongSequencesManager
      * @return float|int
      * @throws \Exception
      */
-    public function euclidDistance($a,$b)
+    public function euclidDistance($a,$b,$len)
     {
         try {
             // Wang et al, Gene 2005; 346:173-185
-            $c = sqrt(pow(2,$this->distanceAmongSequences->getLen()))
-                / pow(4,$this->distanceAmongSequences->getLen());   // content
+            $c = sqrt(pow(2, $len))
+                / pow(4, $len);   // content
             $sum = 0;
             foreach($a as $key => $val) {
                 $sum += pow($val-$b[$key],2);
@@ -375,7 +481,7 @@ class DistanceAmongSequencesManager
      * @return int | void
      * @throws \Exception
      */
-    public function pearsonDistance($vals_x,$vals_y)
+    public function pearsonDistance($vals_x, $vals_y)
     {
         try {
             // normal correlation
@@ -443,31 +549,8 @@ class DistanceAmongSequencesManager
                 $oligos4[$seq]++;
                 $i++;
             }
-            /*$base_a = ["A","C","G","T"];
-            $base_b = ["A","C","G","T"];
-            $base_c = ["A","C","G","T"];
-            $base_d = ["A","C","G","T"];
-            $base_e = ["A","C","G","T"];
-            $base_f = ["A","C","G","T"];
 
-            // COMPUTE Z-SCORES FOR TETRANUCLEOTIDES
-            $i = 0;
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            $exp[$val_a.$val_b.$val_c.$val_d] = ($oligos3[$val_a.$val_b.$val_c]
-                                    * $oligos3[$val_b.$val_c.$val_d]) / $oligos2[$val_b.$val_c];
-                            $var[$val_a.$val_b.$val_c.$val_d] = $exp[$val_a.$val_b.$val_c.$val_d]
-                                * ((($oligos2[$val_b.$val_c] - $oligos3[$val_a.$val_b.$val_c]) * ($oligos2[$val_b.$val_c]-$oligos3[$val_b.$val_c.$val_d]))
-                                    / pow($oligos2[$val_b.$val_c],2));
-                            $zscore[$i] = ($oligos4[$val_a.$val_b.$val_c.$val_d] - $exp[$val_a.$val_b.$val_c.$val_d])
-                                / sqrt($var[$val_a.$val_b.$val_c.$val_d]);
-                            $i ++;
-                        }
-                    }
-                }
-            }*/
+            $zscore = $this->oligosManager->findZScore($this->dnaComplements, $oligos2, $oligos3, $oligos4);
 
             return $zscore;
         } catch (\Exception $e) {
@@ -480,14 +563,14 @@ class DistanceAmongSequencesManager
      * @return mixed
      * @throws \Exception
      */
-    public function standardFrecuencies($array)
+    public function standardFrecuencies($array, $len)
     {
         try {
             $sum = 0;
             foreach($array as $k => $v) {
                 $sum += $v;
             }
-            $c = pow(4, $this->distanceAmongSequences->getLen()) / $sum;
+            $c = pow(4, $len) / $sum;
             foreach($array as $k => $v) {
                 $array[$k] = $c * $v;
             }
@@ -495,5 +578,44 @@ class DistanceAmongSequencesManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
+    }
+
+    /**
+     * Perform UPGMA Clustering
+     * in each loop, array $data is reduced (one case per loop)
+     * @param $data
+     * @param $method
+     * @param $len
+     * @param $dendogramFile
+     * @throws \Exception
+     */
+    public function upgmaClustering($data, $method, $len, $dendogramFile)
+    {
+        while (sizeof($data) > 1) {
+            $min = $this->minArray($data);
+            $comp[$this->getX()][$this->getY()] = $min;
+            $data = $this->newArray($data);
+        }
+
+        $min = $this->minArray($data);
+
+        $x = $this->getX();
+        $y = $this->getY();
+
+        /*
+         * end of clustering
+         * array $comp stores the important data
+         */
+        $comp[$x][$y] = $min;
+
+        /*
+         * $textcluster is the results of the cluster as text.
+         * p.e.:  ((3,4),7),(((5,6),1),2)
+         */
+        $textcluster = $x.",".$y;
+
+
+        // CREATE THE IMAGE WITH THE DENDROGRAM
+        $this->createDendrogram($textcluster, $comp, $dendogramFile, $method, $len);
     }
 }
