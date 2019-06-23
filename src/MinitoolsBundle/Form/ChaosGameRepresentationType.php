@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 9 march 2019
+ * Last modified 23 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Form;
@@ -16,8 +16,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class ChaosGameRepresentationType extends AbstractType
 {
@@ -149,5 +150,20 @@ class ChaosGameRepresentationType extends AbstractType
                 ]
             ]
         );
+
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['seq'])) {
+                $sSequence = strtoupper($data['seq']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+
+                $data['seq'] = $sSequence;
+                $event->setData($data);
+            }
+        });
     }
 }

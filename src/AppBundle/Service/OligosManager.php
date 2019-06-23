@@ -3,8 +3,8 @@
  * Oligo-Nucleotids Functions
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
- * Created 9 march  2019
- * Last modified 11 march 2019
+ * Created 9 march 2019
+ * Last modified 23 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service;
@@ -21,7 +21,6 @@ class OligosManager
     private $base_h;
 
 
-
     /**
      * For oligos 2 bases long
      * @param $oligos_1step
@@ -33,9 +32,11 @@ class OligosManager
         $this->base_a = $dnaComplements;
         $this->base_b = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
-                if($oligos_1step[$val_a.$val_b]) {
+                if(isset($oligos_1step[$val_a.$val_b])) {
                     $oligos[$val_a.$val_b] = $oligos_1step[$val_a.$val_b];
                 } else {
                     $oligos[$val_a.$val_b] = 0;
@@ -56,6 +57,8 @@ class OligosManager
         $this->base_a = $dnaComplements;
         $this->base_b = $dnaComplements;
         $this->base_c = $dnaComplements;
+
+        $oligos = [];
 
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
@@ -84,11 +87,13 @@ class OligosManager
         $this->base_c = $dnaComplements;
         $this->base_d = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
                     foreach($this->base_d as $key_d => $val_d) {
-                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d]) {
+                        if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d])) {
                             $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_1step[$val_a.$val_b.$val_c.$val_d];
                         } else {
                             $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
@@ -114,12 +119,14 @@ class OligosManager
         $this->base_d = $dnaComplements;
         $this->base_e = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
                     foreach($this->base_d as $key_d => $val_d) {
                         foreach($this->base_e as $key_e => $val_e) {
-                            if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e]) {
+                            if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e])) {
                                 $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e];
                             } else {
                                 $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
@@ -147,13 +154,15 @@ class OligosManager
         $this->base_e = $dnaComplements;
         $this->base_f = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
                     foreach($this->base_d as $key_d => $val_d) {
                         foreach($this->base_e as $key_e => $val_e) {
                             foreach($this->base_f as $key_f => $val_f) {
-                                if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
+                                if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f])) {
                                     $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
                                 } else {
                                     $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
@@ -183,6 +192,8 @@ class OligosManager
         $this->base_f = $dnaComplements;
         $this->base_g = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
@@ -190,7 +201,7 @@ class OligosManager
                         foreach($this->base_e as $key_e => $val_e) {
                             foreach($this->base_f as $key_f => $val_f) {
                                 foreach($this->base_g as $key_g => $val_g) {
-                                    if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g]) {
+                                    if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g])) {
                                         $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g];
                                     } else {
                                         $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = 0;
@@ -222,6 +233,8 @@ class OligosManager
         $this->base_g = $dnaComplements;
         $this->base_h = $dnaComplements;
 
+        $oligos = [];
+
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
@@ -230,7 +243,7 @@ class OligosManager
                             foreach($this->base_f as $key_f => $val_f) {
                                 foreach($this->base_g as $key_g => $val_g) {
                                     foreach($this->base_h as $key_h => $val_h) {
-                                        if($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h]) {
+                                        if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h])) {
                                             $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h];
                                         } else {
                                             $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = 0;
@@ -250,6 +263,7 @@ class OligosManager
      * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
      * @param       string      $sSequence
      * @param       int         $iOligoLen
+     * @param       array       $aDnaComplements
      * @return      array
      * @throws      \Exception
      */

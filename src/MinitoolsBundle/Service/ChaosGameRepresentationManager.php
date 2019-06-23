@@ -65,26 +65,27 @@ class ChaosGameRepresentationManager
 
     /**
      * Analyses Data before sending the image
-     * @throws \Exception
+     * @param   string  $sSeqName
+     * @param   string  $sSequence
+     * @param   int     $iSize
+     * @throws  \Exception
      */
-    public function CGRCompute($seq_name, $seq, $size)
+    public function CGRCompute($sSeqName, $sSequence, $iSize)
     {
         try {
-            $seq = preg_replace("/\W|\d/", "", $seq);
+            $iSeqLen = strlen($sSequence);
 
-            $seq_len = strlen($seq);
-
-            if($size == "auto") {
-                $size = 256;
-                if($seq_len > 1000000) {
-                    $size = 1024;
+            if($iSize == "auto") {
+                $iSize = 256;
+                if($iSeqLen > 1000000) {
+                    $iSize = 1024;
                 }
-                if($seq_len > 100000) {
-                    $size = 512;
+                if($iSeqLen > 100000) {
+                    $iSize = 512;
                 }
             }
 
-            $this->createCGRImage($seq_name, $seq, $size);
+            $this->createCGRImage($sSeqName, $sSequence, $iSize);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -93,18 +94,17 @@ class ChaosGameRepresentationManager
 
     /**
      * Gets data sequences
+     * @param   string      $sSequence
+     * @param   int         $iOligoLen
+     * @param   int         $iStrand
      * @return  array
      * @throws  \Exception
      */
-    public function FCGRCompute($seq, $len, $s)
+    public function FCGRCompute($sSequence, $iOligoLen, $iStrand)
     {
         try {
-            $sSequence = strtoupper($seq);
-            $sSequence = preg_replace ("/\W|\d/", "", $sSequence);
-            $iOligoLen = $len;
-
             // If double strand is requested to be computed...
-            if ($s == 2) {
+            if ($iStrand == 2) {
                 $seqRevert = strrev($sSequence);
                 foreach ($this->getDNAComplements() as $nucleotide => $complement) {
                     $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
@@ -501,11 +501,11 @@ class ChaosGameRepresentationManager
 
     /**
      * Creates the different positions of areas
-     * @param array $aRatio
-     * @param string $sThecolor
-     * @param $im
-     * @return array
-     * @throws \Exception
+     * @param   array   $aRatio
+     * @param   string  $sThecolor
+     * @param   $im
+     * @return  array
+     * @throws  \Exception
      */
     private function mapAreaData($aRatio, $sThecolor, $im)
     {
