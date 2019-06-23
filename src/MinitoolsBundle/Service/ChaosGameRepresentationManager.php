@@ -20,11 +20,6 @@ use AppBundle\Bioapi\Bioapi;
 class ChaosGameRepresentationManager
 {
     /**
-     * @var ChaosGameRepresentation
-     */
-    private $chaosGameRepresentation;
-
-    /**
      * @var OligosManager
      */
     private $oligosManager;
@@ -34,6 +29,9 @@ class ChaosGameRepresentationManager
      */
     private $nucleotidsGraphs;
 
+    /**
+     * @var Bioapi
+     */
     private $bioapi;
 
     /**
@@ -42,13 +40,18 @@ class ChaosGameRepresentationManager
      * @param   array           $nucleotidsGraphs
      * @param   Bioapi          $bioapi
      */
-    public function __construct(array $nucleotidsGraphs = [], OligosManager $oligosManager, Bioapi $bioapi)
+    public function __construct(array $nucleotidsGraphs, OligosManager $oligosManager, Bioapi $bioapi)
     {
         $this->oligosManager = $oligosManager;
         $this->nucleotidsGraphs = $nucleotidsGraphs;
         $this->bioapi = $bioapi;
     }
 
+
+    /**
+     * Finds the DNA complements through the API
+     * @return array
+     */
     public function getDNAComplements()
     {
         $nucleos = $this->bioapi->getNucleotidsDNA();
@@ -59,28 +62,19 @@ class ChaosGameRepresentationManager
         return $dnaComplements;
     }
 
-    /**
-     * @param ChaosGameRepresentation $chaosGameRepresentation
-     */
-    public function setChaosGameRepresentation(ChaosGameRepresentation $chaosGameRepresentation)
-    {
-        $this->chaosGameRepresentation = $chaosGameRepresentation;
-    }
 
     /**
      * Analyses Data before sending the image
      * @throws \Exception
      */
-    public function CGRCompute()
+    public function CGRCompute($seq_name, $seq, $size)
     {
         try {
-            $seq_name = $this->chaosGameRepresentation->getSeqName();
-            $seq = strtoupper($this->chaosGameRepresentation->getSeq());
             $seq = preg_replace("/\W|\d/", "", $seq);
 
             $seq_len = strlen($seq);
 
-            if($this->chaosGameRepresentation->getSize() == "auto") {
+            if($size == "auto") {
                 $size = 256;
                 if($seq_len > 1000000) {
                     $size = 1024;
@@ -88,8 +82,6 @@ class ChaosGameRepresentationManager
                 if($seq_len > 100000) {
                     $size = 512;
                 }
-            } else {
-                $size = $this->chaosGameRepresentation->getSize();
             }
 
             $this->createCGRImage($seq_name, $seq, $size);
@@ -104,15 +96,15 @@ class ChaosGameRepresentationManager
      * @return  array
      * @throws  \Exception
      */
-    public function FCGRCompute()
+    public function FCGRCompute($seq, $len, $s)
     {
         try {
-            $sSequence = strtoupper($this->chaosGameRepresentation->getSeq());
+            $sSequence = strtoupper($seq);
             $sSequence = preg_replace ("/\W|\d/", "", $sSequence);
-            $iOligoLen = $this->chaosGameRepresentation->getLen();
+            $iOligoLen = $len;
 
             // If double strand is requested to be computed...
-            if ($this->chaosGameRepresentation->getS() == 2) {
+            if ($s == 2) {
                 $seqRevert = strrev($sSequence);
                 foreach ($this->getDNAComplements() as $nucleotide => $complement) {
                     $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);

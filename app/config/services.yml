@@ -77,7 +77,7 @@ services:
 
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
-            - '%nucleotids_graphs%'
+            - '%nucleotids_graphs%' # keep it
 
     MinitoolsBundle\Service\DistanceAmongSequencesManager:
         arguments:
