@@ -23,36 +23,13 @@ class ChaosGameRepresentationManager
     private $nucleotidsGraphs;
 
     /**
-     * @var Bioapi
-     */
-    private $bioapi;
-
-    /**
      * ChaosGameRepresentationManager constructor.
      * @param   array           $nucleotidsGraphs
-     * @param   Bioapi          $bioapi
      */
-    public function __construct(array $nucleotidsGraphs, Bioapi $bioapi)
+    public function __construct(array $nucleotidsGraphs)
     {
         $this->nucleotidsGraphs = $nucleotidsGraphs;
-        $this->bioapi = $bioapi;
     }
-
-
-    /**
-     * Finds the DNA complements through the API
-     * @return array
-     */
-    public function getDNAComplements()
-    {
-        $nucleos = $this->bioapi->getNucleotidsDNA();
-        $dnaComplements = array();
-        foreach($nucleos as $nucleo) {
-            $dnaComplements[$nucleo["letter"]] = $nucleo["complement"];
-        }
-        return $dnaComplements;
-    }
-
 
     /**
      * Analyses Data before sending the image
@@ -88,16 +65,18 @@ class ChaosGameRepresentationManager
      * @param   string      $sSequence
      * @param   int         $iOligoLen
      * @param   int         $iStrand
+     * @param   array       $aDNAComplements
      * @return  array
      * @throws  \Exception
      */
-    public function FCGRCompute($sSequence, $iOligoLen, $iStrand)
+    public function FCGRCompute($sSequence, $iOligoLen, $iStrand, $aDNAComplements)
     {
         try {
             // If double strand is requested to be computed...
             if ($iStrand == 2) {
                 $seqRevert = strrev($sSequence);
-                foreach ($this->getDNAComplements() as $nucleotide => $complement) {
+                dump($aDNAComplements);
+                foreach ($aDNAComplements as $nucleotide => $complement) {
                     $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
                 }
                 $sSequence .= " ".strtoupper($seqRevert);
