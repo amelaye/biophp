@@ -217,138 +217,40 @@ class MinitoolsController extends Controller
      * @Route("/minitools/distance-among-sequences", name="distance_among_sequences")
      * @param   Request                         $request
      * @param   DistanceAmongSequencesManager   $oDistanceAmongSequencesManager
-     * @param   OligosManager                   $oligosManager
      * @return  Response
      * @throws \Exception
      */
     public function distanceAmongSequencesAction(
         Request $request,
-        DistanceAmongSequencesManager $oDistanceAmongSequencesManager,
-        OligosManager $oligosManager
+        DistanceAmongSequencesManager $oDistanceAmongSequencesManager
     )
     {
-        $oDistanceAmongSequences = new DistanceAmongSequences();
-        $form = $this->get('form.factory')->create(DistanceAmongSequencesType::class, $oDistanceAmongSequences);
+        $form = $this->get('form.factory')->create(DistanceAmongSequencesType::class);
 
         $oligo_array = [];
         $data = [];
         $textcluster = "";
         $seq_name = "";
         $dendogramFile = "";
+        $length = 0;
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $formData = $form->getData();
+            $length = $formData["len"];
+            $seqs = $oDistanceAmongSequencesManager->formatSequences($formData["seq"]);
 
-            $oDistanceAmongSequencesManager->setDistanceAmongSequence($oDistanceAmongSequences);
-
-            $allsequences = $oDistanceAmongSequences->getSeq();
-
-            //remove a couple of things from sequence
-            $allsequences = substr($allsequences,strpos($allsequences,">"));      // whatever is before ">", which is the start of the first sequence
-            $allsequences = preg_replace("/\r/","",$allsequences);    // remove carriage returns ("\r"), but do not remove line feeds ("\n")
-
-            $seqs = preg_split("/>/",$allsequences,-1,PREG_SPLIT_NO_EMPTY);
-
-            // get the name of each sequence (save names to array $seq_name)
-            foreach ($seqs as $key => $val) {
-                $seq_name[$key] = substr($val,0,strpos($val,"\n"));
-                $temp_val = substr($val,strpos($val,"\n"));
-                $temp_val = preg_replace("/\W|\d/","",$temp_val);
-                $seqs[$key] = strtoupper($temp_val);
-            }
             // at this moment two arrays are available: $seqs (with sequences) and $seq_names (with name of sequences)
-            // EUCLIDEAN DISTANCE
-            if ($oDistanceAmongSequences->getMethod() == "euclidean") {
-                // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-                foreach ($seqs as $key => $val) {
-                    // to compute oligonucleotide frequencies, both strands are used
-                    $valRevert = strrev($val);
-                    foreach ($this->getParameter('dna_complements') as $nucleotide => $complement) {
-                        $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
-                    }
-                    $seq_and_revseq = $val." ".strtoupper($valRevert);
-
-                    $oligos = $oligosManager->findOligos(
-                        $seq_and_revseq,
-                        $oDistanceAmongSequences->getLen(),
-                        array_values($this->getParameter('dna_complements'))
-                    );
-
-                    $oligo_array[$key] = $oDistanceAmongSequencesManager->standardFrecuencies($oligos);
-                }
-
-
-                // COMPUTE DISTANCES AMONG SEQUENCES
-                //    by computing Euclidean distance
-                //    standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
-                foreach ($seqs as $key => $val) {
-                    foreach($seqs as $key2 => $val2) {
-                        if ($key >= $key2) {
-                            continue;
-                        }
-                        $data[$key][$key2] = $oDistanceAmongSequencesManager->euclidDistance(
-                            $oligo_array[$key],
-                            $oligo_array[$key2]
-                        );
-                    }
-                }
+            if ($formData["method"] == "euclidean") { // EUCLIDEAN DISTANCE
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs, $length);
+                $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array,$length);
             } else {
                 // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-                foreach ($seqs as $key => $theseq) {
-                    $aComputeZscores = $oDistanceAmongSequencesManager->computeZscoresForTetranucleotides($theseq);
-                    $oligo_array[$key] = $oligosManager->findOligos(
-                        $aComputeZscores,
-                        4,
-                        array_values($this->getParameter('dna_complements'))
-                    );
-                }
-                // COMPUTE DISTANCES AMONG SEQUENCES
-                //    by computing Pearson distance
-                //    standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
-                foreach($seqs as $key => $val){
-                    foreach($seqs as $key2 => $val2){
-                        if ($key >= $key2) {
-                            continue;
-                        }
-                        $data[$key][$key2]= $oDistanceAmongSequencesManager->pearsonDistance(
-                            $oligo_array[$key],
-                            $oligo_array[$key2]
-                        );
-                    }
-                }
-
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs);
+                $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }
-
-            /*
-             * NEXT LINES WILL PERFORM UPGMA CLUSTERING
-             * in each loop, array $data is reduced (one case per loop)
-             */
-            while (sizeof($data) > 1) {
-                $min = $oDistanceAmongSequencesManager->minArray($data);
-                $comp[$oDistanceAmongSequencesManager->getX()][$oDistanceAmongSequencesManager->getY()] = $min;
-                $data = $oDistanceAmongSequencesManager->newArray($data);
-            }
-
-            $min = $oDistanceAmongSequencesManager->minArray($data);
-
-            $x = $oDistanceAmongSequencesManager->getX();
-            $y = $oDistanceAmongSequencesManager->getY();
-
-            /*
-             * end of clustering
-             * array $comp stores the important data
-             */
-            $comp[$x][$y] = $min;
-
-            /*
-             * $textcluster is the results of the cluster as text.
-             * p.e.:  ((3,4),7),(((5,6),1),2)
-             */
-            $textcluster = $x.",".$y;
 
             $dendogramFile = $this->getParameter('nucleotids_graphs')['dendogram_file'];
-
-            // CREATE THE IMAGE WITH THE DENDROGRAM
-            $oDistanceAmongSequencesManager->createDendrogram($textcluster, $comp, $dendogramFile);
+            $oDistanceAmongSequencesManager->upgmaClustering($data, $formData["method"], $length, $dendogramFile);
         }
 
 
@@ -358,7 +260,7 @@ class MinitoolsController extends Controller
                 'form'              => $form->createView(),
                 'oligo_array'       => $oligo_array,
                 'data'              => $data,
-                'length'            => $oDistanceAmongSequences->getLen(),
+                'length'            => $length,
                 'seq_names'         => $seq_name,
                 'textcluster'       => $textcluster,
                 'dendogram_file'    => $dendogramFile

@@ -322,4 +322,42 @@ class OligosManager
             throw new \Exception($e);
         }
     }
+
+    /**
+     * COMPUTE Z-SCORES FOR TETRANUCLEOTIDES
+     * @param $dnaComplements
+     * @param $oligos2
+     * @param $oligos3
+     * @param $oligos4
+     * @return array
+     */
+    public function findZScore($dnaComplements, $oligos2, $oligos3, $oligos4)
+    {
+        $this->base_a = $dnaComplements;
+        $this->base_b = $dnaComplements;
+        $this->base_c = $dnaComplements;
+        $this->base_d = $dnaComplements;
+        $this->base_e = $dnaComplements;
+        $this->base_f = $dnaComplements;
+
+        $i = 0;
+        $zscore = [];
+        foreach($this->base_a as $key_a => $val_a) {
+            foreach($this->base_b as $key_b => $val_b) {
+                foreach($this->base_c as $key_c => $val_c) {
+                    foreach($this->base_d as $key_d => $val_d) {
+                        $exp[$val_a.$val_b.$val_c.$val_d] = ($oligos3[$val_a.$val_b.$val_c] * $oligos3[$val_b.$val_c.$val_d]) / $oligos2[$val_b.$val_c];
+                        $var[$val_a.$val_b.$val_c.$val_d] = $exp[$val_a.$val_b.$val_c.$val_d]
+                            * ((($oligos2[$val_b.$val_c] - $oligos3[$val_a.$val_b.$val_c]) * ($oligos2[$val_b.$val_c]-$oligos3[$val_b.$val_c.$val_d]))
+                                / pow($oligos2[$val_b.$val_c],2));
+                        $zscore[$i] = ($oligos4[$val_a.$val_b.$val_c.$val_d] - $exp[$val_a.$val_b.$val_c.$val_d])
+                                / sqrt($var[$val_a.$val_b.$val_c.$val_d]);
+                        $i ++;
+                    }
+                }
+            }
+        }
+
+        return $zscore;
+    }
 }
