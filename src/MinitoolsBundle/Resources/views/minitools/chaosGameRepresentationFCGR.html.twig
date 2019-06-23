@@ -47,8 +47,17 @@
     {% endif %}
 
     <p>&nbsp;</p>
-    {{ form(form) }}
+    {{ form_start(form) }}
+    {{ form_row(form.seq_name) }}
+    {{ form_row(form.s) }}
+    {{ form_row(form.len) }}
+    {{ form_row(form.seq) }}
+    {{ form_row(form.map) }}
+    {{ form_row(form.freq) }}
+    {{ form_row(form.submit) }}
     {% do form.size.setRendered %}
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
     <p>&nbsp;</p>
 
     <div class="card">

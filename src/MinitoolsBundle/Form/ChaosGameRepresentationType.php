@@ -56,9 +56,10 @@ class ChaosGameRepresentationType extends AbstractType
             ChoiceType::class,
             [
                 'choices' => $optionsSize,
-                'label' => "Sequence name",
+                'label' => "Sequence size",
                 'attr' => [
-                    'class' => "form-control"
+                    'class' => "form-control",
+                    'mapped' => false
                 ]
             ]
         );
@@ -148,8 +149,8 @@ class ChaosGameRepresentationType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        /*$resolver->setDefaults(array(
             'data_class' => 'MinitoolsBundle\Entity\ChaosGameRepresentation'
-        ));
+        ));*/
     }
 }
