@@ -3,6 +3,7 @@
 {% block body %}
     <h1>Melting Temperature (Tm) Calculation</h1>
 
+    {% if primer != '' %}
     <div class="card border-info mb-3" style="font-size:0.9em" id="results">
         <div class="card-header">Results of your request</div>
         <div class="card-body">
@@ -35,6 +36,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 
     {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
     <div class="card bg-light mb-3">

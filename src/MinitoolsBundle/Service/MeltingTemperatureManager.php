@@ -3,7 +3,7 @@
  * MeltingTemperatureManager
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 26 march 2019
+ * Last modified 24 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -40,29 +40,89 @@ class MeltingTemperatureManager
     /**
      * @var NucleotidsManager
      */
-    private $oNucleotidsManager;
+    private $nucleotidsManager;
 
     /**
      * MeltingTemperatureManager constructor.
-     * @param   NucleotidsManager   $oNucleotidsManager     Service counting nucleotids
+     * @param   NucleotidsManager   $nucleotidsManager     Service counting nucleotids
      * @param   array               $dnaWeights             Array of A, T, G, C Weights
      * @param   array               $rnaWeights             Array of A, C, G, U Weights
      * @param   array               $tmBaseStacking         Basic temperatures of nucleotids combinations
      * @param   array               $elements               Weights of basic elements (for water)
      */
     public function __construct(
-        NucleotidsManager $oNucleotidsManager,
-        array $dnaWeights = [],
-        array $rnaWeights = [],
-        array $tmBaseStacking = [],
-        array $elements = []
+        $dnaWeights,
+        $rnaWeights,
+        $tmBaseStacking,
+        $elements,
+        NucleotidsManager $nucleotidsManager
     )
     {
-        $this->oNucleotidsManager   = $oNucleotidsManager;
+        $this->nucleotidsManager    = $nucleotidsManager;
         $this->dnaWeights           = $dnaWeights;
         $this->rnaWeights           = $rnaWeights;
         $this->tmBaseStacking       = $tmBaseStacking;
         $this->elements             = $elements;
+    }
+
+    /**
+     * Calculates CG
+     * @param       int     $primer
+     * @return      float
+     * @throws      \Exception
+     */
+    public function calculateCG($primer)
+    {
+        $cg = round(100 * $this->nucleotidsManager->countCG($primer) / strlen($primer),1);
+        return $cg;
+    }
+
+    /**
+     * Gets both the upper and lower MWT
+     * @param $upperMwt
+     * @param $lowerMwt
+     * @param $primer
+     * @throws \Exception
+     */
+    public function calculateMWT(&$upperMwt, &$lowerMwt, $primer)
+    {
+        $upperMwt = $this->molwt($primer,"DNA","upperlimit");
+        $lowerMwt = $this->molwt($primer,"DNA","lowerlimit");
+    }
+
+    /**
+     * @param $bBasic
+     * @param $primer
+     * @param $countATGC
+     * @param $tmMin
+     * @param $tmMax
+     * @throws \Exception
+     */
+    public function basicCalculations($bBasic, $primer, &$countATGC, &$tmMin, &$tmMax)
+    {
+        if($bBasic) {
+            $countATGC = $this->nucleotidsManager->countACGT($primer);
+            $tmMin = $this->tmMin($primer);
+            $tmMax = $this->tmMax($primer);
+        }
+    }
+
+    /**
+     * @param $bNearestNeighbor
+     * @param $aTmBaseStacking
+     * @param $primer
+     * @param $cp
+     * @param $cs
+     * @param $cmg
+     * @throws \Exception
+     */
+    public function neighborCalculations($bNearestNeighbor, &$aTmBaseStacking, $primer, $cp, $cs, $cmg)
+    {
+        if($bNearestNeighbor) {
+            $aTmBaseStacking = $this->tmBaseStacking(
+                $primer, $cp, $cs, $cmg
+            );
+        }
     }
 
     /**
@@ -78,7 +138,7 @@ class MeltingTemperatureManager
     public function tmBaseStacking($primer, $concPrimer, $concSalt, $concMg)
     {
         try {
-            if ($this->oNucleotidsManager->countACGT($primer) != strlen($primer)) {
+            if ($this->nucleotidsManager->countACGT($primer) != strlen($primer)) {
                 throw new \Exception("The oligonucleotide is not valid");
             }
             $h = $s = 0;
