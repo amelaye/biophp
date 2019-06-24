@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraint;
 class SequenceRecognition extends Constraint
 {
     public $message = "Sequence is not valid. At least one letter in the sequence is unknown (not a NC-UIBMB valid code)";
+    public $messageEmpty = "No sequence available";
 
     public function validatedBy()
     {
