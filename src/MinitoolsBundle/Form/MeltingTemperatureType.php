@@ -3,7 +3,7 @@
  * Entity MeltingTemperature for Form
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 26 march 2019
+ * Last modified 24 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Form;
@@ -112,15 +112,5 @@ class MeltingTemperatureType extends AbstractType
                 ]
             ]
         );
-    }
-
-    /**
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\MeltingTemperature'
-        ));
     }
 }

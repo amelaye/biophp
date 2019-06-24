@@ -379,55 +379,41 @@ class MinitoolsController extends Controller
      * @Route("/minitools/melting-temperature", name="melting_temperature")
      * @param   Request                     $request
      * @param   MeltingTemperatureManager   $oMeltingTemperatureManager
-     * @param   NucleotidsManager           $oNucleotidsManager
      * @return  Response
      * @throws  \Exception
      */
     public function meltingTemperatureAction(
         Request $request,
-        MeltingTemperatureManager $oMeltingTemperatureManager,
-        NucleotidsManager $oNucleotidsManager
+        MeltingTemperatureManager $oMeltingTemperatureManager
     )
     {
-        $cg = 0;
-        $upper_mwt = $lower_mwt = 0;
-        $countATGC = 0;
-        $tmMin = $tmMax = 0;
+        $iPrimer = $cg = $upper_mwt = $lower_mwt = $countATGC = $tmMin = $tmMax = 0;
         $aTmBaseStacking = [];
-        $oMeltingTemperature = new MeltingTemperature();
+        $bBasic = $bNearestNeighbor = false;
 
-        $form = $this->get('form.factory')->create(MeltingTemperatureType::class, $oMeltingTemperature);
+        $form = $this->get('form.factory')->create(MeltingTemperatureType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $cg = round(100 * $oNucleotidsManager->countCG($oMeltingTemperature->getPrimer())
-                / strlen($oMeltingTemperature->getPrimer()),1);
+            $formData = $form->getData();
+            $iPrimer = $formData["primer"];
+            $bNearestNeighbor = $formData["nearestNeighbor"];
+            $bBasic = $formData["basic"];
 
-            $upper_mwt = $oMeltingTemperatureManager->molwt($oMeltingTemperature->getPrimer(),"DNA","upperlimit");
-            $lower_mwt = $oMeltingTemperatureManager->molwt($oMeltingTemperature->getPrimer(),"DNA","lowerlimit");
-
-            if($oMeltingTemperature->isBasic()) {
-                $countATGC = $oNucleotidsManager->countACGT($oMeltingTemperature->getPrimer());
-                $tmMin = $oMeltingTemperatureManager->tmMin($oMeltingTemperature->getPrimer());
-                $tmMax = $oMeltingTemperatureManager->tmMax($oMeltingTemperature->getPrimer());
-            }
-
-            if($oMeltingTemperature->isNearestNeighbor()) {
-                $aTmBaseStacking = $oMeltingTemperatureManager->tmBaseStacking(
-                    $oMeltingTemperature->getPrimer(),
-                    $oMeltingTemperature->getCp(),
-                    $oMeltingTemperature->getCs(),
-                    $oMeltingTemperature->getCmg()
-                );
-            }
+            $cg = $oMeltingTemperatureManager->calculateCG($iPrimer);
+            $oMeltingTemperatureManager->calculateMWT($upper_mwt, $lower_mwt, $iPrimer);
+            $oMeltingTemperatureManager->basicCalculations($bBasic, $iPrimer, $countATGC, $tmMin, $tmMax);
+            $oMeltingTemperatureManager->neighborCalculations(
+                $bNearestNeighbor,$aTmBaseStacking, $iPrimer, $formData["cp"], $formData["cs"], $formData["cmg"]
+            );
         }
 
         return $this->render(
             '@Minitools/Minitools/meltingTemperature.html.twig',
             [
                 'form'              => $form->createView(),
-                'primer'            => $oMeltingTemperature->getPrimer(),
-                'basic'             => $oMeltingTemperature->isBasic(),
-                'nearest_neighbor'  => $oMeltingTemperature->isNearestNeighbor(),
+                'primer'            => $iPrimer,
+                'basic'             => $bBasic,
+                'nearest_neighbor'  => $bNearestNeighbor,
                 'upper_mwt'         => $upper_mwt,
                 'lower_mwt'         => $lower_mwt,
                 'countATGC'         => $countATGC,
