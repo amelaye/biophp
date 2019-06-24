@@ -3,11 +3,9 @@
  * FindPalindromeManager
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 18 march 2019
+ * Last modified 24 june 2019
  */
 namespace MinitoolsBundle\Service;
-
-use AppBundle\Service\NucleotidsManager;
 
 /**
  * Class FindPalindromeManager
@@ -16,20 +14,6 @@ use AppBundle\Service\NucleotidsManager;
  */
 class FindPalindromeManager
 {
-    /**
-     * @var NucleotidsManager
-     */
-    private $oNucleotidsManager;
-
-    /**
-     * FindPalindromeManager constructor.
-     * @param NucleotidsManager $oNucleotidsManager
-     */
-    public function __construct(NucleotidsManager $oNucleotidsManager)
-    {
-        $this->oNucleotidsManager = $oNucleotidsManager;
-    }
-
     /**
      * Searches sequence for palindromic substrings
      * @param   string  $sSequence      is the sequence to be searched
@@ -99,32 +83,6 @@ class FindPalindromeManager
             $sSequence = str_replace($aPattern, $aReplace, $sSequence);
             $sSequence = strtoupper ($sSequence);
             return $sSequence;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
-    /**
-     * Will remove non coding characters from a DNA sequence
-     * @param   string      $sSequence      is the sequence
-     * @return  string
-     * @throws \Exception
-     */
-    public function removeUselessFromDNA($sSequence)
-    {
-        try {
-            $sSequence = strtoupper($sSequence);
-            $sSequence = preg_replace("/\\W|\\d/","", $sSequence);
-            $sSequence = preg_replace("/X/","N", $sSequence);
-            $len_seq = strlen($sSequence);
-            $number_ATGC = $this->oNucleotidsManager->countACGT($sSequence);
-            $number_YRWSKMDVHB = $this->oNucleotidsManager->countYRWSKMDVHB($sSequence);
-            $number = $number_ATGC + $number_YRWSKMDVHB + substr_count($sSequence,"N");
-            if ($number != $len_seq) {
-                throw new \Exception("Sequence is not valid. At least one letter in the sequence is unknown (not a NC-UIBMB valid code)");
-            }
-            return ($sSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
