@@ -225,11 +225,8 @@ class MinitoolsController extends Controller
     {
         $form = $this->get('form.factory')->create(DistanceAmongSequencesType::class);
 
-        $oligo_array = [];
-        $data = [];
-        $textcluster = "";
-        $seq_name = "";
-        $dendogramFile = "";
+        $oligo_array = $data = [];
+        $textcluster = $seq_name = $dendogramFile = "";
         $length = 0;
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
@@ -349,54 +346,17 @@ class MinitoolsController extends Controller
         $length = 0;
         $a = 0; $g = 0; $t = 0; $c = 0;
 
-        $oFastaUploader = new FastaUploader();
-
-        $form = $this->get('form.factory')->create(FastaUploaderType::class, $oFastaUploader);
+        $form = $this->get('form.factory')->create(FastaUploaderType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $file = $oFastaUploader->getFasta();
-            $fileName = md5(uniqid()).'.txt';
+            $formData = $form->getData();
 
-            try {
-                $file->move(
-                    $this->getParameter('brochures_directory'),
-                    $fileName
-                );
-            } catch (FileException $e) {
-                throw new FileException($e);
-            }
+            $var = $oFastaUploaderManager->createFiles(
+                $formData["fasta"],
+                $this->getParameter('brochures_directory')
+            );
 
-            $myFile = $this->getParameter('brochures_directory').'/'.$fileName;
-            $fh = fopen($myFile, 'r');
-            $var = fread($fh, 1000000);
-            fclose($fh);
-
-            $length = strlen($var);
-            if($length != '') {
-                if($oFastaUploaderManager->isValidSequence($var)) {
-                    for ($i = 0; $i < $length ; ++$i) {
-                        switch($var[$i]) {
-                            case 'a':
-                            case 'A':
-                                $a++;
-                                break;
-                            case 't':
-                            case 'T':
-                                $t++;
-                                break;
-                            case 'c':
-                            case 'C':
-                                $c++;
-                                break;
-                            case 'g':
-                            case 'G':
-                                $g++;
-                        }
-                    }
-                } else {
-                    throw new \Exception("Please check....This is not a Nucleotide sequence");
-                }
-            }
+            $oFastaUploaderManager->checkNucleotidSequence($var,$a,$g,$t,$c, strlen($var));
         }
 
         return $this->render(

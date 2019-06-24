@@ -3,15 +3,15 @@
  * Form DnaToProteinType
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
- * Last modified 18 march 2019
+ * Last modified 24 june 2019
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Validator\Constraints\File;
 
 /**
  * Class FastaUploaderType
@@ -31,7 +31,14 @@ class FastaUploaderType extends AbstractType
             'fasta',
             FileType::class,
             [
-                'label' => 'FASTA File'
+                'label' => 'FASTA File',
+                'constraints' => array(
+                    new File([
+                        "maxSize" => "100000k",
+                        "mimeTypes" =>  "text/plain",
+                        "mimeTypesMessage" => "Please upload a valid TXT"
+                    ])
+                )
             ]
         );
 
@@ -45,16 +52,5 @@ class FastaUploaderType extends AbstractType
                 ]
             ]
         );
-    }
-
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\FastaUploader'
-        ));
     }
 }

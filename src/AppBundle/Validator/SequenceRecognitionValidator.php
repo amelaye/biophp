@@ -19,10 +19,10 @@ class SequenceRecognitionValidator extends ConstraintValidator
         $sSequence = preg_replace("/\\W|\\d/","", $sSequence);
         $sSequence = preg_replace("/X/","N", $sSequence);
 
-        /*if($sSequence == "") {
+        if($sSequence == "") {
             $this->context->buildViolation($constraint->messageEmpty)
                 ->addViolation();
-        }*/
+        }
 
         $len_seq = strlen($sSequence);
         $number_ATGC = $this->countACGT($sSequence);
