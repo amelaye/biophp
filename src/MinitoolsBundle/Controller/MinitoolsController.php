@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 23 june 2019
+ * Last modified 24 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -46,9 +46,7 @@ use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
-use MinitoolsBundle\Entity\DistanceAmongSequences;
 use MinitoolsBundle\Entity\FastaUploader;
-use MinitoolsBundle\Entity\FindPalindromes;
 use MinitoolsBundle\Entity\MeltingTemperature;
 use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
 use MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder;
@@ -244,7 +242,6 @@ class MinitoolsController extends Controller
                 $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs, $length, $this->dnaComplements);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array,$length);
             } else {
-                // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
                 $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs, $this->dnaComplements);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }
@@ -252,8 +249,7 @@ class MinitoolsController extends Controller
             $dendogramFile = $this->getParameter('nucleotids_graphs')['dendogram_file'];
             $oDistanceAmongSequencesManager->upgmaClustering($data, $formData["method"], $length, $dendogramFile);
         }
-
-
+        
         return $this->render(
             '@Minitools/Minitools/distanceAmongSequences.html.twig',
             [
@@ -314,27 +310,28 @@ class MinitoolsController extends Controller
     public function findPalindromesAction(Request $request, FindPalindromeManager $oFindPalindromeManager)
     {
         $aPalindromes = [];
-        $oFindPalindromes = new FindPalindromes();
-        $form = $this->get('form.factory')->create(FindPalindromesType::class, $oFindPalindromes);
+        $form = $this->get('form.factory')->create(FindPalindromesType::class);
+        $min = 0;
+        $max = 0;
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $sSequence = $oFindPalindromeManager->removeUselessFromDNA($oFindPalindromes->getSeq());
-            if($sSequence == "") {
-                throw new \Exception("No sequence available");
-            }
+            $formData = $form->getData();
+
             $aPalindromes = $oFindPalindromeManager->findPalindromicSeqs(
-                $sSequence,
-                $oFindPalindromes->getMin(),
-                $oFindPalindromes->getMax()
+                $formData["seq"],
+                $formData["min"],
+                $formData["max"]
             );
+            $min = $formData["min"];
+            $max = $formData["max"];
         }
 
         return $this->render(
             '@Minitools/Minitools/findPalindromes.html.twig',
             [
                 'form'          => $form->createView(),
-                'min'           => $oFindPalindromes->getMin(),
-                'max'           => $oFindPalindromes->getMax(),
+                'min'           => $min,
+                'max'           => $max,
                 'palindromes'   => $aPalindromes
             ]
         );

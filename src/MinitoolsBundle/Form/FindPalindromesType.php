@@ -4,21 +4,34 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
- * Last modified 18 march 2019
+ * Last modified 24 june 2019
  */
 namespace MinitoolsBundle\Form;
 
+use AppBundle\Service\NucleotidsManager;
+use AppBundle\Validator\SequenceRecognition;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FindPalindromesType extends AbstractType
 {
+    /**
+     * @var array
+     */
+    private $nucleotidsManager;
+
+    /**
+     * NucleotidsManager constructor.
+     * @param   NucleotidsManager   $nucleotidsManager
+     */
+    public function __construct(NucleotidsManager $nucleotidsManager)
+    {
+        $this->nucleotidsManager = $nucleotidsManager;
+    }
+
     /**
      * Form builder
      * @param   FormBuilderInterface  $builder
@@ -75,8 +88,12 @@ class FindPalindromesType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
+                'constraints' => array(
+                    new SequenceRecognition(),
+                )
             ]
         );
+
 
         $builder->add(
             'min',
@@ -112,16 +129,5 @@ class FindPalindromesType extends AbstractType
                 ]
             ]
         );
-    }
-
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\FindPalindromes'
-        ));
     }
 }
