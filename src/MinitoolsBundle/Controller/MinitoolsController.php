@@ -10,7 +10,6 @@ namespace MinitoolsBundle\Controller;
 
 
 use AppBundle\Bioapi\Bioapi;
-use AppBundle\Service\NucleotidsManager;
 use AppBundle\Service\OligosManager;
 
 use MinitoolsBundle\Entity\OligoNucleotideFrequency;
@@ -35,7 +34,6 @@ use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
 use MinitoolsBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,8 +44,6 @@ use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
-use MinitoolsBundle\Entity\FastaUploader;
-use MinitoolsBundle\Entity\MeltingTemperature;
 use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
 use MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;

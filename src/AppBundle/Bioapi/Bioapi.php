@@ -36,6 +36,24 @@ class Bioapi
         return $newData;
     }
 
+    public function getNucleotidsRNA()
+    {
+        $uri = '/nucleotids';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+
+        foreach($data["hydra:member"] as $key => $elem) {
+            if($elem["nature"] == "RNA") {
+                $newData[] = $elem;
+            }
+        }
+
+        return $newData;
+    }
+
     public function getDNAComplement()
     {
         $nucleos = $this->getNucleotidsDNA();
@@ -44,5 +62,66 @@ class Bioapi
             $dnaComplements[$nucleo["letter"]] = $nucleo["complement"];
         }
         return $dnaComplements;
+    }
+
+    public function getDNAWeight()
+    {
+        $nucleos = $this->getNucleotidsDNA();
+        $dnaWeights = array();
+        foreach($nucleos as $nucleo) {
+            $dnaWeights[$nucleo["letter"]."_wt"] = $nucleo["weigth"];
+        }
+        return $dnaWeights;
+    }
+
+    public function getRNAWeight()
+    {
+        $nucleos = $this->getNucleotidsRNA();
+        $dnaWeights = array();
+        foreach($nucleos as $nucleo) {
+            $dnaWeights[$nucleo["letter"]."_wt"] = $nucleo["weigth"];
+        }
+        return $dnaWeights;
+    }
+
+    /**
+     * TM Base Stacking
+     * Basic temperatures of nucleotids combinations
+     */
+    public function getEnthropyValues()
+    {
+        $uri = '/tm_base_stackings';
+        $response = $this->bioapiClient->get($uri);
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem['id']] = $elem['temperatureEnthropy'];
+        }
+        return $newData;
+    }
+
+    public function getEnthalpyValues()
+    {
+        $uri = '/tm_base_stackings';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem['id']] = $elem['temperatureEnthalpy'];
+        }
+        return $newData;
+    }
+
+    public function getWater()
+    {
+        $uri = '/elements/6';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        return $data;
     }
 }
