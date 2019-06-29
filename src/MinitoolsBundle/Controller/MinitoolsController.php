@@ -581,6 +581,7 @@ class MinitoolsController extends Controller
      * @Route("/minitools/protein-properties", name="protein_properties")
      * @param       Request                     $request
      * @param       ProteinPropertiesManager    $proteinPropertiesManager
+     * @param       Bioapi                      $bioapi
      * @return      Response
      * @throws      \Exception
      * @TODO : Molar absorbsion et isoelectric point ne correspondent pas
@@ -607,7 +608,7 @@ class MinitoolsController extends Controller
 
             // remove non coding (works by default)
             $seq = $this->removeNonCodingProt($formData["seq"]);
-            $subsequence = $proteinPropertiesManager -> writeSubsequence($formData["start"], $formData["end"], $seq);
+            $subsequence = $proteinPropertiesManager->writeSubsequence($formData["start"], $formData["end"], $seq);
             // calculate nucleotide composition
             $aminoacid_content = $proteinPropertiesManager->aminoacidContent($seq);
             // get pk values for charged aminoacids

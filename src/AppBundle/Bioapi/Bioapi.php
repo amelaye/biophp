@@ -138,4 +138,14 @@ class Bioapi
 
         return array_change_key_case($data, CASE_UPPER);
     }
+
+    public function getAminos()
+    {
+        $uri = '/aminos';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        return $data["hydra:member"];
+    }
 }

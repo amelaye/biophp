@@ -71,7 +71,6 @@ services:
 
     MinitoolsBundle\Service\ProteinPropertiesManager:
         arguments:
-            - "%codons%"
             - "%triplets%"
             - "%triplets_combinations%"
 
