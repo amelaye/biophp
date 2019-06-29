@@ -3,17 +3,18 @@
  * Form to calculate Oligonucleotide Frequency
  * Freely inspired by BioPHP's project biophp.org
  * Created 31 march 2019
- * Last modified 31 march 2019
+ * Last modified 29 june 2019
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 /**
  * Class PcrAmplificationType
@@ -105,16 +106,33 @@ class PcrAmplificationType extends AbstractType
                 ]
             ]
         );
-    }
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\PcrAmplification'
-        ));
+        /**
+         * Formatting Seq before validation
+         * All non-word characters (\\W) and digits(\\d) are remove from primers and from sequence file
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                $sSequence = strtoupper($data['sequence']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+                $data['sequence'] = $sSequence;
+            }
+
+            if (isset($data['primer1'])) {
+                $sSequence = strtoupper($data['primer1']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+                $data['primer1'] = $sSequence;
+            }
+
+            if (isset($data['primer2'])) {
+                $sSequence = strtoupper($data['primer2']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+                $data['primer2'] = $sSequence;
+            }
+
+            $event->setData($data);
+        });
     }
 }

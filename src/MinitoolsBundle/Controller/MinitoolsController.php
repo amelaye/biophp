@@ -537,40 +537,31 @@ class MinitoolsController extends Controller
      */
     public function pcrAmplificationAction(Request $request, PcrAmplificationManager $pcrAmplificationManager)
     {
-        $pcrAmplification = new PcrAmplification();
         $aResults = [];
+        $primer1 = $primer2 = null;
+        $sSequence = "";
 
-        $form = $this->get('form.factory')->create(
-            PcrAmplificationType::class,
-            $pcrAmplification
-        );
+        $form = $this->get('form.factory')->create(PcrAmplificationType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $formData = $form->getData();
+            $primer1 = $formData["primer1"];
+            $primer2 = $formData["primer2"];
+            $sSequence = $formData["sequence"];
 
-            // SET PATTERNS FROM PRIMERS
-            // Change N to point in primers
-            $sPattern1 = str_replace("N", ".", $pcrAmplification->getPrimer1());
-            $sPattern2 = str_replace("N", ".", $pcrAmplification->getPrimer2());
+            $sStartPattern = $pcrAmplificationManager->createStartPattern(
+                $primer1,
+                $primer2,
+                $formData["allowmismatch"]
+            );
 
-
-            if ($pcrAmplification->isAllowmismatch()) {
-                $sPattern1 = $pcrAmplificationManager->includeN($pcrAmplification->getPrimer1());
-                $sPattern2 = $pcrAmplificationManager->includeN($pcrAmplification->getPrimer2());
-            }
-
-            $sStartPattern = "$sPattern1|$sPattern2"; // SET PATTERN
-
-            $seqRevert = strrev($sStartPattern);
-            foreach ($this->getParameter('dna_complements') as $nucleotide => $complement) {
-                $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
-            }
-            $sEndPattern = strtoupper($seqRevert);
+            $sEndPattern = $pcrAmplificationManager->createEndPattern($sStartPattern);
 
             $aResults = $pcrAmplificationManager->amplify(
                 $sStartPattern,
                 $sEndPattern,
-                $pcrAmplification->getSequence(),
-                $pcrAmplification->getLength()
+                $sSequence,
+                $formData["length"]
             );
         }
 
@@ -579,9 +570,9 @@ class MinitoolsController extends Controller
             [
                 'form'         => $form->createView(),
                 'results'      => $aResults,
-                'sequence'     => $pcrAmplification->getSequence(),
-                'primer1'      => $pcrAmplification->getPrimer1(),
-                'primer2'      => $pcrAmplification->getPrimer2()
+                'sequence'     => $sSequence,
+                'primer1'      => $primer1,
+                'primer2'      => $primer2
             ]
         );
     }
