@@ -3,16 +3,20 @@
  * Form to calculate Oligonucleotide Frequency
  * Freely inspired by BioPHP's project biophp.org
  * Created 31 march 2019
- * Last modified 31 march 2019
+ * Last modified 29 june 2019
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class OligoNucleotideFrequencyType
@@ -80,16 +84,49 @@ class OligoNucleotideFrequencyType extends AbstractType
                 ]
             ]
         );
+
+        /**
+         * Formatting Seq before validation
+         * Remove non word and digits from sequence
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                $sSequence = strtoupper($data['sequence']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+
+                $data['sequence'] = $sSequence;
+                $event->setData($data);
+            }
+        });
     }
 
     /**
-     * Entity for builder
      * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\OligoNucleotideFrequency'
-        ));
+        $resolver->setDefaults([
+            'constraints' => [
+                new Callback([
+                    'callback' => [$this, 'validateisReady'],
+                ]),
+            ]
+        ]);
+    }
+
+    /**
+     * When length of query sequence is bellow 4^oligo_len => error (to avoid a lot of 0 frequencies);
+     * @param $object
+     * @param ExecutionContextInterface $context
+     * @throws \Exception
+     */
+    public static function validateisReady($object, ExecutionContextInterface $context)
+    {
+        if (strlen($object['sequence']) < pow(4, $object['len'])) {
+            $context->buildViolation('Query sequence must be at least 4^(length of oligo) to proceed.')
+                ->addViolation();
+        }
     }
 }

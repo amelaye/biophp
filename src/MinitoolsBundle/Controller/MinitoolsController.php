@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 24 june 2019
+ * Last modified 29 june 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -12,7 +12,7 @@ namespace MinitoolsBundle\Controller;
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
-use MinitoolsBundle\Entity\OligoNucleotideFrequency;
+use AppBundle\Traits\OligoTrait;
 use MinitoolsBundle\Entity\PcrAmplification;
 use MinitoolsBundle\Entity\ProteinToDna;
 use MinitoolsBundle\Entity\RandomSequences;
@@ -67,6 +67,8 @@ use MinitoolsBundle\Service\RestrictionDigestManager;
  */
 class MinitoolsController extends Controller
 {
+    use OligoTrait;
+
     private $dnaComplements;
 
     /**
@@ -497,38 +499,22 @@ class MinitoolsController extends Controller
      */
     public function oligonucleotideFrequencyAction(Request $request, OligosManager $oligosManager)
     {
-        $oOligoNucleotideFrequency = new OligoNucleotideFrequency();
         $aResults = [];
+        $iLength = 0;
 
-        $form = $this->get('form.factory')->create(
-            OligoNucleotideFrequencyType::class,
-            $oOligoNucleotideFrequency
-        );
+        $form = $this->get('form.factory')->create(OligoNucleotideFrequencyType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            // remove useless from sequence (non-letters and digists are removed)
-            $sSequence = preg_replace("/\W|\d/","", $oOligoNucleotideFrequency->getSequence());  // removed
-
-            // when length of query sequence is bellow 4^oligo_len => error (to avoid a lot of 0 frequencies);
-            if (strlen($sSequence) < pow(4, $oOligoNucleotideFrequency->getLen())) {
-                throw new \Exception("Query sequence must be at least 4^(length of oligo) to proceed.");
-            }
+            $formData = $form->getData();
+            $iLength = $formData["len"];
+            $sSequence = $formData["sequence"];
 
             // when frequencies at both strands are requested, place sequence and reverse complement of sequence in one line
-            if ($oOligoNucleotideFrequency->getStrands() == 2) {
-                $seqRevert = strrev($sSequence);
-                foreach ($this->getParameter('dna_complements') as $nucleotide => $complement) {
-                    $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
-                }
-                $sSequence .= " ".strtoupper($seqRevert);
+            if ($formData["strands"] == 2) {
+                $this->createInversion($sSequence, $this->dnaComplements);
             }
 
-            $aResults = $oligosManager->findOligos(
-                $sSequence,
-                $oOligoNucleotideFrequency->getLen(),
-                $this->getParameter('dna_complements')
-            );
-
+            $aResults = $oligosManager->findOligos($sSequence, $iLength, $this->dnaComplements);
             ksort($aResults);
         }
 
@@ -537,7 +523,7 @@ class MinitoolsController extends Controller
             [
                 'form'              => $form->createView(),
                 'results'           => $aResults,
-                'length'            => $oOligoNucleotideFrequency->getLen()
+                'length'            => $iLength
             ]
         );
     }
