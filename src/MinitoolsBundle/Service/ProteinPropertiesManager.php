@@ -136,7 +136,9 @@ class ProteinPropertiesManager
     function proteinCharge($aPK, $aAminoacidContent, $iPH)
     {
         try {
-            $iCharge = $this->partialCharge($aPK["N_terminus"], $iPH);
+            dump($aPK);
+
+            $iCharge = $this->partialCharge($aPK["NTERMINUS"], $iPH);
             $iCharge+= $this->partialCharge($aPK["K"], $iPH) * $aAminoacidContent["K"];
             $iCharge+= $this->partialCharge($aPK["R"], $iPH) * $aAminoacidContent["R"];
             $iCharge+= $this->partialCharge($aPK["H"], $iPH) * $aAminoacidContent["H"];
@@ -144,7 +146,7 @@ class ProteinPropertiesManager
             $iCharge-= $this->partialCharge($iPH, $aPK["E"]) * $aAminoacidContent["E"];
             $iCharge-= $this->partialCharge($iPH, $aPK["C"]) * $aAminoacidContent["C"];
             $iCharge-= $this->partialCharge($iPH, $aPK["Y"]) * $aAminoacidContent["Y"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["C_terminus"]);
+            $iCharge-= $this->partialCharge($iPH, $aPK["CTERMINUS"]);
             return $iCharge;
         } catch (\Exception $e) {
             throw new \Exception($e);
