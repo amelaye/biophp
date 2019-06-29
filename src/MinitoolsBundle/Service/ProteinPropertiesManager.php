@@ -3,7 +3,7 @@
  * Proteins properties Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 6 april 2019
+ * Last modified 29 june 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -43,22 +43,25 @@ class ProteinPropertiesManager
     }
 
     /**
-     * Removes non-coding characters
-     * @param       string      $sSequence
-     * @return      string
-     * @throws      \Exception
+     * Generates subsequence string
+     * @param   int     $iStart
+     * @param   int     $iEnd
+     * @param   string  $sSequence
+     * @return  string
      */
-    public function removeNonCodingProt($sSequence)
+    public function writeSubsequence($iStart, $iEnd, $sSequence)
     {
-        try {
-            $sSequence = strtoupper($sSequence);
-            // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
-            $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
-            return $sSequence;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        $sSubsequence = "";
+        // if subsequence is requested
+        if ($iStart != "" || $iEnd != "") {
+            $start = ($iStart != "") ? $iStart - 1 : 0;
+            $end  = ($iEnd != "") ? $iEnd : strlen($sSequence);
+            $sSequence = substr($sSequence, $start,$end - $start);
+            $sSubsequence = chunk_split($sSequence, 70);
         }
+        return $sSubsequence;
     }
+
 
     /**
      * At isoelectric point, charge of protein will be
