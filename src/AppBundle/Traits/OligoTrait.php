@@ -27,4 +27,22 @@ trait OligoTrait
         }
         $sSequence .= " ".strtoupper($seqRevert);
     }
+
+    /**
+     * Removes non-coding characters
+     * @param       string      $sSequence
+     * @return      string
+     * @throws      \Exception
+     */
+    public function removeNonCodingProt($sSequence)
+    {
+        try {
+            $sSequence = strtoupper($sSequence);
+            // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
+            $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
+            return $sSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 }

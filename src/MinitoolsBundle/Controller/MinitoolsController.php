@@ -586,80 +586,54 @@ class MinitoolsController extends Controller
      */
     public function proteinPropertiesAction(Request $request, ProteinPropertiesManager $proteinPropertiesManager)
     {
-        $oProtein           = new Protein();
-        $subsequence        =  "";
-        $aminoacids         = [];
-        $molweight          = 0;
-        $abscoef            = 0;
-        $charge             = 0;
-        $charge2            = 0;
-        $three_letter_code  = "";
-        $colored_seq        = [];
-        $colored_seq2       = [];
-        $results            = false;
+        $data_source = $three_letter_code = $subsequence    =  "";
+        $molweight = $abscoef = $charge = $charge2          = 0;
+        $aminoacids = $colored_seq = $colored_seq2          = [];
+        $results                                            = false;
 
-        $form = $this->get('form.factory')->create(ProteinPropertiesType::class, $oProtein);
+        $form = $this->get('form.factory')->create(ProteinPropertiesType::class);
 
         $colors = $this->getParameter('analysis_color');
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $results = true;
-
-            $pH = $oProtein->getPH();
+            $formData       = $form->getData();
+            $data_source    = $formData["data_source"];
+            $pH             = $formData["pH"];
+            $results        = true;
 
             // remove non coding (works by default)
-            $seq = $proteinPropertiesManager->removeNonCodingProt($oProtein->getSeq());
-
-            // if subsequence is requested
-            if ($oProtein->getStart() != "" || $oProtein->getEnd() != "") {
-                $start = ($oProtein->getStart() != "") ? $oProtein->getStart() - 1 : 0;
-                $end  = ($oProtein->getEnd() != "") ? $oProtein->getEnd() : strlen($seq);
-                $seq = substr($seq, $start,$end - $start);
-                $subsequence = chunk_split($seq, 70);
-            }
-
+            $seq = $this->removeNonCodingProt($formData["seq"]);
+            $subsequence = $proteinPropertiesManager -> writeSubsequence($formData["start"], $formData["end"], $seq);
             // calculate nucleotide composition
             $aminoacid_content = $proteinPropertiesManager->aminoacidContent($seq);
-
             // get pk values for charged aminoacids
-            $pK = $this->getParameter('pk_values')[$oProtein->getDataSource()];
+            $pK = $this->getParameter('pk_values')[$formData["data_source"]];
 
             // prepare nucleotide composition to be printed out
-            if ($oProtein->isComposition()) {
+            if ((bool)$formData["composition"]) {
                 $aminoacids = $proteinPropertiesManager->formatAminoacidContent($aminoacid_content);
             }
-
-             if ($oProtein->isMolweight()) {
+            if ((bool)$formData["molweight"]) {
                  $molweight = $proteinPropertiesManager->proteinMolecularWeight($aminoacid_content);
-             }
-
-            if ($oProtein->isAbscoef()) {
+            }
+            if ((bool)$formData["abscoef"]) {
                 $abscoef = $proteinPropertiesManager->molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight);
             }
-
-            if ($oProtein->isCharge()) {
-                // calculate isoelectric point of protein
+            if ((bool)$formData["charge"]) {  // calculate isoelectric point of protein
                 $charge = $proteinPropertiesManager->proteinIsoelectricPoint($pK, $aminoacid_content);
             }
-
-            if ($oProtein->isCharge2()) {
-                // calculate charge of protein at requested pH
+            if ((bool)$formData["charge2"]) {   // calculate charge of protein at requested pH
                 $charge2 = $proteinPropertiesManager->proteinCharge($pK, $aminoacid_content, $pH);
             }
-
-            if ($oProtein->isThreeLetters()) {
-                // colored sequence based in plar/non-plar/charged aminoacids
+            if ((bool)$formData["three_letters"]) {  // colored sequence based in plar/non-plar/charged aminoacids
                 foreach(str_split($seq) as $letter) {
                     $three_letter_code .= $proteinPropertiesManager->seq1letterTo3letter($letter);
                 }
             }
-
-            // colored sequence based in polar/non-plar/charged aminoacids
-            if ($oProtein->isType1()) {
+            if ((bool)$formData["type1"]) {   // colored sequence based in polar/non-plar/charged aminoacids
                 $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($seq, $colors);
             }
-
-            if($oProtein->isType2()) {
+            if ((bool)$formData["type2"]) {
                 $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($seq, $colors);
             }
         }
@@ -672,8 +646,8 @@ class MinitoolsController extends Controller
                 'aminoacids'            => $aminoacids,
                 'molweight'             => $molweight,
                 'abscoef'               => $abscoef,
-                'data_source'           => $oProtein->getDataSource(),
-                'pH'                    => $oProtein->getPH(),
+                'data_source'           => $data_source,
+                'pH'                    => $pH,
                 'charge'                => $charge,
                 'charge2'               => $charge2,
                 'three_letter_code'     => $three_letter_code,
