@@ -124,4 +124,18 @@ class Bioapi
 
         return $data;
     }
+
+    /**
+     * @param $id
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
+    public function getPkValueById($id)
+    {
+        $uri = '/p_ks/'.$id;
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        return $data;
+    }
 }

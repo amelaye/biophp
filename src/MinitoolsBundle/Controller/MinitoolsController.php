@@ -584,8 +584,11 @@ class MinitoolsController extends Controller
      * @return      Response
      * @throws      \Exception
      */
-    public function proteinPropertiesAction(Request $request, ProteinPropertiesManager $proteinPropertiesManager)
-    {
+    public function proteinPropertiesAction(
+        Request $request,
+        ProteinPropertiesManager $proteinPropertiesManager,
+        Bioapi $bioapi
+    ){
         $data_source = $three_letter_code = $subsequence    =  "";
         $molweight = $abscoef = $charge = $charge2          = 0;
         $aminoacids = $colored_seq = $colored_seq2          = [];
@@ -607,7 +610,7 @@ class MinitoolsController extends Controller
             // calculate nucleotide composition
             $aminoacid_content = $proteinPropertiesManager->aminoacidContent($seq);
             // get pk values for charged aminoacids
-            $pK = $this->getParameter('pk_values')[$formData["data_source"]];
+            $pK = $bioapi->getPkValueById($formData["data_source"]);
 
             // prepare nucleotide composition to be printed out
             if ((bool)$formData["composition"]) {
