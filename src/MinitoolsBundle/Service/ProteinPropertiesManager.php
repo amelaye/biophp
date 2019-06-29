@@ -7,6 +7,8 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
+
 /**
  * Class ProteinPropertiesManager
  * @package MinitoolsBundle\Service
@@ -29,17 +31,20 @@ class ProteinPropertiesManager
      */
     private $aTripletsCombinations;
 
+    private $bioapi;
+
     /**
      * ProteinPropertiesManager constructor.
      * @param   array   $aCodons
      * @param   array   $aTriplets
      * @param   array   $aTripletsCombinations
      */
-    public function __construct(array $aCodons = [], array $aTriplets = [], array $aTripletsCombinations = [])
+    public function __construct(array $aCodons = [], array $aTriplets = [], array $aTripletsCombinations = [], Bioapi $bioapi)
     {
         $this->aCodons                  = $aCodons;
         $this->aTriplets                = $aTriplets;
         $this->aTripletsCombinations    = $aTripletsCombinations;
+        $this->bioapi = $bioapi;
     }
 
     /**

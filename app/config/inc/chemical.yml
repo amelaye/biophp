@@ -79,13 +79,3 @@ parameters:
     Z:
       - 146.15
       - 147.13
-  dna_weights:
-    A_wt: 313.245
-    C_wt: 289.215
-    G_wt: 329.245
-    T_wt: 304.225
-  rna_weights:
-    A_wt: 329.245
-    C_wt: 305.215
-    G_wt: 345.245
-    U_wt: 306.195
