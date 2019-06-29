@@ -79,13 +79,6 @@ services:
         arguments:
             - '%nucleotids_graphs%' # keep it
 
-    MinitoolsBundle\Service\MeltingTemperatureManager:
-        arguments:
-            - '%dna_weights%'
-            - '%rna_weights%'
-            - '%tm_base_stacking%'
-            - '%elements%'
-
     MinitoolsBundle\Service\ProteinToDnaManager:
         arguments:
             - '%triplets_list%'

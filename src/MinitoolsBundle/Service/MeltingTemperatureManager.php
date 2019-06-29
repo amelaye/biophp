@@ -9,6 +9,7 @@
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Service\NucleotidsManager;
+use AppBundle\Bioapi\Bioapi;
 
 /**
  * Class MeltingTemperatureManager
@@ -18,51 +19,27 @@ use AppBundle\Service\NucleotidsManager;
 class MeltingTemperatureManager
 {
     /**
-     * @var array
-     */
-    private $dnaWeights;
-
-    /**
-     * @var array
-     */
-    private $rnaWeights;
-
-    /**
-     * @var array
-     */
-    private $tmBaseStacking;
-
-    /**
-     * @var array
-     */
-    private $elements;
-
-    /**
      * @var NucleotidsManager
      */
     private $nucleotidsManager;
 
     /**
+     * @var Bioapi
+     */
+    private $bioapi;
+
+    /**
      * MeltingTemperatureManager constructor.
-     * @param   NucleotidsManager   $nucleotidsManager     Service counting nucleotids
-     * @param   array               $dnaWeights             Array of A, T, G, C Weights
-     * @param   array               $rnaWeights             Array of A, C, G, U Weights
-     * @param   array               $tmBaseStacking         Basic temperatures of nucleotids combinations
-     * @param   array               $elements               Weights of basic elements (for water)
+     * @param   NucleotidsManager   $nucleotidsManager      Service counting nucleotids
+     * @param   Bioapi              $bioapi
      */
     public function __construct(
-        $dnaWeights,
-        $rnaWeights,
-        $tmBaseStacking,
-        $elements,
-        NucleotidsManager $nucleotidsManager
+        NucleotidsManager $nucleotidsManager,
+        Bioapi $bioapi
     )
     {
         $this->nucleotidsManager    = $nucleotidsManager;
-        $this->dnaWeights           = $dnaWeights;
-        $this->rnaWeights           = $rnaWeights;
-        $this->tmBaseStacking       = $tmBaseStacking;
-        $this->elements             = $elements;
+        $this->bioapi               = $bioapi;
     }
 
     /**
@@ -143,8 +120,8 @@ class MeltingTemperatureManager
             }
             $h = $s = 0;
 
-            $array_h = $this->tmBaseStacking["enthalpy"]; // enthalpy values
-            $array_s = $this->tmBaseStacking["entropy"]; // entropy values
+            $array_h = $this->bioapi->getEnthalpyValues();
+            $array_s = $this->bioapi->getEnthropyValues();
 
             // effect on entropy by salt correction; von Ahsen et al 1999
             // Increase of stability due to presence of Mg;
@@ -292,45 +269,47 @@ class MeltingTemperatureManager
     function molwt($sSequence, $sMoltype, $sLimit)
     {
         try {
-            $water = $this->elements["water"];
+            $water = $this->bioapi->getWater();
+            $dnaWeightsTemp = $this->bioapi->getDNAWeight();
+            $rnaWeightsTemp = $this->bioapi->getRNAWeight();
 
             $dnaWeights = [
-                'A' => [$this->dnaWeights["A_wt"], $this->dnaWeights["A_wt"]],  // Adenine
-                'C' => [$this->dnaWeights["C_wt"], $this->dnaWeights["C_wt"]],  // Cytosine
-                'G' => [$this->dnaWeights["G_wt"], $this->dnaWeights["G_wt"]],  // Guanine
-                'T' => [$this->dnaWeights["T_wt"], $this->dnaWeights["T_wt"]],  // Thymine
-                'M' => [$this->dnaWeights["C_wt"], $this->dnaWeights["A_wt"]],  // A or C
-                'R' => [$this->dnaWeights["A_wt"], $this->dnaWeights["G_wt"]],  // A or G
-                'W' => [$this->dnaWeights["T_wt"], $this->dnaWeights["A_wt"]],  // A or T
-                'S' => [$this->dnaWeights["C_wt"], $this->dnaWeights["G_wt"]],  // C or G
-                'Y' => [$this->dnaWeights["C_wt"], $this->dnaWeights["T_wt"]],  // C or T
-                'K' => [$this->dnaWeights["T_wt"], $this->dnaWeights["G_wt"]],  // G or T
-                'V' => [$this->dnaWeights["C_wt"], $this->dnaWeights["G_wt"]],  // A or C or G
-                'H' => [$this->dnaWeights["C_wt"], $this->dnaWeights["A_wt"]],  // A or C or T
-                'D' => [$this->dnaWeights["T_wt"], $this->dnaWeights["G_wt"]],  // A or G or T
-                'B' => [$this->dnaWeights["C_wt"], $this->dnaWeights["G_wt"]],  // C or G or T
-                'X' => [$this->dnaWeights["C_wt"], $this->dnaWeights["G_wt"]],  // G, A, T or C
-                'N' => [$this->dnaWeights["C_wt"], $this->dnaWeights["G_wt"]]   // G, A, T or C
+                'A' => [$dnaWeightsTemp["A_wt"], $dnaWeightsTemp["A_wt"]],  // Adenine
+                'C' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["C_wt"]],  // Cytosine
+                'G' => [$dnaWeightsTemp["G_wt"], $dnaWeightsTemp["G_wt"]],  // Guanine
+                'T' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["T_wt"]],  // Thymine
+                'M' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["A_wt"]],  // A or C
+                'R' => [$dnaWeightsTemp["A_wt"], $dnaWeightsTemp["G_wt"]],  // A or G
+                'W' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["A_wt"]],  // A or T
+                'S' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // C or G
+                'Y' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["T_wt"]],  // C or T
+                'K' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["G_wt"]],  // G or T
+                'V' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // A or C or G
+                'H' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["A_wt"]],  // A or C or T
+                'D' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["G_wt"]],  // A or G or T
+                'B' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // C or G or T
+                'X' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // G, A, T or C
+                'N' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]]   // G, A, T or C
             ];
 
 
             $rnaWeights = [
-                'A' => [$this->rnaWeights["A_wt"], $this->rnaWeights["A_wt"]],  // Adenine
-                'C' => [$this->rnaWeights["C_wt"], $this->rnaWeights["C_wt"]],  // Cytosine
-                'G' => [$this->rnaWeights["G_wt"], $this->rnaWeights["G_wt"]],  // Guanine
-                'U' => [$this->rnaWeights["U_wt"], $this->rnaWeights["U_wt"]],  // Uracil
-                'M' => [$this->rnaWeights["C_wt"], $this->rnaWeights["A_wt"]],  // A or C
-                'R' => [$this->rnaWeights["A_wt"], $this->rnaWeights["G_wt"]],  // A or G
-                'W' => [$this->rnaWeights["U_wt"], $this->rnaWeights["A_wt"]],  // A or U
-                'S' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]],  // C or G
-                'Y' => [$this->rnaWeights["C_wt"], $this->rnaWeights["U_wt"]],  // C or U
-                'K' => [$this->rnaWeights["U_wt"], $this->rnaWeights["G_wt"]],  // G or U
-                'V' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]],  // A or C or G
-                'H' => [$this->rnaWeights["C_wt"], $this->rnaWeights["A_wt"]],  // A or C or U
-                'D' => [$this->rnaWeights["U_wt"], $this->rnaWeights["G_wt"]],  // A or G or U
-                'B' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]],  // C or G or U
-                'X' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]],  // G, A, U or C
-                'N' => [$this->rnaWeights["C_wt"], $this->rnaWeights["G_wt"]]   // G, A, U or C
+                'A' => [$rnaWeightsTemp["A_wt"], $rnaWeightsTemp["A_wt"]],  // Adenine
+                'C' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["C_wt"]],  // Cytosine
+                'G' => [$rnaWeightsTemp["G_wt"], $rnaWeightsTemp["G_wt"]],  // Guanine
+                'U' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["U_wt"]],  // Uracil
+                'M' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["A_wt"]],  // A or C
+                'R' => [$rnaWeightsTemp["A_wt"], $rnaWeightsTemp["G_wt"]],  // A or G
+                'W' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["A_wt"]],  // A or U
+                'S' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // C or G
+                'Y' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["U_wt"]],  // C or U
+                'K' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["G_wt"]],  // G or U
+                'V' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // A or C or G
+                'H' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["A_wt"]],  // A or C or U
+                'D' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["G_wt"]],  // A or G or U
+                'B' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // C or G or U
+                'X' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // G, A, U or C
+                'N' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]]   // G, A, U or C
             ];
 
             $all_na_wts = ['DNA' => $dnaWeights, 'RNA' => $rnaWeights];
@@ -350,7 +329,7 @@ class MeltingTemperatureManager
                 $NA_base = substr($sSequence, $i, 1);
                 $mwt += $na_wts[$NA_base][$wlimit];
             }
-            $mwt += $water;
+            $mwt += $water["weight"];
 
             return $mwt;
         } catch (\Exception $e) {
