@@ -44,7 +44,6 @@ use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
-use MinitoolsBundle\Entity\MicroArrayDataAnalysis;
 use MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use MinitoolsBundle\Form\FastaUploaderType;
@@ -433,14 +432,14 @@ class MinitoolsController extends Controller
         MicroarrayAnalysisAdaptiveManager $oMicroarrayAnalysisAdaptiveManager
     )
     {
-        $oMicroArrayDataAnalysis = new MicroArrayDataAnalysis();
         $results = array();
 
-        $form = $this->get('form.factory')->create(MicroArrayDataAnalysisType::class, $oMicroArrayDataAnalysis);
+        $form = $this->get('form.factory')->create(MicroArrayDataAnalysisType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $formData = $form->getData();
             $results = $oMicroarrayAnalysisAdaptiveManager->processMicroarrayDataAdaptiveQuantificationMethod(
-                $oMicroArrayDataAnalysis->getData()
+                $formData["data"]
             );
         }
 
