@@ -3,17 +3,18 @@
  * Form ProteinPropertiesType
  * Freely inspired by BioPHP's project biophp.org
  * Created 31 march 2019
- * Last modified 31 march 2019
+ * Last modified 29 june 2019
  */
 
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 /**
  * Class MicrosatelliteRepeatsFinderType
@@ -145,16 +146,21 @@ class MicrosatelliteRepeatsFinderType extends AbstractType
                 ]
             ]
         );
-    }
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder'
-        ));
+        /**
+         * Formatting Seq before validation
+         * Remove non word and digits from sequence
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                $sSequence = strtoupper($data['sequence']);
+                $sSequence = preg_replace("/\W|\d/", "", $sSequence);
+
+                $data['sequence'] = $sSequence;
+                $event->setData($data);
+            }
+        });
     }
 }

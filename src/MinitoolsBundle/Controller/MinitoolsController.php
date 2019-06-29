@@ -44,7 +44,6 @@ use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
-use MinitoolsBundle\Entity\MicrosatelliteRepeatsFinder;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use MinitoolsBundle\Form\FastaUploaderType;
 use MinitoolsBundle\Form\FindPalindromesType;
@@ -464,24 +463,19 @@ class MinitoolsController extends Controller
         MicrosatelliteRepeatsFinderManager $oMicrosatelliteRepeatsFinderManager
     ) {
         $results = [];
-        $oMicrosatelliteRepeatsFinder = new MicrosatelliteRepeatsFinder();
 
-        $form = $this->get('form.factory')->create(
-            MicrosatelliteRepeatsFinderType::class,
-            $oMicrosatelliteRepeatsFinder
-        );
+        $form = $this->get('form.factory')->create(MicrosatelliteRepeatsFinderType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $sequence = strtoupper($oMicrosatelliteRepeatsFinder->getSequence()); // Get the sequence
-            $sequence = preg_replace("/\\W|\\d/","",$sequence); // Remove non word and digits from sequence
+            $formData = $form->getData();
 
             $results = $oMicrosatelliteRepeatsFinderManager->findMicrosatelliteRepeats(
-                $sequence,
-                $oMicrosatelliteRepeatsFinder->getMin(),
-                $oMicrosatelliteRepeatsFinder->getMax(),
-                $oMicrosatelliteRepeatsFinder->getMinRepeats(),
-                $oMicrosatelliteRepeatsFinder->getLengthOfMR(),
-                $oMicrosatelliteRepeatsFinder->getMismatch()
+                $formData["sequence"],
+                $formData["min"],
+                $formData["max"],
+                $formData["min_repeats"],
+                $formData["length_of_MR"],
+                $formData["mismatch"]
             );
         }
 
