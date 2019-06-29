@@ -8,11 +8,11 @@
  */
 namespace MinitoolsBundle\Form;
 
+use AppBundle\Validator\MeltingTemperature;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 /**
@@ -38,6 +38,9 @@ class MeltingTemperatureType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Primer (6 - 50 bases) : ",
+                'constraints' => array(
+                    new MeltingTemperature()
+                )
             ]
         );
 
