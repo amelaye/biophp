@@ -583,6 +583,7 @@ class MinitoolsController extends Controller
      * @param       ProteinPropertiesManager    $proteinPropertiesManager
      * @return      Response
      * @throws      \Exception
+     * @TODO : Molar absorbsion et isoelectric point ne correspondent pas
      */
     public function proteinPropertiesAction(
         Request $request,
