@@ -69,7 +69,7 @@ class Bioapi
         $nucleos = $this->getNucleotidsDNA();
         $dnaWeights = array();
         foreach($nucleos as $nucleo) {
-            $dnaWeights[$nucleo["letter"]."_wt"] = $nucleo["weigth"];
+            $dnaWeights[$nucleo["letter"]] = $nucleo["weigth"];
         }
         return $dnaWeights;
     }
@@ -79,7 +79,7 @@ class Bioapi
         $nucleos = $this->getNucleotidsRNA();
         $dnaWeights = array();
         foreach($nucleos as $nucleo) {
-            $dnaWeights[$nucleo["letter"]."_wt"] = $nucleo["weigth"];
+            $dnaWeights[$nucleo["letter"]] = $nucleo["weigth"];
         }
         return $dnaWeights;
     }

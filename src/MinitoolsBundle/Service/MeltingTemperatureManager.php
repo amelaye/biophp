@@ -110,14 +110,10 @@ class MeltingTemperatureManager
      * @param   int         $concMg         Mg2+ concentration
      * @return  array
      * @throws  \Exception
-     * @todo    Transformer l'exception en erreur formulaire
      */
     public function tmBaseStacking($primer, $concPrimer, $concSalt, $concMg)
     {
         try {
-            if ($this->nucleotidsManager->countACGT($primer) != strlen($primer)) {
-                throw new \Exception("The oligonucleotide is not valid");
-            }
             $h = $s = 0;
 
             $array_h = $this->bioapi->getEnthalpyValues();
@@ -274,42 +270,42 @@ class MeltingTemperatureManager
             $rnaWeightsTemp = $this->bioapi->getRNAWeight();
 
             $dnaWeights = [
-                'A' => [$dnaWeightsTemp["A_wt"], $dnaWeightsTemp["A_wt"]],  // Adenine
-                'C' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["C_wt"]],  // Cytosine
-                'G' => [$dnaWeightsTemp["G_wt"], $dnaWeightsTemp["G_wt"]],  // Guanine
-                'T' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["T_wt"]],  // Thymine
-                'M' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["A_wt"]],  // A or C
-                'R' => [$dnaWeightsTemp["A_wt"], $dnaWeightsTemp["G_wt"]],  // A or G
-                'W' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["A_wt"]],  // A or T
-                'S' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // C or G
-                'Y' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["T_wt"]],  // C or T
-                'K' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["G_wt"]],  // G or T
-                'V' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // A or C or G
-                'H' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["A_wt"]],  // A or C or T
-                'D' => [$dnaWeightsTemp["T_wt"], $dnaWeightsTemp["G_wt"]],  // A or G or T
-                'B' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // C or G or T
-                'X' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]],  // G, A, T or C
-                'N' => [$dnaWeightsTemp["C_wt"], $dnaWeightsTemp["G_wt"]]   // G, A, T or C
+                'A' => [$dnaWeightsTemp["A"], $dnaWeightsTemp["A"]],  // Adenine
+                'C' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["C"]],  // Cytosine
+                'G' => [$dnaWeightsTemp["G"], $dnaWeightsTemp["G"]],  // Guanine
+                'T' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["T"]],  // Thymine
+                'M' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["A"]],  // A or C
+                'R' => [$dnaWeightsTemp["A"], $dnaWeightsTemp["G"]],  // A or G
+                'W' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["A"]],  // A or T
+                'S' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // C or G
+                'Y' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["T"]],  // C or T
+                'K' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["G"]],  // G or T
+                'V' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // A or C or G
+                'H' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["A"]],  // A or C or T
+                'D' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["G"]],  // A or G or T
+                'B' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // C or G or T
+                'X' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // G, A, T or C
+                'N' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]]   // G, A, T or C
             ];
 
 
             $rnaWeights = [
-                'A' => [$rnaWeightsTemp["A_wt"], $rnaWeightsTemp["A_wt"]],  // Adenine
-                'C' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["C_wt"]],  // Cytosine
-                'G' => [$rnaWeightsTemp["G_wt"], $rnaWeightsTemp["G_wt"]],  // Guanine
-                'U' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["U_wt"]],  // Uracil
-                'M' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["A_wt"]],  // A or C
-                'R' => [$rnaWeightsTemp["A_wt"], $rnaWeightsTemp["G_wt"]],  // A or G
-                'W' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["A_wt"]],  // A or U
-                'S' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // C or G
-                'Y' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["U_wt"]],  // C or U
-                'K' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["G_wt"]],  // G or U
-                'V' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // A or C or G
-                'H' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["A_wt"]],  // A or C or U
-                'D' => [$rnaWeightsTemp["U_wt"], $rnaWeightsTemp["G_wt"]],  // A or G or U
-                'B' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // C or G or U
-                'X' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]],  // G, A, U or C
-                'N' => [$rnaWeightsTemp["C_wt"], $rnaWeightsTemp["G_wt"]]   // G, A, U or C
+                'A' => [$rnaWeightsTemp["A"], $rnaWeightsTemp["A"]],  // Adenine
+                'C' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["C"]],  // Cytosine
+                'G' => [$rnaWeightsTemp["G"], $rnaWeightsTemp["G"]],  // Guanine
+                'U' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["U"]],  // Uracil
+                'M' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["A"]],  // A or C
+                'R' => [$rnaWeightsTemp["A"], $rnaWeightsTemp["G"]],  // A or G
+                'W' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["A"]],  // A or U
+                'S' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // C or G
+                'Y' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["U"]],  // C or U
+                'K' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["G"]],  // G or U
+                'V' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // A or C or G
+                'H' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["A"]],  // A or C or U
+                'D' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["G"]],  // A or G or U
+                'B' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // C or G or U
+                'X' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // G, A, U or C
+                'N' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]]   // G, A, U or C
             ];
 
             $all_na_wts = ['DNA' => $dnaWeights, 'RNA' => $rnaWeights];
@@ -321,7 +317,7 @@ class MeltingTemperatureManager
             if($sLimit == "lowerlimit") {
                 $wlimit = 1;
             }
-            if($sLimit == "upperlimit") {
+            else if($sLimit == "upperlimit") {
                 $wlimit = 0;
             }
 
