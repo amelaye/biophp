@@ -3,9 +3,11 @@
  * PCR Amplification Functions
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 31 march 2019
+ * Last modified 29 june 2019
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Bioapi\Bioapi;
 
 /**
  * Class PcrAmplificationManager
@@ -14,6 +16,20 @@ namespace MinitoolsBundle\Service;
  */
 class PcrAmplificationManager
 {
+    /**
+     * @var Bioapi
+     */
+    private $bioapi;
+
+    /**
+     * PcrAmplificationManager constructor.
+     * @param Bioapi $bioapi
+     */
+    public function __construct(Bioapi $bioapi)
+    {
+        $this->bioapi = $bioapi;
+    }
+
     /**
      * Amplify the sequence
      * @param   string      $sStartPattern
@@ -56,7 +72,7 @@ class PcrAmplificationManager
      * @return  string
      * @throws  \Exception
      */
-    function includeN($sPattern)
+    public function includeN($sPattern)
     {
         try {
             $sNewPattern = "";
@@ -72,5 +88,44 @@ class PcrAmplificationManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
+    }
+
+    /**
+     * SET PATTERNS FROM PRIMERS
+     * Change N to point in primers
+     * @param   string      $primer1
+     * @param   string      $primer2
+     * @param   bool        $bAllowMismatch
+     * @return  string
+     * @throws  \Exception
+     */
+    public function createStartPattern($primer1, $primer2, $bAllowMismatch)
+    {
+        $sPattern1 = str_replace("N", ".", $primer1);
+        $sPattern2 = str_replace("N", ".", $primer2);
+
+        if ((bool)$bAllowMismatch) {
+            $sPattern1 = $this->includeN($primer1);
+            $sPattern2 = $this->includeN($primer2);
+        }
+        $sStartPattern = "$sPattern1|$sPattern2"; // SET PATTERN
+        return $sStartPattern;
+    }
+
+    /**
+     * SET PATTERNS FROM PRIMERS
+     * Change N to point in primers
+     * @param   string  $sStartPattern
+     * @return  string
+     */
+    public function createEndPattern($sStartPattern)
+    {
+        $seqRevert = strrev($sStartPattern);
+        foreach ($this->bioapi->getDNAComplement() as $nucleotide => $complement) {
+            $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+        }
+        $sEndPattern = strtoupper($seqRevert);
+
+        return $sEndPattern;
     }
 }
