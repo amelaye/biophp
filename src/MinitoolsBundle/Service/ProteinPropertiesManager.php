@@ -19,11 +19,6 @@ class ProteinPropertiesManager
     /**
      * @var array
      */
-    private $aCodons;
-
-    /**
-     * @var array
-     */
     private $aTriplets;
 
     /**
@@ -33,18 +28,22 @@ class ProteinPropertiesManager
 
     private $bioapi;
 
+    private $aminos;
+
     /**
      * ProteinPropertiesManager constructor.
-     * @param   array   $aCodons
      * @param   array   $aTriplets
      * @param   array   $aTripletsCombinations
      */
-    public function __construct(array $aCodons = [], array $aTriplets = [], array $aTripletsCombinations = [], Bioapi $bioapi)
-    {
-        $this->aCodons                  = $aCodons;
+    public function __construct(
+        array $aTriplets = [],
+        array $aTripletsCombinations = [],
+        Bioapi $bioapi
+    ){
         $this->aTriplets                = $aTriplets;
         $this->aTripletsCombinations    = $aTripletsCombinations;
         $this->bioapi = $bioapi;
+        $this->aminos = $bioapi->getAminos();
     }
 
     /**
@@ -136,8 +135,6 @@ class ProteinPropertiesManager
     function proteinCharge($aPK, $aAminoacidContent, $iPH)
     {
         try {
-            dump($aPK);
-
             $iCharge = $this->partialCharge($aPK["NTERMINUS"], $iPH);
             $iCharge+= $this->partialCharge($aPK["K"], $iPH) * $aAminoacidContent["K"];
             $iCharge+= $this->partialCharge($aPK["R"], $iPH) * $aAminoacidContent["R"];
@@ -183,14 +180,17 @@ class ProteinPropertiesManager
     {
         try {
             $array = [];
-            foreach($this->aCodons as $codon) {
-                if(isset($codon[3])) {
-                    $array[$codon[1]] = 0;
+            foreach($this->aminos as $aminos) {
+                if(isset($aminos["name3Letters"])) {
+                    $array[$aminos["name1Letter"]] = 0;
                 }
             }
 
             for($i = 0; $i < strlen($seq); $i++){
                 $aa = substr($seq, $i,1);
+                if(!isset($array[$aa])) {
+                    $array[$aa] = 0;
+                }
                 $array[$aa]++;
             }
             return $array;
@@ -226,6 +226,7 @@ class ProteinPropertiesManager
      * @param $aminoacid_content
      * @return float
      * @throws \Exception
+     * @todo : intégrer l'api pour residue mol weight
      */
     public function proteinMolecularWeight ($aminoacid_content)
     {
@@ -268,14 +269,14 @@ class ProteinPropertiesManager
         try {
             $aa = strtoupper($aa);
 
-            foreach($this->aCodons as $name => $codons) {
+            foreach($this->aminos as $amino) {
                 if (strlen($aa) == 1) {
-                    if ($aa == $codons[1]) {
-                        return $name;
+                    if ($aa == $amino["name1Letter"]) {
+                        return $amino["name"];
                     }
                 } elseif (strlen($aa) == 3) {
-                    if (isset($codons[3]) && $aa == strtoupper($codons[3])) {
-                        return $name;
+                    if (isset($amino["name3Letters"]) && $aa == strtoupper($amino["name3Letters"])) {
+                        return $amino["name"];
                     }
                 }
             }
@@ -289,13 +290,14 @@ class ProteinPropertiesManager
      * @param   string  $sAmino
      * @return  string
      * @throws  \Exception
+     * @todo : faire appel à l'id api
      */
     public function seq1letterTo3letter($sAmino)
     {
         try {
-            foreach($this->aCodons as $amino) {
-                if($amino[1] == $sAmino) {
-                    return $amino[3];
+            foreach($this->aminos as $amino) {
+                if($amino["name1Letter"] == $sAmino) {
+                    return $amino["name3Letters"];
                 }
             }
         } catch (\Exception $e) {
