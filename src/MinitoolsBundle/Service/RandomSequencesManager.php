@@ -76,12 +76,12 @@ class RandomSequencesManager
     public function createFromSeq($iLength, $sSequence)
     {
         try {
-            if($iLength != "") {
+            if($iLength != null) {
                 // remove from sequence characters different to ACGT.
                 $seqACGT = preg_replace("/[^ACGT]/","", $sSequence);
                 // The sequence is DNA if A+C+G+T>70% (so, if $seqACGT is long enough)
                 if(strlen($seqACGT) > strlen($sSequence) * 0.7) {
-                    $acgt = [];
+                    $acgt = 0;
                     $aDNA = [];
 
                     // The sequence is DNA
@@ -101,7 +101,7 @@ class RandomSequencesManager
                 } else {
                     // The sequence is protein
                     $aProteins = [];
-                    $ACDEFGHIKLMNPGRSTVWY = [];
+                    $ACDEFGHIKLMNPGRSTVWY = 0;
                     $aListProteins = ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"];
 
                     // get the frequencies for each aminoacid

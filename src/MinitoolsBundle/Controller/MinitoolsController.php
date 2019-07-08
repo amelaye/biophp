@@ -13,9 +13,6 @@ use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
 use AppBundle\Traits\OligoTrait;
-use MinitoolsBundle\Entity\PcrAmplification;
-use MinitoolsBundle\Entity\ProteinToDna;
-use MinitoolsBundle\Entity\RandomSequences;
 use MinitoolsBundle\Entity\ReduceAlphabet;
 use MinitoolsBundle\Entity\RestrictionEnzymeDigest;
 use MinitoolsBundle\Entity\SequenceAlignment;
@@ -40,7 +37,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 use MinitoolsBundle\Entity\DnaToProtein;
-use MinitoolsBundle\Entity\Protein;
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Form\DnaToProteinType;
@@ -704,48 +700,48 @@ class MinitoolsController extends Controller
      */
     public function randomSeqsAction(Request $request, RandomSequencesManager $randomSequencesManager)
     {
-        $oRandomSequence    = new RandomSequences();
         $result             = "";
         $aAminoAcids        = [];
 
-        $form = $this->get('form.factory')->create(RandomSequencesType::class, $oRandomSequence);
+        $form = $this->get('form.factory')->create(RandomSequencesType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            switch($oRandomSequence->getProcedure()) {
+            $formData       = $form->getData();
+            switch($formData["procedure"]) {
                 case "fromseq":
-                    $length1 = $oRandomSequence->getLength1();
-                    $result = $randomSequencesManager->createFromSeq($oRandomSequence->getSeq(), $length1);
+                    $length1 = $formData["length1"];
+                    $result = $randomSequencesManager->createFromSeq($length1, $formData["seq"]);
                     break;
                 case "fromACGT":
-                    $length2 = $oRandomSequence->getLength2();
-                    $aAminoAcids["A"] = $oRandomSequence->getDnaA();
-                    $aAminoAcids["C"] = $oRandomSequence->getDnaC();
-                    $aAminoAcids["G"] = $oRandomSequence->getDnaG();
-                    $aAminoAcids["T"] = $oRandomSequence->getDnaT();
+                    $length2 = $formData["length2"];
+                    $aAminoAcids["A"] = $formData["dnaA"];
+                    $aAminoAcids["C"] = $formData["dnaC"];
+                    $aAminoAcids["G"] = $formData["dnaG"];
+                    $aAminoAcids["T"] = $formData["dnaT"];
                     $result = $randomSequencesManager->createFromACGT($aAminoAcids, $length2);
                     break;
                 case "fromAA":
-                    $length3 = $oRandomSequence->getLength3();
-                    $aAminoAcids["A"] = $oRandomSequence->getA();
-                    $aAminoAcids["C"] = $oRandomSequence->getC();
-                    $aAminoAcids["D"] = $oRandomSequence->getD();
-                    $aAminoAcids["E"] = $oRandomSequence->getE();
-                    $aAminoAcids["F"] = $oRandomSequence->getF();
-                    $aAminoAcids["G"] = $oRandomSequence->getG();
-                    $aAminoAcids["H"] = $oRandomSequence->getH();
-                    $aAminoAcids["I"] = $oRandomSequence->getI();
-                    $aAminoAcids["K"] = $oRandomSequence->getK();
-                    $aAminoAcids["L"] = $oRandomSequence->getL();
-                    $aAminoAcids["M"] = $oRandomSequence->getM();
-                    $aAminoAcids["N"] = $oRandomSequence->getN();
-                    $aAminoAcids["P"] = $oRandomSequence->getP();
-                    $aAminoAcids["Q"] = $oRandomSequence->getQ();
-                    $aAminoAcids["R"] = $oRandomSequence->getR();
-                    $aAminoAcids["S"] = $oRandomSequence->getS();
-                    $aAminoAcids["T"] = $oRandomSequence->getT();
-                    $aAminoAcids["V"] = $oRandomSequence->getV();
-                    $aAminoAcids["W"] = $oRandomSequence->getW();
-                    $aAminoAcids["Y"] = $oRandomSequence->getY();
+                    $length3 = $formData["length3"];
+                    $aAminoAcids["A"] = $formData["a"];
+                    $aAminoAcids["C"] = $formData["c"];
+                    $aAminoAcids["D"] = $formData["d"];
+                    $aAminoAcids["E"] = $formData["e"];
+                    $aAminoAcids["F"] = $formData["f"];
+                    $aAminoAcids["G"] = $formData["g"];
+                    $aAminoAcids["H"] = $formData["h"];
+                    $aAminoAcids["I"] = $formData["i"];
+                    $aAminoAcids["K"] = $formData["k"];
+                    $aAminoAcids["L"] = $formData["l"];
+                    $aAminoAcids["M"] = $formData["m"];
+                    $aAminoAcids["N"] = $formData["n"];
+                    $aAminoAcids["P"] = $formData["p"];
+                    $aAminoAcids["Q"] = $formData["q"];
+                    $aAminoAcids["R"] = $formData["r"];
+                    $aAminoAcids["S"] = $formData["s"];
+                    $aAminoAcids["T"] = $formData["t"];
+                    $aAminoAcids["V"] = $formData["v"];
+                    $aAminoAcids["W"] = $formData["w"];
+                    $aAminoAcids["Y"] = $formData["y"];
                     $result = $randomSequencesManager->createFromAA($aAminoAcids, $length3);
             }
         }
