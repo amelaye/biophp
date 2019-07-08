@@ -184,6 +184,20 @@ class Bioapi
         }
 
         return $newData;
+    }
 
+    public function getSpeciesNames()
+    {
+        $uri = '/triplet_species';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[ucwords($elem['nature'])] = str_replace(" ", "_", $elem['nature']);
+        }
+
+        return $newData;
     }
 }

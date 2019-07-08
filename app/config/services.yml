@@ -73,10 +73,6 @@ services:
         arguments:
             - '%nucleotids_graphs%' # keep it
 
-    MinitoolsBundle\Service\ProteinToDnaManager:
-        arguments:
-            - '%triplets_list%'
-
     MinitoolsBundle\Service\RandomSequencesManager:
         arguments:
             - '%dna_complements%'
