@@ -69,11 +69,6 @@ services:
             - "%triplets%"
             - "%triplets_combinations%"
 
-    MinitoolsBundle\Service\ProteinPropertiesManager:
-        arguments:
-            - "%triplets%"
-            - "%triplets_combinations%"
-
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
             - '%nucleotids_graphs%' # keep it

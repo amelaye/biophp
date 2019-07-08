@@ -3,7 +3,7 @@
  * Proteins properties Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 29 june 2019
+ * Last modified 8 july 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -17,33 +17,24 @@ use AppBundle\Bioapi\Bioapi;
 class ProteinPropertiesManager
 {
     /**
-     * @var array
+     * @var Bioapi
      */
-    private $aTriplets;
+    private $bioapi;
 
     /**
      * @var array
      */
-    private $aTripletsCombinations;
-
-    private $bioapi;
-
     private $aminos;
 
     /**
      * ProteinPropertiesManager constructor.
-     * @param   array   $aTriplets
-     * @param   array   $aTripletsCombinations
+     * @param   Bioapi  $bioapi
      */
     public function __construct(
-        $aTriplets,
-        $aTripletsCombinations,
         Bioapi $bioapi
     ){
-        $this->aTriplets                = $aTriplets;
-        $this->aTripletsCombinations    = $aTripletsCombinations;
-        $this->bioapi = $bioapi;
-        $this->aminos = $bioapi->getAminos();
+        $this->bioapi                   = $bioapi;
+        $this->aminos                   = $bioapi->getAminos();
     }
 
     /**
@@ -219,36 +210,17 @@ class ProteinPropertiesManager
 
     /**
      * Molecular weight calculation
-     * @param $aminoacid_content
-     * @return float
-     * @throws \Exception
-     * @todo : intégrer l'api pour residue mol weight
+     * @param   array   $aminoacid_content
+     * @return  float
+     * @throws  \Exception
      */
     public function proteinMolecularWeight ($aminoacid_content)
     {
         try {
-            $molweight  = $aminoacid_content["A"] * 71.07;         // for Alanine
-            $molweight += $aminoacid_content["R"] * 156.18;        // for Arginine
-            $molweight += $aminoacid_content["N"] * 114.08;        // for Asparagine
-            $molweight += $aminoacid_content["D"] * 115.08;        // for Aspartic Acid
-            $molweight += $aminoacid_content["C"] * 103.10;        // for Cysteine
-            $molweight += $aminoacid_content["Q"] * 128.13;        // for Glutamine
-            $molweight += $aminoacid_content["E"] * 129.11;        // for Glutamic Acid
-            $molweight += $aminoacid_content["G"] * 57.05;         // for Glycine
-            $molweight += $aminoacid_content["H"] * 137.14;        // for Histidine
-            $molweight += $aminoacid_content["I"] * 113.15;        // for Isoleucine
-            $molweight += $aminoacid_content["L"] * 113.15;        // for Leucine
-            $molweight += $aminoacid_content["K"] * 128.17;        // for Lysine
-            $molweight += $aminoacid_content["M"] * 131.19;        // for Methionine
-            $molweight += $aminoacid_content["F"] * 147.17;        // for Phenylalanine
-            $molweight += $aminoacid_content["P"] * 97.11;         // for Proline
-            $molweight += $aminoacid_content["S"] * 87.07;         // for Serine
-            $molweight += $aminoacid_content["T"] * 101.10;        // for Threonine
-            $molweight += $aminoacid_content["W"] * 186.20;        // for Tryptophan
-            $molweight += $aminoacid_content["Y"] * 163.17;        // for Tyrosine
-            $molweight += $aminoacid_content["V"] * 99.13;         // for Valine
-            $molweight += 18.02;                     // water
-            $molweight += $aminoacid_content["X"] * 114.822;       // for unkwon aminoacids, add avarage of all aminoacids
+            $molweight = 18.02;  // water
+            foreach($aminoacid_content as $key => $amino) {
+                $molweight += $amino * $this->aminos[$key]["residueMolWeight"];
+            }
             return $molweight;
         } catch (\Exception $e) {
             throw new \Exception($e);

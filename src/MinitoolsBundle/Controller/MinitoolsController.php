@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 29 june 2019
+ * Last modified 8 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -584,7 +584,6 @@ class MinitoolsController extends Controller
      * @param       Bioapi                      $bioapi
      * @return      Response
      * @throws      \Exception
-     * @TODO : Molar absorbsion et isoelectric point ne correspondent pas
      */
     public function proteinPropertiesAction(
         Request $request,
