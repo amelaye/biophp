@@ -146,6 +146,44 @@ class Bioapi
 
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
 
-        return $data["hydra:member"];
+        //return $data["hydra:member"];
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem['id']] = $elem;
+        }
+
+        return $newData;
+    }
+
+    public function getTripletsGroups()
+    {
+        $uri = '/triplet_species';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[str_replace(" ", "_", $elem['nature'])] = $elem['tripletsGroups'];
+        }
+
+        return $newData;
+
+    }
+
+    public function getTriplets()
+    {
+        $uri = '/triplet_species';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[str_replace(" ", "_", $elem['nature'])] = $elem['triplets'];
+        }
+
+        return $newData;
+
     }
 }
