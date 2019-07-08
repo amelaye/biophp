@@ -592,7 +592,7 @@ class MinitoolsController extends Controller
         Bioapi $bioapi
     ){
         $data_source = $three_letter_code = $subsequence    =  "";
-        $molweight = $abscoef = $charge = $charge2          = 0;
+        $molweight = $abscoef = $charge = $charge2 = $pH    = 0;
         $aminoacids = $colored_seq = $colored_seq2          = [];
         $results                                            = false;
 
@@ -610,7 +610,8 @@ class MinitoolsController extends Controller
             $seq = $this->removeNonCodingProt($formData["seq"]);
             $subsequence = $proteinPropertiesManager->writeSubsequence($formData["start"], $formData["end"], $seq);
             // calculate nucleotide composition
-            $aminoacid_content = $proteinPropertiesManager->aminoacidContent($seq);
+            $aminoacid_content = $proteinPropertiesManager->aminoacidContent($subsequence);
+
             // get pk values for charged aminoacids
             $pK = $bioapi->getPkValueById($formData["data_source"]);
 
@@ -619,7 +620,7 @@ class MinitoolsController extends Controller
                 $aminoacids = $proteinPropertiesManager->formatAminoacidContent($aminoacid_content);
             }
             if ((bool)$formData["molweight"]) {
-                 $molweight = $proteinPropertiesManager->proteinMolecularWeight($aminoacid_content);
+                $molweight = $proteinPropertiesManager->proteinMolecularWeight($aminoacid_content);
             }
             if ((bool)$formData["abscoef"]) {
                 $abscoef = $proteinPropertiesManager->molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight);
@@ -631,15 +632,15 @@ class MinitoolsController extends Controller
                 $charge2 = $proteinPropertiesManager->proteinCharge($pK, $aminoacid_content, $pH);
             }
             if ((bool)$formData["three_letters"]) {  // colored sequence based in plar/non-plar/charged aminoacids
-                foreach(str_split($seq) as $letter) {
+                foreach(str_split($subsequence) as $letter) {
                     $three_letter_code .= $proteinPropertiesManager->seq1letterTo3letter($letter);
                 }
             }
             if ((bool)$formData["type1"]) {   // colored sequence based in polar/non-plar/charged aminoacids
-                $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($seq, $colors);
+                $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($subsequence, $colors);
             }
             if ((bool)$formData["type2"]) {
-                $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($seq, $colors);
+                $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($subsequence, $colors);
             }
         }
 
