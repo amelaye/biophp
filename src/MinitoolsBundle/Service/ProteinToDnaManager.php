@@ -3,9 +3,11 @@
  * Protein To DNA Functions
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 6 april 2019
+ * Last modified 8 july 2019
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Bioapi\Bioapi;
 
 /**
  * Class ProteinToDnaManager
@@ -21,11 +23,11 @@ class ProteinToDnaManager
 
     /**
      * ProteinToDnaManager constructor.
-     * @param   array   $aTripletsList
+     * @param   Bioapi   $bioapi
      */
-    public function __construct($aTripletsList)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->aTripletsList = $aTripletsList;
+        $this->aTripletsList = $bioapi->getTriplets();
     }
 
     /**

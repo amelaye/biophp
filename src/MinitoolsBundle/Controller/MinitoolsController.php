@@ -673,15 +673,15 @@ class MinitoolsController extends Controller
      */
     public function proteinToDnaAction(Request $request, ProteinToDnaManager $proteinToDnaManager)
     {
-        $oProteinToDna  = new ProteinToDna();
-        $dna            = "";
-
-        $form = $this->get('form.factory')->create(ProteinToDnaType::class, $oProteinToDna);
+        $sDna = $sSequence = "";
+        $form = $this->get('form.factory')->create(ProteinToDnaType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $dna = $proteinToDnaManager->translateProteinToDNA(
-                $oProteinToDna->getSequence(),
-                $oProteinToDna->getGeneticCode()
+            $formData       = $form->getData();
+            $sSequence = $formData["sequence"];
+            $sDna = $proteinToDnaManager->translateProteinToDNA(
+                $sSequence,
+                $formData["genetic_code"]
             );
         }
 
@@ -689,8 +689,8 @@ class MinitoolsController extends Controller
             '@Minitools/Minitools/proteinToDna.html.twig',
             [
                 'form'                  => $form->createView(),
-                'sequence'              => $oProteinToDna->getSequence(),
-                'dna'                   => $dna
+                'sequence'              => $sSequence,
+                'dna'                   => $sDna
             ]
         );
     }
