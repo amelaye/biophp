@@ -36,8 +36,8 @@ class ProteinPropertiesManager
      * @param   array   $aTripletsCombinations
      */
     public function __construct(
-        array $aTriplets = [],
-        array $aTripletsCombinations = [],
+        $aTriplets,
+        $aTripletsCombinations,
         Bioapi $bioapi
     ){
         $this->aTriplets                = $aTriplets;
@@ -60,8 +60,7 @@ class ProteinPropertiesManager
         if ($iStart != "" || $iEnd != "") {
             $start = ($iStart != "") ? $iStart - 1 : 0;
             $end  = ($iEnd != "") ? $iEnd : strlen($sSequence);
-            $sSequence = substr($sSequence, $start,$end - $start);
-            $sSubsequence = chunk_split($sSequence, 70);
+            $sSubsequence = substr($sSequence, $start,$end - $start);
         }
         return $sSubsequence;
     }
@@ -181,16 +180,13 @@ class ProteinPropertiesManager
         try {
             $array = [];
             foreach($this->aminos as $aminos) {
-                if(isset($aminos["name3Letters"])) {
+                if(isset($aminos["name3Letters"]) && $aminos["name3Letters"] != "N/A") {
                     $array[$aminos["name1Letter"]] = 0;
                 }
             }
 
             for($i = 0; $i < strlen($seq); $i++){
                 $aa = substr($seq, $i,1);
-                if(!isset($array[$aa])) {
-                    $array[$aa] = 0;
-                }
                 $array[$aa]++;
             }
             return $array;

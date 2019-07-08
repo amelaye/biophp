@@ -7,7 +7,7 @@
         <div class="card border-info mb-3" style="font-size:0.9em" id="results">
             <div class="card-header">Results of your request</div>
             <div class="card-body">
-                <p><b>Subsequence used for calculations :</b><br>{{ subsequence }}</p>
+                <p><b>Subsequence used for calculations :</b><br>{{ subsequence | chunk_split(70) }}</p>
 
                 {% if aminoacids is not empty %}
                     <p><b>Aminoacid composition of protein:</b><br>
