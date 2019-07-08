@@ -151,7 +151,7 @@ class ProteinPropertiesManager
         try {
             $results = [];
             foreach($aminoacid_content as $aa => $count) {
-                $results[] = ["one_letter" => $aa, "three_letters" => $this->seq1letterTo3letter($aa), "count" => $count];
+                $results[] = ["one_letter" => $aa, "three_letters" => $this->aminos[$aa]["name3Letters"], "count" => $count];
             }
             return $results;
         } catch (\Exception $e) {
@@ -214,7 +214,7 @@ class ProteinPropertiesManager
      * @return  float
      * @throws  \Exception
      */
-    public function proteinMolecularWeight ($aminoacid_content)
+    public function proteinMolecularWeight($aminoacid_content)
     {
         try {
             $molweight = 18.02;  // water
@@ -222,52 +222,6 @@ class ProteinPropertiesManager
                 $molweight += $amino * $this->aminos[$key]["residueMolWeight"];
             }
             return $molweight;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-    /**
-     * @param $aa
-     * @return int|string
-     * @throws \Exception
-     */
-    public function identifyAminoacidCompleteName($aa)
-    {
-        try {
-            $aa = strtoupper($aa);
-
-            foreach($this->aminos as $amino) {
-                if (strlen($aa) == 1) {
-                    if ($aa == $amino["name1Letter"]) {
-                        return $amino["name"];
-                    }
-                } elseif (strlen($aa) == 3) {
-                    if (isset($amino["name3Letters"]) && $aa == strtoupper($amino["name3Letters"])) {
-                        return $amino["name"];
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-    /**
-     * Finds the 3-letter equivalent
-     * @param   string  $sAmino
-     * @return  string
-     * @throws  \Exception
-     * @todo : faire appel à l'id api
-     */
-    public function seq1letterTo3letter($sAmino)
-    {
-        try {
-            foreach($this->aminos as $amino) {
-                if($amino["name1Letter"] == $sAmino) {
-                    return $amino["name3Letters"];
-                }
-            }
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

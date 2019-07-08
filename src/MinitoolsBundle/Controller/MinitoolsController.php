@@ -632,7 +632,7 @@ class MinitoolsController extends Controller
             }
             if ((bool)$formData["three_letters"]) {  // colored sequence based in plar/non-plar/charged aminoacids
                 foreach(str_split($subsequence) as $letter) {
-                    $three_letter_code .= $proteinPropertiesManager->seq1letterTo3letter($letter);
+                    $three_letter_code .= $bioapi->getAminos()[$letter]["name3Letters"];
                 }
             }
             if ((bool)$formData["type1"]) {   // colored sequence based in polar/non-plar/charged aminoacids
