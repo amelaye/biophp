@@ -23,6 +23,7 @@ use MinitoolsBundle\Form\RandomSequencesType;
 use MinitoolsBundle\Form\ReduceAlphabetType;
 use MinitoolsBundle\Form\RestrictionEnzymeDigestType;
 use MinitoolsBundle\Form\SequenceAlignmentType;
+use MinitoolsBundle\Service\DnaToProteinManager;
 use MinitoolsBundle\Service\PcrAmplificationManager;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
 use MinitoolsBundle\Service\ProteinToDnaManager;
@@ -259,20 +260,63 @@ class MinitoolsController extends Controller
      * @return  Response
      * @throws  \Exception
      */
-    public function dnaToProteinAction(Request $request)
+    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager)
     {
-        $aEvent = null;
+        //$aEvent = null;
+        $sResults               = '';
+        $sResultsComplementary  = '';
+        $mycode                 = null;
+        $sBar                   = '';
+        $aFrames                = [];
 
         $aAminoAcidCodes        = $this->getParameter('codons');
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
-        $oDnaToProtein = new DnaToProtein();
-        $form = $this->get('form.factory')->create(DnaToProteinType::class, $oDnaToProtein);
+        $dnatoprotein = new DnaToProtein();
+        $form = $this->get('form.factory')->create(DnaToProteinType::class, $dnatoprotein);
 
         // Form treatment
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $aEvent = $this->get('event_dispatcher')->dispatch('on_create_frames', new GenericEvent($oDnaToProtein));
+            $formData = $form->getData();
+            $sequence = preg_replace("(\W|\d)", "", $dnatoprotein->getSequence());
+
+            if($dnatoprotein->getUsemycode() == 1) {
+                $mycode = preg_replace("([^FLIMVSPTAY*HQNKDECWRG\*])", "", $dnatoprotein->getMycode());
+                $dnatoprotein->setMycode($mycode);
+                $dnatoprotein->setGeneticCode("custom");
+            }
+
+            // Custom code
+            if($dnatoprotein->getGeneticCode() == "custom") {
+                $aFrames = $dnaToProteinManager->customTreatment($dnatoprotein, $sequence, $mycode);
+            } else {
+                $aFrames = $dnaToProteinManager->definedTreatment($dnatoprotein, $sequence);
+            }
+
+            // FIND ORFs (when requested)
+            if((bool)$dnatoprotein->getSearchOrfs()) {
+                $aFrames = $dnaToProteinManager->findORF($aFrames, $dnatoprotein->getProtsize(), (bool)$dnatoprotein->getOnlyCoding(), (bool)$dnatoprotein->getTrimmed());
+            }
+
+            // Show translations aligned (when requested)
+            if((bool)$dnatoprotein->getShowAligned()) {
+                $sResults = $dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
+                $sResultsComplementary = $dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
+                $sBar = $dnaToProteinManager->getScaleAndBar();
+            }
+
+            // Output the amino acids with double gaps (--)
+            if ((bool)$dnatoprotein->getDgaps()) {
+                foreach($aFrames as &$line) {
+                    $line = chunk_split($line,1,'--');
+                }
+            }
+
+            // Formats frames
+            foreach($aFrames as &$sPeptideSequence) {
+                $sPeptideSequence = chunk_split($sPeptideSequence,100,'<br>');
+            }
         }
 
         return $this->render(
@@ -281,10 +325,10 @@ class MinitoolsController extends Controller
                 'amino_left'            => $aAminoAcidCodesLeft,
                 'amino_right'           => $aAminoAcidCodesRight,
                 'form'                  => $form->createView(),
-                'frames'                => $aEvent != null ? $aEvent->getArgument('frames') : null,
-                'aligned_results'       => $aEvent != null ? $aEvent->getArgument('frames_aligned') : null,
-                'aligned_results_compl' => $aEvent != null ? $aEvent->getArgument('frames_aligned_compl') : null,
-                'bar'                   => $aEvent != null ? $aEvent->getArgument('bar') : null,
+                'frames'                => $aFrames,
+                'aligned_results'       => $sResults,
+                'aligned_results_compl' => $sResultsComplementary,
+                'bar'                   => $sBar,
             ]
         );
     }
