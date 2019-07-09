@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 24 february 2019
+ * Last modified 9 july 2019
  */
 namespace MinitoolsBundle\Form;
 
@@ -15,7 +15,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\Length;
 
 class DnaToProteinType extends AbstractType
 {
@@ -126,6 +129,9 @@ class DnaToProteinType extends AbstractType
                 'label' => "Minimum size of protein sequence : ",
                 'attr' => [
                     'class' => "form-control"
+                ],
+                'constraints' => [
+                    new GreaterThanOrEqual(["value" => 10])
                 ]
             ]
         );
@@ -171,19 +177,37 @@ class DnaToProteinType extends AbstractType
                 'data' => "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
                 'attr' => [
                     'class' => "form-control"
+                ],
+                'constraints' => [
+                    new Length([
+                        'min' => 64,
+                        'max' => 64,
+                        'minMessage' => 'The custom code is not correct (is not 64 characters long)',
+                        'maxMessage' => 'The custom code is not correct (is not 64 characters long)'
+                    ]),
                 ]
             ]
         );
-    }
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\DnaToProtein'
-        ));
+        /**
+         * Formatting Seq before validation
+         * Remove non word and digits from sequence
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                $sSequence = preg_replace("(\W|\d)", "", $data['sequence']);
+                $data['sequence'] = $sSequence;
+            }
+
+            if (isset($data['usemycode']) && $data["usemycode"] == 1) {
+                $mycode = preg_replace("([^FLIMVSPTAY*HQNKDECWRG\*])", "", $data["mycode"]);
+                $data["mycode"] = $mycode;
+                $data["genetic_code"] = "custom";
+            }
+
+            $event->setData($data);
+        });
     }
 }
