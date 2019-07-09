@@ -63,10 +63,6 @@ services:
             - '%protein_colors%'
             - '%generic_colors%'
 
-    MinitoolsBundle\Service\DnaToProteinManager:
-        arguments:
-            - "%triplets_combinations%"
-
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
             - '%nucleotids_graphs%' # keep it

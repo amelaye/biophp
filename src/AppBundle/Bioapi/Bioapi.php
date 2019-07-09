@@ -210,9 +210,7 @@ class Bioapi
 
         $newData = array();
         foreach($data["hydra:member"] as $key => $elem) {
-            //dump($elem["triplets"]);
             $newData = $newData + $elem["triplets"];
-           // $newData[] =
         }
         dump($newData);
     }
@@ -227,6 +225,21 @@ class Bioapi
         $newData = array();
         foreach($data["hydra:member"] as $key => $elem) {
             $newData[ucwords($elem['nature'])] = str_replace(" ", "_", $elem['nature']);
+        }
+
+        return $newData;
+    }
+
+    public function getTripletsList()
+    {
+        $uri = '/triplets';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[] = $elem['triplet']." ";
         }
 
         return $newData;

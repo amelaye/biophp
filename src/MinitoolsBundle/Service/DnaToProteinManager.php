@@ -40,13 +40,13 @@ class DnaToProteinManager
 
     /**
      * DnaToProteinManager constructor.
-     * @param   array   $aTripletsCombinations
+     * @param   Bioapi   $bioapi
      */
-    public function __construct($aTripletsCombinations, Bioapi $bioapi)
+    public function __construct(Bioapi $bioapi)
     {
         $this->aAminos                  = $bioapi->getAminosOnlyLetters();
         $this->aTriplets                = $bioapi->getTripletsGroups();
-        $this->aTripletsCombinations    = $aTripletsCombinations;
+        $this->aTripletsCombinations    = $bioapi->getTripletsList();
     }
 
     /**
