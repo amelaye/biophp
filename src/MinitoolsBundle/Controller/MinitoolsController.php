@@ -256,7 +256,8 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/dna-to-protein", name="dna_to_protein")
-     * @param   Request      $request
+     * @param   Request                 $request
+     * @param   DnaToProteinManager     $dnaToProteinManager
      * @return  Response
      * @throws  \Exception
      */
@@ -273,41 +274,43 @@ class MinitoolsController extends Controller
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 
-        $dnatoprotein = new DnaToProtein();
-        $form = $this->get('form.factory')->create(DnaToProteinType::class, $dnatoprotein);
+        $form = $this->get('form.factory')->create(DnaToProteinType::class);
 
         // Form treatment
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
-            $sequence = preg_replace("(\W|\d)", "", $dnatoprotein->getSequence());
-
-            if($dnatoprotein->getUsemycode() == 1) {
-                $mycode = preg_replace("([^FLIMVSPTAY*HQNKDECWRG\*])", "", $dnatoprotein->getMycode());
-                $dnatoprotein->setMycode($mycode);
-                $dnatoprotein->setGeneticCode("custom");
-            }
+            $sequence = $formData["sequence"];
 
             // Custom code
-            if($dnatoprotein->getGeneticCode() == "custom") {
-                $aFrames = $dnaToProteinManager->customTreatment($dnatoprotein, $sequence, $mycode);
+            if($formData["genetic_code"] == "custom") {
+                $aFrames = $dnaToProteinManager->customTreatment($formData["frames"], $sequence, $mycode);
             } else {
-                $aFrames = $dnaToProteinManager->definedTreatment($dnatoprotein, $sequence);
+                $aFrames = $dnaToProteinManager->definedTreatment(
+                    $formData["frames"],
+                    $formData["genetic_code"],
+                    $sequence
+                );
             }
 
             // FIND ORFs (when requested)
-            if((bool)$dnatoprotein->getSearchOrfs()) {
-                $aFrames = $dnaToProteinManager->findORF($aFrames, $dnatoprotein->getProtsize(), (bool)$dnatoprotein->getOnlyCoding(), (bool)$dnatoprotein->getTrimmed());
+            if((bool)$formData["search_orfs"] ) {
+                $aFrames = $dnaToProteinManager->findORF(
+                    $aFrames,
+                    $formData["protsize"],
+                    (bool)$formData["only_coding"],
+                    (bool)$formData["trimmed"]
+                );
             }
 
             // Show translations aligned (when requested)
-            if((bool)$dnatoprotein->getShowAligned()) {
+            if((bool)$formData["show_aligned"]) {
                 $sResults = $dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
                 $sResultsComplementary = $dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
                 $sBar = $dnaToProteinManager->getScaleAndBar();
             }
 
             // Output the amino acids with double gaps (--)
-            if ((bool)$dnatoprotein->getDgaps()) {
+            if ((bool)$formData["dgaps"]) {
                 foreach($aFrames as &$line) {
                     $line = chunk_split($line,1,'--');
                 }
@@ -349,14 +352,9 @@ class MinitoolsController extends Controller
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
-
-            $aPalindromes = $oFindPalindromeManager->findPalindromicSeqs(
-                $formData["seq"],
-                $formData["min"],
-                $formData["max"]
-            );
             $min = $formData["min"];
             $max = $formData["max"];
+            $aPalindromes = $oFindPalindromeManager->findPalindromicSeqs($formData["seq"], $min, $max);
         }
 
         return $this->render(

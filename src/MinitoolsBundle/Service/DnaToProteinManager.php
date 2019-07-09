@@ -3,12 +3,11 @@
  * DNA To Protein Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 3 march 2019
+ * Last modified 9 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
-use MinitoolsBundle\Entity\DnaToProtein;
 
 /**
  * Class DnaToProteinManager
@@ -72,25 +71,25 @@ class DnaToProteinManager
     }
 
     /**
-     * @param   DnaToProtein $oDnaToProtein
+     * @param   int         $iFrames
      * @param   string      $sSequence
      * @param   string      $sMycode
      * @return  array
      * @throws \Exception
      */
-    public function customTreatment(DnaToProtein $oDnaToProtein, $sSequence, $sMycode)
+    public function customTreatment($iFrames, $sSequence, $sMycode)
     {
         try {
             $aFrames = [];
             // Translate in  5-3 direction
             $aFrames[1] = $this->translateDNAToProteinCustomcode(substr($sSequence, 0, floor(strlen($sSequence)/3)*3), $sMycode);
 
-            if ($oDnaToProtein->getFrames() > 1) {
+            if ($iFrames > 1) {
                 $aFrames[2] = $this->translateDNAToProteinCustomcode(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3),$sMycode);
                 $aFrames[3] = $this->translateDNAToProteinCustomcode(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3),$sMycode);
             }
             // Translate the complementary sequence
-            if ($oDnaToProtein->getFrames() > 3) {
+            if ($iFrames > 3) {
                 // Get complementary
                 $this->sRvSequence = $this->revCompDNA($sSequence);
                 $aFrames[4] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 0, floor(strlen($this->sRvSequence)/3)*3),$sMycode);
@@ -105,28 +104,29 @@ class DnaToProteinManager
 
     /**
      * Treatment when a specie has been chosen
-     * @param   DnaToProtein    $oDnaToProtein
+     * @param   int             $iFrames
+     * @param   string          $sGeneticCode
      * @param   string          $sSequence
      * @return  array
      * @throws  \Exception
      */
-    public function definedTreatment(DnaToProtein $oDnaToProtein, $sSequence)
+    public function definedTreatment($iFrames, $sGeneticCode, $sSequence)
     {
         try {
             // Translate in 5-3 direction
-            $aFrames[1] = $this->translateDNAToProtein(substr($sSequence, 0, floor(strlen($sSequence)/3)*3),$oDnaToProtein->getGeneticCode());
-            if ($oDnaToProtein->getFrames() > 1){
-                $aFrames[2] = $this->translateDNAToProtein(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
-                $aFrames[3] = $this->translateDNAToProtein(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+            $aFrames[1] = $this->translateDNAToProtein(substr($sSequence, 0, floor(strlen($sSequence)/3)*3), $sGeneticCode);
+            if ($iFrames > 1){
+                $aFrames[2] = $this->translateDNAToProtein(substr($sSequence, 1,floor((strlen($sSequence)-1)/3)*3), $sGeneticCode);
+                $aFrames[3] = $this->translateDNAToProtein(substr($sSequence, 2,floor((strlen($sSequence)-2)/3)*3), $sGeneticCode);
             }
             // Translate the complementary sequence
-            if ($oDnaToProtein->getFrames() > 3){
+            if ($iFrames > 3){
                 // Get complementary
                 $this->sRvSequence = $this->revCompDNA($sSequence);
                 //calculate frames 4-6
-                $aFrames[4] = $this->translateDNAToProtein(substr($this->sRvSequence, 0,floor(strlen($this->sRvSequence)/3)*3),$oDnaToProtein->getGeneticCode());
-                $aFrames[5] = $this->translateDNAToProtein(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3),$oDnaToProtein->getGeneticCode());
-                $aFrames[6] = $this->translateDNAToProtein(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3),$oDnaToProtein->getGeneticCode());
+                $aFrames[4] = $this->translateDNAToProtein(substr($this->sRvSequence, 0,floor(strlen($this->sRvSequence)/3)*3), $sGeneticCode);
+                $aFrames[5] = $this->translateDNAToProtein(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3), $sGeneticCode);
+                $aFrames[6] = $this->translateDNAToProtein(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3), $sGeneticCode);
             }
             return $aFrames;
         } catch (\Exception $e) {
