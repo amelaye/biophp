@@ -65,8 +65,6 @@ services:
 
     MinitoolsBundle\Service\DnaToProteinManager:
         arguments:
-            - "%codons%"
-            - "%triplets%"
             - "%triplets_combinations%"
 
     MinitoolsBundle\Service\ChaosGameRepresentationManager:

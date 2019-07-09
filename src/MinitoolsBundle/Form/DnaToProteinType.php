@@ -19,9 +19,25 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
+use AppBundle\Bioapi\Bioapi;
 
 class DnaToProteinType extends AbstractType
 {
+    /**
+     * All the species with triplets on API
+     * @var array $geneticData
+     */
+    private $geneticData;
+
+    /**
+     * ProteinToDnaType constructor.
+     * @param Bioapi $bioapi
+     */
+    public function __construct(Bioapi $bioapi)
+    {
+        $this->geneticData = $bioapi->getSpeciesNames();
+    }
+
     /**
      * Form builder
      * @param   FormBuilderInterface  $builder
