@@ -256,19 +256,19 @@ class MinitoolsController extends Controller
      * @Route("/minitools/dna-to-protein", name="dna_to_protein")
      * @param   Request                 $request
      * @param   DnaToProteinManager     $dnaToProteinManager
+     * @param   Bioapi                  $bioapi
      * @return  Response
      * @throws  \Exception
      */
-    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager)
+    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager, Bioapi $bioapi)
     {
-        //$aEvent = null;
         $sResults               = '';
         $sResultsComplementary  = '';
         $mycode                 = null;
         $sBar                   = '';
         $aFrames                = [];
 
-        $aAminoAcidCodes        = $this->getParameter('codons');
+        $aAminoAcidCodes        = $bioapi->getAminosOnlyLetters();
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
         $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
 

@@ -155,6 +155,21 @@ class Bioapi
         return $newData;
     }
 
+    public function getAminosOnlyLetters()
+    {
+        $uri = '/aminos';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem['name']] = [1 => $elem["name1Letter"], 3 => $elem["name3Letters"]];
+        }
+
+        return $newData;
+    }
+
     public function getTripletsGroups()
     {
         $uri = '/triplet_species';
@@ -184,6 +199,22 @@ class Bioapi
         }
 
         return $newData;
+    }
+
+    public function getTripletsCombinations()
+    {
+        $uri = '/triplet_species';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            //dump($elem["triplets"]);
+            $newData = $newData + $elem["triplets"];
+           // $newData[] =
+        }
+        dump($newData);
     }
 
     public function getSpeciesNames()

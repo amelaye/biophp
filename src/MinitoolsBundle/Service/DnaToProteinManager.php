@@ -9,6 +9,8 @@
 namespace MinitoolsBundle\Service;
 
 
+use AppBundle\Bioapi\Bioapi;
+
 /**
  * Class DnaToProteinManager
  * @package MinitoolsBundle\Service
@@ -38,14 +40,12 @@ class DnaToProteinManager
 
     /**
      * DnaToProteinManager constructor.
-     * @param   array   $aAminos
-     * @param   array   $aTriplets
      * @param   array   $aTripletsCombinations
      */
-    public function __construct(array $aAminos = [], array $aTriplets = [], array $aTripletsCombinations = [])
+    public function __construct($aTripletsCombinations, Bioapi $bioapi)
     {
-        $this->aAminos                  = $aAminos;
-        $this->aTriplets                = $aTriplets;
+        $this->aAminos                  = $bioapi->getAminosOnlyLetters();
+        $this->aTriplets                = $bioapi->getTripletsGroups();
         $this->aTripletsCombinations    = $aTripletsCombinations;
     }
 
