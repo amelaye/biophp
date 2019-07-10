@@ -3,7 +3,7 @@
  * DNA To Protein Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 9 july 2019
+ * Last modified 10 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -15,6 +15,7 @@ use AppBundle\Bioapi\Bioapi;
  * Class DnaToProteinManager
  * @package MinitoolsBundle\Service
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @todo : beaucoup de fonctions de format !
  */
 class DnaToProteinManager
 {
@@ -208,29 +209,10 @@ class DnaToProteinManager
     {
         try {
             $aAminoAcids = ["F","L","I","M","V","S","P","T","A","Y","*","H","Q","N","K","D","E","C","W","R","G","X"];
-
-            $triplets[1] = $this->aTriplets["standard"]; // Standard genetic code
-            $triplets[2] = $this->aTriplets["vertebrate_mitochondrial"]; // Vertebrate Mitochondrial
-            $triplets[3] = $this->aTriplets["yeast_mitochondrial"]; // Yeast Mitochondrial
-            $triplets[4] = $this->aTriplets["mold_protozoan_coelenterate_mitochondrial"]; // Mold, Protozoan and Coelenterate Mitochondrial. Mycoplasma, Spiroplasma
-            $triplets[5] = $this->aTriplets["invertebrate_mitochondrial"];// Invertebrate Mitochondrial
-            $triplets[6] = $this->aTriplets["ciliate_dasycladacean_hexamita_nuclear"]; // Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear
-            $triplets[9] = $this->aTriplets["echinoderm_mitochondrial"]; // Echinoderm Mitochondrial
-            $triplets[10] = $this->aTriplets["euplotid_nuclear"]; // Euplotid Nuclear
-            $triplets[11] = $this->aTriplets["bacterial_plant_plastid"]; // Bacterial and Plant Plastid
-            $triplets[12] = $this->aTriplets["alternative_yeast_nuclear"]; // Alternative Yeast Nuclear
-            $triplets[13] = $this->aTriplets["ascidian_mitochondria"]; // Ascidian Mitochondria
-            $triplets[14] = $this->aTriplets["flatworm_mitochondrial"]; // Flatworm Mitochondrial
-            $triplets[15] = $this->aTriplets["blepharisma_macronuclear"]; // Blepharisma Macronuclear
-            $triplets[16] = $this->aTriplets["chlorophycean_mitochondrial"]; // Chlorophycean Mitochondrial
-            $triplets[21] = $this->aTriplets["trematode_mitochondrial"]; // Trematode Mitochondrial
-            $triplets[22] = $this->aTriplets["scenedesmus_obliquus_mitochondrial"]; // Scenedesmus obliquus mitochondrial
-            $triplets[23] = $this->aTriplets["thraustochytrium_mitochondrial_code"]; // Thraustochytrium mitochondrial code
-
             // place a space after each triplete in the sequence
             $temp = chunk_split($sSequence,3,' ');
             // replace triplets by corresponding amnoacid
-            $sPeptide = preg_replace($triplets[$sGeneticCode], $aAminoAcids, $temp);
+            $sPeptide = preg_replace($this->aTriplets[$sGeneticCode], $aAminoAcids, $temp);
             // return peptide sequence
             return $sPeptide;
         } catch (\Exception $e) {

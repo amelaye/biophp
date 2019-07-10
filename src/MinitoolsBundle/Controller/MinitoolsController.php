@@ -257,6 +257,8 @@ class MinitoolsController extends Controller
      * @param   Request                 $request
      * @param   DnaToProteinManager     $dnaToProteinManager
      * @param   Bioapi                  $bioapi
+     * @todo : bug sur custom code
+     * @todo : bug, certaines lettres restent en minuscule
      * @return  Response
      * @throws  \Exception
      */
@@ -279,8 +281,12 @@ class MinitoolsController extends Controller
             $formData = $form->getData();
             $sequence = $formData["sequence"];
 
+            //if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
+                //$formData["genetic_code"] = "custom";
+            //}
+
             // Custom code
-            if($formData["genetic_code"] == "custom") {
+            if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
                 $aFrames = $dnaToProteinManager->customTreatment($formData["frames"], $sequence, $mycode);
             } else {
                 $aFrames = $dnaToProteinManager->definedTreatment(

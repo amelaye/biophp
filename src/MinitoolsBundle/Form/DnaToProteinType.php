@@ -56,26 +56,6 @@ class DnaToProteinType extends AbstractType
         $textSequence .= "GTGAGGGGAG CAGTTGGGCC AAGATGGCGG CCGCCGAGGG ACCGGTGGGC GACGGGGAGT 240\r";
         $textSequence .= "GAGGGGAGCA GTTGGGCCAA GATGGCGGCC GCCGAGGGAC CGGTGGGCGA CGCGGGAGTG 300\r";
 
-        $aGeneticCode = [
-            "Standard" => 1,
-            "Vertebrate Mitochondrial" => 2,
-            "Yeast Mitochondrial" => 3,
-            "Mold, Protozoan and Coelenterate Mitochondrial. Mycoplasma, Spiroplasma" => 4,
-            "Invertebrate Mitochondrial" => 5,
-            "Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear" => 6,
-            "Echinoderm Mitochondrial" => 9,
-            "Euplotid Nuclear" => 10,
-            "Bacterial and Plant Plastid" => 11,
-            "Alternative Yeast Nuclear" => 12,
-            "Ascidian Mitochondrial" => 13,
-            "Flatworm Mitochondrial" => 14,
-            "Blepharisma Macronuclear" => 15,
-            "Chlorophycean Mitochondrial" => 16,
-            "Trematode Mitochondrial" => 21,
-            "Scenedesmus obliquus mitochondrial" => 22,
-            "Thraustochytrium mitochondrial code" => 23
-        ];
-
         /*
          * Form construction
          */
@@ -171,7 +151,7 @@ class DnaToProteinType extends AbstractType
             'genetic_code',
             ChoiceType::class,
             [
-                'choices' => $aGeneticCode,
+                'choices' => $this->geneticData,
                 'label' => "Genetic code : ",
                 'attr' => [
                     'class' => "custom-select d-block w-20"
@@ -220,7 +200,6 @@ class DnaToProteinType extends AbstractType
             if (isset($data['usemycode']) && $data["usemycode"] == 1) {
                 $mycode = preg_replace("([^FLIMVSPTAY*HQNKDECWRG\*])", "", $data["mycode"]);
                 $data["mycode"] = $mycode;
-                $data["genetic_code"] = "custom";
             }
 
             $event->setData($data);
