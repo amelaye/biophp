@@ -13,7 +13,6 @@ use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
 use AppBundle\Traits\OligoTrait;
-use MinitoolsBundle\Entity\RestrictionEnzymeDigest;
 use MinitoolsBundle\Entity\SequenceAlignment;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
@@ -861,36 +860,39 @@ class MinitoolsController extends Controller
     {
         $sequence = "";
         $digestion = [];
-        $enzymes_array = [];
-        $digestionMulti = [];
+        $enzymes_array = $enzymes_array = [];
+        $digestionMulti = $digestionMulti = [];
+        $bShowCode = false;
 
-        $oRestrictionEnzimeDigest = new RestrictionEnzymeDigest();
-        $form = $this->get('form.factory')->create(RestrictionEnzymeDigestType::class, $oRestrictionEnzimeDigest);
+        $form = $this->get('form.factory')->create(RestrictionEnzymeDigestType::class);
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $sequence = $restrictionDigestManager->extractSequences($oRestrictionEnzimeDigest->getSequence());
+            $formData       = $form->getData();
+
+            $bShowCode = $formData["show_code"];
+            $sequence = $restrictionDigestManager->extractSequences($formData["sequence"]);
 
             // We will get info for endonucleases. The info is included within 3 different functions in the bottom (for Type II, IIb and IIs enzymes)
             // Type II endonucleases are always used
             $enzymes_array = $this->getParameter('enzymes')['typeII_endonucleases'];
 
             // if TypeIIs endonucleases are requested, get them
-            if (($oRestrictionEnzimeDigest->isIIs() && !$oRestrictionEnzimeDigest->isDefined())) {
+            if (($formData["IIs"] && !$formData["defined"])) {
                 $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIs_endonucleases']);
                 asort($enzymes_array);
             }
             // if TypeIIb endonucleases are requested, get them
-            if (($oRestrictionEnzimeDigest->isIIb() && !$oRestrictionEnzimeDigest->isDefined())) {
+            if (($formData["IIb"] && !$formData["defined"])) {
                 $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIb_endonucleases']);
                 asort($enzymes_array);
             }
 
             $enzymes_array = $restrictionDigestManager->reduceEnzymesArray(
                 $enzymes_array,
-                $oRestrictionEnzimeDigest->getMinimum(),
-                $oRestrictionEnzimeDigest->getRetype(),
-                $oRestrictionEnzimeDigest->isDefined(),
-                $oRestrictionEnzimeDigest->getWre()
+                $formData["minimum"],
+                $formData["retype"],
+                $formData["defined"],
+                $formData["wre"]
             );
 
             // RESTRICTION DIGEST OF SEQUENCE
@@ -903,8 +905,8 @@ class MinitoolsController extends Controller
                     $sequence,
                     $digestion,
                     $enzymes_array,
-                    $oRestrictionEnzimeDigest->isOnlydiff(),
-                    $oRestrictionEnzimeDigest->getWre()
+                    $formData["onlydiff"],
+                    $formData["wre"]
                 );
             }
         }
@@ -913,7 +915,7 @@ class MinitoolsController extends Controller
             '@Minitools/Minitools/restrictionDigest.html.twig',
             [
                 'form'              => $form->createView(),
-                'show_code'         => $oRestrictionEnzimeDigest->isShowcode(),
+                'show_code'         => $bShowCode,
                 'sequence'          => $sequence,
                 'digestion'         => $digestion,
                 'digestion_multi'   => array_unique($digestionMulti),

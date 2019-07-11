@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * Form RestrictionEnzymeDigestType
@@ -61,7 +62,13 @@ class RestrictionEnzymeDigestType extends AbstractType
                 ],
                 'data'  => $textSequence,
                 'label' => "Sequence :",
-                'required' => true
+                'required' => true,
+                'constraints' => [
+                    new Length([
+                        "max" => 1000000,
+                        "maxMessage" => "The maximum length of input string accepted is {{ limit }} characters"
+                    ])
+                ]
             ]
         );
 
@@ -170,16 +177,5 @@ class RestrictionEnzymeDigestType extends AbstractType
                 ]
             ]
         );
-    }
-
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\RestrictionEnzymeDigest'
-        ));
     }
 }
