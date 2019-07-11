@@ -3,18 +3,20 @@
  * Class ReduceAlphabetType
  * Freely inspired by BioPHP's project biophp.org
  * Created 7 april 2019
- * Last modified 7 april 2019
+ * Last modified 11 july 2019
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormEvent;
 
 /**
  * Form ReduceAlphabetType
@@ -102,6 +104,14 @@ class ReduceAlphabetType extends AbstractType
                 'attr' => [
                     'class' => "form-control"
                 ],
+                'constraints' => [
+                    new Length([
+                        'min' => 20,
+                        'max' => 20,
+                        'minMessage' => "The personalized alphabet is not correct",
+                        'maxMessage' => "The personalized alphabet is not correct"
+                    ])
+                ]
             ]
         );
 
@@ -137,16 +147,22 @@ class ReduceAlphabetType extends AbstractType
                 ]
             ]
         );
-    }
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\ReduceAlphabet'
-        ));
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                // change the sequence to upper case
+                $sSequence = strtoupper($data['sequence']);
+                // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
+                $sSequence = preg_replace ("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
+                $data['sequence'] = $sSequence;
+            }
+
+            $event->setData($data);
+        });
     }
 }

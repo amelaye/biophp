@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 8 july 2019
+ * Last modified 11 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -13,7 +13,6 @@ use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
 use AppBundle\Traits\OligoTrait;
-use MinitoolsBundle\Entity\ReduceAlphabet;
 use MinitoolsBundle\Entity\RestrictionEnzymeDigest;
 use MinitoolsBundle\Entity\SequenceAlignment;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
@@ -750,8 +749,7 @@ class MinitoolsController extends Controller
             $formData       = $form->getData();
             switch($formData["procedure"]) {
                 case "fromseq":
-                    $length1 = $formData["length1"];
-                    $result = $randomSequencesManager->createFromSeq($length1, $formData["seq"]);
+                    $result = $randomSequencesManager->createFromSeq($formData["length1"], $formData["seq"]);
                     break;
                 case "fromACGT":
                     $length2 = $formData["length2"];
@@ -806,32 +804,32 @@ class MinitoolsController extends Controller
      */
     public function reduceProteinAlphabetAction(Request $request, ReduceProteinAlphabetManager $reduceProteinAlphabetManager)
     {
-        $oReduceAlphabet = new ReduceAlphabet();
-        $form = $this->get('form.factory')->create(ReduceAlphabetType::class, $oReduceAlphabet);
-        $reducedCode = "";
-        $reducedSeq = "";
+        $form = $this->get('form.factory')->create(ReduceAlphabetType::class);
+        $reducedCode = $reducedSeq = "";
+
+        $sMode = $sCustomAlphabet = $sSequence = $sType = $sAaperline = "";
+        $bShowReduced = false;
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            // REDUCE ALPHABET
-            if ($oReduceAlphabet->getMode() == "pre") {
-                // for predefined reduced alphabets
-                if ($oReduceAlphabet->getSeq() != ""
-                    && $oReduceAlphabet->getType() != ""
-                    && $oReduceAlphabet->getAaperline() != "") {
-                    $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet(
-                        $oReduceAlphabet->getSeq(),
-                        $oReduceAlphabet->getType()
-                    );
+            $formData       = $form->getData();
+            $sMode              = $formData["mode"];
+            $sCustomAlphabet    = $formData["custom_alphabet"];
+            $sSequence          = $formData["seq"];
+            $bShowReduced       = $formData["show_reduced"];
+            $sType              = $formData["type"];
+            $sAaperline         = $formData["aaperline"];
 
-                    $reducedCode = $this->getParameter('types_infos')[$oReduceAlphabet->getType()];
+            // REDUCE ALPHABET
+            if ($sMode == "pre") {
+                // for predefined reduced alphabets
+                if ($sSequence != ""  && $sType != "" && $sAaperline != "") {
+                    $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet($sSequence, $sType);
+                    $reducedCode = $this->getParameter('types_infos')[$sType];
                 }
             } else {
                 // for personalized reduced alphabets
-                if ($oReduceAlphabet->getSeq() != "" && $oReduceAlphabet->getAaperline() != "") {
-                    $reducedSeq =  $reduceProteinAlphabetManager->reduceAlphabetCustom(
-                        $oReduceAlphabet->getSeq(),
-                        $oReduceAlphabet->getCustomAlphabet()
-                    );
+                if ($sSequence != "" && $sAaperline != "") {
+                    $reducedSeq =  $reduceProteinAlphabetManager->reduceAlphabetCustom($sSequence, $sCustomAlphabet);
                 }
             }
         }
@@ -842,12 +840,12 @@ class MinitoolsController extends Controller
                 'form'                  => $form->createView(),
                 'reduced_code'          => $reducedCode,
                 'reduced_seq'           => $reducedSeq,
-                'mode'                  => $oReduceAlphabet->getMode(),
-                'custom_alphabet'       => $oReduceAlphabet->getCustomAlphabet(),
-                'sequence'              => $oReduceAlphabet->getSeq(),
-                'show_reduced'          => $oReduceAlphabet->isShowReduced(),
-                'type'                  => $oReduceAlphabet->getType(),
-                'aa_perline'            => $oReduceAlphabet->getAaperline()
+                'mode'                  => $sMode,
+                'custom_alphabet'       => $sCustomAlphabet,
+                'sequence'              => $sSequence,
+                'show_reduced'          => $bShowReduced,
+                'type'                  => $sType,
+                'aa_perline'            => $sAaperline
             ]
         );
     }
