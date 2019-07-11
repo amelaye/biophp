@@ -225,10 +225,13 @@ class MinitoolsController extends Controller
 
             // at this moment two arrays are available: $seqs (with sequences) and $seq_names (with name of sequences)
             if ($formData["method"] == "euclidean") { // EUCLIDEAN DISTANCE
-                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs, $length, $this->dnaComplements);
-                $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array,$length);
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs,
+                    $length, $this->dnaComplements);
+                $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs,
+                    $oligo_array,$length);
             } else {
-                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs, $this->dnaComplements);
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs,
+                    $this->dnaComplements);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }
 
@@ -457,7 +460,8 @@ class MinitoolsController extends Controller
     }
 
     /**
-     * @Route("/minitools/micro-array-analysis-adaptive-quantification", name="micro_array_analysis_adaptive_quantification")
+     * @Route("/minitools/micro-array-analysis-adaptive-quantification",
+     *     name="micro_array_analysis_adaptive_quantification")
      * @param       Request                             $request
      * @param       MicroarrayAnalysisAdaptiveManager   $oMicroarrayAnalysisAdaptiveManager
      * @return      Response
@@ -544,7 +548,8 @@ class MinitoolsController extends Controller
             $iLength = $formData["len"];
             $sSequence = $formData["sequence"];
 
-            // when frequencies at both strands are requested, place sequence and reverse complement of sequence in one line
+            // when frequencies at both strands are requested,
+            // place sequence and reverse complement of sequence in one line
             if ($formData["strands"] == 2) {
                 $this->createInversion($sSequence, $this->dnaComplements);
             }
@@ -801,8 +806,10 @@ class MinitoolsController extends Controller
      * @return      Response
      * @throws      \Exception
      */
-    public function reduceProteinAlphabetAction(Request $request, ReduceProteinAlphabetManager $reduceProteinAlphabetManager)
-    {
+    public function reduceProteinAlphabetAction(
+        Request $request,
+        ReduceProteinAlphabetManager $reduceProteinAlphabetManager
+    ) {
         $form = $this->get('form.factory')->create(ReduceAlphabetType::class);
         $reducedCode = $reducedSeq = "";
 
@@ -853,15 +860,17 @@ class MinitoolsController extends Controller
      * @Route("/minitools/restriction-digest", name="restriction_digest")
      * @param       Request                     $request
      * @param       RestrictionDigestManager    $restrictionDigestManager
+     * @param       Bioapi                      $bioapi
      * @return      Response
      * @throws      \Exception
      */
-    public function restrictionDigestAction(Request $request, RestrictionDigestManager $restrictionDigestManager)
-    {
-        $sequence = "";
-        $digestion = [];
-        $enzymes_array = $enzymes_array = [];
-        $digestionMulti = $digestionMulti = [];
+    public function restrictionDigestAction(
+        Request $request,
+        RestrictionDigestManager $restrictionDigestManager,
+        Bioapi $bioapi
+    ) {
+        $sequence  = "";
+        $digestion = $enzymes_array = $enzymes_array = $digestionMulti = $digestionMulti = [];
         $bShowCode = false;
 
         $form = $this->get('form.factory')->create(RestrictionEnzymeDigestType::class);
@@ -869,21 +878,22 @@ class MinitoolsController extends Controller
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData       = $form->getData();
 
-            $bShowCode = $formData["show_code"];
+            $bShowCode = $formData["showcode"];
             $sequence = $restrictionDigestManager->extractSequences($formData["sequence"]);
 
-            // We will get info for endonucleases. The info is included within 3 different functions in the bottom (for Type II, IIb and IIs enzymes)
+            // We will get info for endonucleases. The info is included within 3 different
+            // functions in the bottom (for Type II, IIb and IIs enzymes)
             // Type II endonucleases are always used
-            $enzymes_array = $this->getParameter('enzymes')['typeII_endonucleases'];
+            $enzymes_array = $bioapi->getTypeIIEndonucleases();
 
             // if TypeIIs endonucleases are requested, get them
             if (($formData["IIs"] && !$formData["defined"])) {
-                $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIs_endonucleases']);
+                $enzymes_array = array_merge($enzymes_array, $bioapi->getTypeIIsEndonucleases());
                 asort($enzymes_array);
             }
             // if TypeIIb endonucleases are requested, get them
             if (($formData["IIb"] && !$formData["defined"])) {
-                $enzymes_array = array_merge($enzymes_array, $this->getParameter('enzymes')['typeIIb_endonucleases']);
+                $enzymes_array = array_merge($enzymes_array, $bioapi->getTypeIIbEndonucleases());
                 asort($enzymes_array);
             }
 
@@ -897,7 +907,10 @@ class MinitoolsController extends Controller
 
             // RESTRICTION DIGEST OF SEQUENCE
             foreach($sequence as $number => $val) {
-                $digestion[$number] = $restrictionDigestManager->restrictionDigest($enzymes_array, $sequence[$number]["seq"]);
+                $digestion[$number] = $restrictionDigestManager->restrictionDigest(
+                    $enzymes_array,
+                    $sequence[$number]["seq"]
+                );
             }
 
             if (sizeof($sequence) > 1) {
@@ -975,7 +988,8 @@ class MinitoolsController extends Controller
              */
             $iLimit = 300;
             if ((strlen($sequenceAlignment->getSequence()) + strlen($sequenceAlignment->getSequence2())) > $iLimit) {
-                throw new \Exception ("The maximum length of code accepted for both sequences is $iLimit nucleotides");
+                throw new \Exception ("The maximum length of code accepted for both 
+                sequences is $iLimit nucleotides");
             }
 
             // CHECK WHETHER THEY ARE DNA OR PROTEIN, AND ALIGN SEQUENCES

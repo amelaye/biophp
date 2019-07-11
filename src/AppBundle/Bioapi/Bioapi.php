@@ -244,4 +244,73 @@ class Bioapi
 
         return $newData;
     }
+
+    public function getTypeIIEndonucleases()
+    {
+        $uri = '/type_i_i_endonucleases';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem["id"]] = [
+                $elem["samePattern"][0],
+                $elem["recognitionPattern"],
+                $elem["computingPattern"],
+                $elem["lengthRecognitionPattern"],
+                $elem["cleavagePosUpper"],
+                $elem["cleavagePosLower"],
+                $elem["nbNonNBases"],
+            ];
+        }
+
+        return $newData;
+    }
+
+    public function getTypeIIsEndonucleases()
+    {
+        $uri = '/type_i_is_endonucleases';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem["id"]] = [
+                $elem["samePattern"][0],
+                $elem["recognitionPattern"],
+                $elem["computingPattern"],
+                $elem["lengthRecognitionPattern"],
+                $elem["cleavagePosUpper"],
+                $elem["cleavagePosLower"],
+                $elem["nbNonNBases"],
+            ];
+        }
+
+        return $newData;
+    }
+
+    public function getTypeIIbEndonucleases()
+    {
+        $uri = '/type_i_ib_endonucleases';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem["id"]] = [
+                $elem["samePattern"][0],
+                $elem["recognitionPattern"],
+                $elem["computingPattern"],
+                $elem["lengthRecognitionPattern"],
+                $elem["cleavagePosUpper"],
+                $elem["cleavagePosLower"],
+                $elem["nbNonNBases"],
+            ];
+        }
+
+        return $newData;
+    }
 }
