@@ -61,17 +61,6 @@ class DnaToProteinManager
     }
 
     /**
-     * Sets the bar + scale
-     * @return string
-     */
-    public function getScaleAndBar()
-    {
-        $sScale = "         10        20        30        40        50        60        70        80        90         \r";
-        $aBar   = "         |         |         |         |         |         |         |         |         |          ";
-        return "$sScale\n$aBar";
-    }
-
-    /**
      * @param   int         $iFrames
      * @param   string      $sSequence
      * @param   string      $sMycode

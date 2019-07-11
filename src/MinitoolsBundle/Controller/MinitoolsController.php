@@ -267,8 +267,8 @@ class MinitoolsController extends Controller
         $sResults               = '';
         $sResultsComplementary  = '';
         $mycode                 = null;
-        $sBar                   = '';
         $aFrames                = [];
+        $bShowAligned           = false;
 
         $aAminoAcidCodes        = $bioapi->getAminosOnlyLetters();
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
@@ -280,10 +280,6 @@ class MinitoolsController extends Controller
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
             $sequence = $formData["sequence"];
-
-            //if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
-                //$formData["genetic_code"] = "custom";
-            //}
 
             // Custom code
             if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
@@ -306,11 +302,12 @@ class MinitoolsController extends Controller
                 );
             }
 
+            $bShowAligned = (bool)$formData["show_aligned"];
+
             // Show translations aligned (when requested)
             if((bool)$formData["show_aligned"]) {
                 $sResults = $dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
                 $sResultsComplementary = $dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
-                $sBar = $dnaToProteinManager->getScaleAndBar();
             }
 
             // Output the amino acids with double gaps (--)
@@ -335,7 +332,7 @@ class MinitoolsController extends Controller
                 'frames'                => $aFrames,
                 'aligned_results'       => $sResults,
                 'aligned_results_compl' => $sResultsComplementary,
-                'bar'                   => $sBar,
+                'show_aligned'          => $bShowAligned
             ]
         );
     }

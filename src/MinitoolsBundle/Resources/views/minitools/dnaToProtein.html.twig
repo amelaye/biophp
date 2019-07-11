@@ -9,8 +9,8 @@
         <div class="card border-info mb-3" style="font-size:0.9em">
             <div class="card-header">Results of your request</div>
             <div class="card-body">
-                {% if aligned_results != "" %}
-                    <b>Translation of requested code (5'->3')</b><pre>{{ bar|raw }}<br />{{ aligned_results|raw }}</pre>
+                {% if show_aligned %}
+                    <b>Translation of requested code (5'->3')</b><pre>{{ scale_and_bar() }}<br />{{ aligned_results|raw }}</pre>
                 {% endif %}
 
                 {% if aligned_results_compl != "" %}
