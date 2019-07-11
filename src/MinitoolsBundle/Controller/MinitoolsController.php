@@ -16,17 +16,11 @@ use AppBundle\Traits\OligoTrait;
 use MinitoolsBundle\Entity\SequenceAlignment;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
-use MinitoolsBundle\Form\ProteinToDnaType;
 use MinitoolsBundle\Form\RandomSequencesType;
-use MinitoolsBundle\Form\ReduceAlphabetType;
 use MinitoolsBundle\Form\RestrictionEnzymeDigestType;
 use MinitoolsBundle\Form\SequenceAlignmentType;
-use MinitoolsBundle\Service\DnaToProteinManager;
 use MinitoolsBundle\Service\PcrAmplificationManager;
-use MinitoolsBundle\Service\ProteinPropertiesManager;
-use MinitoolsBundle\Service\ProteinToDnaManager;
 use MinitoolsBundle\Service\RandomSequencesManager;
-use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
 use MinitoolsBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,16 +28,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use MinitoolsBundle\Form\ChaosGameRepresentationType;
-use MinitoolsBundle\Form\ProteinPropertiesType;
-use MinitoolsBundle\Form\DnaToProteinType;
 use MinitoolsBundle\Form\DistanceAmongSequencesType;
 use MinitoolsBundle\Form\FastaUploaderType;
 use MinitoolsBundle\Form\FindPalindromesType;
 use MinitoolsBundle\Form\MeltingTemperatureType;
 use MinitoolsBundle\Form\MicroArrayDataAnalysisType;
 use MinitoolsBundle\Form\MicrosatelliteRepeatsFinderType;
-use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 use MinitoolsBundle\Service\DistanceAmongSequencesManager;
 use MinitoolsBundle\Service\FastaUploaderManager;
 use MinitoolsBundle\Service\FindPalindromeManager;
@@ -71,133 +61,6 @@ class MinitoolsController extends Controller
     public function __construct(Bioapi $bioapi)
     {
         $this->dnaComplements = $bioapi->getDNAComplement();
-    }
-
-    /**
-     * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
-     * @param   string                          $schema
-     * @param   Request                         $request
-     * @param   ChaosGameRepresentationManager  $chaosGameReprentationManager
-     * @param   OligosManager                   $oligosManager
-     * @return  Response
-     * @throws  \Exception
-     */
-    public function chaosGameRepresentationAction(
-        $schema,
-        Request $request,
-        ChaosGameRepresentationManager $chaosGameReprentationManager,
-        OligosManager $oligosManager
-    )
-    {
-        $form = $this->get('form.factory')->create(ChaosGameRepresentationType::class);
-
-        if ($schema == "FCGR") {
-            return $this->fcgrCompute($request, $chaosGameReprentationManager, $form, $oligosManager);
-        }
-
-        if ($schema == "CGR") {
-            return $this->cgrCompute($request, $chaosGameReprentationManager, $form);
-        }
-    }
-
-
-    /**
-     * @param Request $request
-     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
-     * @param $form
-     * @return Response
-     * @throws \Exception
-     */
-    public function cgrCompute(Request $request, ChaosGameRepresentationManager $chaosGameReprentationManager,
-                               $form)
-    {
-        $isComputed = false;
-
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData = $form->getData();
-            $chaosGameReprentationManager->CGRCompute($formData["seq_name"], $formData["seq"], $formData["size"]);
-            $isComputed = true;
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/chaosGameRepresentationCGR.html.twig',
-            [
-                'form'              => $form->createView(),
-                'is_computed'       => $isComputed
-            ]
-        );
-    }
-
-
-    /**
-     * @param Request $request
-     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
-     * @param $form
-     * @param $oligosManager
-     * @return Response
-     * @throws \Exception
-     */
-    public function fcgrCompute(Request $request,
-                                ChaosGameRepresentationManager $chaosGameReprentationManager,
-                                $form, $oligosManager)
-    {
-        $aOligos = null;
-        $for_map = null;
-        $aNucleotides = [];
-
-        $isMap = false;
-        $isFreq = false;
-
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData = $form->getData();
-
-            $aSeqData = $chaosGameReprentationManager->FCGRCompute(
-                $formData["seq"],
-                $formData["len"],
-                $formData["s"],
-                $this->dnaComplements
-            );
-
-            // compute nucleotide frequencies
-            foreach($this->dnaComplements as $sNucleotide) {
-                $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
-            }
-
-            // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
-            //      frequencies are saved to an array named $aOligos
-            $aOligos = $oligosManager->findOligos(
-                $aSeqData["sequence"],
-                $aSeqData["length"],
-                array_values($this->dnaComplements)
-            );
-
-            // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
-            //      check the function for more info on parameters
-            //      $data contains a string with the data to be used to create the image map
-            $for_map = $chaosGameReprentationManager->createFCGRImage(
-                $aOligos,
-                $formData["seq_name"],
-                $aNucleotides,
-                strlen($formData["seq"]),
-                $formData["s"],
-                $formData["len"]
-            );
-
-            $isMap = $formData["map"];
-            $isFreq = $formData["freq"];
-
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/chaosGameRepresentationFCGR.html.twig',
-            [
-                'form'              => $form->createView(),
-                'oligos'            => $aOligos,
-                'areas'             => $for_map,
-                'is_map'            => $isMap,
-                'show_as_freq'      => $isFreq
-            ]
-        );
     }
 
     /**
@@ -249,89 +112,6 @@ class MinitoolsController extends Controller
                 'seq_names'         => $seq_name,
                 'textcluster'       => $textcluster,
                 'dendogram_file'    => $dendogramFile
-            ]
-        );
-    }
-
-    /**
-     * @Route("/minitools/dna-to-protein", name="dna_to_protein")
-     * @param   Request                 $request
-     * @param   DnaToProteinManager     $dnaToProteinManager
-     * @param   Bioapi                  $bioapi
-     * @return  Response
-     * @throws  \Exception
-     */
-    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager, Bioapi $bioapi)
-    {
-        $sResults = $sResultsComplementary  = '';
-        $mycode                             = null;
-        $aFrames                            = [];
-        $bShowAligned                       = false;
-
-        $aAminoAcidCodes        = $bioapi->getAminosOnlyLetters();
-        $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
-        $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
-
-        $form = $this->get('form.factory')->create(DnaToProteinType::class);
-
-        // Form treatment
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData = $form->getData();
-            $sequence = $formData["sequence"];
-
-            // Custom code
-            if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
-                $mycode = $formData["mycode"];
-                $aFrames = $dnaToProteinManager->customTreatment($formData["frames"], $sequence, $mycode);
-            } else {
-                $aFrames = $dnaToProteinManager->definedTreatment(
-                    $formData["frames"],
-                    $formData["genetic_code"],
-                    $sequence
-                );
-            }
-
-            // FIND ORFs (when requested)
-            if((bool)$formData["search_orfs"] ) {
-                $aFrames = $dnaToProteinManager->findORF(
-                    $aFrames,
-                    $formData["protsize"],
-                    (bool)$formData["only_coding"],
-                    (bool)$formData["trimmed"]
-                );
-            }
-
-            $bShowAligned = (bool)$formData["show_aligned"];
-
-            // Show translations aligned (when requested)
-            if((bool)$formData["show_aligned"]) {
-                $sResults = $dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
-                $sResultsComplementary = $dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
-            }
-
-            // Output the amino acids with double gaps (--)
-            if ((bool)$formData["dgaps"]) {
-                foreach($aFrames as &$line) {
-                    $line = chunk_split($line,1,'--');
-                }
-            }
-
-            // Formats frames
-            foreach($aFrames as &$sPeptideSequence) {
-                $sPeptideSequence = chunk_split($sPeptideSequence,100,'<br>');
-            }
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/dnaToProtein.html.twig',
-            [
-                'amino_left'            => $aAminoAcidCodesLeft,
-                'amino_right'           => $aAminoAcidCodesRight,
-                'form'                  => $form->createView(),
-                'frames'                => $aFrames,
-                'aligned_results'       => $sResults,
-                'aligned_results_compl' => $sResultsComplementary,
-                'show_aligned'          => $bShowAligned
             ]
         );
     }
@@ -618,124 +398,6 @@ class MinitoolsController extends Controller
     }
 
     /**
-     * @Route("/minitools/protein-properties", name="protein_properties")
-     * @param       Request                     $request
-     * @param       ProteinPropertiesManager    $proteinPropertiesManager
-     * @param       Bioapi                      $bioapi
-     * @return      Response
-     * @throws      \Exception
-     */
-    public function proteinPropertiesAction(
-        Request $request,
-        ProteinPropertiesManager $proteinPropertiesManager,
-        Bioapi $bioapi
-    ){
-        $data_source = $three_letter_code = $subsequence    =  "";
-        $molweight = $abscoef = $charge = $charge2 = $pH    = 0;
-        $aminoacids = $colored_seq = $colored_seq2          = [];
-        $results                                            = false;
-
-        $form = $this->get('form.factory')->create(ProteinPropertiesType::class);
-
-        $colors = $this->getParameter('analysis_color');
-
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData       = $form->getData();
-            $data_source    = $formData["data_source"];
-            $pH             = $formData["pH"];
-            $results        = true;
-
-            // remove non coding (works by default)
-            $seq = $this->removeNonCodingProt($formData["seq"]);
-            $subsequence = $proteinPropertiesManager->writeSubsequence($formData["start"], $formData["end"], $seq);
-            // calculate nucleotide composition
-            $aminoacid_content = $proteinPropertiesManager->aminoacidContent($subsequence);
-
-            // get pk values for charged aminoacids
-            $pK = $bioapi->getPkValueById($formData["data_source"]);
-
-            // prepare nucleotide composition to be printed out
-            if ((bool)$formData["composition"]) {
-                $aminoacids = $proteinPropertiesManager->formatAminoacidContent($aminoacid_content);
-            }
-            if ((bool)$formData["molweight"]) {
-                $molweight = $proteinPropertiesManager->proteinMolecularWeight($aminoacid_content);
-            }
-            if ((bool)$formData["abscoef"]) {
-                $abscoef = $proteinPropertiesManager->molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight);
-            }
-            if ((bool)$formData["charge"]) {  // calculate isoelectric point of protein
-                $charge = $proteinPropertiesManager->proteinIsoelectricPoint($pK, $aminoacid_content);
-            }
-            if ((bool)$formData["charge2"]) {   // calculate charge of protein at requested pH
-                $charge2 = $proteinPropertiesManager->proteinCharge($pK, $aminoacid_content, $pH);
-            }
-            if ((bool)$formData["three_letters"]) {  // colored sequence based in plar/non-plar/charged aminoacids
-                foreach(str_split($subsequence) as $letter) {
-                    $three_letter_code .= $bioapi->getAminos()[$letter]["name3Letters"];
-                }
-            }
-            if ((bool)$formData["type1"]) {   // colored sequence based in polar/non-plar/charged aminoacids
-                $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($subsequence, $colors);
-            }
-            if ((bool)$formData["type2"]) {
-                $colored_seq2 = $proteinPropertiesManager->proteinAminoacidNature2($subsequence, $colors);
-            }
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/proteinProperties.html.twig',
-            [
-                'form'                  => $form->createView(),
-                'subsequence'           => $subsequence,
-                'aminoacids'            => $aminoacids,
-                'molweight'             => $molweight,
-                'abscoef'               => $abscoef,
-                'data_source'           => $data_source,
-                'pH'                    => $pH,
-                'charge'                => $charge,
-                'charge2'               => $charge2,
-                'three_letter_code'     => $three_letter_code,
-                'colored_seq'           => $colored_seq,
-                'colored_seq2'          => $colored_seq2,
-                'colors'                => $colors,
-                'results'               => $results
-            ]
-        );
-    }
-
-    /**
-     * @Route("/minitools/protein-to-dna", name="protein_to_dna")
-     * @param       Request                 $request
-     * @param       ProteinToDnaManager     $proteinToDnaManager
-     * @return      Response
-     * @throws      \Exception
-     */
-    public function proteinToDnaAction(Request $request, ProteinToDnaManager $proteinToDnaManager)
-    {
-        $sDna = $sSequence = "";
-        $form = $this->get('form.factory')->create(ProteinToDnaType::class);
-
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData       = $form->getData();
-            $sSequence = $formData["sequence"];
-            $sDna = $proteinToDnaManager->translateProteinToDNA(
-                $sSequence,
-                $formData["genetic_code"]
-            );
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/proteinToDna.html.twig',
-            [
-                'form'                  => $form->createView(),
-                'sequence'              => $sSequence,
-                'dna'                   => $sDna
-            ]
-        );
-    }
-
-    /**
      * @Route("/minitools/random-seqs", name="random_seqs")
      * @param       Request                     $request
      * @param       RandomSequencesManager      $randomSequencesManager
@@ -794,64 +456,6 @@ class MinitoolsController extends Controller
             [
                 'form'         => $form->createView(),
                 'results'      => $result
-            ]
-        );
-    }
-
-
-    /**
-     * @Route("/minitools/reduce-protein-alphabet", name="reduce_protein_alphabet")
-     * @param       Request                         $request
-     * @param       ReduceProteinAlphabetManager    $reduceProteinAlphabetManager
-     * @return      Response
-     * @throws      \Exception
-     */
-    public function reduceProteinAlphabetAction(
-        Request $request,
-        ReduceProteinAlphabetManager $reduceProteinAlphabetManager
-    ) {
-        $form = $this->get('form.factory')->create(ReduceAlphabetType::class);
-        $reducedCode = $reducedSeq = "";
-
-        $sMode = $sCustomAlphabet = $sSequence = $sType = $sAaperline = "";
-        $bShowReduced = false;
-
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData       = $form->getData();
-            $sMode              = $formData["mode"];
-            $sCustomAlphabet    = $formData["custom_alphabet"];
-            $sSequence          = $formData["seq"];
-            $bShowReduced       = $formData["show_reduced"];
-            $sType              = $formData["type"];
-            $sAaperline         = $formData["aaperline"];
-
-            // REDUCE ALPHABET
-            if ($sMode == "pre") {
-                // for predefined reduced alphabets
-                if ($sSequence != ""  && $sType != "" && $sAaperline != "") {
-                    $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet($sSequence, $sType);
-                    $reducedCode = $this->getParameter('types_infos')[$sType];
-                }
-            } else {
-                // for personalized reduced alphabets
-                if ($sSequence != "" && $sAaperline != "") {
-                    $reducedSeq =  $reduceProteinAlphabetManager->reduceAlphabetCustom($sSequence, $sCustomAlphabet);
-                }
-            }
-        }
-
-        return $this->render(
-            '@Minitools/Minitools/reduceProteinAlphabet.html.twig',
-            [
-                'form'                  => $form->createView(),
-                'reduced_code'          => $reducedCode,
-                'reduced_seq'           => $reducedSeq,
-                'mode'                  => $sMode,
-                'custom_alphabet'       => $sCustomAlphabet,
-                'sequence'              => $sSequence,
-                'show_reduced'          => $bShowReduced,
-                'type'                  => $sType,
-                'aa_perline'            => $sAaperline
             ]
         );
     }
