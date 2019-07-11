@@ -10,7 +10,7 @@
             <div class="card-header">Results of your request</div>
             <div class="card-body">
                 {% if show_aligned %}
-                    <b>Translation of requested code (5'->3')</b><pre>{{ scale_and_bar() }}<br />{{ aligned_results|raw }}</pre>
+                    <b>Translation of requested code (5'->3')</b><pre>{{ scale_and_bar() }}<br />{{ aligned_results|raw|upper }}</pre>
                 {% endif %}
 
                 {% if aligned_results_compl != "" %}
