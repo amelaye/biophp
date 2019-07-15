@@ -19,7 +19,11 @@
 
                 {% for key, frame in frames %}
                     <h5 class="card-title">Frame {{ key }}</h5>
-                    <pre class="card-text">{{ frame|raw }}</pre>
+                    {% if dgaps %}
+                        <pre class="card-text">{{ frame | chunk_split(1, '--') | chunk_split(100, '<br>') |raw }}</pre>
+                    {% else %}
+                        <pre class="card-text">{{ frame | chunk_split(100, '<br>') | raw }}</pre>
+                    {% endif %}
                 {% endfor %}
 
             </div>

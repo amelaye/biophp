@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 july 2019
- * Last modified 11 july 2019
+ * Last modified 15 july 2019
  */
 namespace MinitoolsBundle\Controller;
 
@@ -66,6 +66,7 @@ class DNAandProteinConvertController extends Controller
         $mycode                             = null;
         $aFrames                            = [];
         $bShowAligned                       = false;
+        $bDgaps                             = false;
 
         $aAminoAcidCodes        = $bioapi->getAminosOnlyLetters();
         $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
@@ -75,8 +76,10 @@ class DNAandProteinConvertController extends Controller
 
         // Form treatment
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            $formData = $form->getData();
-            $sequence = $formData["sequence"];
+            $formData       = $form->getData();
+            $sequence       = $formData["sequence"];
+            $bDgaps         = (bool)$formData["dgaps"];
+            $bShowAligned   = (bool)$formData["show_aligned"];
 
             // Custom code
             if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
@@ -100,24 +103,10 @@ class DNAandProteinConvertController extends Controller
                 );
             }
 
-            $bShowAligned = (bool)$formData["show_aligned"];
-
             // Show translations aligned (when requested)
             if((bool)$formData["show_aligned"]) {
                 $sResults = $dnaToProteinManager->showTranslationsAligned($sequence, $aFrames);
                 $sResultsComplementary = $dnaToProteinManager->showTranslationsAlignedComplementary($aFrames);
-            }
-
-            // Output the amino acids with double gaps (--)
-            if ((bool)$formData["dgaps"]) {
-                foreach($aFrames as &$line) {
-                    $line = chunk_split($line,1,'--');
-                }
-            }
-
-            // Formats frames
-            foreach($aFrames as &$sPeptideSequence) {
-                $sPeptideSequence = chunk_split($sPeptideSequence,100,'<br>');
             }
         }
 
@@ -130,7 +119,8 @@ class DNAandProteinConvertController extends Controller
                 'frames'                => $aFrames,
                 'aligned_results'       => $sResults,
                 'aligned_results_compl' => $sResultsComplementary,
-                'show_aligned'          => $bShowAligned
+                'show_aligned'          => $bShowAligned,
+                'dgaps'                 => $bDgaps
             ]
         );
     }
