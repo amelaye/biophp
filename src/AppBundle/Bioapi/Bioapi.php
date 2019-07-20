@@ -321,16 +321,29 @@ class Bioapi
 
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
 
-        $newIndex = array();
         $newData = array();
-
         foreach($data["hydra:member"] as $key => $elem) {
-            $newIndex[] = $elem["letters"];
-            $newData[$elem["alphabet"]]["pattern"][] = $elem["pattern"];
+            $newData[$elem["alphabet"]]["pattern"][] = '/'.$elem["pattern"].'/';
             $newData[$elem["alphabet"]]["reduction"][] = $elem["reduction"];
         }
 
-dump($newData);
         return $newData;
+    }
+
+    public function getAlphabetInfos($type)
+    {
+        $uri = '/protein_reductions';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            if($elem["alphabet"] == $type) {
+                $newData["Description"] = $elem["description"];
+                $newData["Elements"][str_replace("|","",$elem["pattern"])] = $elem["nature"];
+            }
+        }
+        return($newData);
     }
 }

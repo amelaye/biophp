@@ -119,12 +119,14 @@ class ProteinController extends Controller
      * @Route("/minitools/reduce-protein-alphabet", name="reduce_protein_alphabet")
      * @param       Request                         $request
      * @param       ReduceProteinAlphabetManager    $reduceProteinAlphabetManager
+     * @param       Bioapi                          $bioapi
      * @return      Response
      * @throws      \Exception
      */
     public function reduceProteinAlphabetAction(
         Request $request,
-        ReduceProteinAlphabetManager $reduceProteinAlphabetManager
+        ReduceProteinAlphabetManager $reduceProteinAlphabetManager,
+        Bioapi $bioapi
     ) {
         $form = $this->get('form.factory')->create(ReduceAlphabetType::class);
         $reducedCode = $reducedSeq = "";
@@ -146,7 +148,7 @@ class ProteinController extends Controller
                 // for predefined reduced alphabets
                 if ($sSequence != ""  && $sType != "" && $sAaperline != "") {
                     $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet($sSequence, $sType);
-                    $reducedCode = $this->getParameter('types_infos')[$sType];
+                    $reducedCode = $bioapi->getAlphabetInfos($sType);
                 }
             } else {
                 // for personalized reduced alphabets
