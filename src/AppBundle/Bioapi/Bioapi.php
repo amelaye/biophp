@@ -212,7 +212,7 @@ class Bioapi
         foreach($data["hydra:member"] as $key => $elem) {
             $newData = $newData + $elem["triplets"];
         }
-        dump($newData);
+        return $newData;
     }
 
     public function getSpeciesNames()
@@ -311,6 +311,26 @@ class Bioapi
             ];
         }
 
+        return $newData;
+    }
+
+    public function getReductions()
+    {
+        $uri = '/protein_reductions';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newIndex = array();
+        $newData = array();
+
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newIndex[] = $elem["letters"];
+            $newData[$elem["alphabet"]]["pattern"][] = $elem["pattern"];
+            $newData[$elem["alphabet"]]["reduction"][] = $elem["reduction"];
+        }
+
+dump($newData);
         return $newData;
     }
 }

@@ -7,6 +7,8 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
+
 /**
  * Reduce Protein Alphabet Functions
  * @package MinitoolsBundle\Service
@@ -24,15 +26,16 @@ class ReduceProteinAlphabetManager
      */
     private $aReductions;
 
+
     /**
      * ReduceProteinAlphabetManager constructor.
      * @param       array   $protein_colors
-     * @param       array   $aReductions
+     * @param       bioapi  $bioapi
      */
-    public function __construct($protein_colors, $aReductions)
+    public function __construct($protein_colors, Bioapi $bioapi)
     {
         $this->protein_colors   = $protein_colors;
-        $this->aReductions      = $aReductions;
+        $this->aReductions      = $bioapi->getReductions();
     }
 
     /**
@@ -46,87 +49,8 @@ class ReduceProteinAlphabetManager
     public function reduceAlphabet($sSequence, $sType)
     {
         try {
-            switch($sType) {
-                case 2:
-                    $aPattern       = $this->aReductions["PH"]["pattern"];
-                    $aReplacement   = $this->aReductions["PH"]["reduction"];
-                    break;
-                case 5:
-                    $aPattern       = $this->aReductions["ARCTD"]["pattern"];
-                    $aReplacement   = $this->aReductions["ARCTD"]["reduction"];
-                    break;
-                case 6:
-                    $aPattern       = $this->aReductions["ARPNTD"]["pattern"];
-                    $aReplacement   = $this->aReductions["ARPNTD"]["reduction"];
-                    break;
-                case "3IMG":
-                    $aPattern       = $this->aReductions["PNH"]["pattern"];
-                    $aReplacement   = $this->aReductions["PNH"]["reduction"];
-                    break;
-                case "5IMG": // GCEMF (IMGT amino acid volume)
-                    $aPattern       = $this->aReductions["GCEMF"]["pattern"];
-                    $aReplacement   = $this->aReductions["GCEMF"]["reduction"];
-                    break;
-                case "11IMG":
-                    $aPattern       = $this->aReductions["AFCGSWYPDNH"]["pattern"];
-                    $aReplacement   = $this->aReductions["AFCGSWYPDNH"]["reduction"];
-                    break;
-                case "Murphy15":
-                    $aPattern       = $this->aReductions["LCAGSTPFWEDNQKH"]["pattern"];
-                    $aReplacement   = $this->aReductions["LCAGSTPFWEDNQKH"]["reduction"];
-                    break;
-                case "Murphy10":
-                    $aPattern       = $this->aReductions["LCAGSPFEKH"]["pattern"];
-                    $aReplacement   = $this->aReductions["LCAGSPFEKH"]["reduction"];
-                    break;
-                case "Murphy8":
-                    $aPattern       = $this->aReductions["LASPFEKH"]["pattern"];
-                    $aReplacement   = $this->aReductions["LASPFEKH"]["replacement"];
-                    break;
-                case "Murphy4":
-                    $aPattern       = $this->aReductions["LAFE"]["pattern"];
-                    $aReplacement   = $this->aReductions["LAFE"]["pattern"];
-                    break;
-                case "Murphy2":
-                    $aPattern       = $this->aReductions["PE"]["pattern"];
-                    $aReplacement   = $this->aReductions["PE"]["reduction"];
-                    break;
-                case "Wang5":
-                    $aPattern       = $this->aReductions["IAGEK"]["pattern"];
-                    $aReplacement   = $this->aReductions["IAGEK"]["reduction"];
-                    break;
-                case "Wang5v":
-                    $aPattern       = $this->aReductions["ILAEK"]["pattern"];
-                    $aReplacement   = $this->aReductions["ILAEK"]["reduction"];
-                    break;
-                case "Wang3":
-                    $aPattern       = $this->aReductions["IAE"]["pattern"];
-                    $aReplacement   = $this->aReductions["IAE"]["reduction"];
-                    break;
-                case "Wang2":
-                    $aPattern       = $this->aReductions["IA"]["pattern"];
-                    $aReplacement   = $this->aReductions["IA"]["reduction"];
-                    break;
-                case "Li10":
-                    $aPattern       = $this->aReductions["CYLVGPSNEK"]["pattern"];
-                    $aReplacement   = $this->aReductions["CYLVGPSNEK"]["reduction"];
-                    break;
-                case "Li5":
-                    $aPattern       = $this->aReductions["YIGSE"]["pattern"];
-                    $aReplacement   = $this->aReductions["YIGSE"]["reduction"];
-                    break;
-                case "Li4":
-                    $aPattern       = $this->aReductions["YISE"]["pattern"];
-                    $aReplacement   = $this->aReductions["YISE"]["reduction"];
-                    break;
-                case "Li3":
-                    $aPattern       = $this->aReductions["ISE"]["pattern"];
-                    $aReplacement   = $this->aReductions["ISE"]["reduction"];
-                    break;
-                default:
-                    $aPattern       = [];
-                    $aReplacement   = [];
-            }
+            $aPattern       =  $this->aReductions[$sType]["pattern"];
+            $aReplacement   =  $this->aReductions[$sType]["reduction"];
             $sSequence = preg_replace($aPattern, $aReplacement, $sSequence);
             $sSequence = strtoupper($sSequence);
             return $sSequence;

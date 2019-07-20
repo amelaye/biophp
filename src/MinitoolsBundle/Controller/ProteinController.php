@@ -8,6 +8,7 @@
  */
 namespace MinitoolsBundle\Controller;
 
+use AppBundle\Traits\OligoTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ use MinitoolsBundle\Form\ProteinPropertiesType;
  */
 class ProteinController extends Controller
 {
+    use OligoTrait;
     /**
      * @Route("/minitools/protein-properties", name="protein_properties")
      * @param       Request                     $request
