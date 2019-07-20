@@ -75,7 +75,6 @@ services:
     MinitoolsBundle\Service\ReduceProteinAlphabetManager:
         arguments:
             - '%protein_colors%'
-            - '%reductions%'
 
     MinitoolsBundle\Service\RestrictionDigestManager:
         arguments:
