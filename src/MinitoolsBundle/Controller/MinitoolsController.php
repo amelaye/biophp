@@ -586,18 +586,6 @@ class MinitoolsController extends Controller
             $id1 = $formData["id1"];
             $id2 = $formData["id2"];
 
-            /**
-             * Limit sequence length to limit memory usage
-             * This script creates a big array that requires a huge amount of memory
-             * Do not use sequences longer than 700 bases each (1400 for both sequences)
-             * In this demo, the limit has been set up to 300 bases.
-             */
-            $iLimit = 300;
-            if ((strlen($formData["sequence"]) + strlen($formData["sequence2"])) > $iLimit) {
-                throw new \Exception ("The maximum length of code accepted for both 
-                sequences is $iLimit nucleotides");
-            }
-
             // CHECK WHETHER THEY ARE DNA OR PROTEIN, AND ALIGN SEQUENCES
             if ((substr_count($formData["sequence"],"A")
                     + substr_count($formData["sequence"],"C")

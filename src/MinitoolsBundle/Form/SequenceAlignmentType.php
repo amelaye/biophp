@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Class SequenceAlignmentType
@@ -118,5 +119,24 @@ class SequenceAlignmentType extends AbstractType
             }
             $event->setData($data);
         });
+    }
+
+    /**
+     * Limit sequence length to limit memory usage
+     * This script creates a big array that requires a huge amount of memory
+     * Do not use sequences longer than 700 bases each (1400 for both sequences)
+     * In this demo, the limit has been set up to 300 bases.
+     * @param $object
+     * @param ExecutionContextInterface $context
+     * @throws \Exception
+     */
+    public static function validateisReady($object, ExecutionContextInterface $context)
+    {
+        $iLimit = 300;
+
+        if ((strlen($object["sequence"]) + strlen($object["sequence2"])) > $iLimit) {
+            $context->buildViolation("The maximum length of code accepted for both 
+                sequences is $iLimit nucleotides");
+        }
     }
 }
