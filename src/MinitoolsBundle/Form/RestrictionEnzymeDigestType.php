@@ -7,6 +7,7 @@
  */
 namespace MinitoolsBundle\Form;
 
+use AppBundle\Bioapi\Bioapi;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,11 +31,11 @@ class RestrictionEnzymeDigestType extends AbstractType
 
     /**
      * RestrictionEnzymeDigestType constructor.
-     * @param   array   $vendors
+     * @param   Bioapi   $bioapi
      */
-    public function __construct($vendors)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->vendors = $vendors;
+        $this->vendors = $bioapi->getVendors();
     }
 
     /**
