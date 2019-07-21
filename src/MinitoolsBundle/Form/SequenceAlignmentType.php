@@ -3,16 +3,17 @@
  * Class ReduceAlphabet
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 april 2019
- * Last modified 20 april 2019
+ * Last modified 21 july 2019
  */
 namespace MinitoolsBundle\Form;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormEvent;
 
 /**
  * Class SequenceAlignmentType
@@ -94,16 +95,28 @@ class SequenceAlignmentType extends AbstractType
                 ]
             ]
         );
-    }
 
-    /**
-     * Entity for builder
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'MinitoolsBundle\Entity\SequenceAlignment'
-        ));
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+
+            if (isset($data['sequence'])) {
+                $sequence = strtoupper($data['sequence']);
+                $sequence = preg_replace("/\W|\d/", "", $sequence); // remove useless characters
+                $sequence = preg_replace("/U/", "T", $sequence);    // from RNA to DNA
+                $sequence = preg_replace("/X/", "N", $sequence);    // substitute X -> N
+                $data['sequence'] = $sequence;
+            }
+            if (isset($data['sequence2'])) {
+                $sequence2 = strtoupper($data['sequence2']);
+                $sequence2 = preg_replace("/\W|\d/", "", $sequence2); // remove useless characters
+                $sequence2 = preg_replace("/U/", "T", $sequence2);    // from RNA to DNA
+                $sequence2 = preg_replace("/X/", "N", $sequence2);    // substitute X -> N
+                $data['sequence2'] = $sequence2;
+            }
+            $event->setData($data);
+        });
     }
 }

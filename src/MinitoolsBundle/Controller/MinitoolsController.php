@@ -577,13 +577,15 @@ class MinitoolsController extends Controller
      */
     public function seqAlignmentAction(Request $request, SequenceAlignmentManager $sequenceAlignmentManager)
     {
-        $sequenceAlignment = new SequenceAlignment();
-        $form = $this->get('form.factory')->create(SequenceAlignmentType::class, $sequenceAlignment);
-        $sCompare = "";
-        $sAlignSeqA = "";
-        $sAlignSeqB = "";
+        $form = $this->get('form.factory')->create(SequenceAlignmentType::class);
+        $sCompare = $sAlignSeqA = $sAlignSeqB = "";
+        $id1 = $id2 = "";
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $formData       = $form->getData();
+            $id1 = $formData["id1"];
+            $id2 = $formData["id2"];
+
             /**
              * Limit sequence length to limit memory usage
              * This script creates a big array that requires a huge amount of memory
@@ -591,28 +593,22 @@ class MinitoolsController extends Controller
              * In this demo, the limit has been set up to 300 bases.
              */
             $iLimit = 300;
-            if ((strlen($sequenceAlignment->getSequence()) + strlen($sequenceAlignment->getSequence2())) > $iLimit) {
+            if ((strlen($formData["sequence"]) + strlen($formData["sequence2"])) > $iLimit) {
                 throw new \Exception ("The maximum length of code accepted for both 
                 sequences is $iLimit nucleotides");
             }
 
             // CHECK WHETHER THEY ARE DNA OR PROTEIN, AND ALIGN SEQUENCES
-            if ((substr_count($sequenceAlignment->getSequence(),"A")
-                    + substr_count($sequenceAlignment->getSequence(),"C")
-                    + substr_count($sequenceAlignment->getSequence(),"G")
-                    + substr_count($sequenceAlignment->getSequence(),"T")
-                ) > (strlen($sequenceAlignment->getSequence()) / 2)) {
+            if ((substr_count($formData["sequence"],"A")
+                    + substr_count($formData["sequence"],"C")
+                    + substr_count($formData["sequence"],"G")
+                    + substr_count($formData["sequence"],"T")
+                ) > (strlen($formData["sequence"]) / 2)) {
                 // if A+C+G+T is at least half of the sequence, it is a DNA
-                $aAlignment = $sequenceAlignmentManager->alignDNA(
-                    $sequenceAlignment->getSequence(),
-                    $sequenceAlignment->getSequence2()
-                );
+                $aAlignment = $sequenceAlignmentManager->alignDNA($formData["sequence"], $formData["sequence2"]);
             } else {
                 // else is protein
-                $aAlignment = $sequenceAlignmentManager->alignProteins(
-                    $sequenceAlignment->getSequence(),
-                    $sequenceAlignment->getSequence2()
-                );
+                $aAlignment = $sequenceAlignmentManager->alignProteins($formData["sequence"], $formData["sequence2"]);
             }
 
             // EXTRACT DATA FROM ALIGNMENT
@@ -630,8 +626,8 @@ class MinitoolsController extends Controller
                 'compare'       => $sCompare,
                 'align_seqa'    => $sAlignSeqA,
                 'align_seqb'    => $sAlignSeqB,
-                'sequence1'     => $sequenceAlignment->getId1(),
-                'sequence2'     => $sequenceAlignment->getId2(),
+                'sequence1'     => $id1,
+                'sequence2'     => $id2,
             ]
         );
     }
