@@ -80,10 +80,6 @@ services:
         arguments:
             - '%vendor_links%'
 
-    MinitoolsBundle\Form\RestrictionEnzymeDigestType:
-        arguments:
-            - '%vendors%'
-
     MinitoolsBundle\Service\SequenceAlignmentManager:
         arguments:
             - '%pam250_matrix%'
