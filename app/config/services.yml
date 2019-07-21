@@ -76,10 +76,6 @@ services:
         arguments:
             - '%protein_colors%'
 
-    MinitoolsBundle\Service\RestrictionDigestManager:
-        arguments:
-            - '%vendor_links%'
-
     MinitoolsBundle\Service\SequenceAlignmentManager:
         arguments:
             - '%pam250_matrix%'

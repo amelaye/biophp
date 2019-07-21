@@ -4,9 +4,11 @@
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Modified 27 february 2019 - RIP Pasha =^._.^= ∫
- * last modified 19 april 2019
+ * last modified 21 july 2019
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Bioapi\Bioapi;
 
 /**
  * Class RestrictionDigestManager
@@ -22,11 +24,11 @@ class RestrictionDigestManager
 
     /**
      * RestrictionDigestManager constructor.
-     * @param   array   $vendorLinks
+     * @param   Bioapi   $bioapi
      */
-    public function __construct($vendorLinks)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->vendorLinks = $vendorLinks;
+        $this->vendorLinks = $bioapi->getVendorLinks();
     }
 
     /**
