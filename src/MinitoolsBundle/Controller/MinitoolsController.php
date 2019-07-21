@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 11 july 2019
+ * Last modified 21 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -548,12 +548,12 @@ class MinitoolsController extends Controller
      * @return  JsonResponse
      * @throws  \Exception
      */
-    public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager)
+    public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager, Bioapi $bioapi)
     {
         $message = "";
         $enzyme_array = [];
         // Get array of companies selling each endonuclease
-        $vendors = $this->getParameter('vendors');
+        $vendors = $bioapi->getVendors();
 
         $endonuclease = preg_split("/,/", $enzyme);
         if (strpos($enzyme,",") > 0) {

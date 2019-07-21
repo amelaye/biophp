@@ -9,7 +9,6 @@ imports:
     - { resource: inc/chemical.yml }
     - { resource: inc/codons.yml }
     - { resource: inc/alphabet.yml }
-    - { resource: inc/enzymes.yml }
     - { resource: inc/protein.yml }
     - { resource: security.yml }
     - { resource: services.yml }
