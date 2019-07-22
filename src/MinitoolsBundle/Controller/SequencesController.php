@@ -100,12 +100,13 @@ class SequencesController extends Controller
             // at this moment two arrays are available: $seqs (with sequences) and $seq_names (with name of sequences)
             if ($formData["method"] == "euclidean") { // EUCLIDEAN DISTANCE
                 $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequenciesEuclidean($seqs,
-                    $length, $this->dnaComplements);
+                    $length);
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs,
                     $oligo_array,$length);
             } else {
                 $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs,
                     $this->dnaComplements);
+
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }
 

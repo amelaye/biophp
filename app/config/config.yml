@@ -2,7 +2,7 @@ csa_guzzle:
     clients:
         bioapi:
             config:
-                base_uri: http://api.amelayes-biophp.net
+                base_uri: http://localhost:8001
 
 imports:
     - { resource: parameters.yml }
