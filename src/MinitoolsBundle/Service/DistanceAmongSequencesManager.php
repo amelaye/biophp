@@ -8,7 +8,9 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Class DistanceAmongSequencesManager
@@ -17,6 +19,8 @@ use AppBundle\Service\OligosManager;
  */
 class DistanceAmongSequencesManager
 {
+    use SequenceTrait;
+
     /**
      * @var int
      */
@@ -39,12 +43,18 @@ class DistanceAmongSequencesManager
     private $oligosManager;
 
     /**
+     * @var array
+     */
+    private $dnaComplements;
+
+    /**
      * DistanceAmongSequencesManager constructor.
      * @param OligosManager $oligosManager
      */
-    public function __construct(OligosManager $oligosManager)
+    public function __construct(OligosManager $oligosManager, Bioapi $bioapi)
     {
         $this->oligosManager = $oligosManager;
+        $this->dnaComplements = $bioapi->getDNAComplement();
     }
 
     /**
@@ -71,21 +81,20 @@ class DistanceAmongSequencesManager
      * @return mixed
      * @throws \Exception
      */
-    public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len, $dnaComplements)
+    public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len)
     {
         $oligo_array = [];
         foreach ($seqs as $key => $val) {
             // to compute oligonucleotide frequencies, both strands are used
             $valRevert = strrev($val);
-            foreach ($dnaComplements as $nucleotide => $complement) {
+            foreach ($this->dnaComplements as $nucleotide => $complement) {
                 $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
             }
             $seq_and_revseq = $val." ".strtoupper($valRevert);
-
+dump($seq_and_revseq);
             $oligos = $this->oligosManager->findOligos(
                 $seq_and_revseq,
-                $len,
-                array_values($dnaComplements)
+                $len
             );
 
             $oligo_array[$key] = $this->standardFrecuencies($oligos, $len);
@@ -96,19 +105,14 @@ class DistanceAmongSequencesManager
     /**
      * COMPUTE OLIGONUCLEOTIDE FREQUENCIES
      * @param $seqs
-     * @return mixed
+     * @return array
      * @throws \Exception
      */
-    public function computeOligonucleotidsFrequencies($seqs, $dnaComplements)
+    public function computeOligonucleotidsFrequencies($seqs)
     {
         $oligo_array = [];
         foreach ($seqs as $key => $theseq) {
-            $aComputeZscores = $this->computeZscoresForTetranucleotides($theseq);
-            $oligo_array[$key] = $this->oligosManager->findOligos(
-                $aComputeZscores,
-                4,
-                array_values($dnaComplements)
-            );
+            $oligo_array[$key] = $this->computeZscoresForTetranucleotides($theseq);
         }
         return $oligo_array;
     }
@@ -504,27 +508,39 @@ class DistanceAmongSequencesManager
             $theseq .= " ".$this->revComp($theseq);
             $i = 0;
             $len = strlen($theseq)-2+1;
-            while($i<$len) {
+            while($i < $len) {
                 $seq = substr($theseq, $i,2);
-                $oligos2[$seq]++;
+                if(isset($oligos2[$seq])) {
+                    $oligos2[$seq]++;
+                } else {
+                    $oligos2[$seq] = 1;
+                }
                 $i++;
             }
             $i = 0;
             $len = strlen($theseq)-3+1;
-            while ($i<$len) {
+            while ($i < $len) {
                 $seq = substr($theseq, $i,3);
-                $oligos3[$seq]++;
+                if(isset($oligos3[$seq])) {
+                    $oligos3[$seq]++;
+                } else {
+                    $oligos3[$seq] = 1;
+                }
                 $i++;
             }
             $i = 0;
             $len = strlen($theseq)-4+1;
             while($i < $len) {
                 $seq = substr($theseq, $i,4);
-                $oligos4[$seq]++;
+                if(isset($oligos4[$seq])) {
+                    $oligos4[$seq]++;
+                } else {
+                    $oligos4[$seq] = 1;
+                }
                 $i++;
             }
 
-            $zscore = $this->oligosManager->findZScore($this->dnaComplements, $oligos2, $oligos3, $oligos4);
+            $zscore = $this->oligosManager->findZScore($oligos2, $oligos3, $oligos4);
 
             return $zscore;
         } catch (\Exception $e) {

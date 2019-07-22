@@ -225,10 +225,10 @@ class MinitoolsController extends Controller
             // when frequencies at both strands are requested,
             // place sequence and reverse complement of sequence in one line
             if ($formData["strands"] == 2) {
-                $this->createInversion($sSequence, $this->dnaComplements);
+                $this->createInversion($sSequence, $oligosManager->getDnaComplements());
             }
 
-            $aResults = $oligosManager->findOligos($sSequence, $iLength, $this->dnaComplements);
+            $aResults = $oligosManager->findOligos($sSequence, $iLength);
             ksort($aResults);
         }
 

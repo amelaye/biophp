@@ -4,10 +4,12 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
- * Last modified 23 june 2019
+ * Last modified 22 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service;
+
+use AppBundle\Bioapi\Bioapi;
 
 class OligosManager
 {
@@ -20,17 +22,36 @@ class OligosManager
     private $base_g;
     private $base_h;
 
+    private $dnaComplements;
+
+    /**
+     * OligosManager constructor.
+     * @param Bioapi $bioapi
+     */
+    public function __construct(Bioapi $bioapi)
+    {
+        $dnaComplements = $bioapi->getDNAComplement();
+        asort($dnaComplements);
+        $this->dnaComplements = $dnaComplements;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDnaComplements()
+    {
+        return $this->dnaComplements;
+    }
 
     /**
      * For oligos 2 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos2BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos2BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
 
         $oligos = [];
 
@@ -49,14 +70,13 @@ class OligosManager
     /**
      * For oligos 3 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos3BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos3BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
 
         $oligos = [];
 
@@ -77,15 +97,14 @@ class OligosManager
     /**
      * For oligos 4 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos4BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos4BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
+        $this->base_d = $this->dnaComplements;
 
         $oligos = [];
 
@@ -108,16 +127,15 @@ class OligosManager
     /**
      * For oligos 5 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos5BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos5BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
-        $this->base_e = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
+        $this->base_d = $this->dnaComplements;
+        $this->base_e = $this->dnaComplements;
 
         $oligos = [];
 
@@ -142,17 +160,16 @@ class OligosManager
     /**
      * For oligos 6 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos6BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos6BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
-        $this->base_e = $dnaComplements;
-        $this->base_f = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
+        $this->base_d = $this->dnaComplements;
+        $this->base_e = $this->dnaComplements;
+        $this->base_f = $this->dnaComplements;
 
         $oligos = [];
 
@@ -179,18 +196,17 @@ class OligosManager
     /**
      * For oligos 7 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos7BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos7BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
-        $this->base_e = $dnaComplements;
-        $this->base_f = $dnaComplements;
-        $this->base_g = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
+        $this->base_d = $this->dnaComplements;
+        $this->base_e = $this->dnaComplements;
+        $this->base_f = $this->dnaComplements;
+        $this->base_g = $this->dnaComplements;
 
         $oligos = [];
 
@@ -219,19 +235,18 @@ class OligosManager
     /**
      * For oligos 8 bases long
      * @param $oligos_1step
-     * @param $dnaComplements
      * @return mixed
      */
-    public function findOligos8BasesLong($oligos_1step, $dnaComplements)
+    public function findOligos8BasesLong($oligos_1step)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
-        $this->base_e = $dnaComplements;
-        $this->base_f = $dnaComplements;
-        $this->base_g = $dnaComplements;
-        $this->base_h = $dnaComplements;
+        $this->base_a = $this->dnaComplements;
+        $this->base_b = $this->dnaComplements;
+        $this->base_c = $this->dnaComplements;
+        $this->base_d = $this->dnaComplements;
+        $this->base_e = $this->dnaComplements;
+        $this->base_f = $this->dnaComplements;
+        $this->base_g = $this->dnaComplements;
+        $this->base_h = $this->dnaComplements;
 
         $oligos = [];
 
@@ -263,16 +278,17 @@ class OligosManager
      * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
      * @param       string      $sSequence
      * @param       int         $iOligoLen
-     * @param       array       $aDnaComplements
      * @return      array
      * @throws      \Exception
      */
-    public function findOligos($sSequence, $iOligoLen, $aDnaComplements)
+    public function findOligos($sSequence, $iOligoLen)
     {
         try {
             $i              = 0;
             $aOligos1Step   = [];
             $aOligos        = [];
+
+
 
             $iLength = strlen($sSequence) - $iOligoLen + 1;
             while ($i < $iLength) {
@@ -288,30 +304,30 @@ class OligosManager
 
             switch ($iOligoLen) {
                 case 1:
-                    foreach($aDnaComplements as $key => $oligo) {
+                    foreach($this->dnaComplements as $key => $oligo) {
                         $aOligos[$oligo] = substr_count($sSequence, $oligo);
                     }
                     break;
                 case 2:
-                    $aOligos = $this->findOligos2BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos2BasesLong($aOligos1Step);
                     break;
                 case 3:
-                    $aOligos = $this->findOligos3BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos3BasesLong($aOligos1Step);
                     break;
                 case 4:
-                    $aOligos = $this->findOligos4BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos4BasesLong($aOligos1Step);
                     break;
                 case 5:
-                    $aOligos = $this->findOligos5BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos5BasesLong($aOligos1Step);
                     break;
                 case 6:
-                    $aOligos = $this->findOligos6BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos6BasesLong($aOligos1Step);
                     break;
                 case 7:
-                    $aOligos = $this->findOligos7BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos7BasesLong($aOligos1Step);
                     break;
                 case 8:
-                    $aOligos = $this->findOligos8BasesLong($aOligos1Step, $aDnaComplements);
+                    $aOligos = $this->findOligos8BasesLong($aOligos1Step);
                     break;
                 default:
                     throwException(new \Exception("Invalid base format ! "));
@@ -325,33 +341,55 @@ class OligosManager
 
     /**
      * COMPUTE Z-SCORES FOR TETRANUCLEOTIDES
-     * @param $dnaComplements
      * @param $oligos2
      * @param $oligos3
      * @param $oligos4
      * @return array
      */
-    public function findZScore($dnaComplements, $oligos2, $oligos3, $oligos4)
+    public function findZScore($oligos2, $oligos3, $oligos4)
     {
-        $this->base_a = $dnaComplements;
-        $this->base_b = $dnaComplements;
-        $this->base_c = $dnaComplements;
-        $this->base_d = $dnaComplements;
-        $this->base_e = $dnaComplements;
-        $this->base_f = $dnaComplements;
+        $this->base_a = $this->base_b = $this->base_c = $this->base_d = $this->base_e = $this->base_f = $this->dnaComplements;
 
         $i = 0;
         $zscore = [];
+        $exp = [];
+        $var = [];
         foreach($this->base_a as $key_a => $val_a) {
             foreach($this->base_b as $key_b => $val_b) {
                 foreach($this->base_c as $key_c => $val_c) {
                     foreach($this->base_d as $key_d => $val_d) {
-                        $exp[$val_a.$val_b.$val_c.$val_d] = ($oligos3[$val_a.$val_b.$val_c] * $oligos3[$val_b.$val_c.$val_d]) / $oligos2[$val_b.$val_c];
-                        $var[$val_a.$val_b.$val_c.$val_d] = $exp[$val_a.$val_b.$val_c.$val_d]
-                            * ((($oligos2[$val_b.$val_c] - $oligos3[$val_a.$val_b.$val_c]) * ($oligos2[$val_b.$val_c]-$oligos3[$val_b.$val_c.$val_d]))
-                                / pow($oligos2[$val_b.$val_c],2));
-                        $zscore[$i] = ($oligos4[$val_a.$val_b.$val_c.$val_d] - $exp[$val_a.$val_b.$val_c.$val_d])
-                                / sqrt($var[$val_a.$val_b.$val_c.$val_d]);
+                        if(!isset($oligos3[$val_b.$val_c.$val_d])) {
+                            $oligos3[$val_b.$val_c.$val_d] = null;
+                        }
+                        $atemp = $oligos3[$val_a.$val_b.$val_c] * $oligos3[$val_b.$val_c.$val_d];
+
+                        if(!isset($oligos2[$val_b.$val_c])) {
+                            $oligos2[$val_b.$val_c] = null;
+                            $exp[$val_a.$val_b.$val_c.$val_d] = 0;
+                        } else {
+                            $exp[$val_a.$val_b.$val_c.$val_d] = $atemp / $oligos2[$val_b.$val_c];
+                        }
+
+
+                        $btemp = $oligos2[$val_b.$val_c] - $oligos3[$val_b.$val_c.$val_d];
+                        $ctemp = $oligos2[$val_b.$val_c] - $oligos3[$val_a.$val_b.$val_c];
+
+                        if(pow($oligos2[$val_b.$val_c],2) != 0) {
+                            $dtemp = ($ctemp * $btemp) / pow($oligos2[$val_b.$val_c],2);
+                        } else {
+                            $dtemp = 0;
+                        }
+
+                        $var[$val_a.$val_b.$val_c.$val_d] = $exp[$val_a.$val_b.$val_c.$val_d] * $dtemp;
+
+                        if(!isset($oligos4[$val_a.$val_b.$val_c.$val_d])) {
+                            $oligos4[$val_a.$val_b.$val_c.$val_d] = null;
+                        }
+                        $etemp = $oligos4[$val_a.$val_b.$val_c.$val_d] - $exp[$val_a.$val_b.$val_c.$val_d];
+
+                        if(isset($var[$val_a.$val_b.$val_c.$val_d]) && sqrt($var[$val_a.$val_b.$val_c.$val_d] != 0)) {
+                            $zscore[$i] = $etemp / sqrt($var[$val_a.$val_b.$val_c.$val_d]);
+                        }
                         $i ++;
                     }
                 }
