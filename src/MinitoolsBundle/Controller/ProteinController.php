@@ -8,17 +8,19 @@
  */
 namespace MinitoolsBundle\Controller;
 
-use AppBundle\Traits\OligoTrait;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
+use AppBundle\Traits\OligoTrait;
 use AppBundle\Bioapi\Bioapi;
+
 use MinitoolsBundle\Form\ReduceAlphabetType;
+use MinitoolsBundle\Form\ProteinPropertiesType;
 use MinitoolsBundle\Service\ProteinPropertiesManager;
 use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
-use MinitoolsBundle\Form\ProteinPropertiesType;
-
 
 /**
  * Class ProteinController
