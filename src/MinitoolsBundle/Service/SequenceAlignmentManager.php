@@ -7,6 +7,8 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
+
 /**
  * Class SequenceAlignmentManager : Sequence Alignment Functions
  * @package MinitoolsBundle\Service
@@ -23,9 +25,10 @@ class SequenceAlignmentManager
      * SequenceAlignmentManager constructor.
      * @param   array   $pam250Matrix
      */
-    public function __construct($pam250Matrix)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->pam250Matrix = $pam250Matrix;
+        //$this->pam250Matrix = $pam250Matrix;
+        $this->pam250Matrix = $bioapi->getPam250Matrix();
     }
 
 

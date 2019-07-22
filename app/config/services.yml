@@ -65,7 +65,7 @@ services:
 
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
-            - '%nucleotids_graphs%' # keep it
+            - '%nucleotids_graphs%'
 
     MinitoolsBundle\Service\RandomSequencesManager:
         arguments:
@@ -75,7 +75,3 @@ services:
     MinitoolsBundle\Service\ReduceProteinAlphabetManager:
         arguments:
             - '%protein_colors%'
-
-    MinitoolsBundle\Service\SequenceAlignmentManager:
-        arguments:
-            - '%pam250_matrix%'
