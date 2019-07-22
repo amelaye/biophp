@@ -15,6 +15,8 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
 
 /**
  * Class SequenceAlignmentType
@@ -119,6 +121,20 @@ class SequenceAlignmentType extends AbstractType
             }
             $event->setData($data);
         });
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'constraints' => [
+                new Callback([
+                    'callback' => [$this, 'validateisReady'],
+                ]),
+            ]
+        ]);
     }
 
     /**
