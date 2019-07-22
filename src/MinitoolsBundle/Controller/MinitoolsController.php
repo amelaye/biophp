@@ -13,7 +13,6 @@ use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
 use AppBundle\Traits\OligoTrait;
-use MinitoolsBundle\Entity\SequenceAlignment;
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
 use MinitoolsBundle\Form\PcrAmplificationType;
 use MinitoolsBundle\Form\RandomSequencesType;

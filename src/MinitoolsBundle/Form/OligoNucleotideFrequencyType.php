@@ -15,6 +15,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -45,7 +46,13 @@ class OligoNucleotideFrequencyType extends AbstractType
                     'class' => "form-control"
                 ],
                 'label' => "Sequence : ",
-                'data' => $sequenceSample
+                'data' => $sequenceSample,
+                'constraints' => new Length([
+                    'min' => 0,
+                    'max' => 1000000,
+                    'minMessage' => "Query sequence not provided. Plase go back and try again.",
+                    'maxMessage' => "Sequence is too long."
+                ])
             ]
         );
 
