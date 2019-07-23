@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 21 july 2019
+ * Last modified 23 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 use AppBundle\Traits\OligoTrait;
 
@@ -36,7 +35,6 @@ use MinitoolsBundle\Service\RestrictionDigestManager;
  * Class MinitoolsController
  * @package MinitoolsBundle\Controller
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
- * @todo : adding more listeners
  */
 class MinitoolsController extends Controller
 {
@@ -296,15 +294,11 @@ class MinitoolsController extends Controller
      * @Route("/minitools/restriction-digest", name="restriction_digest")
      * @param       Request                     $request
      * @param       RestrictionDigestManager    $restrictionDigestManager
-     * @param       Bioapi                      $bioapi
      * @return      Response
      * @throws      \Exception
      */
-    public function restrictionDigestAction(
-        Request $request,
-        RestrictionDigestManager $restrictionDigestManager,
-        Bioapi $bioapi
-    ) {
+    public function restrictionDigestAction(Request $request, RestrictionDigestManager $restrictionDigestManager)
+    {
         $sequence  = "";
         $digestion = $enzymes_array = $enzymes_array = $digestionMulti = $digestionMulti = [];
         $bShowCode = false;
@@ -317,21 +311,11 @@ class MinitoolsController extends Controller
             $bShowCode = $formData["showcode"];
             $sequence = $restrictionDigestManager->extractSequences($formData["sequence"]);
 
-            // We will get info for endonucleases. The info is included within 3 different
-            // functions in the bottom (for Type II, IIb and IIs enzymes)
-            // Type II endonucleases are always used
-            $enzymes_array = $bioapi->getTypeIIEndonucleases();
-
-            // if TypeIIs endonucleases are requested, get them
-            if (($formData["IIs"] && !$formData["defined"])) {
-                $enzymes_array = array_merge($enzymes_array, $bioapi->getTypeIIsEndonucleases());
-                asort($enzymes_array);
-            }
-            // if TypeIIb endonucleases are requested, get them
-            if (($formData["IIb"] && !$formData["defined"])) {
-                $enzymes_array = array_merge($enzymes_array, $bioapi->getTypeIIbEndonucleases());
-                asort($enzymes_array);
-            }
+            $enzymes_array = $restrictionDigestManager->getNucleolasesInfos(
+                $formData["IIs"],
+                $formData["IIb"],
+                $formData["defined"]
+            );
 
             $enzymes_array = $restrictionDigestManager->reduceEnzymesArray(
                 $enzymes_array,
@@ -380,22 +364,10 @@ class MinitoolsController extends Controller
      * @return  JsonResponse
      * @throws  \Exception
      */
-    public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager, Bioapi $bioapi)
+    public function showVendorsAction($enzyme, RestrictionDigestManager $restrictionDigestManager)
     {
         $message = "";
-        $enzyme_array = [];
-        // Get array of companies selling each endonuclease
-        $vendors = $bioapi->getVendors();
-
-        $endonuclease = preg_split("/,/", $enzyme);
-        if (strpos($enzyme,",") > 0) {
-            $message = "All endonucleases bellow are isoschizomers";
-        }
-
-        // print vendor for each endonuclease (uses a function)
-        foreach ($endonuclease as $enzyme) {
-            $enzyme_array[$enzyme] = $restrictionDigestManager->showVendors($vendors[$enzyme], $enzyme);
-        }
+        $enzyme_array = $restrictionDigestManager->getVendors($message, $enzyme);
 
         return new JsonResponse(["message" => $message, "vendors" => $enzyme_array]);
     }

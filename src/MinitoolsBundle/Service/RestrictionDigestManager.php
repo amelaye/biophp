@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
  * Modified 27 february 2019 - RIP Pasha =^._.^= ∫
- * last modified 21 july 2019
+ * last modified 23 july 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -18,17 +18,110 @@ use AppBundle\Bioapi\Bioapi;
 class RestrictionDigestManager
 {
     /**
+     * From API : list of vendor links
      * @var array
      */
     private $vendorLinks;
 
     /**
+     * From API : list of TypeII enzymes
+     * @var array
+     */
+    private $type2;
+
+    /**
+     * From API : list of TypeIIs enzymes
+     * @var array
+     */
+    private $type2s;
+
+    /**
+     * From API : list of TypeIIb enzymes
+     * @var array
+     */
+    private $type2b;
+
+    /**
+     * From API : list of vendors enzymes
+     * @var array
+     */
+    private $vendors;
+
+    /**
      * RestrictionDigestManager constructor.
-     * @param   Bioapi   $bioapi
+     * @param   Bioapi   $bioapi    API
      */
     public function __construct(Bioapi $bioapi)
     {
         $this->vendorLinks = $bioapi->getVendorLinks();
+
+        $this->type2    = $bioapi->getTypeIIEndonucleases();
+        $this->type2s   = $bioapi->getTypeIIsEndonucleases();
+        $this->type2b   = $bioapi->getTypeIIbEndonucleases();
+
+        $this->vendors = $bioapi->getVendors();
+    }
+
+    /**
+     * Get array of companies selling each endonuclease
+     * @param   string  $message
+     * @param   string  $enzyme
+     * @return  array
+     * @throws  \Exception
+     */
+    public function getVendors(&$message, $enzyme)
+    {
+        try {
+            $enzyme_array = [];
+            // Get array of companies selling each endonuclease
+            $vendors = $this->vendors;
+
+            $endonuclease = preg_split("/,/", $enzyme);
+            if (strpos($enzyme,",") > 0) {
+                $message = "All endonucleases bellow are isoschizomers";
+            }
+
+            // print vendor for each endonuclease (uses a function)
+            foreach ($endonuclease as $enzyme) {
+                $enzyme_array[$enzyme] = $this->showVendors($vendors[$enzyme], $enzyme);
+            }
+
+            return $enzyme_array;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * We will get info for endonucleases. The info is included within 3 different
+     * functions in the bottom (for Type II, IIb and IIs enzymes).
+     * Type II endonucleases are always used
+     * @param   bool    $bIIs       Asks for IIs array
+     * @param   bool    $bIIb       Asks for IIb array
+     * @param   bool    $bDefined   Only restriction enzymes with known bases
+     * @return  array
+     * @throws \Exception
+     */
+    public function getNucleolasesInfos($bIIs, $bIIb, $bDefined)
+    {
+        try {
+            $enzymes_array = $this->type2;
+
+            // if TypeIIs endonucleases are requested, get them
+            if (($bIIs && !$bDefined)) {
+                $enzymes_array = array_merge($enzymes_array, $this->type2s);
+                asort($enzymes_array);
+            }
+            // if TypeIIb endonucleases are requested, get them
+            if (($bIIb && !$bDefined)) {
+                $enzymes_array = array_merge($enzymes_array, $this->type2b);
+                asort($enzymes_array);
+            }
+
+            return $enzymes_array;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**

@@ -3,7 +3,7 @@
  * DNA To Protein Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 10 july 2019
+ * Last modified 23 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -59,6 +59,21 @@ class DnaToProteinManager
     {
         $this->sRvSequence = $this->revCompDNA($sSequence);
     }
+
+
+    /**
+     * Splits the array og aminos
+     * @param $aAminoAcidCodes
+     * @param $aAminoAcidCodesLeft
+     * @param $aAminoAcidCodesRight
+     */
+    public function showAminosArrays(&$aAminoAcidCodes, &$aAminoAcidCodesLeft, &$aAminoAcidCodesRight)
+    {
+        $aAminoAcidCodes        = $this->aAminos;
+        $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
+        $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
+    }
+
 
     /**
      * @param   int         $iFrames

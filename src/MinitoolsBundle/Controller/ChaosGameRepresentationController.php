@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 july 2019
- * Last modified 11 july 2019
+ * Last modified 23 july 2019
  */
 namespace MinitoolsBundle\Controller;
 
@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 use AppBundle\Traits\OligoTrait;
 
@@ -28,17 +27,6 @@ use MinitoolsBundle\Service\ChaosGameRepresentationManager;
 class ChaosGameRepresentationController extends Controller
 {
     use OligoTrait;
-
-    private $dnaComplements;
-
-    /**
-     * MinitoolsController constructor.
-     * @param Bioapi $bioapi
-     */
-    public function __construct(Bioapi $bioapi)
-    {
-        $this->dnaComplements = $bioapi->getDNAComplement();
-    }
 
     /**
      * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
@@ -108,35 +96,18 @@ class ChaosGameRepresentationController extends Controller
                                 ChaosGameRepresentationManager $chaosGameReprentationManager,
                                 $form, $oligosManager)
     {
-        $aOligos = null;
-        $for_map = null;
-        $aNucleotides = [];
-
-        $isMap = false;
-        $isFreq = false;
+        $aOligos = $for_map = null;
+        $isMap = $isFreq = false;
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
 
-            $aSeqData = $chaosGameReprentationManager->FCGRCompute(
-                $formData["seq"],
-                $formData["len"],
-                $formData["s"],
-                $this->dnaComplements
-            );
-
-            // compute nucleotide frequencies
-            foreach($this->dnaComplements as $sNucleotide) {
-                $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
-            }
+            $aSeqData = $chaosGameReprentationManager->FCGRCompute($formData["seq"], $formData["len"], $formData["s"]);
+            $aNucleotides = $chaosGameReprentationManager->numberNucleos($aSeqData);
 
             // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
             //      frequencies are saved to an array named $aOligos
-            $aOligos = $oligosManager->findOligos(
-                $aSeqData["sequence"],
-                $aSeqData["length"],
-                array_values($this->dnaComplements)
-            );
+            $aOligos = $oligosManager->findOligos($aSeqData["sequence"], $aSeqData["length"]);
 
             // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
             //      check the function for more info on parameters

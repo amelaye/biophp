@@ -27,6 +27,11 @@ class ProteinPropertiesManager
     private $aminos;
 
     /**
+     * @var array
+     */
+    private $pk;
+
+    /**
      * ProteinPropertiesManager constructor.
      * @param   Bioapi  $bioapi
      */
@@ -35,6 +40,51 @@ class ProteinPropertiesManager
     ){
         $this->bioapi                   = $bioapi;
         $this->aminos                   = $bioapi->getAminos();
+    }
+
+    /**
+     * Get pk values for charged aminoacids
+     * @param string $dataSource
+     */
+    public function setPk($dataSource)
+    {
+        $this->pk = $this->bioapi->getPkValueById($dataSource);
+    }
+
+    /**
+     * Calls the API to create reduced Code
+     * @param   string  $sType  Alphabet
+     * @return  array
+     * @throws \Exception
+     */
+    public function createReduceCode($sType)
+    {
+        try {
+            $reducedCode = $this->bioapi->getAlphabetInfos($sType);
+            return $reducedCode;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Converts a subsequence into 3 letters code
+     * @param   string      $subsequence
+     * @return  string
+     * @throws  \Exception
+     */
+    public function convertInto3lettersCode($subsequence)
+    {
+        try {
+            $three_letter_code = "";
+            foreach(str_split($subsequence) as $letter) {
+                $three_letter_code .= $this->aminos[$letter]["name3Letters"];
+            }
+
+            return $three_letter_code;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**
@@ -62,19 +112,18 @@ class ProteinPropertiesManager
      * To calculate pH where charge is 0 a loop is required
      * The loop will start computing charge of protein at pH=7, and if charge is not 0, new charge value will be computed
      * by using a different pH. Procedure will be repeated until charge is 0 (at isoelectric point)
-     * @param       array       $aPK
      * @param       array       $aAminoacidContent
      * @return      float
      * @throws      \Exception
      */
-    public function proteinIsoelectricPoint($aPK, $aAminoacidContent)
+    public function proteinIsoelectricPoint($aAminoacidContent)
     {
         try {
             $iPH = 7;          // pH value at start
             $iDelta = 4;       // this parameter will be used to modify pH when charge!=0. The value of $delta will change during the loop
             while(1) {
                 // compute charge of protein at corresponding pH (uses a function)
-                $iCharge = $this->proteinCharge($aPK, $aAminoacidContent, $iPH);
+                $iCharge = $this->proteinCharge($this->pk, $aAminoacidContent, $iPH);
                 // check whether $charge is 0 (consecuentely, pH will be the isoelectric point
                 if (round($iCharge,4) == 0) {
                     break;
@@ -116,24 +165,23 @@ class ProteinPropertiesManager
 
     /**
      * Computes protein charge at corresponding pH
-     * @param       array       $aPK
      * @param       array       $aAminoacidContent
      * @param       int         $iPH
      * @return      float
      * @throws      \Exception
      */
-    function proteinCharge($aPK, $aAminoacidContent, $iPH)
+    function proteinCharge($aAminoacidContent, $iPH)
     {
         try {
-            $iCharge = $this->partialCharge($aPK["NTERMINUS"], $iPH);
-            $iCharge+= $this->partialCharge($aPK["K"], $iPH) * $aAminoacidContent["K"];
-            $iCharge+= $this->partialCharge($aPK["R"], $iPH) * $aAminoacidContent["R"];
-            $iCharge+= $this->partialCharge($aPK["H"], $iPH) * $aAminoacidContent["H"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["D"]) * $aAminoacidContent["D"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["E"]) * $aAminoacidContent["E"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["C"]) * $aAminoacidContent["C"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["Y"]) * $aAminoacidContent["Y"];
-            $iCharge-= $this->partialCharge($iPH, $aPK["CTERMINUS"]);
+            $iCharge = $this->partialCharge($this->pk["NTERMINUS"], $iPH);
+            $iCharge+= $this->partialCharge($this->pk["K"], $iPH) * $aAminoacidContent["K"];
+            $iCharge+= $this->partialCharge($this->pk["R"], $iPH) * $aAminoacidContent["R"];
+            $iCharge+= $this->partialCharge($this->pk["H"], $iPH) * $aAminoacidContent["H"];
+            $iCharge-= $this->partialCharge($iPH, $this->pk["D"]) * $aAminoacidContent["D"];
+            $iCharge-= $this->partialCharge($iPH, $this->pk["E"]) * $aAminoacidContent["E"];
+            $iCharge-= $this->partialCharge($iPH, $this->pk["C"]) * $aAminoacidContent["C"];
+            $iCharge-= $this->partialCharge($iPH, $this->pk["Y"]) * $aAminoacidContent["Y"];
+            $iCharge-= $this->partialCharge($iPH, $this->pk["CTERMINUS"]);
             return $iCharge;
         } catch (\Exception $e) {
             throw new \Exception($e);
