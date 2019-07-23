@@ -24,12 +24,4 @@ class DemoControllerTest extends WebTestCase
         $this->client->request('GET', '/sequence-analysis');
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
     }
-
-    public function testParseaseqdb()
-    {
-        $crawler = $this->client->request('GET', '/read-sequence-genbank');
-        $response = $this->client->getResponse();
-
-        $this->assertEquals(200, $response->getStatusCode());
-    }
 }

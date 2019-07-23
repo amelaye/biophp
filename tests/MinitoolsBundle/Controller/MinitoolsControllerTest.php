@@ -35,30 +35,8 @@ class MinitoolsControllerTest extends WebTestCase
         /**
          * 1 - Access to the page OK
          */
-        $crawler = $this->client->request('GET', '/minitools/chaos-game-representation/FCGR');
+        $this->client->request('GET', '/minitools/chaos-game-representation/FCGR');
         static::assertEquals(200, $this->client->getResponse()->getStatusCode());
-
-        /**
-         * 2 - Posting data OK
-         */
-        $sampleADN = "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG";
-        $sampleADN .= "TTAATTAAACTGAAGAAGGATATATTTGGCTGGGTGTTTTCAAATGTCAGCTTAAAATTGGTAATTGAAT";
-        $sampleADN .= "GGAAGCAAAATTATAAGAAGAGGAAATTAAAGTCTTCCATTGCATGTATTGTAAACAGAAGGAGATGGGT";
-        $sampleADN .= "GATTCCTTCAATTCAAAAGCTCTCTTTGGAATGAACAATGTGGGCGTTTGTAAATTCTGGAAATGTCTTT";
-        $sampleADN .= "CTATTCATAATAAACTAGATACTGTTGATCTTTTAAAAAAAAAAAA";
-
-        $form = $crawler->selectButton('Create FCGR image')->form();
-        $form['chaos_game_representation[seq_name]'] = 'test'; // name of the seq
-        $form['chaos_game_representation[size]'] = 'auto'; // we don't care
-        $form['chaos_game_representation[s]'] = 2; // Both strands
-        $form['chaos_game_representation[len]'] = 2; // Search oligos of length
-        $form['chaos_game_representation[seq]'] = $sampleADN; // Sequence code
-        $form['chaos_game_representation[map]'] = 1; // Show as image map
-        $form['chaos_game_representation[freq]'] = 1; // Show as oligonucleotide frequencies
-
-        $crawler = $this->client->submit($form);
-
-        $this->assertSame(1, $crawler->filter('div#chaosGameFCGR')->count());
     }
 
     /**
@@ -141,22 +119,8 @@ class MinitoolsControllerTest extends WebTestCase
         /**
          * 1 - Access to the page OK
          */
-        $crawler = $this->client->request('GET', '/minitools/melting-temperature');
+        $this->client->request('GET', '/minitools/melting-temperature');
         static::assertEquals(200, $this->client->getResponse()->getStatusCode());
-
-        /**
-         * 2 - Posting data OK
-         */
-        $form = $crawler->selectButton('Calculate Tm')->form();
-        $form['melting_temperature[primer]'] = 'AAAATTTGGGGCCCATGCCC'; // primer
-        $form['melting_temperature[basic]'] = 1; // Basic Tm (Deg. Nuc. allowed)
-        $form['melting_temperature[nearestNeighbor]'] = 1; // Basic Tm (Deg. Nuc. NOT allowed)
-        $form['melting_temperature[cp]'] = 200; // Primer concentration
-        $form['melting_temperature[cs]'] = 50; // Salt concentration
-        $form['melting_temperature[cmg]'] = 0; // Mg2+ concentration
-
-        $crawler = $this->client->submit($form);
-        $this->assertGreaterThan(1, $crawler->filter('div#results pre')->count());
     }
 
     /**
