@@ -27,21 +27,10 @@ class SequenceManipulationAndDataManager
     {
         try {
             $seq = strtoupper($seq);
+            $pattern = ["A", "T", "G", "C", "Y", "R", "W", "S", "K", "M", "D", "V", "H", "B"];
+            $replace = ["t", "a", "c", "g", "r", "y", "w", "s", "m", "k", "h", "b", "d", "v"];
 
-            $seq = str_replace("A", "t", $seq);
-            $seq = str_replace("T", "a", $seq);
-            $seq = str_replace("G", "c", $seq);
-            $seq = str_replace("C", "g", $seq);
-            $seq = str_replace("Y", "r", $seq);
-            $seq = str_replace("R", "y", $seq);
-            $seq = str_replace("W", "w", $seq);
-            $seq = str_replace("S", "s", $seq);
-            $seq = str_replace("K", "m", $seq);
-            $seq = str_replace("M", "k", $seq);
-            $seq = str_replace("D", "h", $seq);
-            $seq = str_replace("V", "b", $seq);
-            $seq = str_replace("H", "d", $seq);
-            $seq = str_replace("B", "v", $seq);
+            $seq = str_replace($pattern, $replace, $seq);
 
             // change the sequence to upper case again for output
             $seq = strtoupper ($seq);
@@ -52,6 +41,7 @@ class SequenceManipulationAndDataManager
     }
 
     /**
+     * Remove non-words (\W), con coding ([^ATGCYRWSKMDVHBN]) and digits (\d) from sequence
      * @param $seq
      * @return string|string[]|null
      * @throws \Exception
@@ -97,9 +87,10 @@ class SequenceManipulationAndDataManager
     }
 
     /**
-     * @param $seq
-     * @return string
-     * @throws \Exception
+     * Displays the content of G and C
+     * @param   string      $seq
+     * @return  string
+     * @throws  \Exception
      */
     public function gc_content($seq)
     {
@@ -114,6 +105,7 @@ class SequenceManipulationAndDataManager
     }
 
     /**
+     * Replaces T by U
      * @param $seq
      * @return string|string[]|null
      * @throws \Exception
@@ -121,9 +113,8 @@ class SequenceManipulationAndDataManager
     public function toRNA($seq)
     {
         try {
-            // replace T by U
-            $seq=preg_replace("/T/","U",$seq);
-            $seq=chunk_split($seq, 70);
+            $seq = preg_replace("/T/","U",$seq);
+            $seq = chunk_split($seq, 70);
             return $seq;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -143,39 +134,15 @@ class SequenceManipulationAndDataManager
             $result.="\nC: ".substr_count($seq,"C");
             $result.="\nG: ".substr_count($seq,"G");
             $result.="\nT: ".substr_count($seq,"T");
-            if (substr_count($seq,"Y") > 0) {
-                $result .= "\nY: ".substr_count($seq,"Y");
+
+            $nucleoNonDNA = ["Y", "R", "W", "S", "K", "M", "D", "V", "H", "B", "N"];
+
+            foreach($nucleoNonDNA as $letter) {
+                if (substr_count($seq,$letter) > 0) {
+                    $result .= "\n$letter: ".substr_count($seq, $letter);
+                }
             }
-            if (substr_count($seq,"R") > 0) {
-                $result .= "\nR: ".substr_count($seq,"R");
-            }
-            if (substr_count($seq,"W") > 0) {
-                $result .= "\nW: ".substr_count($seq,"W");
-            }
-            if (substr_count($seq,"S") > 0) {
-                $result .= "\nS: ".substr_count($seq,"S");
-            }
-            if (substr_count($seq,"K") > 0) {
-                $result .= "\nK: ".substr_count($seq,"K");
-            }
-            if (substr_count($seq,"M") > 0) {
-                $result .= "\nM: ".substr_count($seq,"M");
-            }
-            if (substr_count($seq,"D") > 0) {
-                $result .= "\nD: ".substr_count($seq,"D");
-            }
-            if (substr_count($seq,"V") > 0) {
-                $result .= "\nV: ".substr_count($seq,"V");
-            }
-            if (substr_count($seq,"H") > 0) {
-                $result .= "\nH: ".substr_count($seq,"H");
-            }
-            if (substr_count($seq,"B") > 0) {
-                $result .= "\nB: ".substr_count($seq,"B");
-            }
-            if (substr_count($seq,"N") > 0) {
-                $result .= "\nN: ".substr_count($seq,"N");
-            }
+
             $result.="\n\n";
             return $result;
         } catch (\Exception $e) {
