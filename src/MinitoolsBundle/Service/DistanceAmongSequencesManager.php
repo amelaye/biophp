@@ -59,6 +59,7 @@ class DistanceAmongSequencesManager
 
     /**
      * Get the name of each sequence (save names to array $seq_name)
+     * Unit test created
      * @param $seqs
      * @return array[]|false|string[]
      * @throws \Exception
@@ -81,6 +82,7 @@ class DistanceAmongSequencesManager
 
     /**
      * COMPUTE OLIGONUCLEOTIDE FREQUENCIES
+     * Unit test created
      * @param $seqs
      * @param $len
      * @return mixed
@@ -114,6 +116,7 @@ class DistanceAmongSequencesManager
     /**
      * COMPUTE OLIGONUCLEOTIDE FREQUENCIES
      * @param $seqs
+     * Unit test created
      * @return array
      * @throws \Exception
      */
