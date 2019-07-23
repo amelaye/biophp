@@ -61,17 +61,22 @@ class DistanceAmongSequencesManager
      * Get the name of each sequence (save names to array $seq_name)
      * @param $seqs
      * @return array[]|false|string[]
+     * @throws \Exception
      */
     public function formatSequences($seqs)
     {
-        $seqs = preg_split("/>/", $seqs,-1,PREG_SPLIT_NO_EMPTY);
-        foreach ($seqs as $key => $val) {
-            $seq_name[$key] = substr($val,0,strpos($val,"\n"));
-            $temp_val = substr($val,strpos($val,"\n"));
-            $temp_val = preg_replace("/\W|\d/","",$temp_val);
-            $seqs[$key] = strtoupper($temp_val);
+        try {
+            $seqs = preg_split("/>/", $seqs,-1,PREG_SPLIT_NO_EMPTY);
+            foreach ($seqs as $key => $val) {
+                $seq_name[$key] = substr($val,0,strpos($val,"\n"));
+                $temp_val = substr($val,strpos($val,"\n"));
+                $temp_val = preg_replace("/\W|\d/","",$temp_val);
+                $seqs[$key] = strtoupper($temp_val);
+            }
+            return $seqs;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $seqs;
     }
 
     /**
@@ -83,23 +88,27 @@ class DistanceAmongSequencesManager
      */
     public function computeOligonucleotidsFrequenciesEuclidean($seqs, $len)
     {
-        $oligo_array = [];
-        foreach ($seqs as $key => $val) {
-            // to compute oligonucleotide frequencies, both strands are used
-            $valRevert = strrev($val);
-            foreach ($this->dnaComplements as $nucleotide => $complement) {
-                $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
+        try {
+            $oligo_array = [];
+            foreach ($seqs as $key => $val) {
+                // to compute oligonucleotide frequencies, both strands are used
+                $valRevert = strrev($val);
+                foreach ($this->dnaComplements as $nucleotide => $complement) {
+                    $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
+                }
+                $seq_and_revseq = $val." ".strtoupper($valRevert);
+
+                $oligos = $this->oligosManager->findOligos(
+                    $seq_and_revseq,
+                    $len
+                );
+
+                $oligo_array[$key] = $this->standardFrecuencies($oligos, $len);
             }
-            $seq_and_revseq = $val." ".strtoupper($valRevert);
-
-            $oligos = $this->oligosManager->findOligos(
-                $seq_and_revseq,
-                $len
-            );
-
-            $oligo_array[$key] = $this->standardFrecuencies($oligos, $len);
+            return $oligo_array;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $oligo_array;
     }
 
     /**
@@ -110,11 +119,15 @@ class DistanceAmongSequencesManager
      */
     public function computeOligonucleotidsFrequencies($seqs)
     {
-        $oligo_array = [];
-        foreach ($seqs as $key => $theseq) {
-            $oligo_array[$key] = $this->computeZscoresForTetranucleotides($theseq);
+        try {
+            $oligo_array = [];
+            foreach ($seqs as $key => $theseq) {
+                $oligo_array[$key] = $this->computeZscoresForTetranucleotides($theseq);
+            }
+            return $oligo_array;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $oligo_array;
     }
 
     /**
@@ -129,20 +142,24 @@ class DistanceAmongSequencesManager
      */
     public function computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array, $len)
     {
-        $data = [];
-        foreach ($seqs as $key => $val) {
-            foreach($seqs as $key2 => $val2) {
-                if ($key >= $key2) {
-                    continue;
+        try {
+            $data = [];
+            foreach ($seqs as $key => $val) {
+                foreach($seqs as $key2 => $val2) {
+                    if ($key >= $key2) {
+                        continue;
+                    }
+                    $data[$key][$key2] = $this->euclidDistance(
+                        $oligo_array[$key],
+                        $oligo_array[$key2],
+                        $len
+                    );
                 }
-                $data[$key][$key2] = $this->euclidDistance(
-                    $oligo_array[$key],
-                    $oligo_array[$key2],
-                    $len
-                );
             }
+            return $data;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $data;
     }
 
     /**
@@ -156,19 +173,23 @@ class DistanceAmongSequencesManager
      */
     public function computeDistancesAmongFrequencies($seqs, $oligo_array)
     {
-        $data = [];
-        foreach($seqs as $key => $val){
-            foreach($seqs as $key2 => $val2){
-                if ($key >= $key2) {
-                    continue;
+        try {
+            $data = [];
+            foreach($seqs as $key => $val){
+                foreach($seqs as $key2 => $val2){
+                    if ($key >= $key2) {
+                        continue;
+                    }
+                    $data[$key][$key2]= $this->pearsonDistance(
+                        $oligo_array[$key],
+                        $oligo_array[$key2]
+                    );
                 }
-                $data[$key][$key2]= $this->pearsonDistance(
-                    $oligo_array[$key],
-                    $oligo_array[$key2]
-                );
             }
+            return $data;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $data;
     }
 
 

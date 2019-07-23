@@ -493,12 +493,12 @@ class ChaosGameRepresentationManager
     /**
      * Creates the different positions of areas
      * @param   array   $aRatio
-     * @param   string  $sThecolor
+     * @param   array   $aThecolor
      * @param   $im
      * @return  array
      * @throws  \Exception
      */
-    private function mapAreaData($aRatio, $sThecolor, $im)
+    private function mapAreaData($aRatio, $aThecolor, $im)
     {
         try {
             $aAreas = [];
@@ -552,7 +552,7 @@ class ChaosGameRepresentationManager
                 $y += $v_pos;
                 $y2 = $y + $frameLength;
 
-                imagefilledrectangle($im,$x,$y,$x2,$y2,$sThecolor[$val]);
+                imagefilledrectangle($im,$x,$y,$x2,$y2,$aThecolor[$val]);
 
                 $aAreas[$seq] = array($x,$y,$x2,$y2);
             }
