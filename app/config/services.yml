@@ -63,6 +63,12 @@ services:
             - '%protein_colors%'
             - '%generic_colors%'
 
+    AppBundle\Twig\MinitoolsExtension:
+        tags: ['twig.extension']
+
+    AppBundle\Twig\PhpExtension:
+        tags: ['twig.extension']
+
     MinitoolsBundle\Service\ChaosGameRepresentationManager:
         arguments:
             - '%nucleotids_graphs%'

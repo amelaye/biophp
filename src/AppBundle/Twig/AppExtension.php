@@ -3,19 +3,17 @@
  * Some extensions to format the rending code
  * Freely inspired by BioPHP's project biophp.org
  * Created 6 april 2019
- * Last modified 10 july 2019
+ * Last modified 23 july 2019
  */
 namespace AppBundle\Twig;
 
 use Twig\TwigFilter;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
 /**
  * Class AppExtension
  * @package AppBundle\Twig
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
- * @TODO : revoir pour le tagging as a service
  */
 class AppExtension extends AbstractExtension
 {
@@ -47,36 +45,12 @@ class AppExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('chunk_split', [$this, '_chunk_split'], ['is_safe' => ['html']]),
             new TwigFilter('atgc_sublimer', [$this, 'sublimerATGC'], ['is_safe' => ['html']]),
             new TwigFilter('color_amino_custom', [$this, 'colorAminoCustom'], ['is_safe' => ['html']]),
             new TwigFilter('color_amino', [$this, 'colorAmino'], ['is_safe' => ['html']]),
             new TwigFilter('digest_code', [$this, 'disposeDigestedCode'], ['is_safe' => ['html']]),
             new TwigFilter('dispose_sequences', [$this, 'disposeAlignmentSequences'], ['is_safe' => ['html']]),
         ];
-    }
-
-    /**
-     * Creating new functions for my app <3
-     * @return array|\Twig\TwigFunction[]
-     */
-    public function getFunctions()
-    {
-        return [
-            new TwigFunction('scale_and_bar', [$this, 'getScaleAndBar']),
-        ];
-    }
-
-    /**
-     * Split a string into smaller chunks
-     * @param   string  $subject
-     * @param   int     $chucklen
-     * @param   string  $end
-     * @return  string
-     */
-    public function _chunk_split($subject, $chucklen, $end = "\r\n")
-    {
-        return chunk_split($subject, $chucklen, $end);
     }
 
     /**
@@ -208,18 +182,5 @@ class AppExtension extends AbstractExtension
             $i+=100;
         }
         print "</pre>";
-    }
-
-    /**
-     * Renders a bar when translating DNA to Protein
-     * Sets the bar + scale
-     * @return string
-     * @todo : splitter tout ça
-     */
-    public function getScaleAndBar()
-    {
-        $sScale = "         10        20        30        40        50        60        70        80        90         \r";
-        $aBar   = "         |         |         |         |         |         |         |         |         |          ";
-        return "$sScale\n$aBar";
     }
 }
