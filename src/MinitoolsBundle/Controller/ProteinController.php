@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 july 2019
- * Last modified 15 july 2019
+ * Last modified 23 july 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 use AppBundle\Traits\OligoTrait;
-use AppBundle\Bioapi\Bioapi;
 
 use MinitoolsBundle\Form\ReduceAlphabetType;
 use MinitoolsBundle\Form\ProteinPropertiesType;
@@ -34,14 +33,12 @@ class ProteinController extends Controller
      * @Route("/minitools/protein-properties", name="protein_properties")
      * @param       Request                     $request
      * @param       ProteinPropertiesManager    $proteinPropertiesManager
-     * @param       Bioapi                      $bioapi
      * @return      Response
      * @throws      \Exception
      */
     public function proteinPropertiesAction(
         Request $request,
-        ProteinPropertiesManager $proteinPropertiesManager,
-        Bioapi $bioapi
+        ProteinPropertiesManager $proteinPropertiesManager
     ){
         $data_source = $three_letter_code = $subsequence    =  "";
         $molweight = $abscoef = $charge = $charge2 = $pH    = 0;
@@ -65,7 +62,7 @@ class ProteinController extends Controller
             $aminoacid_content = $proteinPropertiesManager->aminoacidContent($subsequence);
 
             // get pk values for charged aminoacids
-            $pK = $bioapi->getPkValueById($formData["data_source"]);
+            $proteinPropertiesManager->setPk($formData["data_source"]);
 
             // prepare nucleotide composition to be printed out
             if ((bool)$formData["composition"]) {
@@ -78,15 +75,13 @@ class ProteinController extends Controller
                 $abscoef = $proteinPropertiesManager->molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight);
             }
             if ((bool)$formData["charge"]) {  // calculate isoelectric point of protein
-                $charge = $proteinPropertiesManager->proteinIsoelectricPoint($pK, $aminoacid_content);
+                $charge = $proteinPropertiesManager->proteinIsoelectricPoint($aminoacid_content);
             }
             if ((bool)$formData["charge2"]) {   // calculate charge of protein at requested pH
-                $charge2 = $proteinPropertiesManager->proteinCharge($pK, $aminoacid_content, $pH);
+                $charge2 = $proteinPropertiesManager->proteinCharge($aminoacid_content, $pH);
             }
             if ((bool)$formData["three_letters"]) {  // colored sequence based in plar/non-plar/charged aminoacids
-                foreach(str_split($subsequence) as $letter) {
-                    $three_letter_code .= $bioapi->getAminos()[$letter]["name3Letters"];
-                }
+                $three_letter_code = $proteinPropertiesManager->convertInto3lettersCode($subsequence);
             }
             if ((bool)$formData["type1"]) {   // colored sequence based in polar/non-plar/charged aminoacids
                 $colored_seq = $proteinPropertiesManager->proteinAminoacidNature1($subsequence, $colors);
@@ -121,14 +116,12 @@ class ProteinController extends Controller
      * @Route("/minitools/reduce-protein-alphabet", name="reduce_protein_alphabet")
      * @param       Request                         $request
      * @param       ReduceProteinAlphabetManager    $reduceProteinAlphabetManager
-     * @param       Bioapi                          $bioapi
      * @return      Response
      * @throws      \Exception
      */
     public function reduceProteinAlphabetAction(
         Request $request,
-        ReduceProteinAlphabetManager $reduceProteinAlphabetManager,
-        Bioapi $bioapi
+        ReduceProteinAlphabetManager $reduceProteinAlphabetManager
     ) {
         $form = $this->get('form.factory')->create(ReduceAlphabetType::class);
         $reducedCode = $reducedSeq = "";
@@ -150,7 +143,7 @@ class ProteinController extends Controller
                 // for predefined reduced alphabets
                 if ($sSequence != ""  && $sType != "" && $sAaperline != "") {
                     $reducedSeq = $reduceProteinAlphabetManager->reduceAlphabet($sSequence, $sType);
-                    $reducedCode = $bioapi->getAlphabetInfos($sType);
+                    $reducedCode = $reduceProteinAlphabetManager->createReduceCode($sType);
                 }
             } else {
                 // for personalized reduced alphabets

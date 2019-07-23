@@ -3,7 +3,7 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 july 2019
- * Last modified 15 july 2019
+ * Last modified 23 july 2019
  */
 namespace MinitoolsBundle\Controller;
 
@@ -12,14 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Bioapi\Bioapi;
-
 use MinitoolsBundle\Service\DnaToProteinManager;
 use MinitoolsBundle\Service\ProteinToDnaManager;
 use MinitoolsBundle\Form\DnaToProteinType;
 use MinitoolsBundle\Form\ProteinToDnaType;
 
-
+/**
+ * Class DNAandProteinConvertController
+ * @package MinitoolsBundle\Controller
+ */
 class DNAandProteinConvertController extends Controller
 {
     /**
@@ -57,11 +58,10 @@ class DNAandProteinConvertController extends Controller
      * @Route("/minitools/dna-to-protein", name="dna_to_protein")
      * @param   Request                 $request
      * @param   DnaToProteinManager     $dnaToProteinManager
-     * @param   Bioapi                  $bioapi
      * @return  Response
      * @throws  \Exception
      */
-    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager, Bioapi $bioapi)
+    public function dnaToProteinAction(Request $request, DnaToProteinManager $dnaToProteinManager)
     {
         $sResults = $sResultsComplementary  = '';
         $mycode                             = null;
@@ -69,14 +69,18 @@ class DNAandProteinConvertController extends Controller
         $bShowAligned                       = false;
         $bDgaps                             = false;
 
-        $aAminoAcidCodes        = $bioapi->getAminosOnlyLetters();
-        $aAminoAcidCodesLeft    = array_slice($aAminoAcidCodes, 0, 13);
-        $aAminoAcidCodesRight   = array_slice($aAminoAcidCodes, 13);
+        $aAminoAcidCodes = $aAminoAcidCodesLeft = $aAminoAcidCodesRight = [];
 
         $form = $this->get('form.factory')->create(DnaToProteinType::class);
 
         // Form treatment
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $dnaToProteinManager->showAminosArrays(
+                $aAminoAcidCodes,
+                $aAminoAcidCodesLeft,
+                $aAminoAcidCodesRight
+            );
+
             $formData       = $form->getData();
             $sequence       = $formData["sequence"];
             $bDgaps         = (bool)$formData["dgaps"];
@@ -84,8 +88,7 @@ class DNAandProteinConvertController extends Controller
 
             // Custom code
             if (isset($formData['usemycode']) && $formData["usemycode"] == 1) {
-                $mycode = $formData["mycode"];
-                $aFrames = $dnaToProteinManager->customTreatment($formData["frames"], $sequence, $mycode);
+                $aFrames = $dnaToProteinManager->customTreatment($formData["frames"], $sequence, $formData["mycode"]);
             } else {
                 $aFrames = $dnaToProteinManager->definedTreatment(
                     $formData["frames"],

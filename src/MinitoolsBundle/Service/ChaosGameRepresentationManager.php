@@ -8,6 +8,8 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
+
 /**
  * Class ChaosGameRepresentationManager
  * @package MinitoolsBundle\Service
@@ -23,12 +25,34 @@ class ChaosGameRepresentationManager
     /**
      * ChaosGameRepresentationManager constructor.
      * @param   array           $nucleotidsGraphs
+     * @param   Bioapi          $bioapi
      */
-    public function __construct(array $nucleotidsGraphs)
+    public function __construct(array $nucleotidsGraphs, Bioapi $bioapi)
     {
         $this->nucleotidsGraphs = $nucleotidsGraphs;
+        $this->dnaComplements = $bioapi->getDNAComplement();
     }
 
+    /**
+     * Compute nucleotide frequencies
+     * @param   array   $aSeqData   Data of the sequence
+     * @return  array
+     * @throws  \Exception
+     */
+    public function numberNucleos($aSeqData)
+    {
+        try {
+            $aNucleotides = [];
+
+            foreach($this->dnaComplements as $sNucleotide) {
+                $aNucleotides[$sNucleotide] = substr_count($aSeqData["sequence"], $sNucleotide);
+            }
+
+            return $aNucleotides;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 
     /**
      * Analyses Data before sending the image
@@ -64,18 +88,16 @@ class ChaosGameRepresentationManager
      * @param   string      $sSequence
      * @param   int         $iOligoLen
      * @param   int         $iStrand
-     * @param   array       $aDNAComplements
      * @return  array
      * @throws  \Exception
      */
-    public function FCGRCompute($sSequence, $iOligoLen, $iStrand, $aDNAComplements)
+    public function FCGRCompute($sSequence, $iOligoLen, $iStrand)
     {
         try {
             // If double strand is requested to be computed...
             if ($iStrand == 2) {
                 $seqRevert = strrev($sSequence);
-                dump($aDNAComplements);
-                foreach ($aDNAComplements as $nucleotide => $complement) {
+                foreach ($this->dnaComplements as $nucleotide => $complement) {
                     $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
                 }
                 $sSequence .= " ".strtoupper($seqRevert);

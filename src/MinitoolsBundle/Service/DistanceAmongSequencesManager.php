@@ -91,7 +91,7 @@ class DistanceAmongSequencesManager
                 $valRevert = str_replace($nucleotide, strtolower($complement), $valRevert);
             }
             $seq_and_revseq = $val." ".strtoupper($valRevert);
-dump($seq_and_revseq);
+
             $oligos = $this->oligosManager->findOligos(
                 $seq_and_revseq,
                 $len

@@ -13,8 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Bioapi\Bioapi;
-
 use MinitoolsBundle\Service\FindPalindromeManager;
 use MinitoolsBundle\Service\DistanceAmongSequencesManager;
 use MinitoolsBundle\Service\RandomSequencesManager;
@@ -31,17 +29,6 @@ use MinitoolsBundle\Form\RandomSequencesType;
  */
 class SequencesController extends Controller
 {
-    private $dnaComplements;
-
-    /**
-     * MinitoolsController constructor.
-     * @param Bioapi $bioapi
-     */
-    public function __construct(Bioapi $bioapi)
-    {
-        $this->dnaComplements = $bioapi->getDNAComplement();
-    }
-
     /**
      * @Route("/minitools/find-palindromes", name="find_palindromes")
      * @param       Request                 $request
@@ -104,8 +91,7 @@ class SequencesController extends Controller
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequenciesEuclidean($seqs,
                     $oligo_array,$length);
             } else {
-                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs,
-                    $this->dnaComplements);
+                $oligo_array = $oDistanceAmongSequencesManager->computeOligonucleotidsFrequencies($seqs);
 
                 $data = $oDistanceAmongSequencesManager->computeDistancesAmongFrequencies($seqs, $oligo_array);
             }

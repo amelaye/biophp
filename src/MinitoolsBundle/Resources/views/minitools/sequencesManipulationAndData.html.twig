@@ -1,4 +1,17 @@
 {% extends '@App/base.html.twig' %}
 {% block body %}
-    <p>Coming soon :)</p>
+
+    <div class="card">
+        <h5 class="card-header">DNA sequence manipulation</h5>
+        <span class="card-body">
+            <div class="card-text">
+                <b>NOTES</b>:
+                <br>Non-coding characters will be removed by default, and X is replaced by N.
+                <br><a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=retrieve&db=pubmed&list_uids=7957164&dopt=abstract">NC-UIBMB</a>
+                codes are used as a reference.
+            </div>
+            <p></p>
+            <footer class="blockquote-footer">Text taken from <cite title="Source Title">biophp.org</cite></footer>
+        </span>
+    </div>
 {% endblock %}
