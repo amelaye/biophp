@@ -204,6 +204,7 @@ class DistanceAmongSequencesManager
     public function getArrayCases($a)
     {
         try {
+            dump($a);
             $done = "";
             foreach($a as $key => $val){
                 $done .= "#$key";
@@ -214,6 +215,7 @@ class DistanceAmongSequencesManager
             $cases = preg_split("/#/",$done,-1,PREG_SPLIT_NO_EMPTY);
             $cases = array_unique($cases);
             sort($cases);
+            dump($cases);
             return $cases;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -321,6 +323,10 @@ class DistanceAmongSequencesManager
         }
     }
 
+    private function setX($j, $f)
+    {
+        return log($j + 1) * $f + 20;
+    }
 
     /**
      * Creates picture for Dendogram
@@ -350,31 +356,31 @@ class DistanceAmongSequencesManager
 
             // lines for scale
             $j = 0.1;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
 
             $j = 0.2;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
 
             $j = 0.3;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
 
             $j = 0.5;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
 
             $j = 1.0;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "1.0", $black);
 
             $j = 1.5;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
 
             $j = 2.0;
-            imageline($im, log($j+1)*$f+20, $y, log($j+1)*$f+20, $y+10, $black);
+            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
             imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "2.0", $black);
 
             // write into the image the numbers corresponding to cases
@@ -478,17 +484,20 @@ class DistanceAmongSequencesManager
 
 
     /**
-     * @param $vals_x
-     * @param $vals_y
-     * @return int | void
-     * @throws \Exception
+     * Generates the distance value from array X and array Y
+     * Unit test created
+     * @param   array   $vals_x
+     * @param   array   $vals_y
+     * @return  int
+     * @throws  \Exception
      */
     public function pearsonDistance($vals_x, $vals_y)
     {
         try {
+            $value = 0;
             // normal correlation
             if (sizeof($vals_x) != sizeof($vals_y)) {
-                return;
+                return $value;
             }
             $sum_x = 0;
             $sum_x2 = 0;
@@ -500,24 +509,58 @@ class DistanceAmongSequencesManager
                 $val_x = $val;
                 $val_y = $vals_y[$key];
                 $sum_x += $val_x;
-                $sum_x2 += $val_x*$val_x;
+                $sum_x2 += $val_x * $val_x;
                 $sum_y += $val_y;
-                $sum_y2 += $val_y*$val_y;
-                $sum_xy += $val_x*$val_y;
+                $sum_y2 += $val_y * $val_y;
+                $sum_xy += $val_x * $val_y;
             }
             // calculate regression
-            $regresion = ($sum_xy-(1/$n)*$sum_x*$sum_y)/((sqrt($sum_x2-(1/$n)*$sum_x*$sum_x)*(sqrt($sum_y2-(1/$n)*$sum_y*$sum_y))));
+            $tempa = sqrt($sum_y2 - (1 / $n) * $sum_y * $sum_y);
+            $tempb = sqrt($sum_x2 - (1 / $n) * $sum_x * $sum_x);
+            $tempc = $sum_xy - (1 / $n) * $sum_x * $sum_y;
+            $regresion = $tempc / ($tempb * $tempa);
             if ($regresion > 0.999999999) {
                 $regresion = 1;
             }      // round data
-            return (1 - $regresion);
+            $value = 1 - $regresion;
+            return $value;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
+    /**
+     * Feeds the oligo array
+     * No Unit Test : private access
+     * @param   string      $theseq
+     * @param   int         $iteration
+     * @return  array
+     * @throws  \Exception
+     */
+    private function iterateOligo($theseq, $iteration)
+    {
+        try {
+            $oligos = [];
+            $i = 0;
+            $len = strlen($theseq) - $iteration + 1;
+            while($i < $len) {
+                $seq = substr($theseq, $i,$iteration);
+                if(isset($oligos[$seq])) {
+                    $oligos[$seq]++;
+                } else {
+                    $oligos[$seq] = 1;
+                }
+                $i++;
+            }
+            return $oligos;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 
     /**
+     * As described by Teeling et al. BMC Bioinformatics 2004, 5:163.
+     * Unit test created
      * @param $theseq
      * @return mixed
      * @throws \Exception
@@ -525,44 +568,11 @@ class DistanceAmongSequencesManager
     public function computeZscoresForTetranucleotides($theseq)
     {
         try {
-            $oligos2 = [];
-            $oligos3 = [];
-            $oligos4 = [];
-            // as described by Teeling et al. BMC Bioinformatics 2004, 5:163.
             $theseq .= " ".$this->revComp($theseq);
-            $i = 0;
-            $len = strlen($theseq)-2+1;
-            while($i < $len) {
-                $seq = substr($theseq, $i,2);
-                if(isset($oligos2[$seq])) {
-                    $oligos2[$seq]++;
-                } else {
-                    $oligos2[$seq] = 1;
-                }
-                $i++;
-            }
-            $i = 0;
-            $len = strlen($theseq)-3+1;
-            while ($i < $len) {
-                $seq = substr($theseq, $i,3);
-                if(isset($oligos3[$seq])) {
-                    $oligos3[$seq]++;
-                } else {
-                    $oligos3[$seq] = 1;
-                }
-                $i++;
-            }
-            $i = 0;
-            $len = strlen($theseq)-4+1;
-            while($i < $len) {
-                $seq = substr($theseq, $i,4);
-                if(isset($oligos4[$seq])) {
-                    $oligos4[$seq]++;
-                } else {
-                    $oligos4[$seq] = 1;
-                }
-                $i++;
-            }
+
+            $oligos2 = $this->iterateOligo($theseq, 2);
+            $oligos3 = $this->iterateOligo($theseq, 3);
+            $oligos4 = $this->iterateOligo($theseq, 4);
 
             $zscore = $this->oligosManager->findZScore($oligos2, $oligos3, $oligos4);
 
@@ -605,31 +615,35 @@ class DistanceAmongSequencesManager
      */
     public function upgmaClustering($data, $method, $len, $dendogramFile)
     {
-        while (sizeof($data) > 1) {
+        try {
+            while (sizeof($data) > 1) {
+                $min = $this->minArray($data);
+                $comp[$this->x][$this->y] = $min;
+                $data = $this->newArray($data);
+            }
+
             $min = $this->minArray($data);
-            $comp[$this->x][$this->y] = $min;
-            $data = $this->newArray($data);
+
+            $x = $this->x;
+            $y = $this->y;
+
+            /*
+             * end of clustering
+             * array $comp stores the important data
+             */
+            $comp[$x][$y] = $min;
+
+            /*
+             * $textcluster is the results of the cluster as text.
+             * p.e.:  ((3,4),7),(((5,6),1),2)
+             */
+            $textcluster = $x.",".$y;
+
+
+            // CREATE THE IMAGE WITH THE DENDROGRAM
+            $this->createDendrogram($textcluster, $comp, $dendogramFile, $method, $len);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-
-        $min = $this->minArray($data);
-
-        $x = $this->x;
-        $y = $this->y;
-
-        /*
-         * end of clustering
-         * array $comp stores the important data
-         */
-        $comp[$x][$y] = $min;
-
-        /*
-         * $textcluster is the results of the cluster as text.
-         * p.e.:  ((3,4),7),(((5,6),1),2)
-         */
-        $textcluster = $x.",".$y;
-
-
-        // CREATE THE IMAGE WITH THE DENDROGRAM
-        $this->createDendrogram($textcluster, $comp, $dendogramFile, $method, $len);
     }
 }
