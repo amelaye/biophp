@@ -29,7 +29,7 @@ class DemoController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('@App/demo/index.html.twig');
+        return $this->render('demo/index.html.twig');
     }
 
     /**
@@ -45,7 +45,7 @@ class DemoController extends Controller
         
         $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
         
-        return $this->render('@App/demo/sequenceanalysis.html.twig',
+        return $this->render('demo/sequenceanalysis.html.twig',
             array('mirrors' => $aMirrors)
         );
     }
@@ -65,7 +65,7 @@ class DemoController extends Controller
         //$oSequence = $databaseManager->fetch("NM_031438");
         $oSequence = new Sequence();
 
-        return $this->render('@App/demo/parseseqdb.html.twig',
+        return $this->render('demo/parseseqdb.html.twig',
             ["sequence" => $oSequence]
         );
     }
