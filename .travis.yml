@@ -4,5 +4,5 @@ php:
 
 script:
   - composer install -o
-  - bin/console server:run
+  - bin/console server:run &
   - vendor/bin/phpunit
