@@ -323,11 +323,6 @@ class DistanceAmongSequencesManager
         }
     }
 
-    private function setX($j, $f)
-    {
-        return log($j + 1) * $f + 20;
-    }
-
     /**
      * Creates picture for Dendogram
      * @param $str
@@ -355,33 +350,14 @@ class DistanceAmongSequencesManager
             $f = $width;      // multiplication factor
 
             // lines for scale
-            $j = 0.1;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
+            $aJValues = [0.1, 0.2, 0.3, 0.5, 1.0, 1.5, 2.0];
 
-            $j = 0.2;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
-
-            $j = 0.3;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
-
-            $j = 0.5;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
-
-            $j = 1.0;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "1.0", $black);
-
-            $j = 1.5;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  $j, $black);
-
-            $j = 2.0;
-            imageline($im, $this->setX($j, $f), $y, $this->setX($j, $f), $y+10, $black);
-            imagestring($im, 1, log($j+1)*$f-8+20, $y+12,  "2.0", $black);
+            foreach($aJValues as $j) {
+                $x = log($j + 1) * $f + 20;
+                $x2 = log($j + 1) * $f - 8 + 20;
+                imageline($im, $x, $y, $x, $y + 10, $black);
+                imagestring($im, 1, $x2, $y + 12,  $j, $black);
+            }
 
             // write into the image the numbers corresponding to cases
             foreach($a as $n => $val) {
