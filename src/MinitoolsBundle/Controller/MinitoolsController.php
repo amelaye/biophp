@@ -66,7 +66,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/gcContentFinder.html.twig',
+            'minitools/gcContentFinder.html.twig',
             [
                 'form'      => $form->createView(),
                 'length'    => $length,
@@ -114,7 +114,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/meltingTemperature.html.twig',
+            'minitools/meltingTemperature.html.twig',
             [
                 'form'              => $form->createView(),
                 'primer'            => $iPrimer,
@@ -156,7 +156,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/microArrayAnalysisAdaptiveQuantification.html.twig',
+            'minitools/microArrayAnalysisAdaptiveQuantification.html.twig',
             [
                 'form'              => $form->createView(),
                 'results'           => $results
@@ -193,7 +193,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/microsatelliteRepeatsFinder.html.twig',
+            'minitools/microsatelliteRepeatsFinder.html.twig',
             [
                 'form'              => $form->createView(),
                 'results'           => $results
@@ -231,7 +231,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/oligonucleotideFrequency.html.twig',
+            'minitools/oligonucleotideFrequency.html.twig',
             [
                 'form'              => $form->createView(),
                 'results'           => $aResults,
@@ -278,7 +278,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/pcrAmplification.html.twig',
+            'minitools/pcrAmplification.html.twig',
             [
                 'form'         => $form->createView(),
                 'results'      => $aResults,
@@ -345,7 +345,7 @@ class MinitoolsController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/restrictionDigest.html.twig',
+            'minitools/restrictionDigest.html.twig',
             [
                 'form'              => $form->createView(),
                 'show_code'         => $bShowCode,
@@ -378,7 +378,7 @@ class MinitoolsController extends Controller
      */
     public function sequencesManipulationAndDataAction()
     {
-        return $this->render('@Minitools/Minitools/sequencesManipulationAndData.html.twig');
+        return $this->render('minitools/sequencesManipulationAndData.html.twig');
     }
 
     /**
@@ -386,7 +386,7 @@ class MinitoolsController extends Controller
      */
     public function skewsAction()
     {
-        return $this->render('@Minitools/Minitools/skews.html.twig');
+        return $this->render('minitools/skews.html.twig');
     }
 
     /**
@@ -394,6 +394,6 @@ class MinitoolsController extends Controller
      */
     public function usefulFormulasAction()
     {
-        return $this->render('@Minitools/Minitools/usefulFormulas.html.twig');
+        return $this->render('minitools/usefulFormulas.html.twig');
     }
 }

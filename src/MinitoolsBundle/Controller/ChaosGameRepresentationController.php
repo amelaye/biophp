@@ -75,7 +75,7 @@ class ChaosGameRepresentationController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/chaosGameRepresentationCGR.html.twig',
+            'minitools/chaosGameRepresentationCGR.html.twig',
             [
                 'form'              => $form->createView(),
                 'is_computed'       => $isComputed
@@ -127,7 +127,7 @@ class ChaosGameRepresentationController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/chaosGameRepresentationFCGR.html.twig',
+            'minitools/chaosGameRepresentationFCGR.html.twig',
             [
                 'form'              => $form->createView(),
                 'oligos'            => $aOligos,

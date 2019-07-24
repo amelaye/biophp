@@ -92,7 +92,7 @@ class ProteinController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/proteinProperties.html.twig',
+            'minitools/proteinProperties.html.twig',
             [
                 'form'                  => $form->createView(),
                 'subsequence'           => $subsequence,
@@ -154,7 +154,7 @@ class ProteinController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/reduceProteinAlphabet.html.twig',
+            'minitools/reduceProteinAlphabet.html.twig',
             [
                 'form'                  => $form->createView(),
                 'reduced_code'          => $reducedCode,

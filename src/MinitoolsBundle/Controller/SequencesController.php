@@ -51,7 +51,7 @@ class SequencesController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/findPalindromes.html.twig',
+            'minitools/findPalindromes.html.twig',
             [
                 'form'          => $form->createView(),
                 'min'           => $min,
@@ -101,7 +101,7 @@ class SequencesController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/distanceAmongSequences.html.twig',
+            'minitools/distanceAmongSequences.html.twig',
             [
                 'form'              => $form->createView(),
                 'oligo_array'       => $oligo_array,
@@ -154,7 +154,7 @@ class SequencesController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/randomSeqs.html.twig',
+            'minitools/randomSeqs.html.twig',
             [
                 'form'         => $form->createView(),
                 'results'      => $result
@@ -202,7 +202,7 @@ class SequencesController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/seqAlignment.html.twig',
+            'minitools/seqAlignment.html.twig',
             [
                 'form'          => $form->createView(),
                 'compare'       => $sCompare,

@@ -45,7 +45,7 @@ class DNAandProteinConvertController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/proteinToDna.html.twig',
+            'minitools/proteinToDna.html.twig',
             [
                 'form'                  => $form->createView(),
                 'sequence'              => $sSequence,
@@ -115,7 +115,7 @@ class DNAandProteinConvertController extends Controller
         }
 
         return $this->render(
-            '@Minitools/Minitools/dnaToProtein.html.twig',
+            'minitools/dnaToProtein.html.twig',
             [
                 'amino_left'            => $aAminoAcidCodesLeft,
                 'amino_right'           => $aAminoAcidCodesRight,
