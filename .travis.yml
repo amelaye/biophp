@@ -1,8 +1,15 @@
 language: php
+sudo: required
+dist: trusty
+
 php:
   - '7.1.16'
 
+services:
+  - mysql
+
 script:
-  - composer install -o
+  - composer self-update
+  - composer install --no-interaction --no-suggest
   - bin/console server:run &
   - vendor/bin/phpunit
