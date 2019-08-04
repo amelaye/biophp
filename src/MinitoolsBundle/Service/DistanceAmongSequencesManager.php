@@ -136,12 +136,13 @@ class DistanceAmongSequencesManager
     /**
      * COMPUTE DISTANCES AMONG SEQUENCES
      * by computing Euclidean distance
-     *  standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
-     * @param $seqs
-     * @param $oligo_array
-     * @param $len
-     * @return mixed
-     * @throws \Exception
+     * standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
+     * Unit Test created
+     * @param   string          $seqs
+     * @param   array           $oligo_array
+     * @param   int             $len
+     * @return  array
+     * @throws  \Exception
      */
     public function computeDistancesAmongFrequenciesEuclidean($seqs, $oligo_array, $len)
     {
@@ -169,10 +170,11 @@ class DistanceAmongSequencesManager
      * COMPUTE DISTANCES AMONG SEQUENCES
      * by computing Pearson distance
      * standarized oligonucleotide frequencies in $oligo_array are used, and distances are stored in $data array
-     * @param $seqs
-     * @param $oligo_array
-     * @return mixed
-     * @throws \Exception
+     * Unit Test Created
+     * @param   string          $seqs
+     * @param   array           $oligo_array
+     * @return  mixed
+     * @throws  \Exception
      */
     public function computeDistancesAmongFrequencies($seqs, $oligo_array)
     {
@@ -204,7 +206,6 @@ class DistanceAmongSequencesManager
     public function getArrayCases($a)
     {
         try {
-            dump($a);
             $done = "";
             foreach($a as $key => $val){
                 $done .= "#$key";
@@ -215,7 +216,6 @@ class DistanceAmongSequencesManager
             $cases = preg_split("/#/",$done,-1,PREG_SPLIT_NO_EMPTY);
             $cases = array_unique($cases);
             sort($cases);
-            dump($cases);
             return $cases;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -437,22 +437,27 @@ class DistanceAmongSequencesManager
     }
 
     /**
-     * @param $a
-     * @param $b
-     * @return float|int
+     * Generates the distance value from array X and array Y
+     * Only in case euclidian selected
+     * Wang et al, Gene 2005; 346:173-185
+     * Unit test created
+     * @param   array   $a      First array for comparaison
+     * @param   array   $b      Second array fo comparaison
+     * @param   int     $len    Length of the combinations
+     * @return  float
      * @throws \Exception
      */
-    public function euclidDistance($a,$b,$len)
+    public function euclidDistance($a, $b, $len)
     {
         try {
-            // Wang et al, Gene 2005; 346:173-185
             $c = sqrt(pow(2, $len))
                 / pow(4, $len);   // content
             $sum = 0;
             foreach($a as $key => $val) {
                 $sum += pow($val-$b[$key],2);
             }
-            return $c * sqrt($sum);
+            $result = $c * sqrt($sum);
+            return $result;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -461,9 +466,10 @@ class DistanceAmongSequencesManager
 
     /**
      * Generates the distance value from array X and array Y
+     * Only in case pearson selected
      * Unit test created
-     * @param   array   $vals_x
-     * @param   array   $vals_y
+     * @param   array   $vals_x     First array for comparaison
+     * @param   array   $vals_y     Second array fo comparaison
      * @return  int
      * @throws  \Exception
      */
@@ -559,9 +565,12 @@ class DistanceAmongSequencesManager
     }
 
     /**
-     * @param $array
-     * @return mixed
-     * @throws \Exception
+     * Generates array of frequencies
+     * Unit test created
+     * @param       array   $array
+     * @param       int     $len
+     * @return      mixed
+     * @throws      \Exception
      */
     public function standardFrecuencies($array, $len)
     {

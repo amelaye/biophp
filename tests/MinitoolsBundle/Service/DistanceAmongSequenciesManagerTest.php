@@ -13,7 +13,7 @@ use MinitoolsBundle\Service\DistanceAmongSequencesManager;
 use PHPUnit\Framework\TestCase;
 
 
-class DistanceAmongSequenciesTest extends TestCase
+class DistanceAmongSequenciesManagerTest extends TestCase
 {
     protected $dnaComplement;
 
@@ -1871,4 +1871,113 @@ class DistanceAmongSequenciesTest extends TestCase
 
         $this->assertEquals($expected, $testFunction);
     }
+
+    public function testEuclidDistance()
+    {
+        $a = [
+            "AA" => 0.43577235772358,
+            "AC" => 0.61788617886179,
+            "AG" => 1.3853658536585,
+            "AT" => 0.48130081300813,
+            "CA" => 1.2943089430894,
+            "CC" => 2.009756097561,
+            "CG" => 0.39024390243902,
+            "CT" => 1.3853658536585,
+            "GA" => 0.96910569105691,
+            "GC" => 1.4829268292683,
+            "GG" => 2.009756097561,
+            "GT" => 0.61788617886179,
+            "TA" => 0.22113821138211,
+            "TC" => 0.96910569105691,
+            "TG" => 1.2943089430894,
+            "TT" => 0.43577235772358
+        ];
+
+        $b = [
+            "AA" => 0.39254170755643,
+            "AC" => 0.72227674190383,
+            "AG" => 1.0755642787046,
+            "AT" => 0.17271835132483,
+            "CA" => 0.86359175662414,
+            "CC" => 2.0333660451423,
+            "CG" => 1.6643768400393,
+            "CT" => 1.0755642787046,
+            "GA" => 0.87144259077527,
+            "GC" => 2.0098135426889,
+            "GG" => 2.0333660451423,
+            "GT" => 0.72227674190383,
+            "TA" => 0.23552502453386,
+            "TC" => 0.87144259077527,
+            "TG" => 0.86359175662414,
+            "TT" => 0.39254170755643
+        ];
+
+        $len = 2;
+
+        $fExpected = 0.20175660877203;
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $testFunction = $service->euclidDistance($a,$b,$len);
+
+        $this->assertEquals($fExpected, $testFunction);
+    }
+
+    public function testStandardFrecuencies()
+    {
+        $array = [
+            "AA" => 67,
+            "AC" => 95,
+            "AG" => 213,
+            "AT" => 74,
+            "CA" => 199,
+            "CC" => 309,
+            "CG" => 60,
+            "CT" => 213,
+            "GA" => 149,
+            "GC" => 228,
+            "GG" => 309,
+            "GT" => 95,
+            "TA" => 34,
+            "TC" => 149,
+            "TG" => 199,
+            "TT" => 67
+        ];
+        $len = 2;
+
+        $aExpected = [
+            "AA" => 0.43577235772358,
+            "AC" => 0.61788617886179,
+            "AG" => 1.3853658536585,
+            "AT" => 0.48130081300813,
+            "CA" => 1.2943089430894,
+            "CC" => 2.009756097561,
+            "CG" => 0.39024390243902,
+            "CT" => 1.3853658536585,
+            "GA" => 0.96910569105691,
+            "GC" => 1.4829268292683,
+            "GG" => 2.009756097561,
+            "GT" => 0.61788617886179,
+            "TA" => 0.22113821138211,
+            "TC" => 0.96910569105691,
+            "TG" => 1.2943089430894,
+            "TT" => 0.43577235772358
+        ];
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $testFunction = $service->standardFrecuencies($array, $len);
+
+        $this->assertEquals($aExpected, $testFunction);
+    }
+
+
 }
