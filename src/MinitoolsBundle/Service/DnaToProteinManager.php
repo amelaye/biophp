@@ -51,17 +51,6 @@ class DnaToProteinManager
     }
 
     /**
-     * Set reverted sequence
-     * @param   string      $sSequence
-     * @throws  \Exception
-     */
-    public function getRvSequence($sSequence)
-    {
-        $this->sRvSequence = $this->revCompDNA($sSequence);
-    }
-
-
-    /**
      * Splits the array og aminos
      * @param $aAminoAcidCodes
      * @param $aAminoAcidCodesLeft
@@ -76,6 +65,8 @@ class DnaToProteinManager
 
 
     /**
+     * Treatment when chosen custom
+     * Unit Tests OK
      * @param   int         $iFrames
      * @param   string      $sSequence
      * @param   string      $sMycode
@@ -109,6 +100,7 @@ class DnaToProteinManager
 
     /**
      * Treatment when a specie has been chosen
+     * Unit Tests OK
      * @param   int             $iFrames
      * @param   string          $sGeneticCode
      * @param   string          $sSequence
@@ -141,6 +133,7 @@ class DnaToProteinManager
 
     /**
      * Find ORFs in sequence
+     * Unit tests OK
      * @param   array       $aFrames
      * @param   int         $iProtsize
      * @param   bool        $bOnlyCoding
@@ -185,6 +178,7 @@ class DnaToProteinManager
 
     /**
      * @param   string          $sSequence
+     * Unit Tests OK
      * @return  string
      * @throws  \Exception
      */
@@ -204,6 +198,7 @@ class DnaToProteinManager
 
     /**
      * Translates a DNA Sequence to proteins
+     * Unit Tests OK
      * @param   string          $sSequence
      * @param   string          $sGeneticCode
      * @return  string

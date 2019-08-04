@@ -35,6 +35,7 @@ class ChaosGameRepresentationManager
 
     /**
      * Compute nucleotide frequencies
+     * Unit Test Created
      * @param   array   $aSeqData   Data of the sequence
      * @return  array
      * @throws  \Exception
@@ -85,6 +86,7 @@ class ChaosGameRepresentationManager
 
     /**
      * Gets data sequences
+     * Unit Test created (to review)
      * @param   string      $sSequence
      * @param   int         $iOligoLen
      * @param   int         $iStrand
@@ -107,7 +109,6 @@ class ChaosGameRepresentationManager
                 "sequence" => $sSequence,
                 "length"   => $iOligoLen,
             );
-
             return $aDataSeq;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -162,6 +163,7 @@ class ChaosGameRepresentationManager
     /**
      * CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES
      * The FCGR image will be save to a file, and an string is returned which contains data to be create a image map
+     * Unit Test created
      * @param   array       $oligos
      * @param   string      $seq_name
      * @param   array       $aNucleotids
@@ -267,6 +269,7 @@ class ChaosGameRepresentationManager
             imagepng($im,$this->nucleotidsGraphs["fcgr_file"]);
 
             imagedestroy($im);
+
             return $for_map;
         } catch (\Exception $e) {
             throw new \Exception($e);
