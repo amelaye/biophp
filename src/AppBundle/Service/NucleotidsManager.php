@@ -40,7 +40,8 @@ class NucleotidsManager
      * @return  int
      * @throws \Exception
      */
-    public function countYRWSKMDVHB($c){
+    /*public function countYRWSKMDVHB($c)
+    {
         try {
             $cg = substr_count($c,"Y")
                 + substr_count($c,"R")
@@ -56,7 +57,7 @@ class NucleotidsManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }
+    }*/
 
     /**
      * @param $c
