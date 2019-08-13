@@ -31,8 +31,8 @@ class FastaUploaderManager
                 $sSequence[$i]=='c'|| $sSequence[$i]=='c')) {
                 return false;
             }
-            else return true;
         }
+        return true;
     }
 
     /**
