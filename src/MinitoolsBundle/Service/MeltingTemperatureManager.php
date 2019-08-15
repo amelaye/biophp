@@ -3,7 +3,7 @@
  * MeltingTemperatureManager
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 24 june 2019
+ * Last modified 15 august 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -14,7 +14,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class MeltingTemperatureManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class MeltingTemperatureManager
 {
