@@ -31,3 +31,4 @@ web/code-coverage/*
 /web/docs/*
 /web/public/uploads
 /myreport
+composer.lock

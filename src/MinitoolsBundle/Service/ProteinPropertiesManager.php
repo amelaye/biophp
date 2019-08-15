@@ -3,7 +3,7 @@
  * Proteins properties Functions
  * Inspired by BioPHP's project biophp.org
  * Created 24 february 2019
- * Last modified 8 july 2019
+ * Last modified 15 august 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -12,7 +12,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class ProteinPropertiesManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ProteinPropertiesManager
 {
@@ -57,7 +57,7 @@ class ProteinPropertiesManager
      * @return  array
      * @throws \Exception
      */
-    public function createReduceCode($sType)
+    /*public function createReduceCode($sType)
     {
         try {
             $reducedCode = $this->bioapi->getAlphabetInfos($sType);
@@ -65,23 +65,22 @@ class ProteinPropertiesManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }
+    }*/
 
     /**
      * Converts a subsequence into 3 letters code
-     * @param   string      $subsequence
+     * @param   string      $sSubsequence
      * @return  string
      * @throws  \Exception
      */
-    public function convertInto3lettersCode($subsequence)
+    public function convertInto3lettersCode($sSubsequence)
     {
         try {
-            $three_letter_code = "";
-            foreach(str_split($subsequence) as $letter) {
-                $three_letter_code .= $this->aminos[$letter]["name3Letters"];
+            $s3LetterCode = "";
+            foreach(str_split($sSubsequence) as $sLetter) {
+                $s3LetterCode .= $this->aminos[$sLetter]["name3Letters"];
             }
-
-            return $three_letter_code;
+            return $s3LetterCode;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -93,17 +92,22 @@ class ProteinPropertiesManager
      * @param   int     $iEnd
      * @param   string  $sSequence
      * @return  string
+     * @throws  \Exception
      */
     public function writeSubsequence($iStart, $iEnd, $sSequence)
     {
-        $sSubsequence = "";
-        // if subsequence is requested
-        if ($iStart != "" || $iEnd != "") {
-            $start = ($iStart != "") ? $iStart - 1 : 0;
-            $end  = ($iEnd != "") ? $iEnd : strlen($sSequence);
-            $sSubsequence = substr($sSequence, $start,$end - $start);
+        try {
+            $sSubsequence = "";
+            // if subsequence is requested
+            if ($iStart != "" || $iEnd != "") {
+                $start = ($iStart != "") ? $iStart - 1 : 0;
+                $end  = ($iEnd != "") ? $iEnd : strlen($sSequence);
+                $sSubsequence = substr($sSequence, $start,$end - $start);
+            }
+            return $sSubsequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return $sSubsequence;
     }
 
 
@@ -123,7 +127,7 @@ class ProteinPropertiesManager
             $iDelta = 4;       // this parameter will be used to modify pH when charge!=0. The value of $delta will change during the loop
             while(1) {
                 // compute charge of protein at corresponding pH (uses a function)
-                $iCharge = $this->proteinCharge($this->pk, $aAminoacidContent, $iPH);
+                $iCharge = $this->proteinCharge($aAminoacidContent, $iPH);
                 // check whether $charge is 0 (consecuentely, pH will be the isoelectric point
                 if (round($iCharge,4) == 0) {
                     break;
@@ -139,7 +143,8 @@ class ProteinPropertiesManager
                 $iDelta = $iDelta/2;
             }
             // return pH at which charge=0 (the isoelectric point) with two decimals
-            return round($iPH,2);
+            $fRoundPH = round($iPH,2);
+            return $fRoundPH;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -147,17 +152,17 @@ class ProteinPropertiesManager
 
     /**
      * Computes partial charge
-     * @param       int     $iVal1
-     * @param       int     $iVal2
+     * @param       float     $fVal1
+     * @param       int       $iVal2
      * @return      float
      * @throws      \Exception
      */
-    public function partialCharge($iVal1, $iVal2)
+    public function partialCharge($fVal1, $iVal2)
     {
         try {
-            $iCr = pow(10,$iVal1 - $iVal2); // compute concentration ratio
-            $iPc = $iCr / ($iCr+1); // compute partial charge
-            return $iPc;
+            $iCr = pow(10,$fVal1 - $iVal2); // compute concentration ratio
+            $fPc = $iCr / ($iCr + 1); // compute partial charge
+            return $fPc;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -190,15 +195,15 @@ class ProteinPropertiesManager
 
 
     /**
-     * @param $aminoacid_content
-     * @return array
-     * @throws \Exception
+     * @param   array $aAminoacidContent
+     * @return  array
+     * @throws  \Exception
      */
-    public function formatAminoacidContent($aminoacid_content)
+    public function formatAminoacidContent($aAminoacidContent)
     {
         try {
             $results = [];
-            foreach($aminoacid_content as $aa => $count) {
+            foreach($aAminoacidContent as $aa => $count) {
                 $results[] = ["one_letter" => $aa, "three_letters" => $this->aminos[$aa]["name3Letters"], "count" => $count];
             }
             return $results;
@@ -210,25 +215,25 @@ class ProteinPropertiesManager
 
     /**
      * Counts number of amino acids in a sequence
-     * @param       string      $seq
+     * @param       string      $sSequence
      * @return      array
      * @throws      \Exception
      */
-    function aminoacidContent($seq)
+    public function aminoacidContent($sSequence)
     {
         try {
-            $array = [];
-            foreach($this->aminos as $aminos) {
-                if(isset($aminos["name3Letters"]) && $aminos["name3Letters"] != "N/A") {
-                    $array[$aminos["name1Letter"]] = 0;
+            $aNbAminos = [];
+            foreach($this->aminos as $aAminosData) {
+                if(isset($aAminosData["name3Letters"]) && $aAminosData["name3Letters"] != "N/A") {
+                    $aNbAminos[$aAminosData["name1Letter"]] = 0;
                 }
             }
 
-            for($i = 0; $i < strlen($seq); $i++){
-                $aa = substr($seq, $i,1);
-                $array[$aa]++;
+            for($i = 0; $i < strlen($sSequence); $i++){
+                $sSequence2 = substr($sSequence, $i,1);
+                $aNbAminos[$sSequence2]++;
             }
-            return $array;
+            return $aNbAminos;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -237,19 +242,19 @@ class ProteinPropertiesManager
     /**
      * Prediction of the molar absorption coefficient of a protein
      * Pace et al. . Protein Sci. 1995;4:2411-23.
-     * @param $aminoacid_content
-     * @param $molweight
-     * @return float|int
-     * @throws \Exception
+     * @param   array       $aAminoacidContent
+     * @param   float       $fMolWeight
+     * @return  float
+     * @throws  \Exception
      */
-    public function molarAbsorptionCoefficientOfProt($aminoacid_content, $molweight)
+    public function molarAbsorptionCoefficientOfProt($aAminoacidContent, $fMolWeight)
     {
         try {
             $abscoef = (
-                $aminoacid_content["A"] * 5500
-                + $aminoacid_content["Y"] * 1490
-                + $aminoacid_content["C"] * 125
-                ) / $molweight;
+                $aAminoacidContent["A"] * 5500
+                + $aAminoacidContent["Y"] * 1490
+                + $aAminoacidContent["C"] * 125
+                ) / $fMolWeight;
             return $abscoef;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -258,18 +263,18 @@ class ProteinPropertiesManager
 
     /**
      * Molecular weight calculation
-     * @param   array   $aminoacid_content
+     * @param   array   $aAminoacidContent
      * @return  float
      * @throws  \Exception
      */
-    public function proteinMolecularWeight($aminoacid_content)
+    public function proteinMolecularWeight($aAminoacidContent)
     {
         try {
-            $molweight = 18.02;  // water
-            foreach($aminoacid_content as $key => $amino) {
-                $molweight += $amino * $this->aminos[$key]["residueMolWeight"];
+            $fMolWeight = 18.02;  // water
+            foreach($aAminoacidContent as $key => $sAmino) {
+                $fMolWeight += $sAmino * $this->aminos[$key]["residueMolWeight"];
             }
-            return $molweight;
+            return $fMolWeight;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

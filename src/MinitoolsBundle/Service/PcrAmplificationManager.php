@@ -12,7 +12,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class PcrAmplificationManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class PcrAmplificationManager
 {
@@ -59,6 +59,7 @@ class PcrAmplificationManager
                 }
                 $iPosition += strlen($aFragments[$m]) + strlen($aFragments[$m+1]);
             }
+
             return($aResults);
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -84,7 +85,7 @@ class PcrAmplificationManager
                     $iPos++;
                 }
             }
-            return ($sNewPattern);
+            return $sNewPattern;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
