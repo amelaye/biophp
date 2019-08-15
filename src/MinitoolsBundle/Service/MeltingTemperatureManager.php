@@ -86,79 +86,81 @@ class MeltingTemperatureManager
 
     /**
      * @param $bNearestNeighbor
-     * @param $aTmBaseStacking
-     * @param $primer
-     * @param $cp
-     * @param $cs
-     * @param $cmg
+     * @param   array   $aTmBaseStacking
+     * @param   string  $sPrimer
+     * @param   int     $iConcPrimer
+     * @param   int     $iConcSalt
+     * @param   int     $iConcMg
      * @throws \Exception
      */
-    public function neighborCalculations($bNearestNeighbor, &$aTmBaseStacking, $primer, $cp, $cs, $cmg)
+    public function neighborCalculations($bNearestNeighbor, &$aTmBaseStacking, $sPrimer, $iConcPrimer, $iConcSalt, $iConcMg)
     {
         if($bNearestNeighbor) {
             $aTmBaseStacking = $this->tmBaseStacking(
-                $primer, $cp, $cs, $cmg
+                $sPrimer, $iConcPrimer, $iConcSalt, $iConcMg
             );
         }
     }
 
     /**
      * Gets different informations when degenerated nucleotids are not allowed
-     * @param   string      $primer         Primer string
-     * @param   int         $concPrimer     Primer concentration
-     * @param   int         $concSalt       Salt concentration
-     * @param   int         $concMg         Mg2+ concentration
+     * @param   string      $sPrimer         Primer string
+     * @param   int         $iConcPrimer     Primer concentration
+     * @param   int         $iConcSalt       Salt concentration
+     * @param   int         $iConcMg         Mg2+ concentration
      * @return  array
      * @throws  \Exception
      */
-    public function tmBaseStacking($primer, $concPrimer, $concSalt, $concMg)
+    public function tmBaseStacking($sPrimer, $iConcPrimer, $iConcSalt, $iConcMg)
     {
         try {
             $h = $s = 0;
 
-            $array_h = $this->bioapi->getEnthalpyValues();
-            $array_s = $this->bioapi->getEnthropyValues();
+            $aEnthalpyValues = $this->bioapi->getEnthalpyValues();
+            $aEnthropyValues = $this->bioapi->getEnthropyValues();
 
             // effect on entropy by salt correction; von Ahsen et al 1999
             // Increase of stability due to presence of Mg;
-            $salt_effect = ($concSalt/1000) + (($concMg/1000) * 140);
+            $fSaltEffect = ($iConcSalt/1000) + (($iConcMg/1000) * 140);
             // effect on entropy
-            $s += 0.368 * (strlen($primer)-1) * log($salt_effect);
+            $s += 0.368 * (strlen($sPrimer)-1) * log($fSaltEffect);
 
             // terminal corrections. Santalucia 1998
-            $firstnucleotide = substr($primer,0,1);
-            if($firstnucleotide == "G" || $firstnucleotide == "C") {
+            $sFirstNucleotid = substr($sPrimer,0,1);
+            if($sFirstNucleotid == "G" || $sFirstNucleotid == "C") {
                 $h += 0.1;
                 $s += -2.8;
             }
-            if($firstnucleotide == "A" ||  $firstnucleotide == "T") {
+            if($sFirstNucleotid == "A" ||  $sFirstNucleotid == "T") {
                 $h += 2.3;
                 $s += 4.1;
             }
 
-            $lastnucleotide = substr($primer,strlen($primer)-1,1);
-            if ($lastnucleotide == "G" || $lastnucleotide == "C") {
+            $sLastNucleotid = substr($sPrimer,strlen($sPrimer)-1,1);
+            if ($sLastNucleotid == "G" || $sLastNucleotid == "C") {
                 $h += 0.1;
                 $s += -2.8;
             }
-            if ($lastnucleotide == "A" || $lastnucleotide == "T"){
+            if ($sLastNucleotid == "A" || $sLastNucleotid == "T"){
                 $h += 2.3;
                 $s += 4.1;
             }
 
             // compute new H and s based on sequence. Santalucia 1998
-            for($i = 0; $i < strlen($primer)-1; $i++) {
-                $subc = substr($primer,$i,2);
-                $h += $array_h[$subc];
-                $s += $array_s[$subc];
+            for($i = 0; $i < strlen($sPrimer)-1; $i++) {
+                $subc = substr($sPrimer, $i,2);
+                $h += $aEnthalpyValues[$subc];
+                $s += $aEnthropyValues[$subc];
             }
-            $tm = ((1000 * $h) / ($s + (1.987 * log($concPrimer / 2000000000)))) - 273.15;
+            $tm = ((1000 * $h) / ($s + (1.987 * log($iConcPrimer / 2000000000)))) - 273.15;
 
-            return [
+            $aBaseStacking = [
                 'tm'        => round($tm, 1),
                 'enthalpy'  => round($h,2),
                 'entropy'   => round($s,2)
             ];
+
+            return $aBaseStacking;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -166,26 +168,20 @@ class MeltingTemperatureManager
 
     /**
      * Gets temperature mini
-     * @param       string      $primer     Sequence to analyze
+     * @param       string      $sPrimer     Sequence to analyze
      * @return      float
      * @throws      \Exception
      */
-    public function tmMin($primer)
+    public function tmMin($sPrimer)
     {
         try {
-            $primer_len = strlen($primer);
-            $primer2 = preg_replace("/A|T|Y|R|W|K|M|D|V|H|B|N/","A",$primer);
-            $n_AT = substr_count($primer2,"A");
-            $primer2 = preg_replace("/C|G|S/","G",$primer);
-            $n_CG = substr_count($primer2,"G");
+            $fTemperature = 0;
 
-            if($primer_len > 0) {
-                if($primer_len < 14) {
-                    return round(2 * ($n_AT) + 4 * ($n_CG));
-                } else {
-                    return round(64.9 + 41*(($n_CG-16.4)/$primer_len),1);
-                }
-            }
+            $iPrimerLen = strlen($sPrimer);
+            $sPrimer2 = $this->primerMin($sPrimer);
+            $fTemperature = $this->calculateTemperature($sPrimer2, $iPrimerLen);
+
+            return $fTemperature;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -194,47 +190,130 @@ class MeltingTemperatureManager
 
     /**
      * Gets temperature maxi
-     * @param       string      $primer     Sequence to analyze
+     * @param       string      $sPrimer     Sequence to analyze
      * @return      float
      * @throws      \Exception
      */
-    public function tmMax($primer)
+    public function tmMax($sPrimer)
     {
         try {
-            $primer_len = strlen($primer);
-            $primer = $this->primerMax($primer);
-            $n_AT = substr_count($primer,"A");
-            $n_CG = substr_count($primer,"G");
-            if($primer_len > 0) {
-                if($primer_len < 14) {
-                    return round(2 * ($n_AT) + 4 * ($n_CG));
-                } else {
-                    return round(64.9 + 41*(($n_CG-16.4)/$primer_len),1);
-                }
-            }
+            $iPrimerLen = strlen($sPrimer);
+            $sPrimer2 = $this->primerMax($sPrimer);
+            $fTemperature = $this->calculateTemperature($sPrimer2, $iPrimerLen);
+            return $fTemperature;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
-
 
     /**
-     * Reduces the primer
-     * @param       string      $primer     Sequence to analyze
-     * @return      string
-     * @throws      \Exception
+     * Gets the weight of the sequence
+     * @param   string      $sSequence       Sequence to analyse
+     * @param   string      $sMoltype        DNA or RNA
+     * @param   string      $sLimit          "Upperlimit" or "lowerlimit" (string)
+     * @return  float
+     * @throws  \Exception
      */
-    public function primerMin($primer)
+    public function molwt($sSequence, $sMoltype, $sLimit)
     {
         try {
-            $primer = preg_replace("/A|T|Y|R|W|K|M|D|V|H|B|N/","A",$primer);
-            $primer = preg_replace("/C|G|S/","G",$primer);
-            return $primer;
+            $iWlimit = null;
+            $aWater = $this->bioapi->getWater();
+
+            $aDnaWeightsTemp = $this->bioapi->getDNAWeight();
+            $aRnaWeightsTemp = $this->bioapi->getRNAWeight();
+
+            $aDnaWeights = [
+                'A' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["A"]],  // Adenine
+                'C' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["C"]],  // Cytosine
+                'G' => [$aDnaWeightsTemp["G"], $aDnaWeightsTemp["G"]],  // Guanine
+                'T' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["T"]],  // Thymine
+                'M' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C
+                'R' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["G"]],  // A or G
+                'W' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["A"]],  // A or T
+                'S' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G
+                'Y' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["T"]],  // C or T
+                'K' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // G or T
+                'V' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // A or C or G
+                'H' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C or T
+                'D' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // A or G or T
+                'B' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G or T
+                'X' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // G, A, T or C
+                'N' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]]   // G, A, T or C
+            ];
+
+
+            $aRnaWeights = [
+                'A' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["A"]],  // Adenine
+                'C' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["C"]],  // Cytosine
+                'G' => [$aRnaWeightsTemp["G"], $aRnaWeightsTemp["G"]],  // Guanine
+                'U' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["U"]],  // Uracil
+                'M' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C
+                'R' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["G"]],  // A or G
+                'W' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["A"]],  // A or U
+                'S' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G
+                'Y' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["U"]],  // C or U
+                'K' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // G or U
+                'V' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // A or C or G
+                'H' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C or U
+                'D' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // A or G or U
+                'B' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G or U
+                'X' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // G, A, U or C
+                'N' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]]   // G, A, U or C
+            ];
+
+            $aAllNaWts = ['DNA' => $aDnaWeights, 'RNA' => $aRnaWeights];
+            $aNaWts = $aAllNaWts[$sMoltype];
+
+            $fMwt = 0;
+            $iNALen = strlen($sSequence);
+
+            if($sLimit == "lowerlimit") {
+                $iWlimit = 1;
+            }
+            else if($sLimit == "upperlimit") {
+                $iWlimit = 0;
+            }
+
+            for ($i = 0; $i < $iNALen; $i++) {
+                $sNAbase = substr($sSequence, $i, 1);
+                $fMwt += $aNaWts[$sNAbase][$iWlimit];
+            }
+            $fMwt += $aWater["weight"];
+            return $fMwt;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
+    /**
+     * Gets Temperature
+     * @param   string      $sPrimer
+     * @param   int         $iPrimerLen
+     * @return  float
+     * @throws  \Exception
+     */
+    private function calculateTemperature($sPrimer, $iPrimerLen)
+    {
+        try {
+            $fTemperature = 0;
+
+            $iNbAT = substr_count($sPrimer,"A");
+            $iNbCG = substr_count($sPrimer,"G");
+
+            if($iPrimerLen > 0) {
+                if($iPrimerLen < 14) {
+                    $fTemperature = round(2 * ($iNbAT) + 4 * ($iNbCG));
+                } else {
+                    $fTemperature = round(64.9 + 41 * (($iNbCG - 16.4) / $iPrimerLen),1);
+                }
+            }
+
+            return $fTemperature;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 
     /**
      * Unreduces the primer
@@ -242,7 +321,7 @@ class MeltingTemperatureManager
      * @return      string
      * @throws      \Exception
      */
-    function primerMax($primer)
+    private function primerMax($primer)
     {
         try {
             $primer = preg_replace("/A|T|W/","A",$primer);
@@ -253,81 +332,18 @@ class MeltingTemperatureManager
         }
     }
 
-
     /**
-     * Gets the weight of the sequence
-     * @param   string      $sSequence       Sequence to analyse
-     * @param   string      $sMoltype        DNA or RNA
-     * @param   string      $sLimit          "Upperlimit" or "lowerlimit" (string)
-     * @return  float
-     * @throws  \Exception
+     * Reduces the primer
+     * @param       string      $primer     Sequence to analyze
+     * @return      string
+     * @throws      \Exception
      */
-    function molwt($sSequence, $sMoltype, $sLimit)
+    private function primerMin($primer)
     {
         try {
-            $water = $this->bioapi->getWater();
-            $dnaWeightsTemp = $this->bioapi->getDNAWeight();
-            $rnaWeightsTemp = $this->bioapi->getRNAWeight();
-
-            $dnaWeights = [
-                'A' => [$dnaWeightsTemp["A"], $dnaWeightsTemp["A"]],  // Adenine
-                'C' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["C"]],  // Cytosine
-                'G' => [$dnaWeightsTemp["G"], $dnaWeightsTemp["G"]],  // Guanine
-                'T' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["T"]],  // Thymine
-                'M' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["A"]],  // A or C
-                'R' => [$dnaWeightsTemp["A"], $dnaWeightsTemp["G"]],  // A or G
-                'W' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["A"]],  // A or T
-                'S' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // C or G
-                'Y' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["T"]],  // C or T
-                'K' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["G"]],  // G or T
-                'V' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // A or C or G
-                'H' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["A"]],  // A or C or T
-                'D' => [$dnaWeightsTemp["T"], $dnaWeightsTemp["G"]],  // A or G or T
-                'B' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // C or G or T
-                'X' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]],  // G, A, T or C
-                'N' => [$dnaWeightsTemp["C"], $dnaWeightsTemp["G"]]   // G, A, T or C
-            ];
-
-
-            $rnaWeights = [
-                'A' => [$rnaWeightsTemp["A"], $rnaWeightsTemp["A"]],  // Adenine
-                'C' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["C"]],  // Cytosine
-                'G' => [$rnaWeightsTemp["G"], $rnaWeightsTemp["G"]],  // Guanine
-                'U' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["U"]],  // Uracil
-                'M' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["A"]],  // A or C
-                'R' => [$rnaWeightsTemp["A"], $rnaWeightsTemp["G"]],  // A or G
-                'W' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["A"]],  // A or U
-                'S' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // C or G
-                'Y' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["U"]],  // C or U
-                'K' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["G"]],  // G or U
-                'V' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // A or C or G
-                'H' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["A"]],  // A or C or U
-                'D' => [$rnaWeightsTemp["U"], $rnaWeightsTemp["G"]],  // A or G or U
-                'B' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // C or G or U
-                'X' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]],  // G, A, U or C
-                'N' => [$rnaWeightsTemp["C"], $rnaWeightsTemp["G"]]   // G, A, U or C
-            ];
-
-            $all_na_wts = ['DNA' => $dnaWeights, 'RNA' => $rnaWeights];
-            $na_wts = $all_na_wts[$sMoltype];
-
-            $mwt = 0;
-            $NA_len = strlen($sSequence);
-
-            if($sLimit == "lowerlimit") {
-                $wlimit = 1;
-            }
-            else if($sLimit == "upperlimit") {
-                $wlimit = 0;
-            }
-
-            for ($i = 0; $i < $NA_len; $i++) {
-                $NA_base = substr($sSequence, $i, 1);
-                $mwt += $na_wts[$NA_base][$wlimit];
-            }
-            $mwt += $water["weight"];
-
-            return $mwt;
+            $primer = preg_replace("/A|T|Y|R|W|K|M|D|V|H|B|N/","A",$primer);
+            $primer = preg_replace("/C|G|S/","G",$primer);
+            return $primer;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

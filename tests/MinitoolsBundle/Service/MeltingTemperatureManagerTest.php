@@ -14,6 +14,8 @@ class MeltingTemperatureManagerTest extends TestCase
 
     protected $enthropyValues;
 
+    protected $nucleoMock;
+
     public function setUp()
     {
         $this->enthalpyValues = [
@@ -54,6 +56,30 @@ class MeltingTemperatureManagerTest extends TestCase
             "TT" => -22.2
         ];
 
+        $water = [
+            "@context" => "/contexts/Element",
+            "@id" => "/elements/6",
+            "@type" => "Element",
+            "id" => 6,
+            "name" => "water",
+            "weight" => 18.015
+        ];
+
+        $aDnaWeights = [
+          "A" => 313.245,
+          "T" => 304.225,
+          "G" => 329.245,
+          "C" => 289.215,
+        ];
+
+        $aRnaWeights = [
+          "A" => 329.245,
+          "U" => 306.195,
+          "G" => 345.245,
+          "C" => 305.215
+        ];
+
+
         /**
          * Mock API
          */
@@ -64,10 +90,15 @@ class MeltingTemperatureManagerTest extends TestCase
 
         $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getEnthalpyValues','getEnthropyValues'])
+            ->setMethods(['getEnthalpyValues','getEnthropyValues','getWater','getDNAWeight','getRNAWeight'])
             ->getMock();
         $this->apiMock->method("getEnthalpyValues")->will($this->returnValue($this->enthalpyValues));
         $this->apiMock->method("getEnthropyValues")->will($this->returnValue($this->enthropyValues));
+        $this->apiMock->method("getWater")->will($this->returnValue($water));
+        $this->apiMock->method("getDNAWeight")->will($this->returnValue($aDnaWeights));
+        $this->apiMock->method("getRNAWeight")->will($this->returnValue($aRnaWeights));
+
+        $this->nucleoMock = new NucleotidsManager();
     }
 
     public function testCalculateCG()
@@ -75,10 +106,99 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "AAAATTTGGGGCCCATGCCC";
         $fExpected = 55.0;
 
-        $nucleoMock = new NucleotidsManager();
-
-        $service = new MeltingTemperatureManager($nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
         $testFunction = $service->calculateCG($primer);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testTmBaseStacking()
+    {
+        $primer = "AAAATTTGGGGCCCATGCCC";
+        $concPrimer = "200";
+        $concSalt = "50";
+        $concMg = "2";
+
+        $aExpected = [
+            "tm" => 68.6,
+            "enthalpy" => -152.6,
+            "entropy" => -414.45,
+        ];
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->tmBaseStacking($primer, $concPrimer, $concSalt, $concMg);
+
+        $this->assertEquals($testFunction, $aExpected);
+    }
+
+    public function testTmMinMoreFourteen()
+    {
+        $primer = "AAAATTTGGGGCCCATGCCC";
+        $fExpected =  53.8;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->tmMin($primer);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testTmMinLessFourteen()
+    {
+        $primer = "AAAATTT";
+        $fExpected =  14.0;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->tmMin($primer);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testTmMaxMoreFourteen()
+    {
+        $primer = "AAAATTTGGGGCCCATGCCC";
+        $fExpected =  53.8;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->tmMax($primer);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testTmMaxLessFourteen()
+    {
+        $primer = "GAGAGA";
+        $fExpected =  18.0;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->tmMax($primer);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testMolwtUpperLimit()
+    {
+        $sSequence = "AAAATTTGGGGCCCATGCCC";
+        $sMoltype = "DNA";
+        $sLimit = "upperlimit";
+
+        $fExpected = 6182.655;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
+
+        $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testMolwtLowerLimit()
+    {
+        $sSequence = "AAAATTTGGGGCCCATGCCC";
+        $sMoltype = "DNA";
+        $sLimit = "lowerlimit";
+
+        $fExpected = 6182.655;
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
 
         $this->assertEquals($testFunction, $fExpected);
     }
