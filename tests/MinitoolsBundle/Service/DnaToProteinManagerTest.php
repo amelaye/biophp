@@ -630,7 +630,7 @@ class DnaToProteinManagerTest extends TestCase
         $this->assertEquals($aFrames, $testFunction);
     }
 
-    /*public function testDefinedTreatmentOneFrame()
+    public function testDefinedTreatmentOneFrame()
     {
         $iFrames = "1";
 
@@ -644,11 +644,11 @@ class DnaToProteinManagerTest extends TestCase
         $testFunction = $service->definedTreatment($iFrames, $sGeneticCode, $sSequence);
 
         $aFrames = [
-            1 => "GVRGAVGPRWRPPRDRWATRE*GEQLXQDXXRRGTGGRRGSEGSSWAKMAAAEGPVXDXGVRGAVGPRWRPPRDRWATGSEGSSWAKMAAAEGPVXDAGV"
+            1 => "GVRGAVGPRWRPPRDRWATRE*GEQLGQDGGRRGTGGRRGSEGSSWAKMAAAEGPVGDGGVRGAVGPRWRPPRDRWATGSEGSSWAKMAAAEGPVGDAGV"
         ];
 
         $this->assertEquals($aFrames, $testFunction);
-    }*/
+    }
 
     public function testDefinedTreatmentLess3Frames()
     {
