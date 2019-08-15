@@ -10,7 +10,7 @@ namespace MinitoolsBundle\Service;
 /**
  * Class MicrosatelliteRepeatsFinderManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class MicrosatelliteRepeatsFinderManager
 {
