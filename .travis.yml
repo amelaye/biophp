@@ -17,7 +17,7 @@ script:
   - composer install --no-interaction --no-suggest
   - composer require satooshi/php-coveralls:~1.0@stable # Require phpCoveralls
   - bin/console server:run &
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml --test-suffix .php --colors --report-useless-tests tests/test.php
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml --test-suffix .php --colors
 
 # After success, run sh to bind coveralls
 after_success:
