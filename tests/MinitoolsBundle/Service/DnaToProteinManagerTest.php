@@ -630,7 +630,7 @@ class DnaToProteinManagerTest extends TestCase
         $this->assertEquals($aFrames, $testFunction);
     }
 
-    public function testDefinedTreatmentOneFrame()
+    /*public function testDefinedTreatmentOneFrame()
     {
         $iFrames = "1";
 
@@ -648,7 +648,7 @@ class DnaToProteinManagerTest extends TestCase
         ];
 
         $this->assertEquals($aFrames, $testFunction);
-    }
+    }*/
 
     public function testDefinedTreatmentLess3Frames()
     {

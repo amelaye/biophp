@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 /**
  * Class FastaUploaderManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class FastaUploaderManager
 {
@@ -28,7 +28,7 @@ class FastaUploaderManager
             if(!($sSequence[$i]=='a' || $sSequence[$i]=='A'||
                 $sSequence[$i]=='t'|| $sSequence[$i]=='T' ||
                 $sSequence[$i]=='g'|| $sSequence[$i]=='G'||
-                $sSequence[$i]=='c'|| $sSequence[$i]=='c')) {
+                $sSequence[$i]=='c'|| $sSequence[$i]=='C')) {
                 return false;
             }
         }
