@@ -12,7 +12,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Reduce Protein Alphabet Functions
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ReduceProteinAlphabetManager
 {
@@ -35,7 +35,9 @@ class ReduceProteinAlphabetManager
     public function __construct($protein_colors, Bioapi $bioapi)
     {
         $this->protein_colors   = $protein_colors;
+        dump($this->protein_colors);
         $this->aReductions      = $bioapi->getReductions();
+        dump($this->aReductions);
     }
 
     /**
