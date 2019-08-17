@@ -193,7 +193,6 @@ class RandomSequencesManager
             }
             // get randomized sequence
             $result = $this->randomize($aProteins);
-
             return $result;
         } catch (\Exception $e) {
             throw new \Exception($e);
