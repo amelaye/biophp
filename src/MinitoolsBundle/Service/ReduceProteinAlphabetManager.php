@@ -3,7 +3,7 @@
  * Class ReduceProteinAlphabetManager
  * Inspired by BioPHP's project biophp.org
  * Created 27 february 2019 - RIP Pasha =^._.^= ∫
- * Last modified 7 april 2019
+ * Last modified 18 august 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -19,25 +19,28 @@ class ReduceProteinAlphabetManager
     /**
      * @var array
      */
-    private $protein_colors;
+    private $proteinColors;
 
     /**
      * @var array
      */
     private $aReductions;
 
+    /**
+     * @var Bioapi
+     */
+    private $bioapi;
 
     /**
      * ReduceProteinAlphabetManager constructor.
-     * @param       array   $protein_colors
+     * @param       array   $proteinColors
      * @param       bioapi  $bioapi
      */
-    public function __construct($protein_colors, Bioapi $bioapi)
+    public function __construct($proteinColors, Bioapi $bioapi)
     {
-        $this->protein_colors   = $protein_colors;
-        dump($this->protein_colors);
+        $this->proteinColors    = $proteinColors;
         $this->aReductions      = $bioapi->getReductions();
-        dump($this->aReductions);
+        $this->bioapi           = $bioapi;
     }
 
     /**
@@ -84,6 +87,22 @@ class ReduceProteinAlphabetManager
             }
             $sSequence = strtoupper($sSequence);
             return $sSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Gets the informations about reductions
+     * @param       string      $sType
+     * @return      array
+     * @throws      \Exception
+     */
+    public function createReduceCode($sType)
+    {
+        try {
+            $aReductions = $this->bioapi->getAlphabetInfos($sType);
+            return $aReductions;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

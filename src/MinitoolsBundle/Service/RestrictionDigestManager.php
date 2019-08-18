@@ -53,13 +53,11 @@ class RestrictionDigestManager
      */
     public function __construct(Bioapi $bioapi)
     {
-        $this->vendorLinks = $bioapi->getVendorLinks();
-
-        $this->type2    = $bioapi->getTypeIIEndonucleases();
-        $this->type2s   = $bioapi->getTypeIIsEndonucleases();
-        $this->type2b   = $bioapi->getTypeIIbEndonucleases();
-
-        $this->vendors = $bioapi->getVendors();
+        $this->vendorLinks  = $bioapi->getVendorLinks();
+        $this->type2        = $bioapi->getTypeIIEndonucleases();
+        $this->type2s       = $bioapi->getTypeIIsEndonucleases();
+        $this->type2b       = $bioapi->getTypeIIbEndonucleases();
+        $this->vendors      = $bioapi->getVendors();
     }
 
     /**
@@ -72,6 +70,7 @@ class RestrictionDigestManager
     public function getVendors(&$message, $enzyme)
     {
         try {
+            dump($message, $enzyme);
             $enzyme_array = [];
             // Get array of companies selling each endonuclease
             $vendors = $this->vendors;
@@ -85,7 +84,7 @@ class RestrictionDigestManager
             foreach ($endonuclease as $enzyme) {
                 $enzyme_array[$enzyme] = $this->showVendors($vendors[$enzyme], $enzyme);
             }
-
+            dump($enzyme_array);
             return $enzyme_array;
         } catch (\Exception $e) {
             throw new \Exception($e);
