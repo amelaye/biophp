@@ -24,7 +24,7 @@ use MinitoolsBundle\Service\ReduceProteinAlphabetManager;
 /**
  * Class ProteinController
  * @package MinitoolsBundle\Controller
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ProteinController extends Controller
 {
