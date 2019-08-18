@@ -13,7 +13,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class RestrictionDigestManager
  * @package MinitoolsBundle\Service
- * @author Amelie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amelie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class RestrictionDigestManager
 {
