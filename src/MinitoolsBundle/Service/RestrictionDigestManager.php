@@ -70,7 +70,6 @@ class RestrictionDigestManager
     public function getVendors(&$message, $enzyme)
     {
         try {
-            dump($message, $enzyme);
             $enzyme_array = [];
             // Get array of companies selling each endonuclease
             $vendors = $this->vendors;
@@ -84,7 +83,6 @@ class RestrictionDigestManager
             foreach ($endonuclease as $enzyme) {
                 $enzyme_array[$enzyme] = $this->showVendors($vendors[$enzyme], $enzyme);
             }
-            dump($enzyme_array);
             return $enzyme_array;
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -116,7 +114,6 @@ class RestrictionDigestManager
                 $enzymes_array = array_merge($enzymes_array, $this->type2b);
                 asort($enzymes_array);
             }
-
             return $enzymes_array;
         } catch (\Exception $e) {
             throw new \Exception($e);
