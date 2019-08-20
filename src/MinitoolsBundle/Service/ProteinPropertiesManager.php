@@ -52,22 +52,6 @@ class ProteinPropertiesManager
     }
 
     /**
-     * Calls the API to create reduced Code
-     * @param   string  $sType  Alphabet
-     * @return  array
-     * @throws \Exception
-     */
-    /*public function createReduceCode($sType)
-    {
-        try {
-            $reducedCode = $this->bioapi->getAlphabetInfos($sType);
-            return $reducedCode;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }*/
-
-    /**
      * Converts a subsequence into 3 letters code
      * @param   string      $sSubsequence
      * @return  string

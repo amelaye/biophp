@@ -175,7 +175,8 @@ class DatabaseManager implements RecordingOnLocalDb
 
             foreach($temp_r as $seqid => $line_r) {
                 // Check if the file already exists
-                $collectionElementExists = $this->em->getRepository(CollectionElement::class)->findOneBy(['fileName' => $line_r["filename"]]);
+                $collectionElementExists = $this->em->getRepository(CollectionElement::class)
+                    ->findOneBy(['fileName' => $line_r["filename"]]);
 
                 if(empty($collectionElementExists)) {
                     $collectionElement = new CollectionElement();

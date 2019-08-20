@@ -2,7 +2,7 @@
 /**
  * Inspired by BioPHP's project biophp.org
  * Created 28 february 2019
- * Last modified 20 april 2019
+ * Last modified 20 august 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -12,7 +12,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class SequenceAlignmentManager : Sequence Alignment Functions
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceAlignmentManager
 {
@@ -23,66 +23,37 @@ class SequenceAlignmentManager
 
     /**
      * SequenceAlignmentManager constructor.
-     * @param   array   $pam250Matrix
+     * @param   Bioapi   $bioapi
      */
     public function __construct(Bioapi $bioapi)
     {
-        //$this->pam250Matrix = $pam250Matrix;
         $this->pam250Matrix = $bioapi->getPam250Matrix();
     }
 
-
     /**
-     * @param $seqa
-     * @param $seqb
-     * @return mixed
+     * First step before generate ADN matrix
+     * @param $matriz
+     * @param $mj
+     * @param $mi
+     * @param $maxa
+     * @param $maxb
+     * @param $a
+     * @param $b
+     * @param $match
+     * @return int|mixed
      */
-    public function alignDNA($seqa, $seqb)
+    public function step1(&$matriz, &$mj, &$mi, $maxa, $maxb, $a, $b, $match)
     {
-        $match = 2;
-        //$mismatch = -1;
-        //$gap = -4;
-        $matriz = array();
-
-        $a = preg_split('//', $seqa, -1, PREG_SPLIT_NO_EMPTY);
-        $b = preg_split('//', $seqb, -1, PREG_SPLIT_NO_EMPTY);
-        $maxa = sizeof($a);
-        $maxb = sizeof($b);
-        $lenn = max($maxa,$maxb);
-
-        // Creaci�n de la matriz
-        // He reducido el c�digo para hacerlo mas simple y rapido, pero tan solo ahorra un 20% del tiempo
-        // Con matrices muy grandes, PHP no sabe trabajar muy bien (es poco eficaz).
         $mx = 0;
         for($i = 0; $i < $maxa; $i ++) {
             for ($j = 0; $j < $maxb; $j++) {
                 if($b[$j] == $a[$i]) {
-                    if(!isset($matriz[$j-1][$i - 1])) {
-                        $x = 0 + $match;
-                    } else {
-                        $x = $matriz[$j - 1][$i - 1] + $match;
-                    }
+                    $x = (!isset($matriz[$j-1][$i - 1])) ? (0 + $match) : ($matriz[$j - 1][$i - 1] + $match);
                 } else {
-                    if(isset($matriz[$j-1][$i-1])) {
-                        $value2 = $matriz[$j-1][$i-1] - 1;
-                    } else {
-                        $value2 = - 1;
-                    }
-
-                    if(isset($matriz[$j][$i-1])) {
-                        $value3 = $matriz[$j][$i-1] - 4;
-                    } else {
-                        $value3 = -4;
-                    }
-
-                    if(isset($matriz[$j-1][$i])){
-                        $value4 = $matriz[$j-1][$i] - 4;
-                    } else {
-                        $value4 = -4;
-                    }
-
+                    $value2 = isset($matriz[$j-1][$i-1]) ? $matriz[$j-1][$i-1] - 1 : -1;
+                    $value3 = isset($matriz[$j][$i-1]) ? $matriz[$j][$i-1] - 4 : -4;
+                    $value4 = isset($matriz[$j-1][$i]) ? $matriz[$j-1][$i] - 4 : -4;
                     $x = max(0, $value2, $value3, $value4);
-
                 }
                 $matriz[$j][$i] = $x;
                 if ($mx < $x) {
@@ -92,105 +63,110 @@ class SequenceAlignmentManager
                 }
             }
         }
-        // Matriz terminada
+        return $mx;
+    }
 
+    /**
+     * First step of the matrix generation
+     * @param $matriz
+     * @param $mj
+     * @param $mi
+     * @return mixed
+     */
+    public function createMatrixx($matriz, $mj, $mi)
+    {
         $j = $mj;
         $i = $mi;
 
-        $matrizz[$j][$i] = 1;
+        $matrizz[$j][$i] = 1;                           // matrixx(n, m) = 1
 
         while ($i > 0 || $j > 0) {
-            if(isset($matriz[$j-1][$i-1]))
-                $aa = $matriz[$j-1][$i-1];
-            else
-                $aa = 0;
-
-            if(isset($matriz[$j][$i-1]))
-                $ab = $matriz[$j][$i-1];
-            else
-                $ab = 0;
-
-            if(isset($matriz[$j-1][$i]))
-                $ac = $matriz[$j-1][$i];
-            else
-                $ac = 0;
-
-            if($aa != '//' || $aa == 0) {
-                if($aa >= $ab && $aa >= $ac) {
-                    $j = $j-1;
-                    $i = $i-1;
+            $aa = $matriz[$j-1][$i-1] ?? 0;                  // a = matrix(n - 1, m - 1)
+            $ab = $matriz[$j][$i-1] ?? 0;                    // b = matrix(n, m - 1)
+            $ac = $matriz[$j-1][$i] ?? 0;                    // c = matrix(n - 1, m)
+            if($aa != '//' || $aa == 0) {               // If a <> "" Then
+                if($aa >= $ab && $aa >= $ac) {          // If a >= b And a >= c Then
+                    $j = $j - 1;                        // n = n - 1: m = m - 1
+                    $i = $i - 1;
                 }
-                if($ab > $aa) {
-                    $i = $i-1;
+                if($ab > $aa) {                         // If b > a Then m = m - 1
+                    $i = $i - 1;
                 }
-                if($ac > $aa) {
-                    $j = $j-1;
+                if($ac > $aa) {                         // If c > a Then n = n - 1
+                    $j = $j - 1;
                 }
-            } else {
-                if($ab != '//') {
-                    $i = $i-1;
+            } else {                                    // If a = "" Then
+                if($ab != '//' || $ab == 0) {           // If b <> "" Then m = m - 1
+                    $i = $i - 1;
                 }
-                if($ac != '//') {
-                    $j = $j-1;
+                if($ac != '//' || $ac == 0) {           // If c <> "" Then n = n - 1
+                    $j = $j - 1;
                 }
             }
-            if($j < 0) {
+            if($j < 0) {                                // If n = 0 Then n = 1
                 $j = 0;
             }
-            if($i<0) {
+            if($i < 0) {                                // If m = 0 Then m = 1
                 $i = 0;
             }
-            $matrizz[$j][$i] = 1;
+            $matrizz[$j][$i] = 1;                       // matrixx(n, m) = 1
         }
+        return $matrizz;
+    }
 
-
-        $j = $mj;
-        $i = $mi;
+    public function createMatrixx2($matrizz, $mi, $mj, $matriz, $seqa, $seqb, $lenn)
+    {
+        $j = $mj; //n = mn
+        $i = $mi; //m = mm
 
         while($i < strlen($seqa)-1 || $j < strlen($seqb)-1) {
-            if(isset($matriz[$j+1][$i+1]))
-                $aa = $matriz[$j+1][$i+1];
-            else
-                $aa = 0;
-
-            if(isset($matriz[$j][$i+1]))
-                $ab = $matriz[$j][$i+1];
-            else
-                $ab = 0;
-
-            if(isset($matriz[$j+1][$i]))
-                $ac = $matriz[$j+1][$i];
-            else
-                $ac = 0;
-
-            if($aa != '//') {
-                if($aa >= $ab && $aa >= $ac) {
-                    $j = $j+1;
-                    $i = $i+1;
+            $aa = $matriz[$j+1][$i+1]   ?? 0;                  //a = matrix(n + 1, m + 1)
+            $ab = $matriz[$j][$i+1]     ?? 0;                    //b = matrix(n, m + 1)
+            $ac = $matriz[$j+1][$i]     ?? 0;                    //c = matrix(n + 1, m)
+            if($aa != '//' || $aa == 0) {               //If a <> "" Then
+                if($aa >= $ab && $aa >= $ac) {          //If a >= b And a >= c Then
+                    $j = $j + 1;                        // n = n - 1: m = m - 1
+                    $i = $i + 1;
                 }
-                if($ab > $aa) {
-                    $i = $i+1;
+                if($ab > $aa) {                         //If b > a Then m = m - 1
+                    $i = $i + 1;
                 }
-                if($ac > $aa) {
-                    $j=$j+1;
+                if($ac > $aa) {                         //If c > a Then n = n - 1
+                    $j = $j + 1;
                 }
-            } else {
-                if($ab != '//') {
-                    $i = $i+1;
+            } else {                                    //If a = "" Then
+                if($ab != '//' or $ab == 0) {           //    If b <> "" Then m = m - 1
+                    $i = $i + 1;
                 }
-                if($ac != '//') {
-                    $j = $j+1;
+                if($ac != '//' or $ac == 0) {           //    If c <> "" Then n = n - 1
+                    $j = $j + 1;
                 }
             }
-            if($j > $lenn) {
+            if($j > $lenn) {                            //If n > lenn Then n = lenn
                 $j = $lenn;
             }
-            if($i > $lenn) {
+            if($i > $lenn) {                            //If m > lenn Then m = lenn
                 $i = $lenn;
             }
-            $matrizz[$j][$i] = 1;
+            $matrizz[$j][$i] = 1;                       //matrixx(n, m) = 1
         }
 
+        return $matrizz;
+    }
+
+    /**
+     * We get the last letter of the amino, his opposite, repeat the last position
+     * @param $matrizz
+     * @param $seqa
+     * @param $seqb
+     * @param $a
+     * @param $b
+     * @param $maxa
+     * @param $maxb
+     * @return mixed
+     */
+    public function generateresults($matrizz, $seqa, $seqb, $a, $b, $maxa, $maxb)
+    {
         $j = 0;
         $i = 0;
         $t = 1;
@@ -220,7 +196,6 @@ class SequenceAlignmentManager
                 $j = $j+1;
             }
         }
-
 
         if($matrizz[$j+1][$i+1] == 1) {
             $sseqa .= $a[$i];
@@ -258,10 +233,38 @@ class SequenceAlignmentManager
             }
         }
 
-        // tengo que quitar la �ltima letra del alineamiento, de lo contrario, se repite la ultima posici�n
-        // por que se da la repetici�n?
         $results["seqa"] = substr($sseqa,0,strlen($sseqa)-1);
         $results["seqb"] = substr($sseqb,0,strlen($sseqb)-1);
+
+        return $results;
+    }
+
+    /**
+     * Matrix Creation
+     * That reduces the code to make it more simple and fast, but lag of 20%
+     * With bigger matrixes, PHP can have a timeout error
+     * @param $seqa
+     * @param $seqb
+     * @return mixed
+     */
+    public function alignDNA($seqa, $seqb)
+    {
+        $match = 2;
+        $matriz = array();
+
+        $a = preg_split('//', $seqa, -1, PREG_SPLIT_NO_EMPTY);
+        $b = preg_split('//', $seqb, -1, PREG_SPLIT_NO_EMPTY);
+        $maxa = sizeof($a);
+        $maxb = sizeof($b);
+        $lenn = max($maxa,$maxb);
+
+        $mj = 0;
+        $mi = 0;
+        $mx = $this->step1($matriz, $mj, $mi, $maxa, $maxb, $a, $b, $match); // Matrix created
+
+        $matrizz = $this->createMatrixx($matriz, $mj, $mi);
+        $matrizz = $this->createMatrixx2($matrizz, $mi, $mj, $matriz, $seqa, $seqb, $lenn);
+        $results = $this->generateResults($matrizz, $seqa, $seqb, $a, $b, $maxa, $maxb);
 
         return $results;
     }
@@ -283,6 +286,8 @@ class SequenceAlignmentManager
         $maxb = sizeof($arrayb);
         $a = $arraya;
         $lenn = $maxa;
+
+
         if($maxb > $lenn) {
             $lenn = $maxb;
         }
@@ -325,80 +330,17 @@ class SequenceAlignmentManager
                 }
             }
         }
-        $j = $mj;
-        $i = $mi;
-        $matrizz[$j][$i] = 1;                           // matrixx(n, m) = 1
-        while ($i > 0 || $j > 0) {
-            $aa = $matriz[$j-1][$i-1];                  // a = matrix(n - 1, m - 1)
-            $ab = $matriz[$j][$i-1];                    // b = matrix(n, m - 1)
-            $ac = $matriz[$j-1][$i];                    // c = matrix(n - 1, m)
-            if($aa != '//' || $aa == 0) {               // If a <> "" Then
-                if($aa >= $ab && $aa >= $ac) {          // If a >= b And a >= c Then
-                    $j = $j - 1;                        // n = n - 1: m = m - 1
-                    $i = $i - 1;
-                }
-                if($ab > $aa) {                         // If b > a Then m = m - 1
-                    $i = $i - 1;
-                }
-                if($ac > $aa) {                         // If c > a Then n = n - 1
-                    $j = $j - 1;
-                }
-            } else {                                    // If a = "" Then
-                if($ab != '//' || $ab == 0) {           // If b <> "" Then m = m - 1
-                    $i = $i - 1;
-                }
-                if($ac != '//' || $ac == 0) {           // If c <> "" Then n = n - 1
-                    $j = $j - 1;
-                }
-            }
-            if($j < 0) {                                // If n = 0 Then n = 1
-                $j = 0;
-            }
-            if($i < 0) {                                // If m = 0 Then m = 1
-                $i = 0;
-            }
-            $matrizz[$j][$i] = 1;                       // matrixx(n, m) = 1
-        }
 
-        $j = $mj; //n = mn
-        $i = $mi; //m = mm
-
-        while($i < strlen($seqa)-1 || $j < strlen($seqb)-1) {
-            $aa = $matriz[$j+1][$i+1];                  //a = matrix(n + 1, m + 1)
-            $ab = $matriz[$j][$i+1];                    //b = matrix(n, m + 1)
-            $ac = $matriz[$j+1][$i];                    //c = matrix(n + 1, m)
-            if($aa != '//' || $aa == 0) {               //If a <> "" Then
-                if($aa >= $ab && $aa >= $ac) {          //If a >= b And a >= c Then
-                    $j = $j + 1;                        // n = n - 1: m = m - 1
-                    $i = $i + 1;
-                }
-                if($ab > $aa) {                         //If b > a Then m = m - 1
-                    $i = $i + 1;
-                }
-                if($ac > $aa) {                         //If c > a Then n = n - 1
-                    $j = $j + 1;
-                }
-            } else {                                    //If a = "" Then
-                if($ab != '//' or $ab == 0) {           //    If b <> "" Then m = m - 1
-                    $i = $i + 1;
-                }
-                if($ac != '//' or $ac == 0) {           //    If c <> "" Then n = n - 1
-                    $j = $j + 1;
-                }
-            }
-            if($j > $lenn) {                            //If n > lenn Then n = lenn
-                $j = $lenn;
-            }
-            if($i > $lenn) {                            //If m > lenn Then m = lenn
-                $i = $lenn;
-            }
-            $matrizz[$j][$i] = 1;                       //matrixx(n, m) = 1
-        }
-
+        $matrizz = $this->createMatrixx($matriz, $mj, $mi);
+        $matrizz = $this->createMatrixx2($matrizz, $mi, $mj, $matriz, $seqa, $seqb, $lenn);
 
         $j = 0;
         $i = 0;
         $t = 1;
+
+        $sseqa = "";
+        $sseqb = "";
+
         while ($i < strlen($seqa)-2 && $j < strlen($seqb)-2 && $t = 1) {
             $t = 0;
             if($matrizz[$j+1][$i+1] == 1) {
