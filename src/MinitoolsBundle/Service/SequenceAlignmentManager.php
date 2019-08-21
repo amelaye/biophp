@@ -72,6 +72,68 @@ class SequenceAlignmentManager
     }
 
     /**
+     * First step before generate protein matrix
+     * @param       array       $aMatrix
+     * @param       int         $mj
+     * @param       int         $mi
+     * @param       int         $iMaxA
+     * @param       int         $iMaxb
+     * @param       array       $aSequenceA
+     * @param       array       $aSequenceB
+     * @return      int
+     * @throws      \Exception
+     */
+    public function step1Protein(&$aMatrix, &$mj, &$mi, $iMaxA, $iMaxb, $aSequenceA, $aSequenceB)
+    {
+        try {
+            $PAM250 = $this->pam250Matrix;
+            $iGap = -50;
+
+            for($i = 0; $i < $iMaxA; $i++) {
+                $aMatrix[0][$i] = $PAM250["$aSequenceA[$i]$aSequenceB[0]"];
+            }
+            for($i = 0; $i < $iMaxb; $i++){
+                $aMatrix[$i][0] = $PAM250["$aSequenceB[$i]$aSequenceA[0]"];
+            }
+            for($i = 1; $i < $iMaxA; $i++) {
+                for($j = 1; $j < $iMaxb; $j++) {
+                    if($aSequenceB[$j] == $aSequenceA[$i]) {
+                        $x = $aMatrix[$j-1][$i-1] + $PAM250["$aSequenceB[$j]$aSequenceA[$i]"];//$x=$matriz[$j-1][$i-1]+$match;
+                    } else {
+                        $x = $aMatrix[$j-1][$i-1] + $PAM250["$aSequenceB[$j]$aSequenceA[$i]"];//$x=$matriz[$j-1][$i-1]+$mismatch;
+                        $y = $aMatrix[$j][$i-1] + $iGap;
+                        if($y > $x) {
+                            $x = $y;
+                        }
+                        $y = $aMatrix[$j-1][$i] + $iGap;
+                        if($y > $x) {
+                            $x = $y;
+                        }
+                        if($x < 0) {
+                            $x = 0;
+                        }
+                    }
+                    $aMatrix[$j][$i] = $x;
+                    $x = 0;
+                } // end for $j
+            }
+            $mx = 0;
+            for($i = 0; $i < $iMaxA; $i++) {
+                for ($j = 0; $j < $iMaxb; $j++) {
+                    if($mx < $aMatrix[$j][$i]) {
+                        $mx = $aMatrix[$j][$i];
+                        $mj = $j;
+                        $mi = $i;
+                    }
+                }
+            }
+            return $mx;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
      * First step of the matrix array filling
      * @param       array       $aTempMatrix    Temporary matrix array
      * @param       int         $j
@@ -79,7 +141,7 @@ class SequenceAlignmentManager
      * @return      array
      * @throws      \Exception
      */
-    public function createMatrixx($aTempMatrix, $j, $i)
+    public function fillMatrix($aTempMatrix, $j, $i)
     {
         try {
             $aMyMatrix[$j][$i] = 1;                         // matrixx(n, m) = 1
@@ -134,7 +196,7 @@ class SequenceAlignmentManager
      * @return      array
      * @throws      \Exception
      */
-    public function createMatrixx2($aMyMatrix, $i, $j, $aTempMatrix, $sSequenceA, $sSequenceB, $iLength)
+    public function fillMatrix2($aMyMatrix, $i, $j, $aTempMatrix, $sSequenceA, $sSequenceB, $iLength)
     {
         try {
             while($i < strlen($sSequenceA) - 1 || $j < strlen($sSequenceB) - 1) {
@@ -218,11 +280,11 @@ class SequenceAlignmentManager
             }
 
             if($aMatrix[$j+1][$i+1] == 1) {
+                $t = 1;
                 $sSeqa .= $aSequenceA[$i];
                 $sSeqb .= $aSequenceB[$j];
                 $i = $i+1;
                 $j = $j+1;
-                $t = 1;
             }
             if($t == 0 && $aMatrix[$j][$i+1] == 1) {
                 $sSeqa .= $aSequenceA[$i];
@@ -256,7 +318,7 @@ class SequenceAlignmentManager
             if(!$bIsProt) { // Case DNA
                 $aResults["seqa"] = substr($sSeqa,0,strlen($sSeqa)-1);
                 $aResults["seqb"] = substr($sSeqb,0,strlen($sSeqb)-1);
-            } else {
+            } else { // Case protein
                 $aResults["seqa"] = $sSeqa;
                 $aResults["seqb"] = $sSeqb;
             }
@@ -290,8 +352,8 @@ class SequenceAlignmentManager
             $iLength = max($iMaxA, $iMaxB);
 
             $x = $this->step1($aMatrix, $j, $i, $iMaxA, $iMaxB, $aSequenceA, $aSequenceB, $iMatch); // Matrix created
-            $aMyMatrix = $this->createMatrixx($aMatrix, $j, $i);
-            $aMyMatrix = $this->createMatrixx2($aMyMatrix, $i, $j, $aMatrix, $sSequenceA, $sSequenceB, $iLength);
+            $aMyMatrix = $this->fillMatrix($aMatrix, $j, $i);
+            $aMyMatrix = $this->fillMatrix2($aMyMatrix, $i, $j, $aMatrix, $sSequenceA, $sSequenceB, $iLength);
             $aResults = $this->generateResults($aMyMatrix, $sSequenceA, $sSequenceB, $aSequenceA, $aSequenceB, $iMaxA, $iMaxB, 0);
 
             return $aResults;
@@ -302,70 +364,36 @@ class SequenceAlignmentManager
 
 
     /**
-     * @param $seqa
-     * @param $seqb
-     * @return mixed
+     * Matrix creation for Protein
+     * @param       string      $sSequenceA
+     * @param       string      $sSequenceB
+     * @return      array
+     * @throws      \Exception
      */
-    public function alignProteins($seqa, $seqb)
+    public function alignProteins($sSequenceA, $sSequenceB)
     {
-        $PAM250 = $this->pam250Matrix;
+        try {
+            $aMatrix = array();
+            $j = $i = 0;
 
-        $gap = -50;
-        $arraya = preg_split('//', $seqa, -1, PREG_SPLIT_NO_EMPTY);
-        $arrayb = preg_split('//', $seqb, -1, PREG_SPLIT_NO_EMPTY);
-        $maxa = sizeof($arraya);
-        $maxb = sizeof($arrayb);
-        $a = $arraya;
-        $lenn = $maxa;
+            $aSequenceA = preg_split('//', $sSequenceA, -1, PREG_SPLIT_NO_EMPTY);
+            $aSequenceB = preg_split('//', $sSequenceB, -1, PREG_SPLIT_NO_EMPTY);
+            $iMaxA = sizeof($aSequenceA);
+            $iMaxB = sizeof($aSequenceB);
 
-
-        if($maxb > $lenn) {
-            $lenn = $maxb;
-        }
-        $b = $arrayb;
-        for($i = 0; $i < $maxa; $i++) {
-            $matriz[0][$i] = $PAM250["$a[$i]$b[0]"];
-        }
-        for($i = 0; $i < $maxb; $i++){
-            $matriz[$i][0] = $PAM250["$b[$i]$a[0]"];
-        }
-        for($i = 1; $i < $maxa; $i++) {
-            for($j = 1; $j < $maxb; $j++) {
-                if($b[$j] == $a[$i]) {
-                    $x = $matriz[$j-1][$i-1] + $PAM250["$b[$j]$a[$i]"];//$x=$matriz[$j-1][$i-1]+$match;
-                } else {
-                    $x = $matriz[$j-1][$i-1] + $PAM250["$b[$j]$a[$i]"];//$x=$matriz[$j-1][$i-1]+$mismatch;
-                    $y = $matriz[$j][$i-1] + $gap;
-                    if($y > $x) {
-                        $x = $y;
-                    }
-                    $y = $matriz[$j-1][$i] + $gap;
-                    if($y > $x) {
-                        $x = $y;
-                    }
-                    if($x < 0) {
-                        $x = 0;
-                    }
-                }
-                $matriz[$j][$i] = $x;
-                $x = 0;
-            } // end for $j
-        }
-        $mx = 0;
-        for($i = 0; $i < $maxa; $i++) {
-            for ($j = 0; $j < $maxb; $j++) {
-                if($mx < $matriz[$j][$i]) {
-                    $mx = $matriz[$j][$i];
-                    $mj = $j;
-                    $mi = $i;
-                }
+            $iLength = $iMaxA;
+            if($iMaxB > $iLength) {
+                $iLength = $iMaxB;
             }
-        }
 
-        $matrizz = $this->createMatrixx($matriz, $mj, $mi);
-        $matrizz = $this->createMatrixx2($matrizz, $mi, $mj, $matriz, $seqa, $seqb, $lenn);
-        $results = $this->generateResults($matrizz, $seqa, $seqb, $a, $b, $maxa, $maxb, 1);
-        return $results;
+            $mx = $this->step1Protein($aMatrix, $j, $i, $iMaxA, $iMaxB, $aSequenceA, $aSequenceB);
+            $aMyMatrix = $this->fillMatrix($aMatrix, $j, $i);
+            $aMyMatrix = $this->fillMatrix2($aMyMatrix, $i, $j, $aMatrix, $sSequenceA, $sSequenceB, $iLength);
+            $aResults = $this->generateResults($aMyMatrix, $sSequenceA, $sSequenceB, $aSequenceA, $aSequenceB, $iMaxA, $iMaxB, 1);
+            return $aResults;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**

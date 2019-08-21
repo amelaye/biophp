@@ -445,6 +445,361 @@ class SequenceAlignmentManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testGenerateResultsProtein()
+    {
+        $aMatrix = [
+          51 => [
+            27 => 1
+          ],
+          50 => [
+            26 => 1
+          ],
+          49 => [
+            25 => 1
+          ],
+          48 => [
+            24 => 1
+          ],
+          47 => [
+            23 => 1
+          ],
+          46 => [
+            22 => 1
+          ],
+          45 => [
+            21 => 1
+          ],
+          44 => [
+            20 => 1
+          ],
+          43 => [
+            20 => 1
+          ],
+          42 => [
+            19 => 1
+          ],
+          41 => [
+            18 => 1
+          ],
+          40 => [
+            17 => 1
+          ],
+          39 => [
+            16 => 1
+          ],
+          38 => [
+            15 => 1
+          ],
+          37 => [
+            14 => 1
+          ],
+          36 => [
+            13 => 1
+          ],
+          35 => [
+            12 => 1
+          ],
+          34 => [
+            11 => 1
+          ],
+          33 => [
+            10 => 1
+          ],
+          32 => [
+            9 => 1
+          ],
+          31 => [
+            8 => 1
+          ],
+          30 => [
+            8 => 1
+          ],
+          29 => [
+            8 => 1
+          ],
+          28 => [
+            7 => 1,
+            6 => 1
+          ],
+          27 => [
+            5 => 1,
+          ],
+          26 => [
+            4 => 1
+          ],
+          25 => [
+            3 => 1
+          ],
+          24 => [
+            2 => 1
+          ],
+          23 => [
+            1 => 1
+          ],
+          22 => [
+            0 => 1
+          ],
+          21 => [
+            0 => 1
+          ],
+          20 => [
+            0 => 1
+          ],
+          19 => [
+            0 => 1
+          ],
+          18 => [
+            0 => 1
+          ],
+          17 => [
+            0 => 1
+          ],
+          16 => [
+            0 => 1
+          ],
+          15 => [
+            0 => 1
+          ],
+          14 => [
+            0 => 1
+          ],
+          13 => [
+            0 => 1
+          ],
+          12 => [
+            0 => 1
+          ],
+          11 => [
+            0 => 1
+          ],
+          10 => [
+            0 => 1
+          ],
+          9 => [
+            0 => 1
+          ],
+          8 => [
+            0 => 1
+          ],
+          7 => [
+            0 => 1
+          ],
+          6 => [
+            0 => 1
+          ],
+          5 => [
+            0 => 1
+          ],
+          4 => [
+            0 => 1
+          ],
+          3 => [
+            0 => 1
+          ],
+          2 => [
+            0 => 1
+          ],
+          1 => [
+            0 => 1
+          ],
+          0 => [
+            0 => 1
+          ],
+          52 => [
+            28 => 1
+          ],
+          53 => [
+            29 => 1
+          ],
+          54 => [
+            30 => 1
+          ],
+          55 => [
+            31 => 1
+          ],
+          56 => [
+            32 => 1
+          ],
+          57 => [
+            33 => 1
+          ],
+          58 => [
+            34 => 1
+          ],
+          59 => [
+            35 => 1
+          ],
+          60 => [
+            36 => 1,
+            37 => 1,
+            38 => 1,
+            39 => 1,
+            40 => 1,
+            41 => 1,
+            42 => 1,
+            43 => 1,
+            44 => 1,
+            45 => 1,
+            46 => 1,
+            47 => 1,
+            48 => 1,
+            49 => 1,
+            50 => 1,
+            51 => 1,
+            52 => 1,
+            53 => 1,
+            54 => 1,
+            55 => 1,
+            56 => 1,
+            57 => 1,
+            58 => 1,
+            59 => 1,
+          ],
+        ];
+        $sSequenceA = "DHAPTQERTYKYIGFENTCRFSMDQDCWNDSHQYVMTSDAAMKYGKVTGHYGFTVHKERC";
+        $sSequenceB = "VYYESGSPRCQKHTIHPVRVYQEFGRRQKTIEYPKCGFARWTEEFHMIKNAWWQYRTHEF";
+
+        $aSequenceA = [
+          0 => "D",
+          1 => "H",
+          2 => "A",
+          3 => "P",
+          4 => "T",
+          5 => "Q",
+          6 => "E",
+          7 => "R",
+          8 => "T",
+          9 => "Y",
+          10 => "K",
+          11 => "Y",
+          12 => "I",
+          13 => "G",
+          14 => "F",
+          15 => "E",
+          16 => "N",
+          17 => "T",
+          18 => "C",
+          19 => "R",
+          20 => "F",
+          21 => "S",
+          22 => "M",
+          23 => "D",
+          24 => "Q",
+          25 => "D",
+          26 => "C",
+          27 => "W",
+          28 => "N",
+          29 => "D",
+          30 => "S",
+          31 => "H",
+          32 => "Q",
+          33 => "Y",
+          34 => "V",
+          35 => "M",
+          36 => "T",
+          37 => "S",
+          38 => "D",
+          39 => "A",
+          40 => "A",
+          41 => "M",
+          42 => "K",
+          43 => "Y",
+          44 => "G",
+          45 => "K",
+          46 => "V",
+          47 => "T",
+          48 => "G",
+          49 => "H",
+          50 => "Y",
+          51 => "G",
+          52 => "F",
+          53 => "T",
+          54 => "V",
+          55 => "H",
+          56 => "K",
+          57 => "E",
+          58 => "R",
+          59 => "C",
+        ];
+
+        $aSequenceB = [
+          0 => "V",
+          1 => "Y",
+          2 => "Y",
+          3 => "E",
+          4 => "S",
+          5 => "G",
+          6 => "S",
+          7 => "P",
+          8 => "R",
+          9 => "C",
+          10 => "Q",
+          11 => "K",
+          12 => "H",
+          13 => "T",
+          14 => "I",
+          15 => "H",
+          16 => "P",
+          17 => "V",
+          18 => "R",
+          19 => "V",
+          20 => "Y",
+          21 => "Q",
+          22 => "E",
+          23 => "F",
+          24 => "G",
+          25 => "R",
+          26 => "R",
+          27 => "Q",
+          28 => "K",
+          29 => "T",
+          30 => "I",
+          31 => "E",
+          32 => "Y",
+          33 => "P",
+          34 => "K",
+          35 => "C",
+          36 => "G",
+          37 => "F",
+          38 => "A",
+          39 => "R",
+          40 => "W",
+          41 => "T",
+          42 => "E",
+          43 => "E",
+          44 => "F",
+          45 => "H",
+          46 => "M",
+          47 => "I",
+          48 => "K",
+          49 => "N",
+          50 => "A",
+          51 => "W",
+          52 => "W",
+          53 => "Q",
+          54 => "Y",
+          55 => "R",
+          56 => "T",
+          57 => "H",
+          58 => "E",
+          59 => "F",
+        ];
+
+        $iMaxA = 60;
+        $iMaxB = 60;
+        $bIsProt = 1;
+
+        $aExpected = [
+          "seqa" => "----------------------DHAPTQER--TYKYIGFENTCR-FSMDQDCWNDSHQYVMTSDAAMKYGKVTGHYGFTVHKERC",
+          "seqb" => "VYYESGSPRCQKHTIHPVRVYQEFGRRQ-KTIEYPKCGFARWTEEFHMIKNAWWQYRTHEF------------------------"
+        ];
+
+        $service = new SequenceAlignmentManager($this->apiMock);
+        $testFunction = $service->generateresults($aMatrix, $sSequenceA, $sSequenceB, $aSequenceA, $aSequenceB, $iMaxA, $iMaxB, $bIsProt);
+
+        $this->assertEquals($aExpected, $testFunction);
+    }
+
     public function testGenerateResultsDNA()
     {
         $matrizz = [
@@ -1081,5 +1436,19 @@ class SequenceAlignmentManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testAlignProteins()
+    {
+        $seqa = "DHAPTQERTYKYIGFENTCRFSMDQDCWNDSHQYVMTSDAAMKYGKVTGHYGFTVHKERC";
+        $seqb = "VYYESGSPRCQKHTIHPVRVYQEFGRRQKTIEYPKCGFARWTEEFHMIKNAWWQYRTHEF";
 
+        $aExpected = [
+          "seqa" => "----------------------DHAPTQER--TYKYIGFENTCR-FSMDQDCWNDSHQYVMTSDAAMKYGKVTGHYGFTVHKERC",
+          "seqb" => "VYYESGSPRCQKHTIHPVRVYQEFGRRQ-KTIEYPKCGFARWTEEFHMIKNAWWQYRTHEF------------------------"
+        ];
+
+        $service = new SequenceAlignmentManager($this->apiMock);
+        $testFunction = $service->alignProteins($seqa, $seqb);
+
+        $this->assertEquals($aExpected, $testFunction);
+    }
 }
