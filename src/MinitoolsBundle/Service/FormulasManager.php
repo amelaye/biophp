@@ -1,10 +1,9 @@
 <?php
 /**
  * Formulas Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 3 march  2019
- * Last modified 19 march 2019
+ * Last modified 21 august 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
@@ -12,239 +11,368 @@ namespace MinitoolsBundle\Service;
 /**
  * Class FormulasManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
- * @todo :  la classe n'est pas finie, ni commentée !
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class FormulasManager
 {
     /**
-     * DNA Functions
-     *
+     * Calculation of molecular weight in Dalton
+     * MW of dsDNA = [number of basepairs] x [660 Da]
+     * @param       string          $sSequence
+     * @return      float|int
+     * @throws      \Exception
      */
-    /**
-     * @param $sequence
-     * @return float|int
-     */
-    public function MW_of_dsDNA($sequence)
+    public function mwOfDsDNA($sSequence)
     {
-        $no_base_pair=strlen($sequence);
-        return ($no_base_pair * 660);
+        try {
+            $iNbBasePair = strlen($sSequence);
+            return ($iNbBasePair * 660);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**
-     * @param $sequence
-     * @return float|int
+     * Calculation of molecular weight in Dalton
+     * MW of ssDNA = [number of bases] x [330 Da]
+     * @param       string          $sSequence
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function MW_of_ssDNA($sequence)
+    public function mwOfSsDNA($sSequence)
     {
-        $no_base_pair = strlen($sequence);
-        return ($no_base_pair * 330);
+        try {
+            $iNbasePair = strlen($sSequence);
+            return ($iNbasePair * 330);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**
-     * @param $pmol_dsDNA_sequence
-     * @param $pmol_dsDNA_no_of_mueg
-     * @return float|int
+     * Calculation of pmol of 5'(or3')ends of DNA
+     * Pmol of ends of a dsDNA molecule = 2 x 106 x µg (of dsDNA)/Nbp x 660 Da
+     * @param       string      $sPmolDsDNASequence
+     * @param       int         $iPmolDsDNANbMueg
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function pmol_of_dsDNA($pmol_dsDNA_sequence, $pmol_dsDNA_no_of_mueg)
+    public function pmolOfDsDNA($sPmolDsDNASequence, $iPmolDsDNANbMueg)
     {
-        $no_base_pair = strlen($pmol_dsDNA_sequence);
-        $number_of_mueg = $pmol_dsDNA_no_of_mueg;
-        if (!$no_base_pair || !$number_of_mueg) {
-            return 0;
-        } else {
-            return ((2 * pow(10,6)) * ($number_of_mueg) / (($no_base_pair) * 660));
+        try {
+            $iNbBasePair = strlen($sPmolDsDNASequence);
+            if (!$iNbBasePair || !$iPmolDsDNANbMueg) {
+                return 0;
+            } else {
+                $iResult = (2 * pow(10,6)) * ($iPmolDsDNANbMueg) / (($iNbBasePair) * 660);
+                return $iResult;
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
     /**
-     * @param $pmol_ssDNA_sequence
-     * @param $pmol_ssDNA_no_of_mueg
-     * @return float|int
+     * Calculation of pmol of 5'(or3')ends of DNA
+     * pmol of ends of a ssDNA molecule = 1 x 106 x µg (of dsDNA)/Nbp x 330 Da
+     * @param       string      $sPmolDsDNASequence
+     * @param       int         $iPmolDsDNANbMueg
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function pmol_of_ssDNA($pmol_ssDNA_sequence, $pmol_ssDNA_no_of_mueg)
+    public function pmolOfSsDNA($sPmolDsDNASequence, $iPmolDsDNANbMueg)
     {
-        $no_base_pair = strlen($pmol_ssDNA_sequence);
-        $number_of_mueg = $pmol_ssDNA_no_of_mueg;
-        if (!$no_base_pair || !$number_of_mueg) {
-            return 0;
-        } else {
-            return (1 * pow(10,6) * $number_of_mueg / (($no_base_pair) * 330));
+        try {
+            $iNbBasePair = strlen($sPmolDsDNASequence);
+            if (!$iNbBasePair || !$iPmolDsDNANbMueg) {
+                return 0;
+            } else {
+                $iResult = 1 * pow(10,6) * $iPmolDsDNANbMueg / (($iNbBasePair) * 330);
+                return $iResult;
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
     /**
-     * @param $pmol_dsDNA_sequence
-     * @param $no_of_micro_dsDNA
-     * @return float|int
+     * Conversion of µg to pmol
+     * pmol of dsDNA = µg (of dsDNA) x 1515/Nbp
+     * @param       string      $sPmolDsDNASequence
+     * @param       int         $iNbOfMicroDsDNA
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function micro_to_pmol_dsDNA($pmol_dsDNA_sequence, $no_of_micro_dsDNA)
+    public function microToPmolDsDNA($sPmolDsDNASequence, $iNbOfMicroDsDNA)
     {
-        $no_base_pair = strlen($pmol_dsDNA_sequence);
-        $number_of_micro = $no_of_micro_dsDNA;
-        if (!$no_base_pair || !$number_of_micro) {
-            return 0;
-        } else {
-            return (($number_of_micro * 1515) / $no_base_pair);
+        try {
+            $iNbBasePair = strlen($sPmolDsDNASequence);
+            if (!$iNbBasePair || !$iNbOfMicroDsDNA) {
+                return 0;
+            } else {
+                return (($iNbOfMicroDsDNA * 1515) / $iNbBasePair);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
     /**
-     * @param $pmol_ssDNA_sequence
-     * @param $no_of_micro_ssDNA
-     * @return float|int
+     * Conversion of µg to pmol
+     * pmol of ssDNA = µg (of ssDNA) x 3030/Nbp
+     * @param       string      $sPmolSsDNASequence
+     * @param       int         $iNbOfMicroSsDNA
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function micro_to_pmol_ssDNA($pmol_ssDNA_sequence, $no_of_micro_ssDNA)
+    public function microToPmolSsDNA($sPmolSsDNASequence, $iNbOfMicroSsDNA)
     {
-        $no_base_pair = strlen($pmol_ssDNA_sequence);
-        $number_of_micro = $no_of_micro_ssDNA;
-        if (!$no_base_pair || !$number_of_micro) {
-            return 0;
-        } else {
-            return (($number_of_micro * 3030) / $no_base_pair);
+        try {
+            $iNbBase_pair = strlen($sPmolSsDNASequence);
+            if (!$iNbBase_pair || !$iNbOfMicroSsDNA) {
+                return 0;
+            } else {
+                return (($iNbOfMicroSsDNA * 3030) / $iNbBase_pair);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-
     }
 
     /**
-     * @param $micro_dsDNA_sequence
-     * @param $no_of_pmol_dsDNA
-     * @return float|int
+     * Conversion of Pmol to µg
+     * µg of dsDNA = pmol (of dsDNA) x Nbp x 6.6 x 10^-4
+     * @param       string      $sMicroDsDNASequence
+     * @param       int         $iNbOfPmolDsDNA
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function pmol_to_micro_dsDNA($micro_dsDNA_sequence, $no_of_pmol_dsDNA)
+    public function pmolToMicroDsDNA($sMicroDsDNASequence, $iNbOfPmolDsDNA)
     {
-        $no_base_pair = strlen($micro_dsDNA_sequence);
-        $number_of_micro = $no_of_pmol_dsDNA;
-        if (!$no_base_pair || !$number_of_micro) {
-            return 0;
-        } else {
-            return ($number_of_micro * $no_base_pair * (6.6 * pow(10, (-4))));
+        try {
+            $iNbBase_pair = strlen($sMicroDsDNASequence);
+            if (!$iNbBase_pair || !$iNbOfPmolDsDNA) {
+                return 0;
+            } else {
+                return ($iNbOfPmolDsDNA * $iNbBase_pair * (6.6 * pow(10, (-4))));
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-
     }
 
     /**
-     * @param $micro_ssDNA_sequence
-     * @param $no_of_pmol_ssDNA
-     * @return float|int
+     * Conversion of Pmol to µg
+     * µg of ssDNA = pmol (of dsDNA) x Nbp x 3.3 x 10^-4
+     * @param       string      $sMicrossDNASequence
+     * @param       int         $iNbOfPmolSsDNA
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function pmol_to_micro_ssDNA($micro_ssDNA_sequence, $no_of_pmol_ssDNA)
+    public function pmolToMicroSsDNA($sMicrossDNASequence, $iNbOfPmolSsDNA)
     {
-        $no_base_pair = strlen($micro_ssDNA_sequence);
-        $number_of_micro = $no_of_pmol_ssDNA;
-        if (!$no_base_pair || !$number_of_micro) {
-            return 0;
-        } else {
-            return ($number_of_micro*$no_base_pair * (3.3 * pow(10, (-4))));
+        try {
+            $nbBasePair = strlen($sMicrossDNASequence);
+            if (!$nbBasePair || !$iNbOfPmolSsDNA) {
+                return 0;
+            } else {
+                return ($iNbOfPmolSsDNA * $nbBasePair * (3.3 * pow(10, (-4))));
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
     /**
-     * RNA Functions
-     *
+     * Molecular weight of RNA
+     * MW of ssDNA = [number of basepairs] x [340 Da]
+     * @param       string          $sSequence
+     * @return      float|int
+     * @throws      \Exception
      */
-    /**
-     * @param $sequence
-     * @return float|int
-     */
-    public function MW_of_ssRNA($sequence)
+    public function mwOfSsRNA($sSequence)
     {
-        $no_base_pair = strlen($sequence);
-        return ($no_base_pair * 340);
+        try {
+            $iNbBasePair = strlen($sSequence);
+            $iResult = $iNbBasePair * 340;
+            return $iResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**
-     * same for both second & third equation
-     * @param $pmol_ssRNA_sequence
-     * @param $pmol_ssRNA_no_of_mueg
-     * @return float|int
+     * Calculation of pmol of 5'(or3')ends of RNA
+     * pmol of ends of a ssRNA molecule =µg (of ssRNA)*2941/Nbp
+     * @param       string      $sPmolSsRNASequence
+     * @param       int         $iPmolSsRNANoOfMueg
+     * @return      float|int
+     * @throws      \Exception
      */
-    public function pmol_of_ssRNA($pmol_ssRNA_sequence, $pmol_ssRNA_no_of_mueg)
+    public function pmolOfSsRNA($sPmolSsRNASequence, $iPmolSsRNANoOfMueg)
     {
-        $no_base_pair = strlen($pmol_ssRNA_sequence);
-        $number_of_mueg = $pmol_ssRNA_no_of_mueg;
-        if(!$no_base_pair || !$number_of_mueg) {
-            return 0;
-        } else {
-            return (($number_of_mueg * 2941) / ($no_base_pair));
-        }
-    }
-    function pmol_to_micro_ssRNA($micro_ssRNA_sequence,$no_of_pmol_ssRNA){
-        $no_base_pair=strlen($micro_ssRNA_sequence);
-        $number_of_micro=$no_of_pmol_ssRNA;
-        if(!$no_base_pair || !$number_of_micro){
-            return 0;
-        }else{
-            return ($number_of_micro*$no_base_pair*(3.4*pow(10,(-4))));
+        try {
+            $iNbBasePair = strlen($sPmolSsRNASequence);
+            if(!$iNbBasePair || !$iPmolSsRNANoOfMueg) {
+                return 0;
+            } else {
+                return (($iPmolSsRNANoOfMueg * 2941) / ($iNbBasePair));
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
-    function  centi_to_fahren($centigrade){
-
-        if(!$centigrade){
-            return 0;
-        }else{
-            return  (32+($centigrade*0.555));
-        }
-    }
-    function  farhen_to_centi($fahren){
-        if(!$fahren){
-            return 0;
-        }else{
-            return  (0.555*($fahren-32));
-        }
-    }
-    function mbar_to_mmHg($Hg){
-        if(!$Hg){
-            return 0;
-        }else{
-            return  (0.750000*($Hg));
-        }
-    }
-    function mbar_to_inchHg($inchHg){
-        if(!$inchHg){
-            return 0;
-        }else{
-            return  (0.039400*($inchHg));
-        }
-    }
-    function mbar_to_psi($psi){
-        if(!$psi){
-            return 0;
-        }else{
-            return  (0.014500*($psi));
-        }
-    }
-    function mbar_to_atm($atm){
-        if(!$atm){
-            return 0;
-        }else{
-            return  (0.000987*($atm));
-        }
-    }
-    function mbar_to_kPa($kPa){
-        if(!$kPa){
-            return 0;
-        }else{
-            return  (0.100000*($kPa));
-        }
-    }
-    function mbar_to_Torr($torr){
-        if(!$torr){
-            return 0;
-        }else{
-            return  (0.750000*($torr));
+    /**
+     * Conversion of Pmol to µg
+     * µg of ssDNA = pmol (of ssRNA) x Nbp x 3.4 x 10^-4
+     * @param       string      $sMicroSsRNASequence
+     * @param       int         $iNoOfPmolSsRNA
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function pmolToMicroSsRNA($sMicroSsRNASequence, $iNoOfPmolSsRNA)
+    {
+        try {
+            $iNoBasePair = strlen($sMicroSsRNASequence);
+            if(!$iNoBasePair || !$iNoOfPmolSsRNA) {
+                return 0;
+            } else {
+                return ($iNoOfPmolSsRNA * $iNoBasePair * (3.4 * pow(10,(-4))));
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 
-    function revpermin($rpm,$RCF,$R){
-//return 100000000;
-        $rcf=1.12*$R*(pow(( $rpm/1000),2) );
-//print $rcf;
-        $temp=($rcf / (1.12*$R));
-        print $temp;
-        $res=1000*( sqrt($temp) );
-        return ($res);
+    /**
+     * Conversions Between Centigrade and Fahrenheit
+     * @param       float       $fCentigrade
+     * @return      float
+     * @throws      \Exception
+     */
+    public function centiToFahren($fCentigrade)
+    {
+        try {
+            $fResult = 32 + ($fCentigrade * 0.555);
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
 
+    /**
+     * Conversions Between Fahrenheit and centigrade
+     * @param       float       $fFahren
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function farhenToCenti($fFahren)
+    {
+        try {
+            $fResult = 0.555 * ($fFahren - 32);
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars to millimeters of mercury (mm Hg)
+     * From millibars (mbar) to Millimeters of mercury (mm Hg) = mbar x 0.750000
+     * @param   float       $fHg
+     * @return  float|int
+     * @throws  \Exception
+     */
+    public function mbarToMmHg($fHg)
+    {
+        try {
+            $fResult = 0.750000 * $fHg;
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars to inches of mercury (inch Hg)
+     * From millibars (mbar) to Inches of mercury (inch Hg) = mbar x 0.039400
+     * @param       float       $fInchHg
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function mbarToInchHg($fInchHg)
+    {
+        try {
+            $fResult = 0.039400 * $fInchHg;
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars (mbar) to pounds per square inch (psi)
+     * From millibars (mbar) to Pounds per square inch (psi) = mbar x 0.014500
+     * @param       float       $fPsi
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function mbarToPsi($fPsi)
+    {
+        try {
+            $fResults = 0.014500 * $fPsi;
+            return $fResults;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars (mbar) to Atmospheres (atm) = mbar x 0.000987
+     * @param       float       $fAtm
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function mbarToAtm($fAtm)
+    {
+        try {
+            $fResult = 0.000987 * $fAtm;
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars (mbar) to kilopascals (kPa) = mbar x 0.100000
+     * @param       float       $fKPa
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function mbarToKPa($fKPa)
+    {
+        try {
+            $fResult = 0.100000 * $fKPa;
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * From millibars (mbar) to Torrs (Torr) = mbar x 0.750000
+     * @param       float       $fTorr
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public function mbarToTorr($fTorr)
+    {
+        try {
+            $fResult = 0.750000 * $fTorr;
+            return $fResult;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 }
