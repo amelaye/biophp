@@ -388,12 +388,4 @@ class MinitoolsController extends Controller
     {
         return $this->render('minitools/skews.html.twig');
     }
-
-    /**
-     * @Route("/minitools/useful-formulas", name="useful_formulas")
-     */
-    public function usefulFormulasAction()
-    {
-        return $this->render('minitools/usefulFormulas.html.twig');
-    }
 }
