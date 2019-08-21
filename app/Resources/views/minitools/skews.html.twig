@@ -1,4 +1,99 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-    <p>Coming soon :)</p>
+    <h2>Skews from custom sequences</h2>
+    <p></p>
+
+    <p></p>
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-4">{{ form_label(form.name) }}</div>
+                <div class="col-md-3">{{ form_widget(form.name) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-7">{{ form_row(form.seq) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">{{ form_label(form.window) }}</div>
+                <div class="col-md-2">{{ form_widget(form.window) }}</div>
+                <div class="col-md-1">{{ form_label(form.window2) }}</div>
+                <div class="col-md-2">{{ form_widget(form.window2) }}</div>
+                <div class="col-md-2"> bases(100-50000)</div>
+            </div>
+            <hr />
+            <div class="row">
+                <!-- Translate frames -->
+                <div class="col-md-1">{{ form_widget(form.GmC) }}</div>
+                <div class="col-md-2">{{ form_label(form.GmC) }}</div>
+            </div>
+            <div class="row">
+                <!-- Translate frames -->
+                <div class="col-md-1">{{ form_widget(form.GC) }}</div>
+                <div class="col-md-2">{{ form_label(form.GC) }}</div>
+            </div>
+            <div class="row">
+                <!-- Translate frames -->
+                <div class="col-md-1">{{ form_widget(form.AT) }}</div>
+                <div class="col-md-2">{{ form_label(form.AT) }}</div>
+            </div>
+            <div class="row">
+                <!-- Translate frames -->
+                <div class="col-md-1">{{ form_widget(form.KETO) }}</div>
+                <div class="col-md-2">{{ form_label(form.KETO) }}</div>
+            </div>
+            <div class="row">
+                <!-- Translate frames -->
+                <div class="col-md-1">{{ form_widget(form.oskew) }}</div>
+                <div class="col-md-2">{{ form_label(form.oskew) }}</div>
+                <div class="col-md-2">{{ form_widget(form.oligo_len) }}</div>
+                <div class="col-md-1">in</div>
+                <div class="col-md-2">{{ form_widget(form.strands) }}</div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-3">{{ form_label(form.from) }}</div>
+                <div class="col-md-2">{{ form_widget(form.from) }}</div>
+                <div class="col-md-1">{{ form_label(form.to) }}</div>
+                <div class="col-md-2">{{ form_widget(form.to) }}</div>
+            </div>
+            <p>&nbsp;</p>
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.submit) }}</div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <div class="card">
+        <h5 class="card-header">Skews from custom sequences</h5>
+        <span class="card-body">
+            <div class="card-text">
+                To compute skews, the input sequence is scanned with a sliding window, and the requested parameter is calculate
+        for each window. The data is shown in a graph.
+
+        <p><b>G+C %</b>
+        <br>The porcentaje of G+C is computed
+
+        <p><b>GC-skew</b>
+        <br>For each window, (G-C)/(G+C) is computed, where G and C are the number of ocurrences for each nucleotide
+
+        <p><b>AT-skew</b>
+        <br>For each window, (A-T)/(A+T) is computed, where A and T are the number of ocurrences for each nucleotide.
+
+        <p><b>KETO-skew</b>
+        <br>For each window, (G+C-A-T)/(G+C+A+T) is computed, where A, C, G and T are the number of ocurrences for each nucleotide.
+
+        <p><b style="font-weight: bold;">Oligo-skew</b>
+        <br>For each window, frecuencies for all nucleotides with selected length is computed.
+        Those frecuencies are compared to frecuencies obtained from the complete sequence.
+        When comparing both frecuencies, global distance is computed, as described by
+        <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&amp;db=pubmed&amp;dopt=Abstract&amp;list_uids=11331237">Almeida et al. (2001)</a>.&nbsp; </p>
+
+            </div>
+            <p></p>
+            <footer class="blockquote-footer">Text taken from <cite title="Source Title">biophp.org</cite></footer>
+        </span>
+    </div>
 {% endblock %}

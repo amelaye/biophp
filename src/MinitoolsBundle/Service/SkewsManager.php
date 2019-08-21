@@ -9,13 +9,15 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
+
 class SkewsManager
 {
     private $nucleotids;
 
-    public function __construct($nucleotids)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->nucleotids = $nucleotids;
+        $this->nucleotids = $bioapi->getNucleotidsDNA();
     }
 
     /**

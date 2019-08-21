@@ -8,6 +8,8 @@
  */
 namespace MinitoolsBundle\Controller;
 
+use MinitoolsBundle\Form\SkewsType;
+use MinitoolsBundle\Service\SkewsManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -376,16 +378,28 @@ class MinitoolsController extends Controller
     /**
      * @Route("/minitools/sequences-manipulation-and-data", name="sequences_manipulation_and_data")
      */
-    public function sequencesManipulationAndDataAction()
+    public function sequencesManipulationAndDataAction(SkewsManager $skewsManager)
     {
-        return $this->render('minitools/sequencesManipulationAndData.html.twig');
+        $form = $this->get('form.factory')->create(SkewsType::class);
+        return $this->render(
+            'minitools/sequencesManipulationAndData.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
      * @Route("/minitools/skews", name="skews")
      */
-    public function skewsAction()
+    public function skewsAction(SkewsManager $skewsManager)
     {
-        return $this->render('minitools/skews.html.twig');
+        $form = $this->get('form.factory')->create(SkewsType::class);
+        return $this->render(
+            'minitools/skews.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 }
