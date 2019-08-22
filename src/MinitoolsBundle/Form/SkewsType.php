@@ -14,6 +14,11 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\LessThan;
+use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * Class SkewsType
@@ -29,6 +34,23 @@ class SkewsType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $data = 'GGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAG';
+        $data .= 'GGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGG';
+        $data .= 'GCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGC';
+        $data .= 'GGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGC';
+        $data .= 'CGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAG';
+        $data .= 'TTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGAC';
+        $data .= 'GGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCC';
+        $data .= 'GCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGC';
+        $data .= 'AGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGG';
+        $data .= 'CGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGC';
+        $data .= 'GGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGG';
+        $data .= 'GAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTG';
+        $data .= 'GGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAGGGGAGCAGTTGGGCCAAGATG';
+        $data .= 'GCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGCGGGAGTGAG';
+        $data .= 'GGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACCGGTGGGCGACGGGGGGGAGTGAGGGGAGCAGTTGGGCCAAGATGGCGGCCGCCGAGGGACC';
+        $data .= 'GGTGGGCGACGCGG';
+
         $builder->add(
             'name',
             TextType::class,
@@ -45,12 +67,22 @@ class SkewsType extends AbstractType
             'seq',
             TextareaType::class,
             [
+                'required' => true,
                 'attr' => [
                     'cols'  => 75,
                     'rows'  => 5,
                     'class' => "form-control"
                 ],
+                'data' => $data,
                 'label' => "Copy sequence in the textarea below (up to 5,000,000 bp):",
+                'constraints' => array(
+                    new Length([
+                        'min' => 1,
+                        'max' => 10000000,
+                        'minMessage' => 'Minumum sequence length: {{ limit }} bp',
+                        'maxMessage' => 'Maximum lengt of sequence allowed is {{ limit }} bp.'
+                    ]),
+                )
             ]
         );
 
@@ -78,6 +110,11 @@ class SkewsType extends AbstractType
                 'attr' => [
                     'class' => "form-control"
                 ],
+                'constraints' => array(
+                    // check whether $window is in the correct range
+                    new LessThan(50000),
+                    new GreaterThan(99)
+                ),
                 'label' => "or"
             ]
         );
@@ -194,5 +231,28 @@ class SkewsType extends AbstractType
                 ]
             ]
         );
+
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+            if (isset($data['seq'])) {
+                $sequence = strtoupper($data["seq"]);
+                $sequence = preg_replace("/\W|\d/","",$sequence); // remove non-coding
+                $data['seq'] = $sequence;
+                $event->setData($data);
+            }
+            // if name is not specified, name is "sequence"
+            if (isset($data['name']) && $data['name'] == "") {
+                $data['name'] = "sequence";
+                $event->setData($data);
+            }
+            // custom window size id not submited, use the $window value
+            //if (isset($data["window2"]) && $data["window2"] != "") {
+            //    $data["window"] = $data["window2"];
+            //    $event->setData($data);
+            //}
+        });
     }
 }

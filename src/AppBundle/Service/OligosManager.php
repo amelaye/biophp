@@ -288,8 +288,6 @@ class OligosManager
             $aOligos1Step   = [];
             $aOligos        = [];
 
-
-
             $iLength = strlen($sSequence) - $iOligoLen + 1;
             while ($i < $iLength) {
                 $sMySequence = substr($sSequence, $i, $iOligoLen);
