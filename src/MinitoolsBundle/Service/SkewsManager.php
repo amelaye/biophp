@@ -10,14 +10,18 @@
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
+use AppBundle\Service\OligosManager;
 
 class SkewsManager
 {
     private $nucleotids;
 
-    public function __construct(Bioapi $bioapi)
+    private $oligosManager;
+
+    public function __construct(Bioapi $bioapi, OligosManager $oligosManager)
     {
-        $this->nucleotids = $bioapi->getNucleotidsDNA();
+        $this->nucleotids = $bioapi->getDNA();
+        $this->oligosManager = $oligosManager;
     }
 
     /**
@@ -33,7 +37,7 @@ class SkewsManager
     public function oligoSkewArrayCalculation($sequence, $window, $oskew, $strands)
     {
         // search for oligos in the complet sequence
-        $tetra_arrayA = $this->searchOligos($sequence, $oskew);
+        $tetra_arrayA = $this->oligosManager->findOligos($sequence, $oskew);
         $seq_len = strlen($sequence);
         $period = ceil($seq_len / 1400);
         if($period < 10) {
@@ -46,7 +50,7 @@ class SkewsManager
             while ($i < $seq_len - $window + 1) {
                 $cadena = substr($sequence,$i,$window)." ".strrev(substr($sequence2,$i,$window));
                 // compute oligonucleotide frequencies in window
-                $tetra_arrayB = $this->searchOligos($cadena, $oskew);
+                $tetra_arrayB = $this->oligosManager->findOligos($cadena, $oskew);
                 // compute distance between complete sequence and window
                 $data[$i] = $this->distance($tetra_arrayA, $tetra_arrayB);
                 $i += $period;
@@ -57,7 +61,7 @@ class SkewsManager
             while($i < $seq_len - $window + 1) {
                 $cadena = substr($sequence,$i,$window);
                 // compute oligonucleotide frequencies in window
-                $tetra_arrayB = $this->searchOligos($cadena,$oskew);
+                $tetra_arrayB = $this->oligosManager->findOligos($cadena, $oskew);
                 // compute distance between complete sequence and window
                 $data[$i] = $this->distance($tetra_arrayA,$tetra_arrayB);
                 $i += $period;
@@ -66,122 +70,6 @@ class SkewsManager
         // return the array with distances
         return $data;
     }
-
-
-    /**
-     * Search for frequencies of oligonucleotides of len $len_oligos,
-     * and returns results in an array
-     * @param $cadena
-     * @param $len_oligos
-     * @return mixed
-     * @todo : à refactoriser
-     */
-    public function searchOligos($cadena,$len_oligos)
-    {
-        $i = 0;
-        $oligos_internos = [];
-        $len = strlen($cadena) - $len_oligos + 1;
-        while($i<$len) {
-            $seq=substr($cadena,$i,$len_oligos);
-            $oligos_internos[$seq]++;
-            $i++;
-        }
-
-        $base_a = $this->nucleotids;
-        $base_b = $this->nucleotids;
-        $base_c = $this->nucleotids;
-        $base_d = $this->nucleotids;
-        $base_e = $this->nucleotids;
-        $base_f = $this->nucleotids;
-
-        //for oligos 2 bases long
-        if($len_oligos == 2) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    if($oligos_internos[$val_a.$val_b]) {
-                        $oligos[$val_a.$val_b] = $oligos_internos[$val_a.$val_b];
-                    } else {
-                        $oligos[$val_a.$val_b] = 0;
-                    }
-                }
-            }
-        }
-        //for oligos 3 bases long
-        if($len_oligos == 3) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        if($oligos_internos[$val_a.$val_b.$val_c]) {
-                            $oligos[$val_a.$val_b.$val_c] = $oligos_internos[$val_a.$val_b.$val_c];
-                        } else {
-                            $oligos[$val_a.$val_b.$val_c] = 0;
-                        }
-                    }
-                }
-            }
-        }
-        //for oligos 4 bases long
-        if($len_oligos == 4){
-            foreach($base_a as $key_a => $val_a){
-                foreach($base_b as $key_b => $val_b){
-                    foreach($base_c as $key_c => $val_c){
-                        foreach($base_d as $key_d => $val_d){
-                            if($oligos_internos[$val_a.$val_b.$val_c.$val_d]){
-                                $oligos[$val_a.$val_b.$val_c.$val_d] = $oligos_internos[$val_a.$val_b.$val_c.$val_d];
-                            } else {
-                                $oligos[$val_a.$val_b.$val_c.$val_d] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        //for oligos 5 bases long
-        if($len_oligos == 5) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                if($oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e]) {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = $oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e];
-                                } else {
-                                    $oligos[$val_a.$val_b.$val_c.$val_d.$val_e] = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        //for oligos 6 bases long
-        if($len_oligos==6) {
-            foreach($base_a as $key_a => $val_a) {
-                foreach($base_b as $key_b => $val_b) {
-                    foreach($base_c as $key_c => $val_c) {
-                        foreach($base_d as $key_d => $val_d) {
-                            foreach($base_e as $key_e => $val_e) {
-                                foreach($base_f as $key_f => $val_f) {
-                                    if($oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f]) {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = $oligos_internos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f];
-                                    } else {
-                                        $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f] = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $counter = 0;
-        foreach($oligos as $key => $val) {
-            $oligos2[$counter] = $val;
-            $counter ++;
-        }
-        return $oligos2;
-    }
-
 
     /**
      * Computes distance between two arrays of values based in Almeida et al, 2001

@@ -54,6 +54,16 @@ class Bioapi
         return $newData;
     }
 
+    public function getDNA()
+    {
+        $nucleos = $this->getNucleotidsDNA();
+        $dna = array();
+        foreach($nucleos as $nucleo) {
+            $dna[] = $nucleo["letter"];
+        }
+        return $dna;
+    }
+
     public function getDNAComplement()
     {
         $nucleos = $this->getNucleotidsDNA();
