@@ -2,7 +2,14 @@
 {% block body %}
     <h2>Skews from custom sequences</h2>
     <p></p>
-
+    {% if image != "" %}
+        <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+            <div class="card-header">Results of your request</div>
+            <div class="card-body">
+                <img src="/public/uploads/{{ image }}">
+            </div>
+        </div>
+    {% endif %}
     <p></p>
     {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
     <div class="card bg-light mb-3">

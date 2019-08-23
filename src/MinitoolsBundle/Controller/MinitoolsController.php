@@ -390,19 +390,22 @@ class MinitoolsController extends Controller
      */
     public function skewsAction(Request $request, SkewsManager $skewsManager)
     {
+        $imageResult = "";
+
         $form = $this->get('form.factory')->create(SkewsType::class);
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
 
             $oligo_skew_array = [];
+            $sequence = $formData["seq"];
 
             // remove useless part of sequence
             if ($formData["from"] or $formData["to"]) {
                 if (str_is_int($formData["to"]) == 1) {
-                    $sequence = substr($formData["sequence"], 0, $formData["to"]);
+                    $sequence = substr($formData["seq"], 0, $formData["to"]);
                 }
                 if (str_is_int($formData["from"]) == 1) {
-                    $sequence = substr($formData["sequence"], $formData["from"]);
+                    $sequence = substr($formData["seq"], $formData["from"]);
                 }
             }
 
@@ -418,11 +421,9 @@ class MinitoolsController extends Controller
             // when oligo-skew is requested, computing time will be long; let know the user and compute data for oligo-skew
             if ($formData["oskew"] == 1) {
                 if ($skewsManager->strIsInt($formData["oligo_len"]) == 1) {
-                    print "Computing...(will be aborted after 15 minutes; oligo-skews require intense computing). Please wait. ";
-                    flush();
                     // in next line a function will compute an array with distances
                     $oligo_skew_array = $skewsManager->oligoSkewArrayCalculation(
-                        $formData["seq"],
+                        $sequence,
                         $window,
                         $formData["oligo_len"],
                         $formData["strands"]
@@ -430,8 +431,8 @@ class MinitoolsController extends Controller
                 }
             }
             // create image with skews
-            $data_table = $skewsManager->createImage(
-                $formData["seq"],
+            $imageResult = $skewsManager->createImage(
+                $sequence,
                 $window,
                 $formData["GC"],
                 $formData["AT"],
@@ -448,6 +449,7 @@ class MinitoolsController extends Controller
             'minitools/skews.html.twig',
             [
                 'form' => $form->createView(),
+                'image' => $imageResult
             ]
         );
     }

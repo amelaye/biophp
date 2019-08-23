@@ -9,18 +9,14 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
 use AppBundle\Service\OligosManager;
 
 class SkewsManager
 {
-    private $nucleotids;
-
     private $oligosManager;
 
-    public function __construct(Bioapi $bioapi, OligosManager $oligosManager)
+    public function __construct(OligosManager $oligosManager)
     {
-        $this->nucleotids = $bioapi->getDNA();
         $this->oligosManager = $oligosManager;
     }
 
@@ -125,7 +121,6 @@ class SkewsManager
         return("$str" == "$var");
     }
 
-
     /**
      * Creates the image based in data provided
      * @param $sequence
@@ -143,6 +138,7 @@ class SkewsManager
     public function createImage($sequence, $window, $GC, $AT, $KETO, $GmC, $oligo_skew_array, $olen, $from, $to, $name)
     {
         $pos = 0;
+        $dAT = $dGC = $dGmC = $dKETO = [null];
         $len_seq = strlen($sequence);
         $period = ceil($len_seq / 6000);
 
@@ -278,7 +274,7 @@ class SkewsManager
         }
         // print AT, GC and/or KETO-skews
         // each one with its color
-        foreach($dGC as $pos => $val){
+        foreach ($dGC as $pos => $val) {
             $x = round(( $pos * 700 / $len_seq) + $xp);
             if($AT == 1) {
                 imagesetpixel($im, $x, 220 - $dAT[$pos] * $rectify, $red);
@@ -310,9 +306,9 @@ class SkewsManager
         imageline($im, 700, 20, 700, 420, $black);
 
         // output the image to a file
-        imagepng($im, "image.png");
+        imagepng($im, "public/uploads/".$name.".png");
         imagedestroy($im);
-        return;
+        return $name.".png";
     }
 
 
