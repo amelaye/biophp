@@ -24,47 +24,54 @@ class SkewsManager
      * Will  compare oligonucleotide frequencies in all the sequence
      * with frequencies in each window, and will return an array
      * with distances  (computed as Almeida et al, 2001).
-     * @param $sequence
-     * @param $window
-     * @param $oskew
-     * @param $strands
-     * @return mixed
+     * @param       string      $sSequence      The sequence to analyze
+     * @param       int         $iWindow        The size of the wondow
+     * @param       int         $iOskew         Number of nucleos
+     * @param       int         $iStrands       One or both strands
+     * @return      array
+     * @throws      \Exception
      */
-    public function oligoSkewArrayCalculation($sequence, $window, $oskew, $strands)
+    public function oligoSkewArrayCalculation($sSequence, $iWindow, $iOskew, $iStrands)
     {
-        // search for oligos in the complet sequence
-        $tetra_arrayA = $this->oligosManager->findOligos($sequence, $oskew);
-        $seq_len = strlen($sequence);
-        $period = ceil($seq_len / 1400);
-        if($period < 10) {
-            $period = 10;
-        }
-        if ($strands == 2) {
-            // if both strands are used for computing oligonucleotide frequencies
-            $sequence2 = $this->comp($sequence);
-            $i = 0;
-            while ($i < $seq_len - $window + 1) {
-                $cadena = substr($sequence,$i,$window)." ".strrev(substr($sequence2,$i,$window));
-                // compute oligonucleotide frequencies in window
-                $tetra_arrayB = $this->oligosManager->findOligos($cadena, $oskew);
-                // compute distance between complete sequence and window
-                $data[$i] = $this->distance($tetra_arrayA, $tetra_arrayB);
-                $i += $period;
+        try {
+            $aDistances = [];
+
+            // search for oligos in the complet sequence
+            $aOligosX = $this->oligosManager->findOligos($sSequence, $iOskew);
+            $iSeqLength = strlen($sSequence);
+            $iPeriod = ceil($iSeqLength / 1400);
+            if($iPeriod < 10) {
+                $iPeriod = 10;
             }
-        } else {
-            // if only one strand is used for computing oligonucleotide frequencies
-            $i = 0;
-            while($i < $seq_len - $window + 1) {
-                $cadena = substr($sequence,$i,$window);
-                // compute oligonucleotide frequencies in window
-                $tetra_arrayB = $this->oligosManager->findOligos($cadena, $oskew);
-                // compute distance between complete sequence and window
-                $data[$i] = $this->distance($tetra_arrayA,$tetra_arrayB);
-                $i += $period;
+            if ($iStrands == 2) {
+                // if both strands are used for computing oligonucleotide frequencies
+                $sequence2 = $this->comp($sSequence);
+                $i = 0;
+                while ($i < $iSeqLength - $iWindow + 1) {
+                    $sSequenceCut = substr($sSequence, $i, $iWindow)." ".strrev(substr($sequence2, $i, $iWindow));
+                    // compute oligonucleotide frequencies in window
+                    $aOligosY = $this->oligosManager->findOligos($sSequenceCut, $iOskew);
+                    // compute distance between complete sequence and window
+                    $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
+                    $i += $iPeriod;
+                }
+            } else {
+                // if only one strand is used for computing oligonucleotide frequencies
+                $i = 0;
+                while($i < $iSeqLength - $iWindow + 1) {
+                    $sSequenceCut = substr($sSequence, $i ,$iWindow);
+                    // compute oligonucleotide frequencies in window
+                    $aOligosY = $this->oligosManager->findOligos($sSequenceCut, $iOskew);
+                    // compute distance between complete sequence and window
+                    $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
+                    $i += $iPeriod;
+                }
             }
+            // return the array with distances
+            return $aDistances;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        // return the array with distances
-        return $data;
     }
 
     /**
@@ -107,7 +114,8 @@ class SkewsManager
             $pre_rw += ($val_x-$xw) * ($val_y-$yw) * $val_x * $val_y / (sqrt($sx) * sqrt($sy));
         }
         $rw = $pre_rw/$nw;
-        return round(1-$rw,8);
+        $distance = round(1-$rw,8);
+        return $distance;
     }
 
 
@@ -121,27 +129,8 @@ class SkewsManager
         return("$str" == "$var");
     }
 
-    /**
-     * Creates the image based in data provided
-     * @param $sequence
-     * @param $window
-     * @param $GC
-     * @param $AT
-     * @param $KETO
-     * @param $GmC
-     * @param $oligo_skew_array
-     * @param $olen
-     * @param $from
-     * @param $to
-     * @param $name
-     */
-    public function createImage($sequence, $window, $GC, $AT, $KETO, $GmC, $oligo_skew_array, $olen, $from, $to, $name)
+    public function computeImage($sequence, &$pos, $window, $AT, $KETO, $GmC, $len_seq, $period, &$dAT, &$dGC, &$dGmC, &$dKETO)
     {
-        $pos = 0;
-        $dAT = $dGC = $dGmC = $dKETO = [null];
-        $len_seq = strlen($sequence);
-        $period = ceil($len_seq / 6000);
-
         // computes data for GC, AT, KETO and G+C skews (if requested)
         while($pos < $len_seq - $window) {
             $sub_seq = substr($sequence,$pos,$window);
@@ -166,6 +155,31 @@ class SkewsManager
         $max = max(max($dAT), max($dGC), max($dKETO));
         $min = min(min($dAT), min($dGC), min($dKETO));
         $nmax = max($max, -$min);
+        return $nmax;
+    }
+
+    /**
+     * Creates the image based in data provided
+     * @param $sequence
+     * @param $window
+     * @param $GC
+     * @param $AT
+     * @param $KETO
+     * @param $GmC
+     * @param $oligo_skew_array
+     * @param $olen
+     * @param $from
+     * @param $to
+     * @param $name
+     */
+    public function createImage($sequence, $window, $GC, $AT, $KETO, $GmC, $oligo_skew_array, $olen, $from, $to, $name)
+    {
+        $pos = 0;
+        $len_seq = strlen($sequence);
+        $period = ceil($len_seq / 6000);
+        $dAT = $dGC = $dGmC = $dKETO = [null];
+
+        $nmax = $this->computeImage($sequence, $pos, $window, $AT, $KETO, $GmC, $len_seq, $period, $dAT, $dGC, $dGmC, $dKETO);
         $rectify = round(200 / $nmax);
 
         // starts the image
