@@ -1,7 +1,7 @@
 # amelayes-biophp [![Build Status](https://travis-ci.com/amelaye/amelayes-biophp.svg?branch=develop)](https://travis-ci.com/amelaye/amelayes-biophp) [![Coverage Status](https://coveralls.io/repos/github/amelaye/amelayes-biophp/badge.svg?branch=develop)](https://coveralls.io/github/amelaye/amelayes-biophp?branch=develop)
 
 ## Introduction
-You can read the website of the application, with docs and informations about the project : http://amelayes-biophp.net.
+You can read the website of the application, with docs and informations about the project : http://www.amelayes-biophp.net.
 This is my own version of BioPHP available here : http://biophp.org.
 
 I wanted to remind Symfony's basics for my certification, so I decided to renew this project, my way.
