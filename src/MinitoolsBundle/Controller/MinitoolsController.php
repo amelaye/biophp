@@ -401,10 +401,10 @@ class MinitoolsController extends Controller
 
             // remove useless part of sequence
             if ($formData["from"] or $formData["to"]) {
-                if (str_is_int($formData["to"]) == 1) {
+                if ($skewsManager->strIsInt($formData["to"]) == 1) {
                     $sequence = substr($formData["seq"], 0, $formData["to"]);
                 }
-                if (str_is_int($formData["from"]) == 1) {
+                if ($skewsManager->strIsInt($formData["from"]) == 1) {
                     $sequence = substr($formData["seq"], $formData["from"]);
                 }
             }
