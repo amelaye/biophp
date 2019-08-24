@@ -31,6 +31,18 @@ class FindPalindromeManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testFindPalindromicSeqsException()
+    {
+        $this->expectException(\Exception::class);
+
+        $sSequence = [];
+        $iMin = 0;
+        $iMax = 0;
+
+        $service = new FindPalindromeManager();
+        $service->findPalindromicSeqs($sSequence, $iMin, $iMax);
+    }
+
     public function testDnaIsPalindromeTrue()
     {
         $sSequence = "AAATTT";
@@ -47,6 +59,14 @@ class FindPalindromeManagerTest extends TestCase
         $this->assertFalse($testFunction);
     }
 
+    public function testDnaIsPalindromeException()
+    {
+        $this->expectException(\Exception::class);
+        $sSequence = [];
+        $service = new FindPalindromeManager();
+        $service->dnaIsPalindrome($sSequence);
+    }
+
     public function testRevCompDNA2()
     {
         $sSequence = "AGTCCCGTAA";
@@ -54,5 +74,13 @@ class FindPalindromeManagerTest extends TestCase
         $testFunction = $service->revCompDNA2($sSequence);
         $sExpected = "TTACGGGACT";
         $this->assertEquals($testFunction, $sExpected);
+    }
+
+    public function testRevCompDNA2Exception()
+    {
+        $this->expectException(\Exception::class);
+        $sSequence = [];
+        $service = new FindPalindromeManager();
+        $service->revCompDNA2($sSequence);
     }
 }

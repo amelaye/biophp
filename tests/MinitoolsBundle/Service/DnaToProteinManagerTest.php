@@ -725,6 +725,19 @@ class DnaToProteinManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testFindORFException()
+    {
+        $this->expectException(\Exception::class);
+        $aFrames = 4;
+
+        $iProtsize = 100000;
+        $bOnlyCoding = 6;
+        $bTrimmed = 8;
+
+        $service = new DnaToProteinManager($this->apiMock);
+        $service->findORF($aFrames, $iProtsize, $bOnlyCoding, $bTrimmed);
+    }
+
     public function testRevCompDNA()
     {
         $sSequence = "CCTCACTCCCCTCGTCAACCCGGTTCTACCGCCGGCGGCTCCCTGGCCACCCGCTGCGCCCTCACTCCCCTCGTCAACCCGGTTCTACCGCCGGCGG";
@@ -755,5 +768,16 @@ class DnaToProteinManagerTest extends TestCase
         $testFunction = $service->translateDNAToProtein($sSequence, $sGeneticCode);
 
         $this->assertEquals($sPeptide, $testFunction);
+    }
+
+    public function testTranslateDNAToProteinException()
+    {
+        $this->expectException(\Exception::class);
+        $sSequence = 4;
+
+        $sGeneticCode = "pim_poum";
+
+        $service = new DnaToProteinManager($this->apiMock);
+        $service->translateDNAToProtein($sSequence, $sGeneticCode);
     }
 }

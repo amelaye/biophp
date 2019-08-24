@@ -46,7 +46,7 @@ class SequenceManipulationAndDataManager
      * @return string|string[]|null
      * @throws \Exception
      */
-    public function remove_non_coding($seq)
+    public function removeNonCoding($seq)
     {
         try {
             // change the sequence to upper case
@@ -66,7 +66,7 @@ class SequenceManipulationAndDataManager
      * @return string
      * @throws \Exception
      */
-    public function display_both_strands($seq)
+    public function displayBothStrands($seq)
     {
         try {
             // get the complementary sequence
@@ -92,13 +92,13 @@ class SequenceManipulationAndDataManager
      * @return  string
      * @throws  \Exception
      */
-    public function gc_content($seq)
+    public function gcContent($seq)
     {
         try {
             $number_of_G = substr_count($seq,"G");
             $number_of_C = substr_count($seq,"C");
             $gc_percent = round(100*($number_of_G + $number_of_C)/strlen($seq),2);
-            return "G+C %: $gc_percent\n\n";
+            return $gc_percent;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -126,7 +126,7 @@ class SequenceManipulationAndDataManager
      * @return string
      * @throws \Exception
      */
-    public function acgt_content($seq)
+    public function acgtContent($seq)
     {
         try {
             $result = "Nucleotide composition";

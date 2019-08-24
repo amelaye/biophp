@@ -99,6 +99,21 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testComputeOligonucleotidsFrequenciesException()
+    {
+        $this->expectException(\Exception::class);
+        $aSeq = false;
+        $iLen = 2;
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $service->computeOligonucleotidsFrequenciesEuclidean($aSeq, $iLen);
+    }
+
     public function testComputeOligonucleotidsFrequenciesEuclideanTrinucleotids()
     {
         $aSeq = [0 => "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG"];
@@ -404,6 +419,21 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $testFunction = $service->computeOligonucleotidsFrequencies($aSeq);
 
         $this->assertEquals($aExpected, $testFunction);
+    }
+
+    public function testComputeOligonucleotidsFrequenciesPearsonException()
+    {
+        $this->expectException(\Exception::class);
+
+        $aSeq = [0 => "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG"];
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $service->computeOligonucleotidsFrequencies($aSeq);
     }
 
 
@@ -1872,6 +1902,22 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $this->assertEquals($expected, $testFunction);
     }
 
+    public function testPearsonDistanceException()
+    {
+        $this->expectException(\Exception::class);
+        $valsx = 0;
+
+        $valsy = 5;
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $service->pearsonDistance($valsx, $valsy);
+    }
+
     public function testEuclidDistance()
     {
         $a = [
@@ -1927,6 +1973,22 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $this->assertEquals($fExpected, $testFunction);
     }
 
+    public function testEuclidDistanceException()
+    {
+        $this->expectException(\Exception::class);
+        $a = 4;
+        $b = 6;
+        $len = 0;
+
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $service->euclidDistance($a,$b,$len);
+    }
+
     public function testStandardFrecuencies()
     {
         $array = [
@@ -1979,5 +2041,18 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    public function testStandardFrecuenciesException()
+    {
+        $this->expectException(\Exception::class);
+        $array = 4;
+        $len = 2;
 
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+            ->setConstructorArgs([$this->apiMock])
+            ->setMethods()
+            ->getMock();
+
+        $service = new DistanceAmongSequencesManager($oligoMock, $this->apiMock);
+        $service->standardFrecuencies($array, $len);
+    }
 }

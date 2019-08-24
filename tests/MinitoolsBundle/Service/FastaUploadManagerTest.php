@@ -16,6 +16,14 @@ class FastaUploadManagerTest extends TestCase
         $this->assertTrue($testFunction);
     }
 
+    public function testIsValidSequenceTrueException()
+    {
+        $this->expectException(\Exception::class);
+        $sSeq = [];
+        $service = new FastaUploaderManager();
+        $service->isValidSequence($sSeq);
+    }
+
     public function testIsValidSequenceFalse()
     {
         $sSeq = "GGCAGATTCCPCCTAGACCCGCCCGCACCATGGTCAGGCATGCCCCTCCTCATCGCTGGGCACAGCCCAGAGGGT";
@@ -24,5 +32,13 @@ class FastaUploadManagerTest extends TestCase
         $testFunction = $service->isValidSequence($sSeq);
 
         $this->assertFalse($testFunction);
+    }
+
+    public function testCheckNucleotidSequence()
+    {
+        $this->expectException(\Exception::class);
+        $service = new FastaUploaderManager();
+        $a = $t = $c = $g = 0;
+        $service->checkNucleotidSequence("pom pom lalala", $a, $g, $t, $c, 4);
     }
 }

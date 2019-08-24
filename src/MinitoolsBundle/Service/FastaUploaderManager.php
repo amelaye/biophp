@@ -23,16 +23,20 @@ class FastaUploaderManager
      */
     public function isValidSequence($sSequence)
     {
-        $length = strlen($sSequence);
-        for ($i = 0; $i < $length; ++$i) {
-            if(!($sSequence[$i]=='a' || $sSequence[$i]=='A'||
-                $sSequence[$i]=='t'|| $sSequence[$i]=='T' ||
-                $sSequence[$i]=='g'|| $sSequence[$i]=='G'||
-                $sSequence[$i]=='c'|| $sSequence[$i]=='C')) {
-                return false;
+        try {
+            $length = strlen($sSequence);
+            for ($i = 0; $i < $length; ++$i) {
+                if(!($sSequence[$i]=='a' || $sSequence[$i]=='A'||
+                    $sSequence[$i]=='t'|| $sSequence[$i]=='T' ||
+                    $sSequence[$i]=='g'|| $sSequence[$i]=='G'||
+                    $sSequence[$i]=='c'|| $sSequence[$i]=='C')) {
+                    return false;
+                }
             }
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        return true;
     }
 
     /**
