@@ -425,7 +425,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        $aSeq = [0 => "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG"];
+        $aSeq = false;
 
         $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
             ->setConstructorArgs([$this->apiMock])
