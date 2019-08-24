@@ -198,4 +198,13 @@ class MicroarrayAnalysisAdaptiveManagerTest extends TestCase
 
         $this->assertEquals($testFunction, $aExpected);
     }
+
+    public function testProcessMicroarrayDataAdaptiveQuantificationMethodException()
+    {
+        $this->expectException(\Exception::class);
+        $file = [];
+
+        $service = new MicroarrayAnalysisAdaptiveManager($this->mathematicsManager);
+        $service->processMicroarrayDataAdaptiveQuantificationMethod($file);
+    }
 }

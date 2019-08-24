@@ -299,30 +299,35 @@ class SkewsManager
      * @param       int         $iOlen          Length of the oligos
      * @param       int         $iGb            Shade of grey-blue
      * @return      int
+     * @throws      \Exception
      */
     private function writeSkews(&$im, $bGC, $bAT, $bKETO, $bGmC, $aOligoSkew, $iBlue, $iRed, $iGreen, $iBlack, $iOlen, $iGb)
     {
-        $goright = 0;
-        if ($bGC) {
-            imagestring($im, 3, 5 + $goright, 5, "GC-skew", $iBlue);
-            $goright = 70;
+        try {
+            $goright = 0;
+            if ($bGC) {
+                imagestring($im, 3, 5 + $goright, 5, "GC-skew", $iBlue);
+                $goright = 70;
+            }
+            if ($bAT) {
+                imagestring($im, 3, 5 + $goright, 5, "AT-skew", $iRed);
+                $goright += 70;
+            }
+            if ($bKETO) {
+                imagestring($im, 3, 5 + $goright, 5, "KETO-skew", $iGreen);
+                $goright += 80;
+            }
+            if ($bGmC) {
+                imagestring($im, 3, 5 + $goright, 5, "G+C", $iBlack);
+                $goright += 60;
+            }
+            if (sizeof($aOligoSkew) > 10) {
+                imagestring($im, 3, 5 + $goright, 5, "oligo-skew ($iOlen)", $iGb);
+            }
+            return $goright;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
-        if ($bAT) {
-            imagestring($im, 3, 5 + $goright, 5, "AT-skew", $iRed);
-            $goright += 70;
-        }
-        if ($bKETO) {
-            imagestring($im, 3, 5 + $goright, 5, "KETO-skew", $iGreen);
-            $goright += 80;
-        }
-        if ($bGmC) {
-            imagestring($im, 3, 5 + $goright, 5, "G+C", $iBlack);
-            $goright += 60;
-        }
-        if (sizeof($aOligoSkew) > 10) {
-            imagestring($im, 3, 5 + $goright, 5, "oligo-skew ($iOlen)", $iGb);
-        }
-        return $goright;
     }
 
     /**
@@ -337,52 +342,57 @@ class SkewsManager
      * @param       int         $iGb            Shade of grey-blue
      * @param       int         $iBlack         Shade of black
      * @param       int         $iNmax
+     * @throws      \Exception
      */
     private function printScales(&$im, $aOligoSkew, $bAT, $bGC, $bGmC, $bKETO, $iRed, $iBlack, $iGb, $iNmax)
     {
-        $ne = 0;
-        if ($bAT || $bGC || $bKETO) {
-            imagestring($im, 3, 710, 210, "0", $iRed);
-            $scale = round($iNmax * 0.25,3);
-            $v = $scale * 3;
-            imagestring($im, 3, 710, 60, $v, $iRed);
-            imagestring($im, 3, 710, 360, -$v, $iRed);
-            $v = $scale * 2;
-            imagestring($im, 3, 710, 110, $v, $iRed);
-            imagestring($im, 3, 710, 310, -$v, $iRed);
-            $v = $scale;
-            imagestring($im, 3, 710, 160, $v, $iRed);
-            imagestring($im, 3, 710, 260, -$v, $iRed);
-            $ne = 60;
-        }
-        // print scale for G+C skew
-        if($bGmC == 1) {
-            $kkk = 360;
-            for($i = 20; $i < 81; $i += 10) {
-                imagestring($im, 3, 710+$ne, $kkk, "$i%", $iBlack);
-                $kkk -= 50;
+        try {
+            $ne = 0;
+            if ($bAT || $bGC || $bKETO) {
+                imagestring($im, 3, 710, 210, "0", $iRed);
+                $scale = round($iNmax * 0.25,3);
+                $v = $scale * 3;
+                imagestring($im, 3, 710, 60, $v, $iRed);
+                imagestring($im, 3, 710, 360, -$v, $iRed);
+                $v = $scale * 2;
+                imagestring($im, 3, 710, 110, $v, $iRed);
+                imagestring($im, 3, 710, 310, -$v, $iRed);
+                $v = $scale;
+                imagestring($im, 3, 710, 160, $v, $iRed);
+                imagestring($im, 3, 710, 260, -$v, $iRed);
+                $ne = 60;
             }
-            if($ne == 60) {
-                for($i = 20; $i < 421; $i += 50) {
-                    imageline($im, 698 + $ne, $i, 703+$ne, $i, $iBlack);
+            // print scale for G+C skew
+            if($bGmC == 1) {
+                $kkk = 360;
+                for($i = 20; $i < 81; $i += 10) {
+                    imagestring($im, 3, 710+$ne, $kkk, "$i%", $iBlack);
+                    $kkk -= 50;
                 }
-                imageline($im,764,20,764,420,$iBlack);
-            }
-            $ne += 60;
-        }
-        // print scale for oligo-skew
-        if(sizeof($aOligoSkew) > 10) {
-            $kkk = 15;
-            for($i = 0; $i < 9; $i ++) {
-                imagestring($im, 3, 710+$ne, $kkk, "0.$i", $iGb);
-                $kkk += 50;
-            }
-            if($ne > 0) {
-                for($i = 20; $i < 421; $i += 50) {
-                    imageline($im, 698 + $ne, $i, 703+$ne, $i, $iBlack);
+                if($ne == 60) {
+                    for($i = 20; $i < 421; $i += 50) {
+                        imageline($im, 698 + $ne, $i, 703+$ne, $i, $iBlack);
+                    }
+                    imageline($im,764,20,764,420,$iBlack);
                 }
-                imageline($im, 704+$ne, 20, 704 + $ne, 420, $iBlack);
+                $ne += 60;
             }
+            // print scale for oligo-skew
+            if(sizeof($aOligoSkew) > 10) {
+                $kkk = 15;
+                for($i = 0; $i < 9; $i ++) {
+                    imagestring($im, 3, 710+$ne, $kkk, "0.$i", $iGb);
+                    $kkk += 50;
+                }
+                if($ne > 0) {
+                    for($i = 20; $i < 421; $i += 50) {
+                        imageline($im, 698 + $ne, $i, 703+$ne, $i, $iBlack);
+                    }
+                    imageline($im, 704+$ne, 20, 704 + $ne, 420, $iBlack);
+                }
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e);
         }
     }
 

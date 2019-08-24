@@ -112,6 +112,15 @@ class MeltingTemperatureManagerTest extends TestCase
         $this->assertEquals($testFunction, $fExpected);
     }
 
+    public function testCalculateCGException()
+    {
+        $this->expectException(\Exception::class);
+        $primer = [];
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service->calculateCG($primer);
+    }
+
     public function testTmBaseStacking()
     {
         $primer = "AAAATTTGGGGCCCATGCCC";
@@ -129,6 +138,18 @@ class MeltingTemperatureManagerTest extends TestCase
         $testFunction = $service->tmBaseStacking($primer, $concPrimer, $concSalt, $concMg);
 
         $this->assertEquals($testFunction, $aExpected);
+    }
+
+    public function testTmBaseStackingException()
+    {
+        $this->expectException(\Exception::class);
+        $primer = [];
+        $concPrimer = "200";
+        $concSalt = "50";
+        $concMg = "2";
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service->tmBaseStacking($primer, $concPrimer, $concSalt, $concMg);
     }
 
     public function testTmMinMoreFourteen()
@@ -153,6 +174,15 @@ class MeltingTemperatureManagerTest extends TestCase
         $this->assertEquals($testFunction, $fExpected);
     }
 
+    public function testTmMinException()
+    {
+        $this->expectException(\Exception::class);
+        $primer = [];
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service->tmMin($primer);
+    }
+
     public function testTmMaxMoreFourteen()
     {
         $primer = "AAAATTTGGGGCCCATGCCC";
@@ -173,6 +203,14 @@ class MeltingTemperatureManagerTest extends TestCase
         $testFunction = $service->tmMax($primer);
 
         $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testTmMaxException()
+    {
+        $this->expectException(\Exception::class);
+        $primer = [];
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service->tmMax($primer);
     }
 
     public function testMolwtUpperLimit()
@@ -201,5 +239,16 @@ class MeltingTemperatureManagerTest extends TestCase
         $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
 
         $this->assertEquals($testFunction, $fExpected);
+    }
+
+    public function testMolwtLowerLimitTest()
+    {
+        $this->expectException(\Exception::class);
+        $sSequence = [];
+        $sMoltype = "DNA";
+        $sLimit = "lowerlimit";
+
+        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service->molwt($sSequence, $sMoltype, $sLimit);
     }
 }

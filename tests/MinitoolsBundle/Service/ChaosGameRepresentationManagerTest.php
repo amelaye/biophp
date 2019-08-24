@@ -129,6 +129,23 @@ class ChaosGameRepresentationManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
+    /**
+     * @expectedException \Exception
+     */
+    public function testCreateFCGRImageException()
+    {
+        $this->expectException(\Exception::class);
+        $oligos = [];
+        $seq_name = "aaa";
+        $aNucleotids = [];
+        $seq_len = 326;
+        $n = 2;
+        $oligo_len = "2";
+
+        $service = new ChaosGameRepresentationManager($this->aNucleotidGraph, $this->apiMock);
+        $service->createFCGRImage($oligos, $seq_name, $aNucleotids, $seq_len, $n, $oligo_len);
+    }
+
     public function testCreateFCGRImageWithOligoLen3()
     {
         $oligos = [
