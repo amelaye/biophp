@@ -3,7 +3,15 @@
 {% block body %}
     <h2>DNA Sequence manipulation</h2>
     <p></p>
+    {% if result != "" %}
+        <div class="card border-info mb-3" style="font-size:0.9em" id="results">
+            <div class="card-header">Results of your request</div>
+            <div class="card-body">
+                {{ result | chunk_split(70) }}
+            </div>
+        </div>
 
+    {% endif %}
     <p></p>
     {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
     <div class="card bg-light mb-3">

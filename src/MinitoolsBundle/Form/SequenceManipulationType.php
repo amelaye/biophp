@@ -75,6 +75,7 @@ class SequenceManipulationType extends AbstractType
             TextType::class,
             [
                 'label' => "Select subsequence from position : ",
+                'required' => false,
                 'attr' => [
                     'class' => "form-control"
                 ]
@@ -85,6 +86,7 @@ class SequenceManipulationType extends AbstractType
             TextType::class,
             [
                 'label' => "to (both included)",
+                'required' => false,
                 'attr' => [
                     'class' => "form-control"
                 ]

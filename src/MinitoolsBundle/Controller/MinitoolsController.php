@@ -397,30 +397,36 @@ class MinitoolsController extends Controller
                 $seq = substr($formData["seq"], $start,$end - $start);
             }
 
-            switch($formData["action"]) {
+            switch($formData["action"][0]) {
                 case "reverse":
-                    $result = strrev($seq); // reverse the sequence
+                    $result = strrev($formData["seq"]); // reverse the sequence
                     break;
                 case "complement":
-                    $result = $sequenceManipulationAndDataManager->complement($seq); // get the complementary sequence
+                    // get the complementary sequence
+                    $result = $sequenceManipulationAndDataManager->complement($formData["seq"]);
                     break;
                 case "reverse_and_complement":
-                    $seq = strrev($seq); // reverse the sequence
+                    $seq = strrev($formData["seq"]); // reverse the sequence
                     $result = $sequenceManipulationAndDataManager->complement($seq); // get the complementary sequence
                     break;
                 case "display_both_strands":
-                    $result = $sequenceManipulationAndDataManager->displayBothStrands($seq); // get a string with results
+                    // get a string with results
+                    $result = $sequenceManipulationAndDataManager->displayBothStrands($formData["seq"]);
                     break;
                 case "toRNA":
-                    $result = $sequenceManipulationAndDataManager->toRNA($seq); // get a string with results
+                    $result = $sequenceManipulationAndDataManager->toRNA($formData["seq"]); // get a string with results
+                    break;
+                default:
+                    $result = $formData["seq"];
                     break;
             }
 
             if($formData["GC"] == 1) {
-                $result .= $sequenceManipulationAndDataManager->gcContent($seq); // calculate G+C content
+                $result .= $sequenceManipulationAndDataManager->gcContent($formData["seq"]); // calculate G+C content
             }
             if ($formData["ACGT"] == 1) {
-                $result.= $sequenceManipulationAndDataManager->acgtContent($seq); // calculate nucleotide composition
+                // calculate nucleotide composition
+                $result .= $sequenceManipulationAndDataManager->acgtContent($formData["seq"]);
             }
         }
 
