@@ -1,5 +1,46 @@
 {% extends 'base.html.twig' %}
+{% block title %}Alignment of two DNA, RNA or protein sequences{% endblock %}
 {% block body %}
+    <h2>DNA Sequence manipulation</h2>
+    <p></p>
+
+    <p></p>
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form_row(form.seq) }}
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-4">{{ form_widget(form.action) }}</div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-4">{{ form_label(form.start) }}</div>
+                <div class="col-md-1">{{ form_widget(form.start) }}</div>
+                <div class="col-md-2">{{ form_label(form.end) }}</div>
+                <div class="col-md-1">{{ form_widget(form.end) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.GC) }}</div>
+                <div class="col-md-3">{{ form_label(form.GC) }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">{{ form_widget(form.ACGT) }}</div>
+                <div class="col-md-3">{{ form_label(form.ACGT) }}</div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-12">{{ form_row(form.submit) }}</div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
 
     <div class="card">
         <h5 class="card-header">DNA sequence manipulation</h5>

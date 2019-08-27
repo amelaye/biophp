@@ -3,12 +3,14 @@
  * Minitools controller
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 february 2019
- * Last modified 23 july 2019
+ * Last modified 27 august 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Controller;
 
+use MinitoolsBundle\Form\SequenceManipulationType;
 use MinitoolsBundle\Form\SkewsType;
+use MinitoolsBundle\Service\SequenceManipulationAndDataManager;
 use MinitoolsBundle\Service\SkewsManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -378,10 +380,20 @@ class MinitoolsController extends Controller
     /**
      * @Route("/minitools/sequences-manipulation-and-data", name="sequences_manipulation_and_data")
      */
-    public function sequencesManipulationAndDataAction(SkewsManager $skewsManager)
-    {
+    public function sequencesManipulationAndDataAction(
+        Request $request,
+        SequenceManipulationAndDataManager $sequenceManipulationAndDataManager
+    ) {
+        $form = $this->get('form.factory')->create(SequenceManipulationType::class);
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+        }
+
         return $this->render(
-            'minitools/sequencesManipulationAndData.html.twig'
+            'minitools/sequencesManipulationAndData.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
         );
     }
 
