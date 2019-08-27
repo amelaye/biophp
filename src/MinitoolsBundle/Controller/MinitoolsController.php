@@ -384,15 +384,51 @@ class MinitoolsController extends Controller
         Request $request,
         SequenceManipulationAndDataManager $sequenceManipulationAndDataManager
     ) {
+        $result = "";
         $form = $this->get('form.factory')->create(SequenceManipulationType::class);
-        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            $formData       = $form->getData();
+
+            // if subsequence is requested
+            if (isset($formData["start"]) || isset($formData["end"])) {
+                $start = $formData["start"] != "" ? ($formData["start"] - 1) : 0;
+                $end = $formData["end"] != "" ? $formData["end"] : strlen($formData["seq"]);
+                $seq = substr($formData["seq"], $start,$end - $start);
+            }
+
+            switch($formData["action"]) {
+                case "reverse":
+                    $result = strrev($seq); // reverse the sequence
+                    break;
+                case "complement":
+                    $result = $sequenceManipulationAndDataManager->complement($seq); // get the complementary sequence
+                    break;
+                case "reverse_and_complement":
+                    $seq = strrev($seq); // reverse the sequence
+                    $result = $sequenceManipulationAndDataManager->complement($seq); // get the complementary sequence
+                    break;
+                case "display_both_strands":
+                    $result = $sequenceManipulationAndDataManager->displayBothStrands($seq); // get a string with results
+                    break;
+                case "toRNA":
+                    $result = $sequenceManipulationAndDataManager->toRNA($seq); // get a string with results
+                    break;
+            }
+
+            if($formData["GC"] == 1) {
+                $result .= $sequenceManipulationAndDataManager->gcContent($seq); // calculate G+C content
+            }
+            if ($formData["ACGT"] == 1) {
+                $result.= $sequenceManipulationAndDataManager->acgtContent($seq); // calculate nucleotide composition
+            }
         }
 
         return $this->render(
             'minitools/sequencesManipulationAndData.html.twig',
             [
                 'form' => $form->createView(),
+                'result' => $result
             ]
         );
     }
