@@ -14,6 +14,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 /**
  * Class SequenceManipulationType
@@ -114,5 +116,22 @@ class SequenceManipulationType extends AbstractType
                 ]
             ]
         );
+
+        /**
+         * Formatting Seq before validation
+         */
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $data = $event->getData();
+            // remove non coding (works by default)
+            if (isset($data['seq'])) {
+                // change the sequence to upper case
+                $seq = strtoupper($data['seq']);
+                // remove non-words (\W), con coding ([^ATGCYRWSKMDVHBN]) and digits (\d) from sequence
+                $seq = preg_replace("/\W|[^ATGCYRWSKMDVHBN]|\d/","",$seq);
+                // replace all X by N (to normalized sequences)
+                $data['seq'] = preg_replace("/X/","N",$seq);
+                $event->setData($data);
+            }
+        });
     }
 }

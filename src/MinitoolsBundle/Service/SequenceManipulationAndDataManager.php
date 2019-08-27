@@ -41,27 +41,6 @@ class SequenceManipulationAndDataManager
     }
 
     /**
-     * Remove non-words (\W), con coding ([^ATGCYRWSKMDVHBN]) and digits (\d) from sequence
-     * @param $seq
-     * @return string|string[]|null
-     * @throws \Exception
-     */
-    public function removeNonCoding($seq)
-    {
-        try {
-            // change the sequence to upper case
-            $seq = strtoupper($seq);
-            // remove non-words (\W), con coding ([^ATGCYRWSKMDVHBN]) and digits (\d) from sequence
-            $seq = preg_replace("/\W|[^ATGCYRWSKMDVHBN]|\d/","",$seq);
-            // replace all X by N (to normalized sequences)
-            $seq = preg_replace("/X/","N",$seq);
-            return $seq;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-    /**
      * @param $seq
      * @return string
      * @throws \Exception
