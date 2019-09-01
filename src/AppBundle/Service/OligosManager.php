@@ -1,17 +1,22 @@
 <?php
 /**
  * Oligo-Nucleotids Functions
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
- * Last modified 22 july 2019
+ * Last modified 1st september 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
+use AppBundle\Interfaces\OligosInterface;
 
-class OligosManager
+/**
+ * Class OligosManager
+ * @package AppBundle\Service
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
+class OligosManager implements OligosInterface
 {
     private $base_a;
     private $base_b;
