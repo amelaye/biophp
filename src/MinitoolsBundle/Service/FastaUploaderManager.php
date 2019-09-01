@@ -3,7 +3,7 @@
  * FastaUploadManager
  * Inspired by BioPHP's project biophp.org
  * Created 18 march 2019
- * Last modified 24 june 2019
+ * Last modified 1st september 2019
  */
 namespace MinitoolsBundle\Service;
 
@@ -18,8 +18,9 @@ class FastaUploaderManager
 {
     /**
      * Checks the validity of the sequence
-     * @param   string      $sSequence
-     * @return  bool
+     * @param       string      $sSequence
+     * @return      bool
+     * @throws      \Exception
      */
     public function isValidSequence($sSequence)
     {

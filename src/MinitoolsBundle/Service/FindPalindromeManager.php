@@ -3,9 +3,11 @@
  * FindPalindromeManager
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 24 june 2019
+ * Last modified 1st september 2019
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Class FindPalindromeManager
@@ -14,6 +16,8 @@ namespace MinitoolsBundle\Service;
  */
 class FindPalindromeManager
 {
+    use SequenceTrait;
+
     /**
      * Searches sequence for palindromic substrings
      * @param   string  $sSequence      is the sequence to be searched
@@ -61,28 +65,6 @@ class FindPalindromeManager
             } else {
                 return false;
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-
-    /**
-     * Will yield the Reverse complement of a NA sequence. Allows degenerated nucleotides
-     * @param   string      $sSequence      is the sequence
-     * @return  string
-     * @throws \Exception
-     */
-    public function revCompDNA2($sSequence)
-    {
-        try {
-            $sSequence = strtoupper($sSequence);
-            $sSequence = strrev($sSequence);
-            $aPattern = ["A", "T", "G", "C", "Y", "R", "W", "S",  "K", "M",  "D", "V",  "H",  "B"];
-            $aReplace = ["t", "a",  "c", "g", "r", "y", "w", "s", "m", "k", "h", "b", "d", "v"];
-            $sSequence = str_replace($aPattern, $aReplace, $sSequence);
-            $sSequence = strtoupper ($sSequence);
-            return $sSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

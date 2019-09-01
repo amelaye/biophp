@@ -66,21 +66,4 @@ class FindPalindromeManagerTest extends TestCase
         $service = new FindPalindromeManager();
         $service->dnaIsPalindrome($sSequence);
     }
-
-    public function testRevCompDNA2()
-    {
-        $sSequence = "AGTCCCGTAA";
-        $service = new FindPalindromeManager();
-        $testFunction = $service->revCompDNA2($sSequence);
-        $sExpected = "TTACGGGACT";
-        $this->assertEquals($testFunction, $sExpected);
-    }
-
-    public function testRevCompDNA2Exception()
-    {
-        $this->expectException(\Exception::class);
-        $sSequence = [];
-        $service = new FindPalindromeManager();
-        $service->revCompDNA2($sSequence);
-    }
 }

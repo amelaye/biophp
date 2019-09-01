@@ -2,18 +2,16 @@
 /**
  * Formulas Functions
  * Inspired by BioPHP's project biophp.org
- * Created 3 march  2019
- * Last modified 6 april 2019
+ * Created 3 march 2019
+ * Last modified 1st september 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
-use MinitoolsBundle\Entity\RandomSequences;
-
 /**
  * Class RandomSequencesManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class RandomSequencesManager
 {
