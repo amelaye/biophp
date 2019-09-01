@@ -421,10 +421,10 @@ class MinitoolsController extends Controller
                     break;
             }
 
-            if($formData["GC"] == 1) {
+            if($formData["GC"]) {
                 $result .= $sequenceManipulationAndDataManager->gcContent($formData["seq"]); // calculate G+C content
             }
-            if ($formData["ACGT"] == 1) {
+            if ($formData["ACGT"]) {
                 // calculate nucleotide composition
                 $result .= $sequenceManipulationAndDataManager->acgtContent($formData["seq"]);
             }

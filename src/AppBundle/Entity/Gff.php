@@ -101,7 +101,6 @@ class Gff
     }
 
 
-
     public function getAttributes()
     {
         return $this->attributes;
