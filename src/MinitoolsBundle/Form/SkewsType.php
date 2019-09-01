@@ -95,12 +95,15 @@ class SkewsType extends AbstractType
                     10000 => 10000,
                     50000 => 50000
                 ],
+                'required'   => false,
                 'label' => "Window size : ",
                 'attr' => [
                     'class' => "custom-select d-block w-20"
                 ]
             ]
         );
+
+        $builder->get('window')->resetViewTransformers();
 
         $builder->add(
             'window2',
@@ -249,10 +252,10 @@ class SkewsType extends AbstractType
                 $event->setData($data);
             }
             // custom window size id not submited, use the $window value
-            //if (isset($data["window2"]) && $data["window2"] != "") {
-            //    $data["window"] = $data["window2"];
-            //    $event->setData($data);
-            //}
+            if (isset($data["window2"]) && $data["window2"] != "") {
+                $data["window"] = $data["window2"];
+                $event->setData($data);
+            }
         });
     }
 }
