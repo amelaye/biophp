@@ -16,31 +16,6 @@ trait SequenceTrait
 {
     /**
      * Returns complement of sequence $sSequence
-     * @param   string    $sSequence
-     * @return  string
-     */
-    public function comp($sSequence)
-    {
-        $sSequence = str_replace("A", "t", $sSequence);
-        $sSequence = str_replace("T", "a", $sSequence);
-        $sSequence = str_replace("G", "c", $sSequence);
-        $sSequence = str_replace("C", "g", $sSequence);
-        return strtoupper($sSequence);
-    }
-
-    /**
-     * Computes the reverse complement of a sequence (only ACGT nucleotides are used)
-     * @param   string          $sSequence
-     * @return  mixed|string
-     */
-    public function revComp($sSequence) {
-        $sSequence = strrev($sSequence);
-        $sSequence = $this->comp($sSequence);
-        return $sSequence;
-    }
-
-    /**
-     * Returns complement of sequence $sSequence
      * @param   string          $sSequence
      * @return  string
      * @throws  \Exception
@@ -65,7 +40,7 @@ trait SequenceTrait
      * @return  string
      * @throws \Exception
      */
-    public function revCompDNA2($sSequence)
+    public function revCompDNA($sSequence)
     {
         try {
             $sSequence = strrev($sSequence);

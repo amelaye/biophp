@@ -52,7 +52,7 @@ class SkewsManager
             }
             if ($iStrands == 2) {
                 // if both strands are used for computing oligonucleotide frequencies
-                $sequence2 = $this->comp($sSequence);
+                $sequence2 = $this->compDNA($sSequence);
                 $i = 0;
                 while ($i < $iSeqLength - $iWindow + 1) {
                     $sSequenceCut = substr($sSequence, $i, $iWindow)." ".strrev(substr($sequence2, $i, $iWindow));
