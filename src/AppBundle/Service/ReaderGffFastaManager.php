@@ -104,7 +104,7 @@ class ReaderGffFastaManager
     private function checkTypeValid()
     {
         if (strtolower($this->reader->getTypeFile()) == "gff" || strtolower($this->reader->getTypeFile()) == "fasta") {
-            $this->reader->setTypeFile(strtolower($this->reader->getTypeFile());
+            $this->reader->setTypeFile(strtolower($this->reader->getTypeFile()));
             return true;
         } else {
             throw new FileException("Invalid type (".$this->reader->getTypeFile().")!<br>");
