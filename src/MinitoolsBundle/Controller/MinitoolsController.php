@@ -393,6 +393,7 @@ class MinitoolsController extends Controller
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData       = $form->getData();
+            $seq = $formData["seq"];
 
             // if subsequence is requested
             if (isset($formData["start"]) || isset($formData["end"])) {
@@ -403,11 +404,11 @@ class MinitoolsController extends Controller
 
             switch($formData["action"][0]) {
                 case "reverse":
-                    $result = strrev($formData["seq"]); // reverse the sequence
+                    $result = strrev($seq); // reverse the sequence
                     break;
                 case "complement":
                     // get the complementary sequence
-                    $result = $sequenceManipulationAndDataManager->complement($formData["seq"]);
+                    $result = $sequenceManipulationAndDataManager->complement($seq);
                     break;
                 case "reverse_and_complement":
                     $seq = strrev($formData["seq"]); // reverse the sequence
@@ -415,22 +416,22 @@ class MinitoolsController extends Controller
                     break;
                 case "display_both_strands":
                     // get a string with results
-                    $result = $sequenceManipulationAndDataManager->displayBothStrands($formData["seq"]);
+                    $result = $sequenceManipulationAndDataManager->displayBothStrands($seq);
                     break;
                 case "toRNA":
-                    $result = $sequenceManipulationAndDataManager->toRNA($formData["seq"]); // get a string with results
+                    $result = $sequenceManipulationAndDataManager->toRNA($seq); // get a string with results
                     break;
                 default:
-                    $result = $formData["seq"];
+                    $result = $seq;
                     break;
             }
 
             if($formData["GC"]) {
-                $result .= $sequenceManipulationAndDataManager->gcContent($formData["seq"]); // calculate G+C content
+                $result .= $sequenceManipulationAndDataManager->gcContent($seq); // calculate G+C content
             }
             if ($formData["ACGT"]) {
                 // calculate nucleotide composition
-                $result .= $sequenceManipulationAndDataManager->acgtContent($formData["seq"]);
+                $result .= $sequenceManipulationAndDataManager->acgtContent($seq);
             }
         }
 
@@ -445,6 +446,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/skews", name="skews")
+     * @param   Request         $request
+     * @param   SkewsManager    $skewsManager
+     * @return  Response
+     * @throws  \Exception
      */
     public function skewsAction(Request $request, SkewsManager $skewsManager)
     {
