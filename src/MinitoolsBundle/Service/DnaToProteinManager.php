@@ -10,15 +10,18 @@ namespace MinitoolsBundle\Service;
 
 
 use AppBundle\Bioapi\Bioapi;
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Class DnaToProteinManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : beaucoup de fonctions de format !
  */
 class DnaToProteinManager
 {
+    use SequenceTrait;
+
     /**
      * @var array
      */
@@ -87,7 +90,7 @@ class DnaToProteinManager
             // Translate the complementary sequence
             if ($iFrames > 3) {
                 // Get complementary
-                $this->sRvSequence = $this->revCompDNA($sSequence);
+                $this->sRvSequence = $this->compDNA($sSequence);
                 $aFrames[4] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 0, floor(strlen($this->sRvSequence)/3)*3),$sMycode);
                 $aFrames[5] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3),$sMycode);
                 $aFrames[6] = $this->translateDNAToProteinCustomcode(substr($this->sRvSequence, 2,floor((strlen($this->sRvSequence)-2)/3)*3),$sMycode);
@@ -119,7 +122,7 @@ class DnaToProteinManager
             // Translate the complementary sequence
             if ($iFrames > 3){
                 // Get complementary
-                $this->sRvSequence = $this->revCompDNA($sSequence);
+                $this->sRvSequence = $this->compDNA($sSequence);
                 //calculate frames 4-6
                 $aFrames[4] = $this->translateDNAToProtein(substr($this->sRvSequence, 0,floor(strlen($this->sRvSequence)/3)*3), $sGeneticCode);
                 $aFrames[5] = $this->translateDNAToProtein(substr($this->sRvSequence, 1,floor((strlen($this->sRvSequence)-1)/3)*3), $sGeneticCode);
@@ -171,26 +174,6 @@ class DnaToProteinManager
                 $aFrames[$n] = $sNewPeptideSequence;
             }
             return $aFrames;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-    /**
-     * @param   string          $sSequence
-     * Unit Tests OK
-     * @return  string
-     * @throws  \Exception
-     */
-    public function revCompDNA($sSequence)
-    {
-        try {
-            $sSequence = strtoupper($sSequence);
-            $original   = ["(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)"];
-            $complement = ["t","a","c","g","r","y","w","s","m","k","h","b","d","v"];
-            $sSequence = preg_replace($original, $complement, $sSequence);
-            $sSequence = strtoupper($sSequence);
-            return $sSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

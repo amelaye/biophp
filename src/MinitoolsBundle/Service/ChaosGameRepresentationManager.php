@@ -13,7 +13,7 @@ use AppBundle\Bioapi\Bioapi;
 /**
  * Class ChaosGameRepresentationManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ChaosGameRepresentationManager
 {

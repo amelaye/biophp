@@ -3,42 +3,22 @@
  * Sequence Manipulation and DATA Functions
  * Inspired by BioPHP's project biophp.org
  * Created 1st march  2019
- * Last modified 23 july 2019
+ * Last modified 1st september 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
+
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Sequence Manipulation and DATA Functions
  * Class SequenceManipulationAndDataManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceManipulationAndDataManager
 {
-    /**
-     * Change the sequence to upper case
-     * the system used to get the complementary sequence is simple but fast
-     * @param $seq
-     * @return mixed|string
-     * @throws \Exception
-     */
-    public function complement($seq)
-    {
-        try {
-            $seq = strtoupper($seq);
-            $pattern = ["A", "T", "G", "C", "Y", "R", "W", "S", "K", "M", "D", "V", "H", "B"];
-            $replace = ["t", "a", "c", "g", "r", "y", "w", "s", "m", "k", "h", "b", "d", "v"];
-
-            $seq = str_replace($pattern, $replace, $seq);
-
-            // change the sequence to upper case again for output
-            $seq = strtoupper ($seq);
-            return $seq;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
+    use SequenceTrait;
 
     /**
      * @param $seq
@@ -49,7 +29,7 @@ class SequenceManipulationAndDataManager
     {
         try {
             // get the complementary sequence
-            $revcomp = $this->complement($seq);
+            $revcomp = $this->revCompDNA($seq);
             $result = "";
             $i = 0;
             while ($i<strlen($seq)){

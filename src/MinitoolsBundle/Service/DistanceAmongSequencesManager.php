@@ -15,7 +15,7 @@ use AppBundle\Traits\SequenceTrait;
 /**
  * Class DistanceAmongSequencesManager
  * @package MinitoolsBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class DistanceAmongSequencesManager
 {
@@ -30,7 +30,6 @@ class DistanceAmongSequencesManager
      * @var int
      */
     private $y = null;
-
 
     /**
      * @var int

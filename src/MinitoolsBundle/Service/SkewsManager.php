@@ -9,6 +9,7 @@
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Service\OligosManager;
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Class SkewsManager
@@ -17,6 +18,8 @@ use AppBundle\Service\OligosManager;
  */
 class SkewsManager
 {
+    use SequenceTrait;
+
     private $oligosManager;
 
     public function __construct(OligosManager $oligosManager)
@@ -394,19 +397,5 @@ class SkewsManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }
-
-    /**
-     * returns complement of sequence $code
-     * @param $code
-     * @return string
-     */
-    public function comp($code)
-    {
-        $code = str_replace("A", "t", $code);
-        $code = str_replace("T", "a", $code);
-        $code = str_replace("G", "c", $code);
-        $code = str_replace("C", "g", $code);
-        return strtoupper($code);
     }
 }
