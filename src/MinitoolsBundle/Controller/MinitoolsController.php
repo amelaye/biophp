@@ -379,6 +379,10 @@ class MinitoolsController extends Controller
 
     /**
      * @Route("/minitools/sequences-manipulation-and-data", name="sequences_manipulation_and_data")
+     * @param   Request $request
+     * @param   SequenceManipulationAndDataManager  $sequenceManipulationAndDataManager
+     * @return  Response
+     * @throws  \Exception
      */
     public function sequencesManipulationAndDataAction(
         Request $request,
@@ -464,9 +468,6 @@ class MinitoolsController extends Controller
             }
 
             $window = $formData["window"];
-            if($formData["window2"] != "") {
-                $window = $formData["window2"];
-            }
 
             // if sequence is to sort to work with, display error
             if (strlen($formData["seq"]) < ($window + 1400)) {

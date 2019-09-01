@@ -10,7 +10,7 @@ namespace AppBundle\Traits;
 /**
  * Trait OligoTrait
  * @package AppBundle\Traits
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 trait OligoTrait
 {

@@ -32,11 +32,15 @@ class SequenceManipulationAndDataManager
             $revcomp = $this->revCompDNA($seq);
             $result = "";
             $i = 0;
-            while ($i<strlen($seq)){
-                if(strlen($seq)<($i+70)){$j=strlen($seq);}else{$j=$i;}
-                $result.=substr($seq,$i,70)."\t$j\n";
-                $result.=substr($revcomp,$i,70)."\t$j\n";
-                $result.="\n"; //line break
+            while ($i < strlen($seq)) {
+                if(strlen($seq) < ($i+70)) {
+                    $j = strlen($seq);
+                } else {
+                    $j = $i;
+                }
+                $result .= substr($seq,$i,70)."\t$j\n";
+                $result .= substr($revcomp,$i,70)."\t$j\n";
+                $result .= "\n"; //line break
                 $i+=70;
             }
             return $result;
