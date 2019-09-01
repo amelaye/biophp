@@ -16,9 +16,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\LessThan;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Class SkewsType
@@ -257,5 +260,33 @@ class SkewsType extends AbstractType
                 $event->setData($data);
             }
         });
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'constraints' => [
+                new Callback([
+                    'callback' => [$this, 'validateisReady'],
+                ]),
+            ]
+        ]);
+    }
+
+    /**
+     * If sequence is to sort to work with, display error
+     * @param $object
+     * @param ExecutionContextInterface $context
+     * @throws \Exception
+     */
+    public static function validateisReady($object, ExecutionContextInterface $context)
+    {
+        if (strlen($object["seq"]) < ($object["window"] + 1400)) {
+            $context->buildViolation("Sequence is very small for the selected window size.")
+                ->addViolation();
+        }
     }
 }

@@ -151,8 +151,9 @@ class SequenceAlignmentType extends AbstractType
         $iLimit = 300;
 
         if ((strlen($object["sequence"]) + strlen($object["sequence2"])) > $iLimit) {
-            $context->buildViolation("The maximum length of code accepted for both 
-                sequences is $iLimit nucleotides");
+            $context
+                ->buildViolation("The maximum length of code accepted for both sequences is $iLimit nucleotides")
+                ->addViolation();
         }
     }
 }

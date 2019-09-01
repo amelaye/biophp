@@ -454,7 +454,7 @@ class MinitoolsController extends Controller
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $formData = $form->getData();
 
-            $oligo_skew_array = [];
+            $aOligoSkew = [];
             $sequence = $formData["seq"];
 
             // remove useless part of sequence
@@ -467,19 +467,13 @@ class MinitoolsController extends Controller
                 }
             }
 
-            $window = $formData["window"];
-
-            // if sequence is to sort to work with, display error
-            if (strlen($formData["seq"]) < ($window + 1400)) {
-                die("Error: sequence is very small for the selected window size.");
-            }
             // when oligo-skew is requested, computing time will be long; let know the user and compute data for oligo-skew
             if ($formData["oskew"] == 1) {
                 if ($skewsManager->strIsInt($formData["oligo_len"]) == 1) {
                     // in next line a function will compute an array with distances
-                    $oligo_skew_array = $skewsManager->oligoSkewArrayCalculation(
+                    $aOligoSkew = $skewsManager->oligoSkewArrayCalculation(
                         $sequence,
-                        $window,
+                        $formData["window"],
                         $formData["oligo_len"],
                         $formData["strands"]
                     );
@@ -488,12 +482,12 @@ class MinitoolsController extends Controller
             // create image with skews
             $imageResult = $skewsManager->createImage(
                 $sequence,
-                $window,
+                $formData["window"],
                 $formData["GC"],
                 $formData["AT"],
                 $formData["KETO"],
                 $formData["GmC"],
-                $oligo_skew_array,
+                $aOligoSkew,
                 $formData["oligo_len"],
                 $formData["from"],
                 $formData["to"],
