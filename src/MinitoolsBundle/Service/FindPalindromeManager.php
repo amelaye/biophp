@@ -60,7 +60,7 @@ class FindPalindromeManager
     public function dnaIsPalindrome($sSequence)
     {
         try {
-            if ($sSequence == $this->revCompDNA2($sSequence)) {
+            if ($sSequence == $this->revCompDNA($sSequence)) {
                 return true;
             } else {
                 return false;

@@ -549,7 +549,7 @@ class DistanceAmongSequencesManager
     public function computeZscoresForTetranucleotides($theseq)
     {
         try {
-            $theseq .= " ".$this->revComp($theseq);
+            $theseq .= " ".$this->revCompDNA($theseq);
 
             $oligos2 = $this->iterateOligo($theseq, 2);
             $oligos3 = $this->iterateOligo($theseq, 3);
