@@ -1,261 +1,180 @@
 <?php
 
-
+/**
+ * Reader for Fasta Entity
+ * Freely inspired by BioPHP's project biophp.org
+ * Created 1st september 2019
+ * Last modified 1st september 2019
+ */
 namespace AppBundle\Entity;
 
+use Deployer\Component\PharUpdate\Exception\FileException;
 
+/**
+ * Class Reader - Reader for Fasta Entity
+ * @package AppBundle\Entity
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class Reader
 {
-    //CONFIGURATION PARAMETERS
-    var $sInputFile; //file input
-    var $TYPE_FILE; //type file
-    var $ERROR; 	// error in proccess
-    var $OBJECT; 	// content of file INPUT
-    var $CURRENT;  	// data of id current
-    var $iNumberLines; //file number lines
-    var $UID; 		//list of ID unique
-    var $NUMBER_UID;//number of uniques elements
-    private $READ_FILE=false;
-    private $TYPE;
+    /**
+     * Content of file INPUT
+     * @var resource
+     */
+    public $oObject;
+
+    /**
+     * List of ID unique
+     * @var int
+     */
+    public $iUid;
+
+    /**
+     * File input
+     * @var string
+     */
+    private $sInputFile;
+
+    /**
+     * Type file
+     * @var string
+     */
+    private $sTypeFile;
+
+    /**
+     * Data of id current
+     * @var int
+     */
+    private $iCurrent;
+
+    /**
+     * File number lines
+     * @var int
+     */
+    private $iNumberLines;
+
+    /**
+     * Number of unique elements
+     * @var int
+     */
+    private $iNumberUid;
+
+    /**
+     * @var bool
+     */
+    private $bReadFile = false;
+
+    /**
+     * @var string
+     */
+    private $sType;
 
 
     /**
-     * @return the $INPUT_FILE
+     * @return int
      */
-    /**
-     * @return the $numberLines
-     */
-
-    public function getNumberLines() {
+    public function getNumberLines()
+    {
         return $this->iNumberLines;
     }
 
     /**
-     * @param $numberLines the $numberLines to set
+     * @param $numberLines
      */
-    public function setNumberLines($numberLines) {
+    public function setNumberLines($numberLines)
+    {
         $this->iNumberLines = $numberLines;
     }
 
-    public function getINPUT_FILE() {
+    /**
+     * @return string
+     */
+    public function getInputFile()
+    {
         return $this->sInputFile;
     }
 
     /**
-     * @return the $TYPE_FILE
+     * @param $sInputFile
      */
-    public function getTYPE_FILE() {
-        return $this->TYPE_FILE;
-    }
-
-    /**
-     * @return the $ERROR
-     */
-    public function getERROR() {
-        return $this->ERROR;
-    }
-
-    /**
-     * @param $INPUT_FILE the $INPUT_FILE to set
-     */
-    public function setINPUT_FILE($sInputFile) {
+    public function setInputFile($sInputFile)
+    {
         $this->sInputFile = $sInputFile;
-        $this->CheckFileValid();
     }
 
     /**
-     * @param $TYPE_FILE the $TYPE_FILE to set
+     * @return string
      */
-    public function setTYPE_FILE($TYPE_FILE) {
-        $this->TYPE_FILE = $TYPE_FILE;
-        $this->CheckTypeValid();
+    public function getTypeFile()
+    {
+        return $this->sTypeFile;
     }
 
     /**
-     * @param $ERROR the $ERROR to set
+     * @param $sTypeFile
      */
-    private  function setERROR($ERROR) {
-        $this->ERROR .= $ERROR;
-    }
-
-    //read fasta type
-    /**
-     * @return the $UID
-     */
-    public function getUID() {
-        return $this->UID;
+    public function setTypeFile($sTypeFile)
+    {
+        $this->sTypeFile = $sTypeFile;
     }
 
     /**
-     * @return the $NUMBER_UID
+     * @return int
      */
-    public function getNUMBER_UID() {
-        return $this->NUMBER_UID;
+    public function getUid() {
+        return $this->iUid;
     }
 
     /**
-     * @param $UID the $UID to set
+     * @param $iUid
      */
-    private function setUID($UID) {
-        $this->UID = $UID;
+    public function setUid($iUid) {
+        $this->iUid = $iUid;
     }
 
     /**
-     * @param $NUMBER_UID the $NUMBER_UID to set
+     * @return int
      */
-    private function setNUMBER_UID($NUMBER_UID) {
-        $this->NUMBER_UID = $NUMBER_UID;
+    public function getNumberUid() {
+        return $this->iNumberUid;
     }
 
-
-
-//check if file is valid
-    private function CheckFileValid(){
-        if (is_file($this->getINPUT_FILE())){
-            return true;
-        }else{
-            $this->setERROR("Invalid file ($this->getINPUT_FILE())!<br>");
-            exit(1);
-        }
-    }
-//check if type is valid
-    private function CheckTypeValid(){
-        if (strtolower($this->getTYPE_FILE())=="gff" || strtolower($this->getTYPE_FILE())=="fasta"){
-            $this->TYPE = strtolower($this->getTYPE_FILE());
-            return true;
-        }else{
-            $this->setERROR("Invalid type ($this->getTYPE_FILE())!<br>");
-            exit(1);
-        }
+    /**
+     * @param $iNumberUid
+     */
+    public function setNumberUid($iNumberUid) {
+        $this->iNumberUid = $iNumberUid;
     }
 
-//read file
-    public function read(){
-        if ($this->CheckTypeValid() && $this->CheckFileValid()){
-            if ($this->TYPE=="fasta"){
-                $this->readFasta();
-                $this->READ_FILE=true;
-            }
-            if ($this->TYPE=="gff"){
-                $this->readGff();
-                $this->READ_FILE=true;
-            }
-            $this->setUID(array_unique($this->UID));
-            $this->setNUMBER_UID(count($this->getUID()));
-
-        }
+    /**
+     * @return bool
+     */
+    public function isReadFile()
+    {
+        return $this->bReadFile;
     }
 
-
-
-    private function readFasta (){
-        $this->CheckTypeValid();
-        $file = fopen($this->getINPUT_FILE(),"r");
-        $contSeq = 0;
-        $cont=-1;;
-
-        while (!feof($file )){
-            $buffer = fgets($file);
-            //read header
-            if ($buffer[0]==">"){
-                $cont++;
-                $aux="";
-                $all 	= preg_split("/\s/",$buffer);
-                $id 	= str_replace(">","",$all[0]);
-                $length = str_replace("length=","",$all[1]);
-                $xy 	= str_replace("xy=","",$all[2]);
-                $region = str_replace("region=","",$all[3]);
-                $run 	= str_replace("run=","",$all[4]);
-                $this->OBJECT[$cont] = new fasta();
-                $this->OBJECT[$cont]->setId($id);
-                $this->OBJECT[$cont]->setLength($length);
-                $this->OBJECT[$cont]->setXy($xy);
-                $this->OBJECT[$cont]->setRegion($region);
-                $this->OBJECT[$cont]->setRun($run);
-                $this->UID[]=$id;
-                $contSeq++;
-
-            }
-            else{//read sequence
-                $aux.=$buffer;
-                $this->OBJECT[$cont]->setSequence($aux);
-
-            }
-        }
-        $this->setNumberLines($contSeq);
-    }
-//read type gff
-    private function readGff(){
-        $this->CheckTypeValid();
-        $file = fopen($this->getINPUT_FILE(),"r");
-        $contSeq = 0;
-        $cont=-1;;
-
-        while (!feof($file )){
-            $buffer = fgets($file);
-            //read header
-            if ($buffer[0]!="#"){
-                $cont++;
-                $aux="";
-                $all 		= preg_split("/\t/",$buffer);
-                $seqid		= $all[0];
-                if ($seqid!=""){
-                    $source		= $all[1];
-                    $type		= $all[2];
-                    $start		= $all[3];
-                    $end		= $all[4];
-                    $score		= $all[5];
-                    $strand		= $all[6];
-                    $phase		= $all[7];
-                    $attributes	= $all[8];
-
-                    $this->OBJECT[$cont] = new gff();
-                    $this->OBJECT[$cont]->setSeqid($seqid);
-                    $this->OBJECT[$cont]->setSource($source);
-                    $this->OBJECT[$cont]->setType($type);
-                    $this->OBJECT[$cont]->setStart($start);
-                    $this->OBJECT[$cont]->setEnd($end);
-                    $this->OBJECT[$cont]->setScore($score);
-                    $this->OBJECT[$cont]->setStrand($strand);
-                    $this->OBJECT[$cont]->setPhase($phase);
-                    $this->OBJECT[$cont]->setAttributes($attributes);
-                    $this->UID[]=$seqid;
-
-                    $contSeq++;
-                }
-            }
-
-        }
-        $this->setNumberLines($contSeq);
+    /**
+     * @param bool $bReadFile
+     */
+    public function setReadFile($bReadFile)
+    {
+        $this->bReadFile = $bReadFile;
     }
 
-// return data ($id)
-    function Find($id){
-        if ($this->READ_FILE){
-            if ($this->TYPE=="fasta"){
-                for ($i=0;$i<$this->getNumberLines();$i++){
-                    if (trim($this->OBJECT[$i]->getId())==trim($id)){
-                        $this->CURRENT = $this->OBJECT[$i];
-                        $found=true;
-                        break;
-                    }
-                }
-            }
+    /**
+     * @return resource
+     */
+    public function getObject()
+    {
+        return $this->oObject;
+    }
 
-            if ($this->TYPE=="gff"){
-
-                for ($i=0;$i<$this->getNumberLines();$i++){
-                    if (trim($this->OBJECT[$i]->getSeqid())==trim($id)){
-                        $this->CURRENT = $this->OBJECT[$i];
-                        $found=true;
-                        break;
-                    }
-                }
-            }
-            if (!$found) echo "<br> id ($id) not found! $this->ERROR </br>";
-        }else{
-            $this->setERROR("File not read");
-            exit(1);
-        }
+    /**
+     * @param resource $oObject
+     */
+    public function setObject($oObject)
+    {
+        $this->oObject = $oObject;
     }
 }
