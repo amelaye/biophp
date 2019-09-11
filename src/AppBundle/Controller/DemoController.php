@@ -61,9 +61,8 @@ class DemoController extends Controller
      */
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
-        $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq"); // Creates the .IDX and .DIR
-        //$oSequence = $databaseManager->fetch("NM_031438");
-        $oSequence = new Sequence();
+        $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
+        $oSequence = $databaseManager->fetch("NM_031438");
 
         return $this->render('demo/parseseqdb.html.twig',
             ["sequence" => $oSequence]
@@ -80,11 +79,12 @@ class DemoController extends Controller
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        /*$database = new Database("humandbBis", "SWISSPROT", "Q5K4E3.txt"); // SWISSPROT
-        $databaseManager->setDatabase($database);
-        $databaseManager->buffering(); // Creates the .IDX and .DIR
-        //$databaseManager->fetch("NM_031438");
-
-        return $this->render('@App/demo/parseswissprotdb.html.twig');*/
+        //$databaseManager->recording("humandbBis", "SWISSPROT", "Q5K4E3.txt");
+        $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
+        $oSequence = $databaseManager->fetch("1375");
+dump($oSequence);
+        return $this->render('demo/parseswissprotdb.html.twig',
+            ["sequence" => $oSequence]
+        );
     }
 }
