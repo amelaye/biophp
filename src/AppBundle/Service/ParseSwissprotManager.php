@@ -75,7 +75,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Parses the Feature Table lines (those that begin with FT) in a Swissprot
      * data file, extracts the feature key name, from endpoint, to endpoint, and description, and
      * stores them in a (simple) array.
-     * @param   type        $flines
+     * @param   array       $aFlines
      * @return  Sequence    $oSequence
      * @group   Legacy
      */
@@ -89,60 +89,46 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $linedata = trim(substr($linestr, 5));
             $lineend = $this->right($linedata, 1);
 
-            if ($this->left($linestr, 2) == "ID") {
-                $this->buildIDFields($linestr);
-            }
-
-            if ($this->left($linestr, 2) == "AC") {
-                $this->buildACFields($linedata);
-            }
-
-            if ($this->left($linestr, 2) == "DT") {
-                $this->buildDTFields($linedata);
-            }
-
-            if ($this->left($linestr, 2) == "DE") {
-                $this->buildDEFields($linedata);
-            }
-
-            if ($linelabel == "KW") {
-                $this->buildKWFields($linedata, $lineend);
-            }
-
-            if ($linelabel == "OS") {
-                $this->buildOSFields($linedata, $lineend);
-            }
-
-            if ($linelabel == "OG") {
-                $organelle = $this->rem_right($linedata);
-            }
-
-            if ($linelabel == "OC") {
-                $this->buildOCField($linedata, $lineend);
-            }
-
-            if ($linelabel == "FT") {
-                $this->buildFTField($linestr);
-            }
-
-            // ( rn => ( "rp" => "my rp", "rc" => ("tok1" => "value", ...) ) )
-            // ( 10 => ( "RP" => "my rp", "RC" => ("PLASMID" => "PLA_VAL", ... ) ) )
-            // Example: DR AARHUS/GHENT-2DPAGE; 8006; IEF.
-            if ($linelabel == "DR") {
-                $this->buildDRField($linedata);
-            }
-
-            if ($linelabel == "RN") {
-                $this->buildRNField($linedata);
-            }
-
-            if ($this->left($linestr, 2) == "GN") {
-                $this->buildGNField($linestr);
-            }
-            // 0123456789012345678901234567890123456789
-            // SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXX CN;
-            if ($linelabel == "SQ") {
-                $this->buildSQField($linedata);
+            switch($linelabel) {
+                case "ID":
+                    $this->buildIDFields($linestr);
+                    break;
+                case "AC":
+                    $this->buildACFields($linedata);
+                    break;
+                case "DT":
+                    $this->buildDTFields($linedata);
+                    break;
+                case "DE":
+                    $this->buildDEFields($linedata);
+                    break;
+                case "KW":
+                    $this->buildKWFields($linedata, $lineend);
+                    break;
+                case "OS":
+                    $this->buildOSFields($linedata, $lineend);
+                    break;
+                case "OG":
+                    $organelle = $this->rem_right($linedata);
+                    break;
+                case "OC":
+                    $this->buildOCField($linedata, $lineend);
+                    break;
+                case "FT":
+                    $this->buildFTField($linestr);
+                    break;
+                case "DR":
+                    $this->buildDRField($linedata);
+                    break;
+                case "RN":
+                    $this->buildRNField($linedata);
+                    break;
+                case "GN":
+                    $this->buildGNField($linestr);
+                    break;
+                case "SQ":
+                    $this->buildSQField($linedata);
+                    break;
             }
         }
 
@@ -374,6 +360,9 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * We assume that all three data items are mandatory/present in all DR entries.
      * ( refno => ( (dbname1, pid1, sid1), (dbname2, pid2, sid2), ... ), 1 => ( ... ) )
      * ( 0 => ( (REBASE, pid1, sid1), (WORPEP, pid2, sid2), ... ), 1 => ( ... ) )
+     * ( rn => ( "rp" => "my rp", "rc" => ("tok1" => "value", ...) ) )
+     * ( 10 => ( "RP" => "my rp", "RC" => ("PLASMID" => "PLA_VAL", ... ) ) )
+     * Example: DR AARHUS/GHENT-2DPAGE; 8006; IEF.
      * @param   string  $linedata
      */
     private function buildDRField($linedata)
@@ -537,6 +526,8 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
+     * 0123456789012345678901234567890123456789
+     * SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXX CN;
      * @param   string  $linedata
      */
     private function buildSQField($linedata)
