@@ -9,6 +9,7 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Interfaces\RecordingOnLocalDb;
+use AppBundle\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use SeqDatabaseBundle\Entity\Collection;
 use SeqDatabaseBundle\Entity\CollectionElement;
@@ -35,6 +36,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
  */
 class DatabaseManager implements RecordingOnLocalDb
 {
+    use FormatsTrait;
+
     /**
      * @var EntityManager
      */
@@ -235,7 +238,7 @@ class DatabaseManager implements RecordingOnLocalDb
             } elseif ($dbformat == "SWISSPROT") {
                 foreach ($flines as $lineno => $linestr) {
                     if (substr($linestr,0,2) == "AC") {
-                        $words = preg_split("/;/", intrim(substr($linestr,5)));
+                        $words = preg_split("/;/", $this->intrim(substr($linestr,5)));
                         prev($flines);
                         return $words[0];
                     }
