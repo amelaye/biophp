@@ -56,4 +56,15 @@ trait FormatsTrait
     {
         return substr($str, 0, strlen($str)-$charcount);
     }
+
+    /**
+     * trim_element() removes leading and trailing spaces from a string.  In conjunction
+     * with the array_walk() function, it removes spaces from each element of an array.
+     * @param $value
+     * @param $key
+     */
+    public function trim_element(&$value, $key)
+    {
+        $value = trim($value);
+    }
 }
