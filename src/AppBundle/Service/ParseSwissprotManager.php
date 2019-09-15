@@ -3,7 +3,7 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 11 september 2019
+ * Last modified 15 september 2019
  */
 namespace AppBundle\Service;
 
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 /**
  * Class ParseSwissprotManager
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye
+ * @author Amélie DUVERNET aka Amelaye
  */
 class ParseSwissprotManager implements ParseDatabaseInterface
 {
@@ -86,56 +86,61 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $this->aLines = new \ArrayIterator($aFlines); // <3
 
         $aSwiss = [];
+        $organelle = null;
 
+        /* Parsing the whole data */
         foreach($this->aLines as $lineno => $linestr) {
-            $linelabel = $this->left($linestr, 2);
-            $linedata = trim(substr($linestr, 3));
-            $lineend = $this->right($linedata, 1);
+            $linelabel = $this->left($this->aLines->current(), 2);
+            $linedata = trim(substr($this->aLines->current(), 3));
 
             switch($linelabel) {
                 case "ID":
-                    $this->buildIDFields($linestr,$aSwiss,$oSequence);
+                    $this->buildIDFields($aSwiss,$oSequence); // ok
                     break;
                 case "AC":
-                    $this->buildACFields($linedata);
+                    $this->buildACFields(); // ok
                     break;
                 case "DT":
-                    $this->buildDTFields($linedata,$aSwiss,$oSequence);
+                    $this->buildDTFields($aSwiss,$oSequence); // ok
                     break;
                 case "DE":
-                    $this->buildDEFields($linedata, $aSwiss);
+                    $this->buildDEFields($aSwiss); // ok
                     break;
                 case "KW":
-                    $this->buildKWFields($linedata, $lineend);
+                    $this->buildKWFields(); // ok
                     break;
                 case "OS":
-                    $this->buildOSFields($linedata, $lineend,$aSwiss,$oSequence);
+                    $this->buildOSFields($aSwiss,$oSequence); // ok
                     break;
                 case "OG":
-                    $organelle = $this->rem_right($linedata);
+                    $organelle = $this->rem_right($linedata); // ok
                     break;
                 case "OC":
-                    $this->buildOCField($linedata, $lineend,$aSwiss,$oSequence);
+                    $this->buildOCField($aSwiss,$oSequence); // ok
                     break;
                 case "FT":
-                    $this->buildFTField($linestr);
+                    $this->buildFTField(); // ok
                     break;
                 case "DR":
-                    $this->buildDRField($linedata);
+                    $this->buildDRField(); // ok
                     break;
                 case "RN":
-                    $this->buildRNField($linedata);
+                    $this->buildRNField($aFlines); // ok
                     break;
                 case "GN":
-                    $this->buildGNField($linestr);
+                    $this->buildGNField(); // ok
                     break;
                 case "SQ":
-                    $this->buildSQField($linedata,$aSwiss,$oSequence);
+                    $this->buildSQField($aSwiss,$oSequence);
                     break;
             }
         }
 
         $oSequence->setAccession($this->accession[0]);
+        // ACCESSION is an ARRAY.
+        $aSwiss["ACCESSION"]     = $this->accession;
+        $aSwiss["PRIM_AC"]       = $this->accession[0];
+
         array_shift($this->accession);
         $oSequence->setSecAccession($this->accession);
 
@@ -145,9 +150,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $genbank_ref_r = $this->makeRefArray();
         $oSequence->setReference($genbank_ref_r);
 
-        // ACCESSION is an ARRAY.
-        $aSwiss["ACCESSION"]     = $this->accession;
-        $aSwiss["PRIM_AC"]       = $this->accession[0];
+
         $aSwiss["DESC"]          = $this->desc;
 
         // KEYWORDS is an ARRAY.
@@ -155,6 +158,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $aSwiss["ORGANELLE"]     = $organelle;
 
         // FT_<keyword> is an ARRAY.
+        dump($aSwiss);
         $this->process_ft($aSwiss);
 
         // GENE_NAME is an ARRAY.
@@ -171,10 +175,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linestr
      * @throws \Exception
      */
-    private function buildIDFields($linestr, &$aSwiss, &$oSequence)
+    private function buildIDFields(&$aSwiss, &$oSequence)
     {
         try {
-            $explode          = explode(" ", substr($linestr, 5));
+            $explode          = explode(" ", substr($this->aLines->current(), 5));
             foreach($explode as $exp) {
                 if($exp != '') {
                     $words[] = $exp;
@@ -198,6 +202,8 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $oSequence->setId($protein_name);
             $oSequence->setSeqlength($length);
             $oSequence->setMoltype($moltype);
+
+            dump($oSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -207,12 +213,15 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linedata
      * @throws \Exception
      */
-    private function buildACFields($linedata)
+    private function buildACFields()
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+
             $accstr = substr($linedata, 0, strlen($linedata)-1);
             $accline = preg_split("/;/", $this->intrim($accstr));
             $this->accession = array_merge($this->accession, $accline);
+            dump($this->accession);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -222,17 +231,14 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param   string  $linedata
      * @throws \Exception
      */
-    private function buildDTFields($linedata, &$aSwiss, &$oSequence)
+    private function buildDTFields(&$aSwiss, &$oSequence)
     {
         try {
-            $sequpd_date = null;
-            $create_date = null;
+            $sequpd_date = $create_date = null;
+            $create_rel  = $sequpd_rel  = null;
+            $notupd_date = $notupd_rel  = null;
 
-            $create_rel = null;
-            $sequpd_rel = null;
-
-            $notupd_date = null;
-            $notupd_rel = null;
+            $linedata = trim(substr($this->aLines->current(), 3));
 
             $datestr = substr($linedata, 0, strlen($linedata)-1);
             $words = preg_split("/\(/", $datestr);
@@ -266,15 +272,17 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                     break;
             }
 
-            $aSwiss["CREATE_DATE"]   = $create_date;
-            $aSwiss["CREATE_REL"]    = $create_rel;
+            $aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $create_date;
+            $aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $create_rel;
 
-            $aSwiss["SEQUPD_DATE"]   = $sequpd_date;
-            $aSwiss["SEQUPD_REL"]    = $sequpd_rel;
-            $aSwiss["NOTUPD_DATE"]   = $notupd_date;
-            $aSwiss["NOTUPD_REL"]    = $notupd_rel;
+            $aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sequpd_date;
+            $aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sequpd_rel;
+            $aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $notupd_date;
+            $aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $notupd_rel;
 
-            $oSequence->setDate($create_date);
+            if($create_date != null) {
+                $oSequence->setDate($create_date);
+            }
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -284,9 +292,11 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param   string  $linedata
      * @throws \Exception
      */
-    private function buildDEFields($linedata, &$aSwiss)
+    private function buildDEFields(&$aSwiss)
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+
             $this->desc_lnctr++;
             $linestr = $linedata;
             if ($this->desc_lnctr == 1) {
@@ -316,9 +326,12 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $lineend
      * @throws \Exception
      */
-    private function buildKWFields($linedata, $lineend)
+    private function buildKWFields()
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+            $lineend = $this->right($linedata, 1);
+
             $this->kw_str .= $linedata;
             if ($lineend == ".") {
                 $this->kw_str = $this->rem_right($this->kw_str);
@@ -338,9 +351,12 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param   string  $lineend
      * @throws \Exception
      */
-    private function buildOSFields($linedata, $lineend, &$aSwiss, &$oSequence)
+    private function buildOSFields(&$aSwiss, &$oSequence)
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+            $lineend = $this->right($linedata, 1);
+
             $this->os_linectr++;
             if ($lineend != ".") {
                 if ($this->os_linectr == 1) {
@@ -367,9 +383,12 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $lineend
      * @throws \Exception
      */
-    private function buildOCField($linedata, $lineend, &$aSwiss, &$oSequence)
+    private function buildOCField(&$aSwiss, &$oSequence)
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+            $lineend = $this->right($linedata, 1);
+
             $this->oc_linectr++;
             if ($lineend != ".") {
                 if ($this->oc_linectr == 1) {
@@ -398,9 +417,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linestr
      * @throws \Exception
      */
-    private function buildFTField($linestr)
+    private function buildFTField()
     {
         try {
+            $linestr = $this->aLines->current();
             $ft_key = trim(substr($linestr, 5, 8));
             $ft_from = (int) trim(substr($linestr, 14, 6));
             $ft_to = (int) trim(substr($linestr, 21, 6));
@@ -422,10 +442,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linedata
      * @throws \Exception
      */
-    private function buildDRField($linedata)
+    private function buildDRField()
     {
         try {
-            $linedata = $this->rem_right($linedata);
+            $linedata = $this->rem_right(trim(substr($this->aLines->current(), 3)));
             $dr_line = preg_split("/;/", $linedata);
             array_walk($dr_line, function(&$value) {
                 $value = trim($value);
@@ -442,11 +462,12 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     /**
      * @param string $linedata
      * @throws \Exception
-     * #Todo : utiliser arrayIterator pour parser les lignes suivantes
      */
-    private function buildRNField($linedata)
+    private function buildRNField($aFlines)
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
+
             // Remove the [ and ] between the reference number.
             $refno = substr($this->rem_right($linedata), 1);
 
@@ -455,89 +476,98 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $rc_flag = false;
             $inner_r = [];
 
-            foreach ($flines as $linestr) {
-                $linelabel = $this->left($linestr, 2);
-                $linedata = trim(substr($linestr, 3));
+            // Jump line
+            $this->aLines->next();
+
+            while(1) {
+                $linelabel = $this->left($this->aLines->current(), 2);
+                $linedata = trim(substr($this->aLines->current(), 3));
                 $lineend = $this->right($linedata, 1);
 
-                if ($linelabel == "RP") {
-                    dump("come on");
-                    $inner_r["RP"] = $linedata;
-                } elseif ($linelabel == "RC") {
-                    $rc_str .= $linedata;
-                    while (list($no, $linestr) = each($flines)) {
-                        $linelabel = $this->left($linestr, 2);
-                        $linedata = trim(substr($linestr, 5));
-                        $lineend = $this->right($linedata, 1);
-                        if ($linelabel == "RC") {
-                            $rc_str .= " $linedata";
-                        } else {
-                            prev($flines);
-                            break;
+                switch($linelabel) {
+                    case "RP":
+                        $inner_r["RP"] = $linedata;
+                        break;
+                    case "RC":
+                        $rc_str .= $linedata;
+                        /*while (list($no, $linestr) = each($flines)) {
+                            $linelabel = $this->left($linestr, 2);
+                            $linedata = trim(substr($linestr, 5));
+                            $lineend = $this->right($linedata, 1);
+                            if ($linelabel == "RC") {
+                                $rc_str .= " $linedata";
+                            } else {
+                                prev($flines);
+                                break;
+                            }
+                        }*/
+                        // we remove the last character if it is ";"
+                        $rc_str = trim($rc_str);
+                        if (right($rc_str,1) == ";") {
+                            $rc_str = $this->rem_right($rc_str);
                         }
-                    }
-                    // we remove the last character if it is ";"
-                    $rc_str = trim($rc_str);
-                    if (right($rc_str,1) == ";") {
-                        $rc_str = $this->rem_right($rc_str);
-                    }
-                    $rc_line = preg_split("/;/", trim($rc_str));
-                    array_walk($rc_line, function(&$value) {
-                        $value = trim($value);
-                    });
-                    $innermost = array();
-                    foreach($rc_line as $tokval_str) {
-                        // here we assume that there is no whitespace
-                        // before or after (left or right of) the "=".
-                        $tokval_r = preg_split("/=/", $tokval_str);
-                        $token = $tokval_r[0];
-                        $value = $tokval_r[1];
-                        $innermost[$token] = $value;
-                    }
-                    $inner_r["RC"] = $innermost;
-                } elseif ($linelabel == "RM") { // We have no idea what RM is about, so we assume it's a single-line entry.
-                    // which may occur 0 to 1 times inside a SWISSPROT SEQUENCE RECORD.
-                    $inner_r["RM"] = $linedata;
-                } elseif ($linelabel == "RX") {
-                    $linedata = $this->rem_right($linedata);
-                    $rx_line = preg_split("/;/", intrim($linedata));
-                    $inner_r["RX_BDN"] = $rx_line[0];
-                    $inner_r["RX_ID"] = $rx_line[1];
-                } elseif ($linelabel == "RA") {
-                    $this->ra_ctr++;
-                    if ($this->ra_ctr == 1) {
-                        $this->ra_str = $linedata;
-                    } else {
-                        $this->ra_str .= " $linedata";
-                    }
-                    if ($lineend == ";") {
-                        $this->ra_str = $this->rem_right($this->ra_str);
-                        $this->ra_r = preg_split("/\,/", $this->ra_str);
-
-                        array_walk($this->ra_r, function(&$value) {
+                        $rc_line = preg_split("/;/", trim($rc_str));
+                        array_walk($rc_line, function(&$value) {
                             $value = trim($value);
                         });
+                        $innermost = array();
+                        foreach($rc_line as $tokval_str) {
+                            // here we assume that there is no whitespace
+                            // before or after (left or right of) the "=".
+                            $tokval_r = preg_split("/=/", $tokval_str);
+                            $token = $tokval_r[0];
+                            $value = $tokval_r[1];
+                            $innermost[$token] = $value;
+                        }
+                        $inner_r["RC"] = $innermost;
+                        break;
+                    case "RM":
+                        // We have no idea what RM is about, so we assume it's a single-line entry.
+                        // which may occur 0 to 1 times inside a SWISSPROT SEQUENCE RECORD.
+                        $inner_r["RM"] = $linedata;
+                        break;
+                    case "RX":
+                        $linedata = $this->rem_right($linedata);
+                        $rx_line = preg_split("/;/", $this->intrim($linedata));
+                        $inner_r["RX_BDN"] = $rx_line[0];
+                        $inner_r["RX_ID"] = $rx_line[1];
+                        break;
+                    case "RA":
+                        $this->ra_ctr++;
+                        if ($this->ra_ctr == 1) {
+                            $this->ra_str = $linedata;
+                        } else {
+                            $this->ra_str .= " $linedata";
+                        }
+                        if ($lineend == ";") {
+                            $this->ra_str = $this->rem_right($this->ra_str);
+                            $this->ra_r = preg_split("/\,/", $this->ra_str);
 
+                            array_walk($this->ra_r, function(&$value) {
+                                $value = trim($value);
+                            });
+                            $inner_r["RA"] = $this->ra_r;
+                        }
+                        break;
+                    case "RL":
+                        $this->rl_ctr++;
+                        if ($this->rl_ctr == 1) {
+                            $this->rl_str = $linedata;
+                        } else {
+                            $this->rl_str .= " $linedata";
+                        }
+                        $inner_r["RL"] = $linedata;
+                        break;
+                }
 
-                        $inner_r["RA"] = $this->ra_r;
-                    }
-                } elseif ($linelabel == "RL") {
-                    dump("passage");
-                    $this->rl_ctr++;
-                    if ($this->rl_ctr == 1) {
-                        $this->rl_str = $linedata;
-                    } else {
-                        $this->rl_str .= " $linedata";
-                    }
-                } else {
-                    dump("voila");
-                    dump($this->rl_str);
-                    $inner_r["RL"] = $this->rl_str;
-                    prev($flines);
+                $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 2));
+                if($sHead != "RP" && $sHead != "RX" && $sHead != "RA" && $sHead != "RM" && $sHead != "RC" && $sHead != "RL") { // Stop if we change feature
                     break;
                 }
-            } // CLOSES 2nd WHILE
-            dump($inner_r);
+
+                $this->aLines->next();
+            }
+
             $this->ref_r[$refno-1] = $inner_r;
             $this->ra_str = "";
             $this->ra_ctr = 0;
@@ -565,11 +595,11 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linestr
      * @throws \Exception
      */
-    private function buildGNField($linestr)
+    private function buildGNField()
     {
         try {
             // Remove "GN " at the beginning of our line.
-            $linestr = trim(substr($linestr, 5));
+            $linestr = trim(substr($this->aLines->current(), 3));
             // Remove the last character which is always a period.
             $linestr = substr($linestr, 0, strlen($linestr)-1);
 
@@ -618,9 +648,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * @param string $linedata
      * @throws \Exception
      */
-    private function buildSQField($linedata, &$aSwiss, &$oSequence, $flines)
+    private function buildSQField(&$aSwiss, &$oSequence)
     {
         try {
+            $linedata = trim(substr($this->aLines->current(), 3));
             $linedata = $this->rem_right($linedata);
             // XXXX AA, XXXX MW, XXXX CN
             $words = preg_split("/;/", substr($linedata, 8));
@@ -632,7 +663,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $chk_no = trim($cn[0]);
             $chk_method = trim($cn[1]);
             $sequence = "";
-            foreach($flines as $linestr) {
+            foreach($this->aLines as $linestr) {
                 $linelabel = $this->left($linestr, 2);
                 if ($linelabel == "//") {
                     break;
@@ -688,16 +719,16 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         try {
             $genbank_ref_r = [];
             $inner_r = [];
-            dump($this->ref_r);
+
             foreach($this->ref_r as $key => $value) {
                 $inner_r["REFNO"]   = $key;
-                $db_id              = $value["RX_BDN"];
-                $inner_r[$db_id]    = $value["RX_ID"];
-                $inner_r["REMARKS"] = $value["RP"];
-                $inner_r["COMMENT"] = $value["RC"];
-                $inner_r["TITLE"]   = $value["RL"];
-                $inner_r["JOURNAL"] = $value["RL"];
-                $inner_r["AUTHORS"] = $value["RA"];
+                $db_id              = $value["RX_BDN"] ?? null;
+                $inner_r[$db_id]    = $value["RX_ID"] ?? null;
+                $inner_r["REMARKS"] = $value["RP"] ?? null;
+                $inner_r["COMMENT"] = $value["RC"] ?? null;
+                $inner_r["TITLE"]   = $value["RL"] ?? null;
+                $inner_r["JOURNAL"] = $value["RL"] ?? null;
+                $inner_r["AUTHORS"] = $value["RA"] ?? null;
                 $genbank_ref_r[]    = $inner_r;
             }
             return $genbank_ref_r;
