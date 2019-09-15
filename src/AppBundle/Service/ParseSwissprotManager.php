@@ -170,30 +170,31 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildIDFields(&$aSwiss, &$oSequence)
     {
         try {
-            $explode          = explode(" ", substr($this->aLines->current(), 5));
-            foreach($explode as $exp) {
-                if($exp != '') {
-                    $words[] = $exp;
+            $aWords = [];
+            $aLineData  = explode(" ", substr($this->aLines->current(), 5));
+            foreach($aLineData as $sData) {
+                if($sData != '') {
+                    $aWords[] = $sData;
                 }
             }
-            $entry_name     = $words[0];
-            $namesrc        = preg_split("/_/", $entry_name);
-            $protein_name   = $namesrc[0];
-            $protein_source = $namesrc[1];
-            $data_class     = $words[1];
-            $moltype        = $words[2];
-            $length         = (int)$words[3];
+            $sEntryName     = $aWords[0];
+            $aNameSrc       = preg_split("/_/", $sEntryName);
+            $sProteinName   = $aNameSrc[0];
+            $sProteinSource = $aNameSrc[1];
+            $sDataClass     = $aWords[1];
+            $sMoltype       = $aWords[2];
+            $iLength        = (int)$aWords[3];
 
-            $aSwiss["ID"]            = $protein_name;
-            $aSwiss["PROT_NAME"]     = $protein_name;
-            $aSwiss["MOL_TYPE"]      = $moltype;
-            $aSwiss["PROT_SOURCE"]   = $protein_source;
-            $aSwiss["DATA_CLASS"]    = $data_class;
-            $aSwiss["LENGTH"]        = $length;
+            $aSwiss["ID"]            = $sProteinName;
+            $aSwiss["PROT_NAME"]     = $sProteinName;
+            $aSwiss["MOL_TYPE"]      = $sMoltype;
+            $aSwiss["PROT_SOURCE"]   = $sProteinSource;
+            $aSwiss["DATA_CLASS"]    = $sDataClass;
+            $aSwiss["LENGTH"]        = $iLength;
 
-            $oSequence->setId($protein_name);
-            $oSequence->setSeqlength($length);
-            $oSequence->setMoltype($moltype);
+            $oSequence->setId($sProteinName);
+            $oSequence->setSeqlength($iLength);
+            $oSequence->setMoltype($sMoltype);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -207,11 +208,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildACFields()
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
-
-            $accstr = substr($linedata, 0, strlen($linedata)-1);
-            $accline = preg_split("/;/", $this->intrim($accstr));
-            $this->accession = array_merge($this->accession, $accline);
+            $sLineData = trim(substr($this->aLines->current(), 3));
+            $sAccession = substr($sLineData, 0, strlen($sLineData)-1);
+            $sAccessionLine = preg_split("/;/", $this->intrim($sAccession));
+            $this->accession = array_merge($this->accession, $sAccessionLine);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -227,53 +227,53 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildDTFields(&$aSwiss, &$oSequence)
     {
         try {
-            $sequpd_date = $create_date = null;
-            $create_rel  = $sequpd_rel  = null;
-            $notupd_date = $notupd_rel  = null;
+            $sSequpdDate = $sCreateDate = null;
+            $sCreateRel  = $sSequpdRel  = null;
+            $sNotupdDate = $sNotupdRel  = null;
 
-            $linedata = trim(substr($this->aLines->current(), 3));
+            $sLineData = trim(substr($this->aLines->current(), 3));
 
-            $datestr = substr($linedata, 0, strlen($linedata)-1);
-            $words = preg_split("/\(/", $datestr);
-            $firstcomma = strpos($words[1], ",");
-            $comment = trim(substr($words[1], $firstcomma+1));
+            $sDateStr = substr($sLineData, 0, strlen($sLineData)-1);
+            $aWords = preg_split("/\(/", $sDateStr);
+            $iFirstComma = strpos($aWords[1], ",");
+            $sComment = trim(substr($aWords[1], $iFirstComma+1));
 
-            switch($comment) {
+            switch($sComment) {
                 case "CREATED":
                     // this DT line is a DATE CREATED line.
-                    $create_date = substr($words[0], 0, 11);
-                    $create_rel = substr($words[1], 5, ($firstcomma-5));
-                    $this->date_r[$comment] = array($create_date, $create_rel);
+                    $sCreateDate = substr($aWords[0], 0, 11);
+                    $sCreateRel = substr($aWords[1], 5, ($iFirstComma-5));
+                    $this->date_r[$sComment] = array($sCreateDate, $sCreateRel);
                     break;
                 case "LAST SEQUENCE UPDATE":
-                    $sequpd_date = substr($words[0], 0, 11);
-                    $sequpd_rel = substr($words[1], 5, ($firstcomma-5));
-                    $this->date_r[$comment] = array($sequpd_date, $sequpd_rel);
+                    $sSequpdDate = substr($aWords[0], 0, 11);
+                    $sSequpdRel = substr($aWords[1], 5, ($iFirstComma-5));
+                    $this->date_r[$sComment] = array($sSequpdDate, $sSequpdRel);
                     break;
                 case "LAST ANNOTATION UPDATE":
-                    $notupd_date = substr($words[0], 0, 11);
-                    $notupd_rel = substr($words[1], 5, ($firstcomma-5));
-                    $this->date_r[$comment] = array($notupd_date, $notupd_rel);
+                    $sNotupdDate = substr($aWords[0], 0, 11);
+                    $sNotupdRel = substr($aWords[1], 5, ($iFirstComma-5));
+                    $this->date_r[$sComment] = array($sNotupdDate, $sNotupdRel);
                     break;
                 default:
                     // For now, we do not check vs. duplicate comments.
                     // We just overwrite the older comment with new one.
-                    $other_date = substr($words[0], 0, 11);
-                    $other_rel = substr($words[1], 5, ($firstcomma-5));
-                    $this->date_r[$comment] = array($other_date, $other_rel);
+                    $sOtherDate = substr($aWords[0], 0, 11);
+                    $sOtherRel = substr($aWords[1], 5, ($iFirstComma-5));
+                    $this->date_r[$sComment] = array($sOtherDate, $sOtherRel);
                     break;
             }
 
-            $aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $create_date;
-            $aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $create_rel;
+            $aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $sCreateDate;
+            $aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $sCreateRel;
 
-            $aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sequpd_date;
-            $aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sequpd_rel;
-            $aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $notupd_date;
-            $aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $notupd_rel;
+            $aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sSequpdDate;
+            $aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sSequpdRel;
+            $aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $sNotupdDate;
+            $aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $sNotupdRel;
 
-            if($create_date != null) {
-                $oSequence->setDate($create_date);
+            if($sCreateDate != null) {
+                $oSequence->setDate($sCreateDate);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -289,26 +289,25 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildDEFields(&$aSwiss)
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
+            $sLine = trim(substr($this->aLines->current(), 3));
 
             $this->desc_lnctr++;
-            $linestr = $linedata;
             if ($this->desc_lnctr == 1) {
-                $this->desc .= $linestr;
+                $this->desc .= $sLine;
             } else {
-                $this->desc .= " " . $linestr;
+                $this->desc .= " " . $sLine;
             }
 
             // Checks if (FRAGMENT) or (FRAGMENTS) is found at the end
             // of the DE line to determine if sequence is complete.
-            if ($this->right($linestr, 1) == ".") {
-                if ((strtoupper($this->right($linestr, 11)) == "(FRAGMENT).")
-                    && (strtoupper($this->right($linestr, 12)) == "(FRAGMENTS).")) {
-                    $is_fragment = true;
+            if ($this->right($sLine, 1) == ".") {
+                if ((strtoupper($this->right($sLine, 11)) == "(FRAGMENT).")
+                    && (strtoupper($this->right($sLine, 12)) == "(FRAGMENTS).")) {
+                    $bIsFragment = true;
                 } else {
-                    $is_fragment = false;
+                    $bIsFragment = false;
                 }
-                $aSwiss["IS_FRAGMENT"]   = $is_fragment;
+                $aSwiss["IS_FRAGMENT"]   = $bIsFragment;
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -323,15 +322,15 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildKWFields()
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
-            $lineend = $this->right($linedata, 1);
+            $sLineData = trim(substr($this->aLines->current(), 3));
+            $sLineEnd = $this->right($sLineData, 1);
 
-            $this->kw_str .= $linedata;
-            if ($lineend == ".") {
+            $this->kw_str .= $sLineData;
+            if ($sLineEnd == ".") {
                 $this->kw_str = $this->rem_right($this->kw_str);
                 $this->kw_r = preg_split("/;/", $this->kw_str);
-                array_walk($this->kw_r, function(&$value) {
-                    $value = trim($value);
+                array_walk($this->kw_r, function(&$sValue) {
+                    $sValue = trim($sValue);
                 });
                 $this->kw_str = "";
             }
@@ -350,24 +349,23 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildOSFields(&$aSwiss, &$oSequence)
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
-            $lineend = $this->right($linedata, 1);
+            $sLineData = trim(substr($this->aLines->current(), 3));
+            $sLineEnd = $this->right($sLineData, 1);
 
             $this->os_linectr++;
-            if ($lineend != ".") {
+            if ($sLineEnd != ".") {
                 if ($this->os_linectr == 1) {
-                    $this->os_str .= $linedata;
+                    $this->os_str .= $sLineData;
                 } else {
-                    $this->os_str .= " $linedata";
+                    $this->os_str .= " $sLineData";
                 }
             } else {
-                $this->os_str .= " $linedata";
+                $this->os_str .= " $sLineData";
                 $this->os_str = $this->rem_right($this->os_str);
-                $os_line = preg_split("/\, AND /", $this->os_str);
+                $aOSLine = preg_split("/\, AND /", $this->os_str);
+                $aSwiss["ORGANISM"] = $aOSLine; // ORGANISM is an ARRAY.
+                $oSequence->setSource($aOSLine);
             }
-
-            $aSwiss["ORGANISM"]      = $os_line; // ORGANISM is an ARRAY.
-            $oSequence->setSource($os_line);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -385,27 +383,27 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildOCField(&$aSwiss, &$oSequence)
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
-            $lineend = $this->right($linedata, 1);
+            $sLineData = trim(substr($this->aLines->current(), 3));
+            $sLineEnd = $this->right($sLineData, 1);
 
             $this->oc_linectr++;
-            if ($lineend != ".") {
+            if ($sLineEnd != ".") {
                 if ($this->oc_linectr == 1) {
-                    $this->oc_str .= $linedata;
+                    $this->oc_str .= $sLineData;
                 } else {
-                    $this->oc_str .= " $linedata";
+                    $this->oc_str .= " $sLineData";
                 }
             } else {
-                $this->oc_str .= " $linedata";
+                $this->oc_str .= " $sLineData";
                 $this->oc_str = $this->rem_right($this->oc_str);
-                $oc_line = preg_split("/;/", $this->oc_str);
-                array_walk($oc_line, function(&$value) {
-                    $value = trim($value);
+                $aOCLine = preg_split("/;/", $this->oc_str);
+                array_walk($aOCLine, function(&$sValue) {
+                    $sValue = trim($sValue);
                 });
 
                 // ORG_CLASS is an ARRAY.
-                $aSwiss["ORG_CLASS"]     = $oc_line;
-                $oSequence->setOrganism($oc_line);
+                $aSwiss["ORG_CLASS"] = $aOCLine;
+                $oSequence->setOrganism($aOCLine);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -420,18 +418,18 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildFTField()
     {
         try {
-            $linestr = $this->aLines->current();
-            $aFtExplode = explode(" ", $linestr);
+            $sLineStr = $this->aLines->current();
+            $aFtExplode = explode(" ", $sLineStr);
             array_shift($aFtExplode);
-            $ft_key = $aFtExplode[0];
+            $sFTKey = $aFtExplode[0];
             array_shift($aFtExplode);
-            $ft_from = (int)$aFtExplode[0];
+            $iFTFrom = (int) $aFtExplode[0];
             array_shift($aFtExplode);
-            $ft_to = (int)$aFtExplode[0];
+            $iFTTo = (int) $aFtExplode[0];
             array_shift($aFtExplode);
 
-            $ft_desc = $this->rem_right(trim(implode(" ", $aFtExplode)));
-            $this->ft_r[] = array($ft_key, $ft_from, $ft_to, $ft_desc);
+            $sFTDesc = $this->rem_right(trim(implode(" ", $aFtExplode)));
+            $this->ft_r[] = array($sFTKey, $iFTFrom, $iFTTo, $sFTDesc);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -451,15 +449,15 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildDRField()
     {
         try {
-            $linedata = $this->rem_right(trim(substr($this->aLines->current(), 3)));
-            $dr_line = preg_split("/;/", $linedata);
-            array_walk($dr_line, function(&$value) {
-                $value = trim($value);
+            $sLineData = $this->rem_right(trim(substr($this->aLines->current(), 3)));
+            $aDrLine = preg_split("/;/", $sLineData);
+            array_walk($aDrLine, function(&$sValue) {
+                $sValue = trim($sValue);
             });
-            $db_name = $dr_line[0];
-            $db_pid = $dr_line[1];
-            $db_sid = $dr_line[2];
-            $this->db_r[] = [$db_name, $db_pid, $db_sid];
+            $sDbName = $aDrLine[0];
+            $sDbPid = $aDrLine[1];
+            $sDbSid = $aDrLine[2];
+            $this->db_r[] = [$sDbName, $sDbPid, $sDbSid];
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -480,28 +478,26 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private function buildRNField($aFlines)
     {
         try {
-            $linedata = trim(substr($this->aLines->current(), 3));
+            $sMainLineData = trim(substr($this->aLines->current(), 3));
 
             // Remove the [ and ] between the reference number.
-            $refno = substr($this->rem_right($linedata), 1);
+            $iRefNo = substr($this->rem_right($sMainLineData), 1);
+            $sRCLine = "";
+            $aInner = [];
 
-            $rc_str = "";
-            $inner_r = [];
-
-            // Jump line
-            $this->aLines->next();
+            $this->aLines->next(); // Jump line
 
             while(1) {
-                $linelabel = $this->left($this->aLines->current(), 2);
-                $linedata = trim(substr($this->aLines->current(), 3));
-                $lineend = $this->right($linedata, 1);
+                $sLineLabel = $this->left($this->aLines->current(), 2);
+                $sLineData = trim(substr($this->aLines->current(), 3));
+                $sLineEnd = $this->right($sLineData, 1);
 
-                switch($linelabel) {
+                switch($sLineLabel) {
                     case "RP":
-                        $inner_r["RP"] = $linedata;
+                        $aInner["RP"] = $sLineData;
                         break;
                     case "RC":
-                        $rc_str .= $linedata;
+                        $sRCLine .= $sLineData;
                         /*while (list($no, $linestr) = each($flines)) {
                             $linelabel = $this->left($linestr, 2);
                             $linedata = trim(substr($linestr, 5));
@@ -514,73 +510,65 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                             }
                         }*/
                         // we remove the last character if it is ";"
-                        $rc_str = trim($rc_str);
-                        if (right($rc_str,1) == ";") {
-                            $rc_str = $this->rem_right($rc_str);
+                        $sRCLine = trim($sRCLine);
+                        if (right($sRCLine,1) == ";") {
+                            $sRCLine = $this->rem_right($sRCLine);
                         }
-                        $rc_line = preg_split("/;/", trim($rc_str));
-                        array_walk($rc_line, function(&$value) {
-                            $value = trim($value);
+                        $aRCLine = preg_split("/;/", trim($sRCLine));
+                        array_walk($aRCLine, function(&$sValue) {
+                            $sValue = trim($sValue);
                         });
-                        $innermost = array();
-                        foreach($rc_line as $tokval_str) {
+                        $aInnermost = array();
+                        foreach($aRCLine as $sTokval) {
                             // here we assume that there is no whitespace
                             // before or after (left or right of) the "=".
-                            $tokval_r = preg_split("/=/", $tokval_str);
-                            $token = $tokval_r[0];
-                            $value = $tokval_r[1];
-                            $innermost[$token] = $value;
+                            $aTokval = preg_split("/=/", $sTokval);
+                            $sToken = $aTokval[0];
+                            $sValue = $aTokval[1];
+                            $aInnermost[$sToken] = $sValue;
                         }
-                        $inner_r["RC"] = $innermost;
+                        $aInner["RC"] = $aInnermost;
                         break;
                     case "RM":
                         // We have no idea what RM is about, so we assume it's a single-line entry.
                         // which may occur 0 to 1 times inside a SWISSPROT SEQUENCE RECORD.
-                        $inner_r["RM"] = $linedata;
+                        $aInner["RM"] = $sLineData;
                         break;
                     case "RX":
-                        $linedata = $this->rem_right($linedata);
-                        $rx_line = preg_split("/;/", $this->intrim($linedata));
-                        $inner_r["RX_BDN"] = $rx_line[0];
-                        $inner_r["RX_ID"] = $rx_line[1];
+                        $sLineData = $this->rem_right($sLineData);
+                        $aRXLine = preg_split("/;/", $this->intrim($sLineData));
+                        $aInner["RX_BDN"] = $aRXLine[0];
+                        $aInner["RX_ID"] = $aRXLine[1];
                         break;
                     case "RA":
                         $this->ra_ctr++;
-                        if ($this->ra_ctr == 1) {
-                            $this->ra_str = $linedata;
-                        } else {
-                            $this->ra_str .= " $linedata";
-                        }
-                        if ($lineend == ";") {
+                        $this->ra_str = ($this->ra_ctr == 1) ? $sLineData : " $sLineData";
+                        if ($sLineEnd == ";") {
                             $this->ra_str = $this->rem_right($this->ra_str);
                             $this->ra_r = preg_split("/\,/", $this->ra_str);
-
-                            array_walk($this->ra_r, function(&$value) {
-                                $value = trim($value);
+                            array_walk($this->ra_r, function(&$sValue) {
+                                $sValue = trim($sValue);
                             });
-                            $inner_r["RA"] = $this->ra_r;
+                            $aInner["RA"] = $this->ra_r;
                         }
                         break;
                     case "RL":
                         $this->rl_ctr++;
-                        if ($this->rl_ctr == 1) {
-                            $this->rl_str = $linedata;
-                        } else {
-                            $this->rl_str .= " $linedata";
-                        }
-                        $inner_r["RL"] = $linedata;
+                        $this->rl_ctr = ($this->rl_ctr == 1) ? $sLineData : " $sLineData";
+                        $aInner["RL"] = $sLineData;
                         break;
                 }
 
                 $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 2));
-                if($sHead != "RP" && $sHead != "RX" && $sHead != "RA" && $sHead != "RM" && $sHead != "RC" && $sHead != "RL") { // Stop if we change feature
+                $aElements = ["RP", "RX", "RA", "RM", "RC", "RL"];
+                if(!in_array($sHead, $aElements)) { // Stop if we change feature
                     break;
                 }
 
                 $this->aLines->next();
             }
 
-            $this->ref_r[$refno-1] = $inner_r;
+            $this->ref_r[$iRefNo - 1] = $aInner;
             $this->ra_str = "";
             $this->ra_ctr = 0;
             $this->rl_str = "";
@@ -609,41 +597,41 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     {
         try {
             // Remove "GN " at the beginning of our line.
-            $linestr = trim(substr($this->aLines->current(), 3));
+            $sLine = trim(substr($this->aLines->current(), 3));
             // Remove the last character which is always a period.
-            $linestr = substr($linestr, 0, strlen($linestr)-1);
+            $sLine = substr($sLine, 0, strlen($sLine)-1);
 
             // Go here if you detect at least one ( or ).
-            if (!(strpos($linestr, "("))) { // GN Line does not contain any parentheses.
+            if (!(strpos($sLine, "("))) { // GN Line does not contain any parentheses.
                 // Ergo, it is made up of all OR's or AND's but not both.
-                if (strpos($linestr, " OR ")) {
+                if (strpos($sLine, " OR ")) {
                     // Case 1: GNAME1 OR GNAME2.
-                    $temp = preg_split("/ OR /", $linestr);
-                    $this->gename_r[] = $temp;
-                } elseif (strpos($linestr, " AND ")) {
+                    $aTemp = preg_split("/ OR /", $sLine);
+                    $this->gename_r[] = $aTemp;
+                } elseif (strpos($sLine, " AND ")) {
                     // Case 2: GNAME1 AND GNAME2 AND GNAME3.
-                    $temp = preg_split("/ AND /", $linestr);
-                    foreach($temp as $gene) {
-                        $this->gename_r[] = array($gene);
+                    $aTemp = preg_split("/ AND /", $sLine);
+                    foreach($aTemp as $sGene) {
+                        $this->gename_r[] = array($sGene);
                     }
                 } else {
-                    $this->gename_r[] = array($linestr);
+                    $this->gename_r[] = array($sLine);
                 }
                 // Case 0: GN GENENAME1. One gene name (no OR, AND).
             } else {
                 // GN Line contains at least one pair of parentheses.
                 // Case 3: GNAME1 AND (GNAME2 OR GNAME3) => ( (GNAME1), (GNAME2, GNAME3) )
                 // COMMENTS # 1 below.
-                $temp = preg_split("/ AND /", $linestr);
-                foreach($temp as $gene) {
-                    if (substr($gene, 0, 1) == "(") { // a list of 2 or more gene names OR'ed together
+                $aTemp = preg_split("/ AND /", $sLine);
+                foreach($aTemp as $sGene) {
+                    if (substr($sGene, 0, 1) == "(") { // a list of 2 or more gene names OR'ed together
                         // remove the "(" and ")" at both ends of the string.
-                        $gene = substr($gene, 1);
-                        $gene = substr($gene, 0, strlen($gene)-1);
-                        $genelist = preg_split("/ OR /", $gene);
-                        $this->gename_r[] = $genelist;
+                        $sGene              = substr($sGene, 1);
+                        $sGene              = substr($sGene, 0, strlen($sGene)-1);
+                        $aGeneList          = preg_split("/ OR /", $sGene);
+                        $this->gename_r[]   = $aGeneList;
                     } else { // singleton
-                        $this->gename_r[] = array($gene);
+                        $this->gename_r[]   = array($sGene);
                     }
                 }
             }
@@ -663,39 +651,38 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     {
         try {
 
-            $linedata = trim(substr($this->aLines->current(), 3));
-            $linedata = $this->rem_right($linedata);
-            dump($linedata);
+            $sLineData = trim(substr($this->aLines->current(), 3));
+            $sLineData = $this->rem_right($sLineData);
 
             // XXXX AA, XXXX MW, XXXX CN
-            $words = preg_split("/;/", substr($linedata, 8));
-            $aa = preg_split("/\s+/", trim($words[0]));
-            $aa_count = (int) trim($aa[0]);
-            $mw = preg_split("/\s+/", trim($words[1]));
-            $mol_wt = (int) trim($mw[0]);
-            $cn = preg_split("/\s+/", trim($words[2]));
-            $chk_no = trim($cn[0]);
-            $chk_method = trim($cn[1]);
-            $sequence = "";
+            $aWords     = preg_split("/;/", substr($sLineData, 8));
+            $aAAData    = preg_split("/\s+/", trim($aWords[0]));
+            $iAACount   = (int) trim($aAAData[0]);
+            $aMWData    = preg_split("/\s+/", trim($aWords[1]));
+            $iMolWeight = (int) trim($aMWData[0]);
+            $aCNData    = preg_split("/\s+/", trim($aWords[2]));
+            $sChkNo     = trim($aCNData[0]);
+            $sChkMethod = trim($aCNData[1]);
+            $sSequence  = "";
 
             $this->aLines->next();
             while(1) {
-                $linelabel = $this->left($this->aLines->current(), 2);
-                if ($linelabel == "//") { // end of file
+                $sLineLabel = $this->left($this->aLines->current(), 2);
+                if ($sLineLabel == "//") { // end of file
                     break;
                 } else {
-                    $linedata = $this->intrim(trim($this->aLines->current()));
-                    $sequence .= $linedata;
+                    $sLineData = $this->intrim(trim($this->aLines->current()));
+                    $sSequence .= $sLineData;
                     $this->aLines->next();
                 }
             }
-            $aSwiss["AMINO_COUNT"]   = $aa_count;
-            $aSwiss["MOLWT"]         = $mol_wt;
-            $aSwiss["CHK_NO"]        = $chk_no;
-            $aSwiss["CHK_METHOD"]    = $chk_method;
-            $aSwiss["SEQUENCE"]      = $sequence;
+            $aSwiss["AMINO_COUNT"]   = $iAACount;
+            $aSwiss["MOLWT"]         = $iMolWeight;
+            $aSwiss["CHK_NO"]        = $sChkNo;
+            $aSwiss["CHK_METHOD"]    = $sChkMethod;
+            $aSwiss["SEQUENCE"]      = $sSequence;
 
-            $oSequence->setSequence($sequence);
+            $oSequence->setSequence($sSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
