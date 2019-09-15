@@ -75,10 +75,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Parses the Feature Table lines (those that begin with FT) in a Swissprot
      * data file, extracts the feature key name, from endpoint, to endpoint, and description, and
      * stores them in a (simple) array.
-     * @param array $aFlines
+     * @param   array       $aFlines
      * @return  Sequence    $oSequence
      * @group   Legacy
-     * @throws \Exception
+     * @throws  \Exception
      */
     public function parseDataFile($aFlines)
     {
@@ -137,43 +137,35 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         }
 
         $oSequence->setAccession($this->accession[0]);
-        // ACCESSION is an ARRAY.
-        $aSwiss["ACCESSION"]     = $this->accession;
+
+        $aSwiss["ACCESSION"]     = $this->accession; // ACCESSION is an ARRAY.
         $aSwiss["PRIM_AC"]       = $this->accession[0];
 
         array_shift($this->accession);
         $oSequence->setSecAccession($this->accession);
-
         $oSequence->setDefinition($this->desc);
         $oSequence->setKeywords($this->kw_r);
 
         $genbank_ref_r = $this->makeRefArray();
         $oSequence->setReference($genbank_ref_r);
 
-
         $aSwiss["DESC"]          = $this->desc;
-
-        // KEYWORDS is an ARRAY.
-        $aSwiss["KEYWORDS"]      = $this->kw_r;
+        $aSwiss["KEYWORDS"]      = $this->kw_r; // KEYWORDS is an ARRAY.
         $aSwiss["ORGANELLE"]     = $organelle;
-
-        // FT_<keyword> is an ARRAY.
-        dump($aSwiss);
-        $this->process_ft($aSwiss);
-
-        // GENE_NAME is an ARRAY.
-        $aSwiss["GENE_NAME"]     = $this->gename_r;
-
-        // REFERENCE is an ARRAY.
-        $aSwiss["REFERENCE"]     = $this->ref_r;
+        $this->processFT($aSwiss); // FT_<keyword> is an ARRAY.
+        $aSwiss["GENE_NAME"]     = $this->gename_r; // GENE_NAME is an ARRAY.
+        $aSwiss["REFERENCE"]     = $this->ref_r; // REFERENCE is an ARRAY.
 
         $oSequence->setSwissprot($aSwiss);
         return $oSequence;
     }
 
     /**
-     * @param string $linestr
-     * @throws \Exception
+     * Parses ID line
+     * Format : ID PROTNAME_PROTSOURCE DATA_CLASS; MOL_TYPE; LENGTH AA.
+     * @param   array           $aSwiss
+     * @param   Sequence        $oSequence
+     * @throws  \Exception
      */
     private function buildIDFields(&$aSwiss, &$oSequence)
     {
@@ -202,16 +194,15 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $oSequence->setId($protein_name);
             $oSequence->setSeqlength($length);
             $oSequence->setMoltype($moltype);
-
-            dump($oSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
     /**
-     * @param string $linedata
-     * @throws \Exception
+     * Parses AC line
+     * Format : AC P01375;
+     * @throws  \Exception
      */
     private function buildACFields()
     {
@@ -221,15 +212,17 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $accstr = substr($linedata, 0, strlen($linedata)-1);
             $accline = preg_split("/;/", $this->intrim($accstr));
             $this->accession = array_merge($this->accession, $accline);
-            dump($this->accession);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
     }
 
     /**
-     * @param   string  $linedata
-     * @throws \Exception
+     * Parses DT Line
+     * Format : DT 21-JUL-1986 (REL. 01, LAST SEQUENCE UPDATE)
+     * @param   array           $aSwiss
+     * @param   Sequence        $oSequence
+     * @throws  \Exception
      */
     private function buildDTFields(&$aSwiss, &$oSequence)
     {
@@ -265,7 +258,6 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                 default:
                     // For now, we do not check vs. duplicate comments.
                     // We just overwrite the older comment with new one.
-                    $other_comment = $comment;
                     $other_date = substr($words[0], 0, 11);
                     $other_rel = substr($words[1], 5, ($firstcomma-5));
                     $this->date_r[$comment] = array($other_date, $other_rel);
@@ -289,8 +281,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param   string  $linedata
-     * @throws \Exception
+     * Parses DE line
+     * Format : DE TUMOR NECROSIS FACTOR PRECURSOR (TNF-ALPHA) (CACHECTIN).
+     * @param   array           $aSwiss
+     * @throws  \Exception
      */
     private function buildDEFields(&$aSwiss)
     {
@@ -322,8 +316,8 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param string $linedata
-     * @param string $lineend
+     * Parses KW Fields
+     * Format : KW WORD1; WORD2; WORD3; etc ...
      * @throws \Exception
      */
     private function buildKWFields()
@@ -347,8 +341,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param   string  $linedata
-     * @param   string  $lineend
+     * Parses OS line
+     * Format : OS HOMO SAPIENS (HUMAN).
+     * @param   array           $aSwiss
+     * @param   Sequence        $oSequence
      * @throws \Exception
      */
     private function buildOSFields(&$aSwiss, &$oSequence)
@@ -370,8 +366,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                 $os_line = preg_split("/\, AND /", $this->os_str);
             }
 
-            // ORGANISM is an ARRAY.
-            $aSwiss["ORGANISM"]      = $os_line;
+            $aSwiss["ORGANISM"]      = $os_line; // ORGANISM is an ARRAY.
             $oSequence->setSource($os_line);
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -379,8 +374,12 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param string $linedata
-     * @param string $lineend
+     * Parses OC lines
+     * Format :
+     * OC EUKARYOTA; METAZOA; CHORDATA; VERTEBRATA; TETRAPODA; MAMMALIA;
+     * OC EUTHERIA; PRIMATES.
+     * @param   array           $aSwiss
+     * @param   Sequence        $oSequence
      * @throws \Exception
      */
     private function buildOCField(&$aSwiss, &$oSequence)
@@ -414,17 +413,24 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param string $linestr
+     * Parses FT lines
+     * Format : FT KEY START END COMMENT.
      * @throws \Exception
      */
     private function buildFTField()
     {
         try {
             $linestr = $this->aLines->current();
-            $ft_key = trim(substr($linestr, 5, 8));
-            $ft_from = (int) trim(substr($linestr, 14, 6));
-            $ft_to = (int) trim(substr($linestr, 21, 6));
-            $ft_desc = $this->rem_right(trim(substr($linestr, 34)));
+            $aFtExplode = explode(" ", $linestr);
+            array_shift($aFtExplode);
+            $ft_key = $aFtExplode[0];
+            array_shift($aFtExplode);
+            $ft_from = (int)$aFtExplode[0];
+            array_shift($aFtExplode);
+            $ft_to = (int)$aFtExplode[0];
+            array_shift($aFtExplode);
+
+            $ft_desc = $this->rem_right(trim(implode(" ", $aFtExplode)));
             $this->ft_r[] = array($ft_key, $ft_from, $ft_to, $ft_desc);
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -432,14 +438,14 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * DR DATA_BANK_IDENTIFIER; PRIMARY_IDENTIFIER; SECONDARY_IDENTIFIER
+     * Parses DR lines
+     * Format : DR DATA_BANK_IDENTIFIER; PRIMARY_IDENTIFIER; SECONDARY_IDENTIFIER
      * We assume that all three data items are mandatory/present in all DR entries.
      * ( refno => ( (dbname1, pid1, sid1), (dbname2, pid2, sid2), ... ), 1 => ( ... ) )
      * ( 0 => ( (REBASE, pid1, sid1), (WORPEP, pid2, sid2), ... ), 1 => ( ... ) )
      * ( rn => ( "rp" => "my rp", "rc" => ("tok1" => "value", ...) ) )
      * ( 10 => ( "RP" => "my rp", "RC" => ("PLASMID" => "PLA_VAL", ... ) ) )
      * Example: DR AARHUS/GHENT-2DPAGE; 8006; IEF.
-     * @param string $linedata
      * @throws \Exception
      */
     private function buildDRField()
@@ -460,8 +466,16 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @param string $linedata
-     * @throws \Exception
+     * Parses RN lines - This is a paragraph which contains several lines
+     * Example :
+     * RN [8]
+     * RP X-RAY CRYSTALLOGRAPHY (2.6 ANGSTROMS).
+     * RX MEDLINE; 90008932.
+     * RA ECK M.J., SPRANG S.R.;
+     * RL J. BIOL. CHEM. 264:17595-17605(1989).
+     * @param   array           $aFlines
+     * @throws  \Exception
+     * @todo : search RC examples
      */
     private function buildRNField($aFlines)
     {
@@ -471,9 +485,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             // Remove the [ and ] between the reference number.
             $refno = substr($this->rem_right($linedata), 1);
 
-            $rc_ctr = 0;
             $rc_str = "";
-            $rc_flag = false;
             $inner_r = [];
 
             // Jump line
@@ -579,7 +591,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * GN is always exactly one line.
+     * Parses GN line - GN is always exactly one line.
      * GNAME1 OR GNAME2               ( (GNAME1, GNAME2) )
      * GNAME1 AND GNAME2              ( (GNAME1), (GNAME2) )
      * GNAME1 AND (GNAME2 OR GNAME3)  ( (GNAME1), (GNAME2, GNAME3) )
@@ -591,8 +603,6 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * 4) Singletons are translated into (GNAME1).
      * Multiple-tons are translated into (GNAME1, GNAME 2).
      * 5) Push gene name array into larger array. Go to next token.
-     *
-     * @param string $linestr
      * @throws \Exception
      */
     private function buildGNField()
@@ -643,16 +653,20 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * 0123456789012345678901234567890123456789
+     * Parses SQ lines and below
      * SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXX CN;
-     * @param string $linedata
-     * @throws \Exception
+     * @param   array           $aSwiss
+     * @param   Sequence        $oSequence
+     * @throws  \Exception
      */
     private function buildSQField(&$aSwiss, &$oSequence)
     {
         try {
+
             $linedata = trim(substr($this->aLines->current(), 3));
             $linedata = $this->rem_right($linedata);
+            dump($linedata);
+
             // XXXX AA, XXXX MW, XXXX CN
             $words = preg_split("/;/", substr($linedata, 8));
             $aa = preg_split("/\s+/", trim($words[0]));
@@ -663,15 +677,18 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $chk_no = trim($cn[0]);
             $chk_method = trim($cn[1]);
             $sequence = "";
-            foreach($this->aLines as $linestr) {
-                $linelabel = $this->left($linestr, 2);
-                if ($linelabel == "//") {
-                    break;
-                }
-                $linedata = $this->intrim(trim($linestr));
-                $sequence .= $linedata;
-            }
 
+            $this->aLines->next();
+            while(1) {
+                $linelabel = $this->left($this->aLines->current(), 2);
+                if ($linelabel == "//") { // end of file
+                    break;
+                } else {
+                    $linedata = $this->intrim(trim($this->aLines->current()));
+                    $sequence .= $linedata;
+                    $this->aLines->next();
+                }
+            }
             $aSwiss["AMINO_COUNT"]   = $aa_count;
             $aSwiss["MOLWT"]         = $mol_wt;
             $aSwiss["CHK_NO"]        = $chk_no;
@@ -688,17 +705,16 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Then pushes this array into a larger associative array, called $swiss, which is
      * also an attribute of the Seq object. It is assigned a key of the form: FT_<feature_key_name>.
      * Examples are: FT_PEPTIDE, FT_DISULFID.
-     * @param array $swiss
-     * @group   Legacy
-     * @throws \Exception
+     * @param   array       $swiss
+     * @throws  \Exception
      */
-    private function process_ft(&$swiss)
+    private function processFT(&$swiss)
     {
         try {
             foreach($this->ft_r as $element) {
                 $index = "FT_" . $element[0];
                 array_shift($element);
-                if (count($swiss[$index]) == 0) {
+                if (!isset($swiss[$index]) || (isset($swiss[$index]) && count($swiss[$index]) == 0)) {
                     $swiss[$index] = array();
                     array_push($swiss[$index], $element);
                 } else {
@@ -711,8 +727,9 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     }
 
     /**
-     * @return array
-     * @throws \Exception
+     * Creates references array
+     * @return      array
+     * @throws      \Exception
      */
     private function makeRefArray()
     {
