@@ -115,6 +115,19 @@ class Bioapi
         return $newData;
     }
 
+    public function getElements()
+    {
+        $uri = '/elements';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $newData[$elem['name']] = $elem['weight'];
+        }
+        return $newData;
+    }
+
     public function getWater()
     {
         $uri = '/elements/6';

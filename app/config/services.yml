@@ -48,15 +48,7 @@ services:
 
     AppBundle\Service\SequenceManager:
         arguments:
-            - "%dna_complements%"
-            - "%rna_complements%"
-            - "%elements%"
             - "%chemical_groups%"
-            - "%codons%"
-
-    AppBundle\Service\SeqAlignManager:
-        arguments:
-            - "%alphabet%"
 
     AppBundle\Twig\AppExtension:
         arguments:

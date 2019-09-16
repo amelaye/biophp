@@ -1,14 +1,14 @@
 <?php
 /**
- * SeqAlign Managing
+ * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
- * @Todo : certainement prévoir d'implémenter ArrayIterator / SPL
+ * Last modified 16 september 2019
  */
 namespace AppBundle\Service;
 
-use AppBundle\Entity\SeqAlign;
+use AppBundle\Entity\Sequence;
+use AppBundle\Service\SequenceManager;
 
 /**
  * SeqAlign - represents the result of an alignment performed by various third-party
@@ -18,23 +18,236 @@ use AppBundle\Entity\SeqAlign;
  * SeqAlign properties and methods allow users to perform post-alignment operations,
  * manipulations, etc.
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class SeqAlignManager
+class SequenceAlignmentManager
 {
-    /**
-     * @var SeqAlign
-     */
+    private $sequenceManager;
+
     private $seqAlign;
 
     private $aAlphabet;
 
-    public function __construct($aAlphabet)
+    private $length;
+    private $seq_count;
+    private $gap_count;
+    private $seqset;
+    private $seqptr;
+    private $is_flush;
+
+    public function __construct(SequenceManager $sequenceManager)
     {
-        $this->aAlphabet = $aAlphabet;
+        $this->sequenceManager = $sequenceManager;
     }
 
-    public function setSeqAlign(SeqAlign $oSeqAlign)
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+    }
+
+    public function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    public function parseFasta()
+    {
+        $flines = file($this->filename);
+        $seqctr = 0;
+        $maxlen = 0;
+        $maxctr = 0;
+        $gapctr = 0;
+        $this->seqset = array();
+        $samelength = TRUE;
+
+        $seqstr = "";
+        $prev_id = 0;
+        $prev_start = 0;
+        $prev_end = 0;
+
+        $oSequence = new Sequence();
+        $lines = new \ArrayIterator($flines);
+
+        foreach($lines as $no => $linestr) {
+            if (substr($linestr, 0, 1) == ">") {
+                $seqctr++;
+                $seqlen = strlen($seqstr);
+
+                $seq_obj = new Sequence();
+                $seq_obj->setId($prev_id);
+                $seq_obj->setSeqlength($seqlen);
+                $seq_obj->setSequence($seqstr);
+                $seq_obj->setStart($prev_start);
+                $seq_obj->setEnd($prev_end);
+
+                $this->sequenceManager->setSequence($seq_obj);
+                $localgaps = $this->sequenceManager->symfreq("-");
+                //$gapctr += $seq_obj->symfreq("-");
+
+                /* if ($seqctr > 1) {
+                    if ($seqlen > $maxlen) {
+                        $maxlen = $seqlen;
+                    }
+                    if (($seqctr >= 3) && ($seqlen != $prev_len)) {
+                        $samelength = FALSE;
+                    }
+                    array_push($this->seqset, $seq_obj);
+                }
+                $seqstr = "";
+
+                $words = preg_split("/[\>\/]/", substr($linestr, 1));
+                $prev_id = $words[0];
+
+                $indexes = preg_split("/-/", $words[1]);
+                $prev_start = $indexes[0];
+                $prev_end = $indexes[1];
+                $prev_len = $seqlen;
+                continue;*/
+            } else {
+                $seqstr = $seqstr . trim($linestr);
+            }
+        }
+    }
+
+    /**
+     * Constructor method for the SeqAlign class.  It initializes class properties.
+     * @param type $filename
+     * @param type $format
+     * @return type
+     */
+    public function parseFile()
+    {
+        if (strlen($this->filename) == 0) {
+            $this->seq_count = 0;
+            $this->length = 0;
+            $this->seqptr = 0;
+            $this->gap_count = 0;
+            $this->is_flush = TRUE;
+            $this->seqset = array();
+            return;
+        }
+
+        if ($this->format == "FASTA") {
+
+            $this->parseFasta();
+
+
+
+
+            /*while (list($no, $linestr) = each($flines)) {
+                if (substr($linestr, 0, 1) == ">") {
+                    $seqctr++;
+                    $seqlen = strlen($seqstr);
+
+                    $seq_obj = new seq();
+                    $seq_obj->id = $prev_id;
+                    $seq_obj->length = $seqlen;
+                    $seq_obj->sequence = $seqstr;
+                    $seq_obj->start = $prev_start;
+                    $seq_obj->end = $prev_end;
+                    $localgaps = $seq_obj->symfreq("-");
+                    $gapctr += $seq_obj->symfreq("-");
+
+                    if ($seqctr > 1) {
+                        if ($seqlen > $maxlen) {
+                            $maxlen = $seqlen;
+                        }
+                        if (($seqctr >= 3) && ($seqlen != $prev_len)) {
+                            $samelength = FALSE;
+                        }
+                        array_push($this->seqset, $seq_obj);
+                    }
+                    $seqstr = "";
+
+                    $words = preg_split("/[\>\/]/", substr($linestr, 1));
+                    $prev_id = $words[0];
+
+                    $indexes = preg_split("/-/", $words[1]);
+                    $prev_start = $indexes[0];
+                    $prev_end = $indexes[1];
+                    $prev_len = $seqlen;
+                    continue;
+                } else {
+                    $seqstr = $seqstr . trim($linestr);
+                }
+            }
+
+            $seqlen = strlen($seqstr);
+            $seq_obj = new seq();
+            $seq_obj->id = $prev_id;
+            $seq_obj->start = $prev_start;
+            $seq_obj->end = $prev_end;
+            $seq_obj->length = $seqlen;
+            $seq_obj->sequence = $seqstr;
+            $localgaps = $seq_obj->symfreq("-");
+            $gapctr += $seq_obj->symfreq("-");
+            if ($seqctr > 1) {
+                if ($seqlen > $maxlen) {
+                    $maxlen = $seqlen;
+                }
+                if (($seqctr >= 3) && ($seqlen != $prev_len)) {
+                    $samelength = FALSE;
+                }
+                array_push($this->seqset, $seq_obj);
+            }
+
+            $this->seq_count = $seqctr;
+            $this->length = $maxlen;
+            $this->seqptr = 0;
+            $this->gap_count = $gapctr;
+            $this->is_flush = $samelength;*/
+        } elseif ($format == "CLUSTAL") {
+            /*$flines = file($filename);
+            $namelist = array();
+            $conserve_line = "";
+            $linectr = 0;
+            while(list($no, $linestr) = each($flines)) {
+                $linectr++;
+                if ($linectr == 1) {
+                    continue;
+                }
+                if (strlen(trim($linestr)) == 0) {
+                    continue; // ignore blank lines.
+                }
+
+                $seqname = trim(substr($linestr, 0, 16));
+                $seqline = substr($linestr, 16, 60);
+
+                if (strlen(trim($seqname)) == 0) {
+                    $conserve_line .= substr($seqline, 0, $lastlen);
+                    continue;
+                }
+                if (!in_array($seqname, $namelist)) {
+                    $namelist[] = $seqname;
+                    $seq[$seqname] = $seqline;
+                    $lastlen = strlen(trim($seqline));
+                } else {
+                    $seq[$seqname] .= trim($seqline);
+                    $lastlen = strlen(trim($seqline));
+                }
+            }
+
+            $this->seqset = array();
+            $gapctr = 0;
+            foreach($seq as $key => $value) {
+                $seq_obj = new seq();
+                $seq_obj->id = $key;
+                $seq_obj->length = strlen($value);
+                $seq_obj->sequence = $value;
+                $seq_obj->start = 0;
+                $seq_obj->end = $seq_obj->length - 1;
+                $gapctr += $seq_obj->symfreq("-");
+                array_push($this->seqset, $seq_obj);
+            }
+            $this->seq_count = count($namelist);
+            $this->length = strlen($conserve_line);
+            $this->seqptr = 0;
+            $this->gap_count = $gapctr;
+            $this->is_flush = TRUE;*/
+        }
+    }
+
+    public function setSeqAlign(SequenceAlignment $oSeqAlign)
     {
         $this->seqAlign = $oSeqAlign;
     }
@@ -73,47 +286,6 @@ class SeqAlignManager
             throw new \Exception($ex);
         }
     }
-
-
-    /**
-     * Moves the sequence pointer to the first sequence in the alignment set.
-     */
-    public function first()
-    {
-        $this->seqAlign->setSeqptr(0);
-    }
-
-
-    /**
-     * Moves the sequence pointer to the last sequence in the alignment set.
-     */
-    public function last()
-    {
-        $this->seqAlign->setSeqptr($this->seqAlign->getSeqCount() - 1);
-    }
-
-
-    /**
-     * Moves the sequence pointer to the sequence before the current one.
-     */
-    public function prev()
-    {
-        if ($this->seqAlign->getSeqptr() > 0) {
-            $this->seqAlign->setSeqptr($this->seqAlign->getSeqptr() - 1);
-        }
-    }
-
-
-    /**
-     * Moves the sequence pointer to the sequence after the current one.
-     */
-    public function next()
-    {
-        if ($this->seqAlign->getSeqptr() < $this->seqAlign->getSeqCount() - 1) {
-            $this->seqAlign->setSeqptr($this->seqAlign->getSeqptr() + 1);
-        }
-    }
-
 
     /**
      * Retrieves a particular sequence (identified by its index number) from an alignment set.
@@ -395,7 +567,7 @@ class SeqAlignManager
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
 
-            $new_align = new SeqAlign();
+            $new_align = new SequenceAlignment();
             $new_align->setSeqset(array_slice($this->seqAlign->getSeqset(), $beg, $end-$beg+1));
             $new_align->setLength($new_align->get_length());
             $new_align->setSeqCount($end - $beg + 1);
@@ -412,7 +584,7 @@ class SeqAlignManager
 
     /**
      * Returns a set of (possibly non-consecutive) sequences in an alignment set.
-     * @return SeqAlign
+     * @return SequenceAlignment
      * @throws \Exception
      */
     public function select()
@@ -424,7 +596,7 @@ class SeqAlignManager
             }
 
             $new_seqset = array();
-            $new_align = new SeqAlign();
+            $new_align = new SequenceAlignment();
             $ctr = 0;
             foreach($arglist as $seqindex) {
                 $oSeqset = $this->seqAlign->getSeqset();

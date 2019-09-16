@@ -2,13 +2,6 @@ parameters:
   limits:
     lowerlimit: 0
     upperlimit: 1
-  elements:
-    carbone:    12.01
-    oxygene:    16.00
-    nitrate:    14.01
-    hydrogene:  1.01
-    phosphore:  30.97
-    water:      18.015
   wts:
     A:
       - 89.09
