@@ -1,16 +1,21 @@
 <?php
 /**
- * Sequences Managing
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
+ * Last modified 16 september 2019
  */
 namespace AppBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Protein;
 
+/**
+ * Class SequenceManager - Functions for sequences
+ * @package AppBundle\Service
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class SequenceManager
 {
     private $aDnaComplements;
@@ -22,26 +27,19 @@ class SequenceManager
     
     /**
      * Constructor
-     * @param array $aDnaComplements
-     * @param array $aRnaComplements
-     * @param array $aElements
      * @param array $aChemicalGroups
-     * @param array $aCodons
      */
     public function __construct(
-        array $aDnaComplements = [],
-        array $aRnaComplements = [],
-        array $aElements = [],
         array $aChemicalGroups = [],
-        array $aCodons = []
+        Bioapi $bioapi
     ) {
-        $this->aDnaComplements  = $aDnaComplements;
-        $this->aRnaComplements  = $aRnaComplements;
-        $this->aElements        = $aElements;
+        $this->aDnaComplements  = $bioapi->getNucleotidsDNA();
+        $this->aRnaComplements  = $bioapi->getNucleotidsRNA();
+        $this->aElements        = $bioapi->getElements();
         $this->aChemicalGroups  = $aChemicalGroups;
-        $this->aCodons          = $aCodons;
+        $this->aCodons          = $bioapi->getAminosOnlyLetters();
     }
-    
+
     /**
      * Injection Sequence
      * @param Sequence $oSequence

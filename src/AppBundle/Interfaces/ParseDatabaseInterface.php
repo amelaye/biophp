@@ -13,7 +13,7 @@ interface ParseDatabaseInterface
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
-     * @param   type        $aFlines
+     * @param   array       $aFlines
      * @return  Sequence    $oSequence
      */
     public function parseDataFile($aFlines);

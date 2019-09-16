@@ -7,14 +7,13 @@
  */
 namespace AppBundle\Controller;
 
-use SeqDatabaseBundle\Entity\CollectionElement;
+use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
-//use AppBundle\Entity\Database;
 use AppBundle\Service\DatabaseManager;
 
 /**
@@ -79,12 +78,25 @@ class DemoController extends Controller
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        //$databaseManager->recording("humandbBis", "SWISSPROT", "Q5K4E3.txt");
         $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
-dump($oSequence);
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]
+        );
+    }
+
+    /**
+     * @route("/sequence-alignment-fasta", name="sequence_alignment_fasta")
+     * @param SequenceAlignmentManager $sequenceAlignmentManager
+     * @return Response
+     */
+    public function parseseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
+    {
+        $sequenceAlignmentManager->setFilename("data/human-fasta.txt");
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        return $this->render('demo/parseseqalignment.html.twig',
+            []
         );
     }
 }
