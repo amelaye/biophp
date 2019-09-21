@@ -384,15 +384,15 @@ class SequenceManager
 
     /**
      * Note legacy
-     *  // Apr 10, 2003 - This now returns 0 instead of NULL when
-     *  // $symbol is not found.  0 is the preferred return value.
+     * Apr 10, 2003 - This now returns 0 instead of NULL when
+     * $symbol is not found.  0 is the preferred return value.
      * @param   string $sSymbol
      * @return  int
      */
     public function symfreq($sSymbol)
     {
         $symtally = count_chars(strtoupper($this->sequence->getSequence()), 1);
-        if (is_null($symtally[ord($sSymbol)])) {
+        if (!isset($symtally[ord($sSymbol)])) {
             return 0;
         } else {
             return $symtally[ord($sSymbol)];

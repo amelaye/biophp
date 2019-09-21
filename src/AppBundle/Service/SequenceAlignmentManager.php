@@ -64,8 +64,8 @@ class SequenceAlignmentManager
         $prev_id = 0;
         $prev_start = 0;
         $prev_end = 0;
+        $prev_len = 0;
 
-        $oSequence = new Sequence();
         $lines = new \ArrayIterator($flines);
 
         foreach($lines as $no => $linestr) {
@@ -82,9 +82,9 @@ class SequenceAlignmentManager
 
                 $this->sequenceManager->setSequence($seq_obj);
                 $localgaps = $this->sequenceManager->symfreq("-");
-                //$gapctr += $seq_obj->symfreq("-");
+                $gapctr += $this->sequenceManager->symfreq("-");
 
-                /* if ($seqctr > 1) {
+                if ($seqctr > 1) {
                     if ($seqlen > $maxlen) {
                         $maxlen = $seqlen;
                     }
@@ -96,17 +96,54 @@ class SequenceAlignmentManager
                 $seqstr = "";
 
                 $words = preg_split("/[\>\/]/", substr($linestr, 1));
+
                 $prev_id = $words[0];
 
-                $indexes = preg_split("/-/", $words[1]);
-                $prev_start = $indexes[0];
-                $prev_end = $indexes[1];
+                if(isset($words[1])) {
+                    $indexes = preg_split("/-/", $words[1]);
+                    $prev_start = $indexes[0];
+                    $prev_end = $indexes[1];
+                }
+
                 $prev_len = $seqlen;
-                continue;*/
+                continue;
             } else {
                 $seqstr = $seqstr . trim($linestr);
             }
         }
+
+        $seqlen = strlen($seqstr);
+
+        $seq_obj = new Sequence();
+        $seq_obj->setId($prev_id);
+        $seq_obj->setSeqlength($seqlen);
+        $seq_obj->setSequence($seqstr);
+        $seq_obj->setStart($prev_start);
+        $seq_obj->setEnd($prev_end);
+
+        $this->sequenceManager->setSequence($seq_obj);
+        $localgaps = $this->sequenceManager->symfreq("-");
+        $gapctr += $this->sequenceManager->symfreq("-");
+
+        if ($seqctr > 1) {
+            if ($seqlen > $maxlen) {
+                $maxlen = $seqlen;
+            }
+            if (($seqctr >= 3) && ($seqlen != $prev_len)) {
+                $samelength = FALSE;
+            }
+
+        }
+
+        dump($seq_obj);
+
+        dump($this->seqset);
+
+        $this->seq_count = $seqctr;
+        $this->length = $maxlen;
+        $this->seqptr = 0;
+        $this->gap_count = $gapctr;
+        $this->is_flush = $samelength;
     }
 
     /**

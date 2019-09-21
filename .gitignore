@@ -33,3 +33,4 @@ web/code-coverage/*
 /myreport
 composer.lock
 /web/*.txt
+/web/data/*
