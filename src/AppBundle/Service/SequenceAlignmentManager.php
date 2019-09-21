@@ -98,11 +98,16 @@ class SequenceAlignmentManager
      */
     public function parseClustal()
     {
-        $flines = file($filename);
+        $flines = file($this->sFilename);
         $namelist = array();
         $conserve_line = "";
         $linectr = 0;
-        while(list($no, $linestr) = each($flines)) {
+        $lastlen = 0;
+        $seq = [];
+
+        $aLines = new \ArrayIterator($flines);
+dump($aLines);
+        foreach($aLines as $linestr) {
             $linectr++;
             if ($linectr == 1) {
                 continue;
@@ -111,8 +116,17 @@ class SequenceAlignmentManager
                 continue; // ignore blank lines.
             }
 
-            $seqname = trim(substr($linestr, 0, 16));
-            $seqline = substr($linestr, 16, 60);
+            $words = explode(" ", $linestr);
+
+            $wordlines = [];
+            foreach($words as $word) {
+                if($word != "") {
+                    $wordlines[] = str_replace("\n","",$word);
+                }
+            }
+
+            $seqname = $wordlines[0];
+            $seqline = $wordlines[1];
 
             if (strlen(trim($seqname)) == 0) {
                 $conserve_line .= substr($seqline, 0, $lastlen);
@@ -131,20 +145,23 @@ class SequenceAlignmentManager
         $this->seqset = array();
         $gapctr = 0;
         foreach($seq as $key => $value) {
-            $seq_obj = new seq();
-            $seq_obj->id = $key;
-            $seq_obj->length = strlen($value);
-            $seq_obj->sequence = $value;
-            $seq_obj->start = 0;
-            $seq_obj->end = $seq_obj->length - 1;
-            $gapctr += $seq_obj->symfreq("-");
+            $seq_obj = new Sequence();
+            $seq_obj->setId($key);
+            $seq_obj->setSeqlength(strlen($value));
+            $seq_obj->setSequence($value);
+            $seq_obj->setStart(0);
+            $seq_obj->setEnd(strlen($value) - 1);
+
+            $this->sequenceManager->setSequence($seq_obj);
+            $gapctr += $this->sequenceManager->symfreq("-");
             array_push($this->seqset, $seq_obj);
         }
         $this->seq_count = count($namelist);
-        $this->length = strlen($conserve_line);
-        $this->seqptr = 0;
+        $this->iLength = strlen($conserve_line);
         $this->gap_count = $gapctr;
-        $this->is_flush = TRUE;
+        $this->is_flush = true;
+
+        dump($this);
     }
 
     /**
