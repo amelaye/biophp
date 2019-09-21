@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 16 september 2019
+ * Last modified 21 september 2019
  */
 namespace AppBundle\Service;
 
@@ -22,271 +22,219 @@ use AppBundle\Service\SequenceManager;
  */
 class SequenceAlignmentManager
 {
+    /**
+     * @var SequenceManager
+     */
     private $sequenceManager;
-
-    private $seqAlign;
 
     private $aAlphabet;
 
-    private $length;
+    /**
+     * @var int
+     */
+    private $iLength;
+
+    /**
+     * @var int
+     */
     private $seq_count;
+
+    /**
+     * @var int
+     */
     private $gap_count;
+
+    /**
+     * @var array
+     */
     private $seqset;
-    private $seqptr;
+
+    /**
+     * @var bool
+     */
     private $is_flush;
+
+    /**
+     * @var string
+     */
+    private $sFilename;
+
+    /**
+     * @var string
+     */
+    private $sFormat;
 
     public function __construct(SequenceManager $sequenceManager)
     {
         $this->sequenceManager = $sequenceManager;
-    }
 
-    public function setFilename($filename)
-    {
-        $this->filename = $filename;
-    }
-
-    public function setFormat($format)
-    {
-        $this->format = $format;
-    }
-
-    public function parseFasta()
-    {
-        $flines = file($this->filename);
-        $seqctr = 0;
-        $maxlen = 0;
-        $maxctr = 0;
-        $gapctr = 0;
+        $this->seq_count = 0;
+        $this->iLength = 0;
+        $this->gap_count = 0;
+        $this->is_flush = true;
         $this->seqset = array();
-        $samelength = TRUE;
-
-        $seqstr = "";
-        $prev_id = 0;
-        $prev_start = 0;
-        $prev_end = 0;
-        $prev_len = 0;
-
-        $lines = new \ArrayIterator($flines);
-
-        foreach($lines as $no => $linestr) {
-            if (substr($linestr, 0, 1) == ">") {
-                $seqctr++;
-                $seqlen = strlen($seqstr);
-
-                $seq_obj = new Sequence();
-                $seq_obj->setId($prev_id);
-                $seq_obj->setSeqlength($seqlen);
-                $seq_obj->setSequence($seqstr);
-                $seq_obj->setStart($prev_start);
-                $seq_obj->setEnd($prev_end);
-
-                $this->sequenceManager->setSequence($seq_obj);
-                $localgaps = $this->sequenceManager->symfreq("-");
-                $gapctr += $this->sequenceManager->symfreq("-");
-
-                if ($seqctr > 1) {
-                    if ($seqlen > $maxlen) {
-                        $maxlen = $seqlen;
-                    }
-                    if (($seqctr >= 3) && ($seqlen != $prev_len)) {
-                        $samelength = FALSE;
-                    }
-                    array_push($this->seqset, $seq_obj);
-                }
-                $seqstr = "";
-
-                $words = preg_split("/[\>\/]/", substr($linestr, 1));
-
-                $prev_id = $words[0];
-
-                if(isset($words[1])) {
-                    $indexes = preg_split("/-/", $words[1]);
-                    $prev_start = $indexes[0];
-                    $prev_end = $indexes[1];
-                }
-
-                $prev_len = $seqlen;
-                continue;
-            } else {
-                $seqstr = $seqstr . trim($linestr);
-            }
-        }
-
-        $seqlen = strlen($seqstr);
-
-        $seq_obj = new Sequence();
-        $seq_obj->setId($prev_id);
-        $seq_obj->setSeqlength($seqlen);
-        $seq_obj->setSequence($seqstr);
-        $seq_obj->setStart($prev_start);
-        $seq_obj->setEnd($prev_end);
-
-        $this->sequenceManager->setSequence($seq_obj);
-        $localgaps = $this->sequenceManager->symfreq("-");
-        $gapctr += $this->sequenceManager->symfreq("-");
-
-        if ($seqctr > 1) {
-            if ($seqlen > $maxlen) {
-                $maxlen = $seqlen;
-            }
-            if (($seqctr >= 3) && ($seqlen != $prev_len)) {
-                $samelength = FALSE;
-            }
-
-        }
-
-        dump($seq_obj);
-
-        dump($this->seqset);
-
-        $this->seq_count = $seqctr;
-        $this->length = $maxlen;
-        $this->seqptr = 0;
-        $this->gap_count = $gapctr;
-        $this->is_flush = $samelength;
     }
 
     /**
-     * Constructor method for the SeqAlign class.  It initializes class properties.
-     * @param type $filename
-     * @param type $format
-     * @return type
+     * Sets a specific filename : the file to parse
+     * @param   string  $sFilename
+     */
+    public function setFilename($sFilename)
+    {
+        $this->sFilename = $sFilename;
+    }
+
+    /**
+     * Sets a specific format : FASTA or CLUSTAL
+     * @param   string  $sFormat
+     */
+    public function setFormat($sFormat)
+    {
+        $this->sFormat = $sFormat;
+    }
+
+    /**
+     * Parses Clustal Files and create Sequence object
+     */
+    public function parseClustal()
+    {
+        $flines = file($filename);
+        $namelist = array();
+        $conserve_line = "";
+        $linectr = 0;
+        while(list($no, $linestr) = each($flines)) {
+            $linectr++;
+            if ($linectr == 1) {
+                continue;
+            }
+            if (strlen(trim($linestr)) == 0) {
+                continue; // ignore blank lines.
+            }
+
+            $seqname = trim(substr($linestr, 0, 16));
+            $seqline = substr($linestr, 16, 60);
+
+            if (strlen(trim($seqname)) == 0) {
+                $conserve_line .= substr($seqline, 0, $lastlen);
+                continue;
+            }
+            if (!in_array($seqname, $namelist)) {
+                $namelist[] = $seqname;
+                $seq[$seqname] = $seqline;
+                $lastlen = strlen(trim($seqline));
+            } else {
+                $seq[$seqname] .= trim($seqline);
+                $lastlen = strlen(trim($seqline));
+            }
+        }
+
+        $this->seqset = array();
+        $gapctr = 0;
+        foreach($seq as $key => $value) {
+            $seq_obj = new seq();
+            $seq_obj->id = $key;
+            $seq_obj->length = strlen($value);
+            $seq_obj->sequence = $value;
+            $seq_obj->start = 0;
+            $seq_obj->end = $seq_obj->length - 1;
+            $gapctr += $seq_obj->symfreq("-");
+            array_push($this->seqset, $seq_obj);
+        }
+        $this->seq_count = count($namelist);
+        $this->length = strlen($conserve_line);
+        $this->seqptr = 0;
+        $this->gap_count = $gapctr;
+        $this->is_flush = TRUE;
+    }
+
+    /**
+     * Parses Fasta Files and create Sequence object
+     */
+    public function parseFasta()
+    {
+        $fLines = file($this->sFilename);
+        $iSeqCount = 0;
+        $iMaxLength = 0;
+        $iGapCount = 0;
+        $bSameLength = true;
+
+        $sSequence = "";
+        $iPrevId = 0;
+        $iPrevLength = 0;
+
+        $aLines = new \ArrayIterator($fLines);
+
+        foreach($aLines as $sLine) {
+            if (substr($sLine, 0, 1) == ">") {
+                $iSeqCount++;
+                $iSeqLength = strlen($sSequence);
+
+                $oSequence = new Sequence();
+                $oSequence->setId($iPrevId);
+                $oSequence->setSeqlength($iSeqLength);
+                $oSequence->setSequence($sSequence);
+
+                $this->sequenceManager->setSequence($oSequence);
+                $iGapCount += $this->sequenceManager->symfreq("-");
+
+                if ($iSeqCount > 1) {
+                    if ($iSeqLength > $iMaxLength) {
+                        $iMaxLength = $iSeqLength;
+                    }
+                    if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
+                        $bSameLength = false;
+                    }
+                    array_push($this->seqset, $oSequence);
+                }
+
+                $aWords = preg_split("/[\|\/]/", substr($sLine, 1));
+                if(isset($aWords[1])) {
+                    $iPrevId = $aWords[1];
+                }
+
+                $iPrevLength = $iSeqLength;
+                continue;
+            } else {
+                $sSequence = $sSequence . trim($sLine);
+            }
+        }
+
+        $iSeqLength = strlen($sSequence);
+
+        $oSequence = new Sequence();
+        $oSequence->setId($iPrevId);
+        $oSequence->setSeqlength($iSeqLength);
+        $oSequence->setSequence($sSequence);
+
+        $this->sequenceManager->setSequence($oSequence);
+        $iGapCount += $this->sequenceManager->symfreq("-");
+
+        if ($iSeqCount >= 1) {
+            if ($iSeqLength > $iMaxLength) {
+                $iMaxLength = $iSeqLength;
+            }
+            if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
+                $bSameLength = false;
+            }
+            array_push($this->seqset, $oSequence);
+        }
+
+        $this->seq_count = $iSeqCount;
+        $this->iLength = $iMaxLength;
+        $this->gap_count = $iGapCount;
+        $this->is_flush = $bSameLength;
+    }
+
+    /**
+     * Main method - Parses FASTA or CLUSTAL file
      */
     public function parseFile()
     {
-        if (strlen($this->filename) == 0) {
-            $this->seq_count = 0;
-            $this->length = 0;
-            $this->seqptr = 0;
-            $this->gap_count = 0;
-            $this->is_flush = TRUE;
-            $this->seqset = array();
-            return;
-        }
-
-        if ($this->format == "FASTA") {
-
+        if ($this->sFormat == "FASTA") {
             $this->parseFasta();
-
-
-
-
-            /*while (list($no, $linestr) = each($flines)) {
-                if (substr($linestr, 0, 1) == ">") {
-                    $seqctr++;
-                    $seqlen = strlen($seqstr);
-
-                    $seq_obj = new seq();
-                    $seq_obj->id = $prev_id;
-                    $seq_obj->length = $seqlen;
-                    $seq_obj->sequence = $seqstr;
-                    $seq_obj->start = $prev_start;
-                    $seq_obj->end = $prev_end;
-                    $localgaps = $seq_obj->symfreq("-");
-                    $gapctr += $seq_obj->symfreq("-");
-
-                    if ($seqctr > 1) {
-                        if ($seqlen > $maxlen) {
-                            $maxlen = $seqlen;
-                        }
-                        if (($seqctr >= 3) && ($seqlen != $prev_len)) {
-                            $samelength = FALSE;
-                        }
-                        array_push($this->seqset, $seq_obj);
-                    }
-                    $seqstr = "";
-
-                    $words = preg_split("/[\>\/]/", substr($linestr, 1));
-                    $prev_id = $words[0];
-
-                    $indexes = preg_split("/-/", $words[1]);
-                    $prev_start = $indexes[0];
-                    $prev_end = $indexes[1];
-                    $prev_len = $seqlen;
-                    continue;
-                } else {
-                    $seqstr = $seqstr . trim($linestr);
-                }
-            }
-
-            $seqlen = strlen($seqstr);
-            $seq_obj = new seq();
-            $seq_obj->id = $prev_id;
-            $seq_obj->start = $prev_start;
-            $seq_obj->end = $prev_end;
-            $seq_obj->length = $seqlen;
-            $seq_obj->sequence = $seqstr;
-            $localgaps = $seq_obj->symfreq("-");
-            $gapctr += $seq_obj->symfreq("-");
-            if ($seqctr > 1) {
-                if ($seqlen > $maxlen) {
-                    $maxlen = $seqlen;
-                }
-                if (($seqctr >= 3) && ($seqlen != $prev_len)) {
-                    $samelength = FALSE;
-                }
-                array_push($this->seqset, $seq_obj);
-            }
-
-            $this->seq_count = $seqctr;
-            $this->length = $maxlen;
-            $this->seqptr = 0;
-            $this->gap_count = $gapctr;
-            $this->is_flush = $samelength;*/
-        } elseif ($format == "CLUSTAL") {
-            /*$flines = file($filename);
-            $namelist = array();
-            $conserve_line = "";
-            $linectr = 0;
-            while(list($no, $linestr) = each($flines)) {
-                $linectr++;
-                if ($linectr == 1) {
-                    continue;
-                }
-                if (strlen(trim($linestr)) == 0) {
-                    continue; // ignore blank lines.
-                }
-
-                $seqname = trim(substr($linestr, 0, 16));
-                $seqline = substr($linestr, 16, 60);
-
-                if (strlen(trim($seqname)) == 0) {
-                    $conserve_line .= substr($seqline, 0, $lastlen);
-                    continue;
-                }
-                if (!in_array($seqname, $namelist)) {
-                    $namelist[] = $seqname;
-                    $seq[$seqname] = $seqline;
-                    $lastlen = strlen(trim($seqline));
-                } else {
-                    $seq[$seqname] .= trim($seqline);
-                    $lastlen = strlen(trim($seqline));
-                }
-            }
-
-            $this->seqset = array();
-            $gapctr = 0;
-            foreach($seq as $key => $value) {
-                $seq_obj = new seq();
-                $seq_obj->id = $key;
-                $seq_obj->length = strlen($value);
-                $seq_obj->sequence = $value;
-                $seq_obj->start = 0;
-                $seq_obj->end = $seq_obj->length - 1;
-                $gapctr += $seq_obj->symfreq("-");
-                array_push($this->seqset, $seq_obj);
-            }
-            $this->seq_count = count($namelist);
-            $this->length = strlen($conserve_line);
-            $this->seqptr = 0;
-            $this->gap_count = $gapctr;
-            $this->is_flush = TRUE;*/
+        } elseif ($this->sFormat == "CLUSTAL") {
+            $this->parseClustal();
         }
-    }
-
-    public function setSeqAlign(SequenceAlignment $oSeqAlign)
-    {
-        $this->seqAlign = $oSeqAlign;
     }
 
     /**
