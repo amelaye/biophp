@@ -104,19 +104,20 @@ class SequenceAlignmentManager
         $linectr = 0;
         $lastlen = 0;
         $seq = [];
+        $iLength = 0;
 
         $aLines = new \ArrayIterator($flines);
-dump($aLines);
-        foreach($aLines as $linestr) {
+
+        foreach($aLines as $sLine) {
             $linectr++;
             if ($linectr == 1) {
                 continue;
             }
-            if (strlen(trim($linestr)) == 0) {
+            if (strlen(trim($sLine)) == 0) {
                 continue; // ignore blank lines.
             }
 
-            $words = explode(" ", $linestr);
+            $words = explode(" ", $sLine);
 
             $wordlines = [];
             foreach($words as $word) {
@@ -128,8 +129,9 @@ dump($aLines);
             $seqname = $wordlines[0];
             $seqline = $wordlines[1];
 
-            if (strlen(trim($seqname)) == 0) {
+            if (sizeof($wordlines) == 1) {
                 $conserve_line .= substr($seqline, 0, $lastlen);
+                dump($conserve_line);
                 continue;
             }
             if (!in_array($seqname, $namelist)) {
@@ -152,16 +154,15 @@ dump($aLines);
             $seq_obj->setStart(0);
             $seq_obj->setEnd(strlen($value) - 1);
 
+            $iLength += strlen($value);
             $this->sequenceManager->setSequence($seq_obj);
             $gapctr += $this->sequenceManager->symfreq("-");
             array_push($this->seqset, $seq_obj);
         }
         $this->seq_count = count($namelist);
-        $this->iLength = strlen($conserve_line);
+        $this->iLength = $iLength;
         $this->gap_count = $gapctr;
         $this->is_flush = true;
-
-        dump($this);
     }
 
     /**
@@ -170,15 +171,9 @@ dump($aLines);
     public function parseFasta()
     {
         $fLines = file($this->sFilename);
-        $iSeqCount = 0;
-        $iMaxLength = 0;
-        $iGapCount = 0;
+        $iSeqCount = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
         $bSameLength = true;
-
         $sSequence = "";
-        $iPrevId = 0;
-        $iPrevLength = 0;
-
         $aLines = new \ArrayIterator($fLines);
 
         foreach($aLines as $sLine) {
