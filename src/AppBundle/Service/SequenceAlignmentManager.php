@@ -8,7 +8,6 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequence;
-use AppBundle\Service\SequenceManager;
 
 /**
  * SeqAlign - represents the result of an alignment performed by various third-party
@@ -37,22 +36,22 @@ class SequenceAlignmentManager
     /**
      * @var int
      */
-    private $seq_count;
+    private $iSeqCount;
 
     /**
      * @var int
      */
-    private $gap_count;
+    private $iGapCount;
 
     /**
      * @var array
      */
-    private $seqset;
+    private $aSeqSet;
 
     /**
      * @var bool
      */
-    private $is_flush;
+    private $bFlush;
 
     /**
      * @var string
@@ -68,11 +67,11 @@ class SequenceAlignmentManager
     {
         $this->sequenceManager = $sequenceManager;
 
-        $this->seq_count = 0;
+        $this->iSeqCount = 0;
         $this->iLength = 0;
-        $this->gap_count = 0;
-        $this->is_flush = true;
-        $this->seqset = array();
+        $this->iGapCount = 0;
+        $this->bFlush = true;
+        $this->aSeqSet = array();
     }
 
     /**
@@ -98,71 +97,64 @@ class SequenceAlignmentManager
      */
     public function parseClustal()
     {
-        $flines = file($this->sFilename);
-        $namelist = array();
-        $conserve_line = "";
-        $linectr = 0;
-        $lastlen = 0;
-        $seq = [];
-        $iLength = 0;
-
-        $aLines = new \ArrayIterator($flines);
+        $fLines        = file($this->sFilename);
+        $sConserveLine = "";
+        $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
+        $aNameList     = $aSequences = [];
+        $aLines        = new \ArrayIterator($fLines);
 
         foreach($aLines as $sLine) {
-            $linectr++;
-            if ($linectr == 1) {
+            $iLineCount++;
+            if ($iLineCount == 1) {
                 continue;
             }
             if (strlen(trim($sLine)) == 0) {
                 continue; // ignore blank lines.
             }
 
-            $words = explode(" ", $sLine);
-
-            $wordlines = [];
-            foreach($words as $word) {
-                if($word != "") {
-                    $wordlines[] = str_replace("\n","",$word);
+            $aWords = explode(" ", $sLine);
+            $aWordLines = [];
+            foreach($aWords as $sWord) {
+                if($sWord != "") {
+                    $aWordLines[] = str_replace("\n","",$sWord);
                 }
             }
+            $sSeqName = $aWordLines[0];
+            $sSeqLine = $aWordLines[1];
 
-            $seqname = $wordlines[0];
-            $seqline = $wordlines[1];
-
-            if (sizeof($wordlines) == 1) {
-                $conserve_line .= substr($seqline, 0, $lastlen);
-                dump($conserve_line);
+            if (sizeof($aWordLines) == 1) {
+                $sConserveLine .= substr($sSeqLine, 0, $iLastLength);
                 continue;
             }
-            if (!in_array($seqname, $namelist)) {
-                $namelist[] = $seqname;
-                $seq[$seqname] = $seqline;
-                $lastlen = strlen(trim($seqline));
+            if (!in_array($sSeqName, $aNameList)) {
+                $aNameList[] = $sSeqName;
+                $aSequences[$sSeqName] = $sSeqLine;
+                $iLastLength = strlen(trim($sSeqLine));
             } else {
-                $seq[$seqname] .= trim($seqline);
-                $lastlen = strlen(trim($seqline));
+                $aSequences[$sSeqName] .= trim($sSeqLine);
+                $iLastLength = strlen(trim($sSeqLine));
             }
         }
 
-        $this->seqset = array();
-        $gapctr = 0;
-        foreach($seq as $key => $value) {
-            $seq_obj = new Sequence();
-            $seq_obj->setId($key);
-            $seq_obj->setSeqlength(strlen($value));
-            $seq_obj->setSequence($value);
-            $seq_obj->setStart(0);
-            $seq_obj->setEnd(strlen($value) - 1);
+        foreach($aSequences as $sKey => $sSeqData) {
+            $oSequence = new Sequence();
+            $oSequence->setId($sKey);
+            $oSequence->setSeqlength(strlen($sSeqData));
+            $oSequence->setSequence($sSeqData);
+            $oSequence->setStart(0);
+            $oSequence->setEnd(strlen($sSeqData) - 1);
 
-            $iLength += strlen($value);
-            $this->sequenceManager->setSequence($seq_obj);
-            $gapctr += $this->sequenceManager->symfreq("-");
-            array_push($this->seqset, $seq_obj);
+            $iLength += strlen($sSeqData);
+            $this->sequenceManager->setSequence($oSequence);
+            $iGapCount += $this->sequenceManager->symfreq("-");
+            array_push($this->aSeqSet, $oSequence);
         }
-        $this->seq_count = count($namelist);
-        $this->iLength = $iLength;
-        $this->gap_count = $gapctr;
-        $this->is_flush = true;
+        $this->iSeqCount = count($aNameList);
+        $this->iLength   = $iLength;
+        $this->iGapCount = $iGapCount;
+        $this->bFlush    = true;
+
+        dump($this);
     }
 
     /**
@@ -170,11 +162,11 @@ class SequenceAlignmentManager
      */
     public function parseFasta()
     {
-        $fLines = file($this->sFilename);
-        $iSeqCount = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
+        $fLines      = file($this->sFilename);
+        $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
         $bSameLength = true;
-        $sSequence = "";
-        $aLines = new \ArrayIterator($fLines);
+        $sSequence   = "";
+        $aLines      = new \ArrayIterator($fLines);
 
         foreach($aLines as $sLine) {
             if (substr($sLine, 0, 1) == ">") {
@@ -196,7 +188,7 @@ class SequenceAlignmentManager
                     if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                         $bSameLength = false;
                     }
-                    array_push($this->seqset, $oSequence);
+                    array_push($this->aSeqSet, $oSequence);
                 }
 
                 $aWords = preg_split("/[\|\/]/", substr($sLine, 1));
@@ -228,13 +220,13 @@ class SequenceAlignmentManager
             if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                 $bSameLength = false;
             }
-            array_push($this->seqset, $oSequence);
+            array_push($this->aSeqSet, $oSequence);
         }
 
-        $this->seq_count = $iSeqCount;
-        $this->iLength = $iMaxLength;
-        $this->gap_count = $iGapCount;
-        $this->is_flush = $bSameLength;
+        $this->iSeqCount = $iSeqCount;
+        $this->iLength   = $iMaxLength;
+        $this->iGapCount = $iGapCount;
+        $this->bFlush    = $bSameLength;
     }
 
     /**
