@@ -107,14 +107,30 @@ class DemoController extends Controller
      * @route("/sequence-alignment-clustal", name="sequence_alignment_clustal")
      * @param SequenceAlignmentManager $sequenceAlignmentManager
      * @return Response
+     * @throws \Exception
      */
     public function clustalseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
     {
         //$sequenceAlignmentManager->setFilename("data/fasta-2.txt");
-        $sequenceAlignmentManager->setFilename("data/human-fasta.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
+        // You wanna sort your array ? :)
+        $sequenceAlignmentManager->sortAlpha();
+        // You wanna fetch something ?
+        $oMySuperSeq = $sequenceAlignmentManager->fetch(13);
+        // You wanna know the longest sequence ?
+        $iMyLength = $sequenceAlignmentManager->getMaxiLength();
+        // You wanna know the number of gaps ?
+        $iNumberGaps = $sequenceAlignmentManager->getGapCount();
+        // Have the same length ?
+        $bIsFlush = $sequenceAlignmentManager->getIsFlush();
 
+        $sCharAtRes = $sequenceAlignmentManager->charAtRes(10, 10);
+
+
+        $sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
+        dump($sSubstrBwRes);
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
