@@ -56,9 +56,9 @@ class DatabaseManager implements RecordingOnLocalDb
 
     /**
      * DatabaseManager constructor.
-     * @param EntityManagerInterface         $em                         Entity Manager, for Doctrine
-     * @param ParseGenbankManager   $parseGenbankManager        Service for GENBANK data
-     * @param ParseSwissprotManager $parseSwissprotManager      Service for SwissProt data
+     * @param EntityManagerInterface     $em                         Entity Manager, for Doctrine
+     * @param ParseGenbankManager        $parseGenbankManager        Service for GENBANK data
+     * @param ParseSwissprotManager      $parseSwissprotManager      Service for SwissProt data
      */
     public function __construct(
         EntityManagerInterface $em,
