@@ -90,11 +90,32 @@ class DemoController extends Controller
      * @param SequenceAlignmentManager $sequenceAlignmentManager
      * @return Response
      */
-    public function parseseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
+    public function fastaseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
     {
-        $sequenceAlignmentManager->setFilename("data/human-fasta.txt");
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        //$sequenceAlignmentManager->setFilename("data/human-fasta.txt");
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
+
+
+        return $this->render('demo/parseseqalignment.html.twig',
+            []
+        );
+    }
+
+    /**
+     * @route("/sequence-alignment-clustal", name="sequence_alignment_clustal")
+     * @param SequenceAlignmentManager $sequenceAlignmentManager
+     * @return Response
+     */
+    public function clustalseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
+    {
+        //$sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFilename("data/human-fasta.txt");
+        $sequenceAlignmentManager->setFormat("CLUSTAL");
+        $sequenceAlignmentManager->parseFile();
+
+
         return $this->render('demo/parseseqalignment.html.twig',
             []
         );
