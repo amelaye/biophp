@@ -11,12 +11,10 @@ use AppBundle\Entity\Sequence;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 /**
- * SeqAlign - represents the result of an alignment performed by various third-party
- * software such as ClustalW.  The alignment is usually found in a file that uses
+ * Represents the result of an alignment performed by various third-party
+ * software such as ClustalW. The alignment is usually found in a file that uses
  * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
- *
- * SeqAlign properties and methods allow users to perform post-alignment operations,
- * manipulations, etc.
+ * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : envisager le tableau de sequences comme iterator
@@ -25,46 +23,55 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 class SequenceAlignmentManager
 {
     /**
+     * Dependency injection for the Sequences Services
      * @var SequenceManager
      */
     private $sequenceManager;
 
     /**
+     * Letters of the alphabet
      * @var array
      */
     private $aAlphabet;
 
     /**
+     * The length of the longest sequence in the alignment set.
      * @var int
      */
     private $iLength;
 
     /**
+     * The number of sequences in the alignment set.
      * @var int
      */
     private $iSeqCount;
 
     /**
+     * The total number of gaps ("-") in all sequences in the alignment set.
      * @var int
      */
     private $iGapCount;
 
     /**
+     * An array containing all the sequences in the alignment set.
      * @var array
      */
     private $aSeqSet;
 
     /**
+     * A boolean or logical value: TRUE if all the sequences in the alignment have the same length, FALSE otherwise.
      * @var bool
      */
     private $bFlush;
 
     /**
+     * Filename of the original parsed file.
      * @var string
      */
     private $sFilename;
 
     /**
+     * Format of the original parsed file.
      * @var string
      */
     private $sFormat;
@@ -76,14 +83,12 @@ class SequenceAlignmentManager
     public function __construct(SequenceManager $sequenceManager)
     {
         $this->sequenceManager = $sequenceManager;
-
-        $this->iSeqCount = 0;
-        $this->iLength = 0;
-        $this->iGapCount = 0;
-        $this->bFlush = true;
-        $this->aSeqSet = array();
-
-        $this->aAlphabet = range('A','Z');
+        $this->iSeqCount       = 0;
+        $this->iLength         = 0;
+        $this->iGapCount       = 0;
+        $this->bFlush          = true;
+        $this->aSeqSet         = array();
+        $this->aAlphabet       = range('A','Z');
     }
 
     /**

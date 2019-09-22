@@ -128,14 +128,18 @@ class DemoController extends Controller
         // Have the same length ?
         $bIsFlush = $sequenceAlignmentManager->getIsFlush();
         $sCharAtRes = $sequenceAlignmentManager->charAtRes(10, 10);
+        dump($sCharAtRes);
         $sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
         $iColToRes = $sequenceAlignmentManager->colToRes(10, 50);
         $iResToCol = $sequenceAlignmentManager->resToCol(10, 47);
+        dump($iResToCol);
         //$sequenceAlignmentManager->subalign(5, 10);
         //$sequenceAlignmentManager->select(1,2,3);
 
         $aResVar = $sequenceAlignmentManager->resVar();
+        dump($aResVar);
         $aConsensus = $sequenceAlignmentManager->consensus();
+        dump($aConsensus);
 
         // Adding a new sequence object
         $sequenceAlignmentManager->addSequence($oMySuperSeq);

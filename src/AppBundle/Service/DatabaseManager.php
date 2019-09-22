@@ -10,12 +10,11 @@ namespace AppBundle\Service;
 
 use AppBundle\Interfaces\RecordingOnLocalDb;
 use AppBundle\Traits\FormatsTrait;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use SeqDatabaseBundle\Entity\Collection;
 use SeqDatabaseBundle\Entity\CollectionElement;
 use AppBundle\Entity\Sequence;
-use AppBundle\Service\ParseGenbankManager;
-use AppBundle\Service\ParseSwissprotManager;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 

@@ -18,10 +18,29 @@ use AppBundle\Entity\Protein;
  */
 class SequenceManager
 {
+    /**
+     * @var array Taken from API
+     */
     private $aDnaComplements;
+
+    /**
+     * @var array Taken from API
+     */
     private $aRnaComplements;
+
+    /**
+     * @var array Taken from API
+     */
     private $aElements;
+
+    /**
+     * @var array
+     */
     private $aChemicalGroups;
+
+    /**
+     * @var array
+     */
     private $aCodons;
     private $sequence;
     
@@ -29,10 +48,7 @@ class SequenceManager
      * Constructor
      * @param array $aChemicalGroups
      */
-    public function __construct(
-        array $aChemicalGroups = [],
-        Bioapi $bioapi
-    ) {
+    public function __construct($aChemicalGroups, Bioapi $bioapi) {
         $this->aDnaComplements  = $bioapi->getNucleotidsDNA();
         $this->aRnaComplements  = $bioapi->getNucleotidsRNA();
         $this->aElements        = $bioapi->getElements();
