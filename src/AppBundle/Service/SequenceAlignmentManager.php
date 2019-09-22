@@ -20,7 +20,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : envisager le tableau de sequences comme iterator
- * @todo : refactoriser les duplicatas
  * @todo : length doit représenter la totalité des séquences
  */
 class SequenceAlignmentManager
@@ -113,7 +112,6 @@ class SequenceAlignmentManager
     {
         try {
             $fLines        = file($this->sFilename);
-            $sConserveLine = "";
             $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
             $aNameList     = $aSequences = [];
             $aLines        = new \ArrayIterator($fLines);
@@ -585,19 +583,8 @@ class SequenceAlignmentManager
             }
 
             for($i = 0; $i < $iSeqLength; $i++) {
-                $aFrequences = $aGlobFreq;
-                for($j = 0; $j < $this->iSeqCount; $j++) {
-                    $oCurrSeq = $aSeqSet[$j];
-                    $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
-                    if(isset($aFrequences[$sCurrLet])) {
-                        $aFrequences[$sCurrLet]++;
-                    } else {
-                        $aFrequences[$sCurrLet] = 1;
-                    }
-                }
-                arsort($aFrequences);
-                $aKeys = array_keys($aFrequences);
-                $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+                $aKeys = [];
+                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $aSeqSet, $i, $aKeys);
                 if ($iMaxPercent >= $iThreshold) {
                     array_push($aInvarPos, $i);
                 } else {
@@ -635,20 +622,8 @@ class SequenceAlignmentManager
             }
 
             for($i = 0; $i < $iSeqLength; $i++) {
-                $aFrequences = $aGlobFreq;
-                for($j = 0; $j < $this->iSeqCount; $j++) {
-                    $oCurrSeq = $aSeqSet[$j];
-                    $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
-                    if(isset($aFrequences[$sCurrLet])) {
-                        $aFrequences[$sCurrLet]++;
-                    } else {
-                        $aFrequences[$sCurrLet] = 1;
-                    }
-                }
-                arsort($aFrequences);
-
-                $aKeys = array_keys($aFrequences);
-                $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+                $aKeys = [];
+                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $aSeqSet, $i, $aKeys);
                 if ($iMaxPercent >= $iThreshold) {
                     $sResult = $sResult . $aKeys[0];
                 } else {
@@ -774,11 +749,11 @@ class SequenceAlignmentManager
 
     /**
      * Fetches something found at a given residue number in a given sequence
-     * @param   int     $iSeqIdx        The index number of the desired sequence in the alignment set.
-     * @param   int     $iRes           The residue number we wish to convert.
-     * @param   int     $iNonGapCount   Number of non-gap characters
-     * @param   int     $iLength        Length of a sequence
-     * @param   string  $sContext       The original function calling
+     * @param   int         $iSeqIdx        The index number of the desired sequence in the alignment set.
+     * @param   int         $iRes           The residue number we wish to convert.
+     * @param   int         $iNonGapCount   Number of non-gap characters
+     * @param   int         $iLength        Length of a sequence
+     * @param   string      $sContext       The original function calling
      * @return  bool|int|string
      */
     private function validationRes($iSeqIdx, $iRes, &$iNonGapCount, &$iLength, $sContext)
@@ -811,5 +786,32 @@ class SequenceAlignmentManager
                 }
             }
         }
+    }
+
+    /**
+     * Calculates the max percentage of frequencies
+     * @param   array       $aGlobFreq      Array of frequencies of the letters
+     * @param   array       $aSeqSet        Array of sequencies
+     * @param   int         $i              Current iteration
+     * @param   array       $aKeys          Keys of the array of frequencies
+     * @return  float|int
+     */
+    private function calcMaxPercent($aGlobFreq, $aSeqSet, $i, &$aKeys)
+    {
+        $aFrequences = $aGlobFreq;
+        for($j = 0; $j < $this->iSeqCount; $j++) {
+            $oCurrSeq = $aSeqSet[$j];
+            $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
+            if(isset($aFrequences[$sCurrLet])) {
+                $aFrequences[$sCurrLet]++;
+            } else {
+                $aFrequences[$sCurrLet] = 1;
+            }
+        }
+        arsort($aFrequences);
+        $aKeys = array_keys($aFrequences);
+        $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+
+        return $iMaxPercent;
     }
 }
