@@ -8,6 +8,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequence;
+use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 /**
  * SeqAlign - represents the result of an alignment performed by various third-party
@@ -18,6 +19,9 @@ use AppBundle\Entity\Sequence;
  * manipulations, etc.
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @todo : envisager le tableau de sequences comme iterator
+ * @todo : refactoriser les duplicatas
+ * @todo : length doit représenter la totalité des séquences
  */
 class SequenceAlignmentManager
 {
@@ -26,6 +30,9 @@ class SequenceAlignmentManager
      */
     private $sequenceManager;
 
+    /**
+     * @var array
+     */
     private $aAlphabet;
 
     /**
@@ -63,6 +70,10 @@ class SequenceAlignmentManager
      */
     private $sFormat;
 
+    /**
+     * SequenceAlignmentManager constructor.
+     * @param SequenceManager $sequenceManager
+     */
     public function __construct(SequenceManager $sequenceManager)
     {
         $this->sequenceManager = $sequenceManager;
@@ -72,6 +83,8 @@ class SequenceAlignmentManager
         $this->iGapCount = 0;
         $this->bFlush = true;
         $this->aSeqSet = array();
+
+        $this->aAlphabet = range('A','Z');
     }
 
     /**
@@ -94,137 +107,144 @@ class SequenceAlignmentManager
 
     /**
      * Parses Clustal Files and create Sequence object
+     * @throws  \Exception
      */
     public function parseClustal()
     {
-        $fLines        = file($this->sFilename);
-        $sConserveLine = "";
-        $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
-        $aNameList     = $aSequences = [];
-        $aLines        = new \ArrayIterator($fLines);
+        try {
+            $fLines        = file($this->sFilename);
+            $sConserveLine = "";
+            $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
+            $aNameList     = $aSequences = [];
+            $aLines        = new \ArrayIterator($fLines);
 
-        foreach($aLines as $sLine) {
-            $iLineCount++;
-            if ($iLineCount == 1) {
-                continue;
-            }
-            if (strlen(trim($sLine)) == 0) {
-                continue; // ignore blank lines.
-            }
+            foreach($aLines as $sLine) {
+                $iLineCount++;
+                if ($iLineCount == 1) {
+                    continue;
+                }
+                if (strlen(trim($sLine)) == 0) {
+                    continue; // ignore blank lines.
+                }
 
-            $aWords = explode(" ", $sLine);
-            $aWordLines = [];
-            foreach($aWords as $sWord) {
-                if($sWord != "") {
-                    $aWordLines[] = str_replace("\n","",$sWord);
+                $aWords = explode(" ", $sLine);
+                $aWordLines = [];
+                foreach($aWords as $sWord) {
+                    if($sWord != "") {
+                        $aWordLines[] = str_replace("\n","",$sWord);
+                    }
+                }
+                $sSeqName = $aWordLines[0];
+                $sSeqLine = $aWordLines[1];
+
+                if(sizeof($aWordLines) == 2) {
+                    if (!in_array($sSeqName, $aNameList)) {
+                        $aNameList[] = $sSeqName;
+                        $aSequences[$sSeqName] = $sSeqLine;
+                    } else {
+                        $aSequences[$sSeqName] .= trim($sSeqLine);
+                    }
                 }
             }
-            $sSeqName = $aWordLines[0];
-            $sSeqLine = $aWordLines[1];
 
-            if (sizeof($aWordLines) == 1) {
-                $sConserveLine .= substr($sSeqLine, 0, $iLastLength);
-                continue;
+            foreach($aSequences as $sKey => $sSeqData) {
+                $oSequence = new Sequence();
+                $oSequence->setId($sKey);
+                $oSequence->setSeqlength(strlen($sSeqData));
+                $oSequence->setSequence($sSeqData);
+                $oSequence->setStart(0);
+                $oSequence->setEnd(strlen($sSeqData) - 1);
+
+                $iLength += strlen($sSeqData);
+                $this->sequenceManager->setSequence($oSequence);
+                $iGapCount += $this->sequenceManager->symfreq("-");
+                array_push($this->aSeqSet, $oSequence);
             }
-            if (!in_array($sSeqName, $aNameList)) {
-                $aNameList[] = $sSeqName;
-                $aSequences[$sSeqName] = $sSeqLine;
-                $iLastLength = strlen(trim($sSeqLine));
-            } else {
-                $aSequences[$sSeqName] .= trim($sSeqLine);
-                $iLastLength = strlen(trim($sSeqLine));
-            }
+            $this->iSeqCount = count($aNameList);
+            $this->iLength   = $iLength;
+            $this->iGapCount = $iGapCount;
+            $this->bFlush    = true;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-
-        foreach($aSequences as $sKey => $sSeqData) {
-            $oSequence = new Sequence();
-            $oSequence->setId($sKey);
-            $oSequence->setSeqlength(strlen($sSeqData));
-            $oSequence->setSequence($sSeqData);
-            $oSequence->setStart(0);
-            $oSequence->setEnd(strlen($sSeqData) - 1);
-
-            $iLength += strlen($sSeqData);
-            $this->sequenceManager->setSequence($oSequence);
-            $iGapCount += $this->sequenceManager->symfreq("-");
-            array_push($this->aSeqSet, $oSequence);
-        }
-        $this->iSeqCount = count($aNameList);
-        $this->iLength   = $iLength;
-        $this->iGapCount = $iGapCount;
-        $this->bFlush    = true;
     }
 
     /**
      * Parses Fasta Files and create Sequence object
+     * @throws  \Exception
+     * @Todo : setting start and stop
      */
     public function parseFasta()
     {
-        $fLines      = file($this->sFilename);
-        $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
-        $bSameLength = true;
-        $sSequence   = "";
-        $aLines      = new \ArrayIterator($fLines);
+        try {
+            $fLines      = file($this->sFilename);
+            $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
+            $bSameLength = true;
+            $sSequence   = "";
+            $aLines      = new \ArrayIterator($fLines);
 
-        foreach($aLines as $sLine) {
-            if (substr($sLine, 0, 1) == ">") {
-                $iSeqCount++;
-                $iSeqLength = strlen($sSequence);
+            foreach($aLines as $sLine) {
+                if (substr($sLine, 0, 1) == ">") {
+                    $iSeqCount++;
+                    $iSeqLength = strlen($sSequence);
 
-                $oSequence = new Sequence();
-                $oSequence->setId($iPrevId);
-                $oSequence->setSeqlength($iSeqLength);
-                $oSequence->setSequence($sSequence);
+                    $oSequence = new Sequence();
+                    $oSequence->setId($iPrevId);
+                    $oSequence->setSeqlength($iSeqLength);
+                    $oSequence->setSequence($sSequence);
 
-                $this->sequenceManager->setSequence($oSequence);
-                $iGapCount += $this->sequenceManager->symfreq("-");
+                    $this->sequenceManager->setSequence($oSequence);
+                    $iGapCount += $this->sequenceManager->symfreq("-");
 
-                if ($iSeqCount > 1) {
-                    if ($iSeqLength > $iMaxLength) {
-                        $iMaxLength = $iSeqLength;
+                    if ($iSeqCount > 1) {
+                        if ($iSeqLength > $iMaxLength) {
+                            $iMaxLength = $iSeqLength;
+                        }
+                        if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
+                            $bSameLength = false;
+                        }
+                        array_push($this->aSeqSet, $oSequence);
                     }
-                    if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
-                        $bSameLength = false;
+
+                    $aWords = preg_split("/[\|\/]/", substr($sLine, 1));
+                    if(isset($aWords[1])) {
+                        $iPrevId = $aWords[1];
                     }
-                    array_push($this->aSeqSet, $oSequence);
+
+                    $iPrevLength = $iSeqLength;
+                    continue;
+                } else {
+                    $sSequence = $sSequence . trim($sLine);
                 }
+            }
 
-                $aWords = preg_split("/[\|\/]/", substr($sLine, 1));
-                if(isset($aWords[1])) {
-                    $iPrevId = $aWords[1];
+            $iSeqLength = strlen($sSequence);
+
+            $oSequence = new Sequence();
+            $oSequence->setId($iPrevId);
+            $oSequence->setSeqlength($iSeqLength);
+            $oSequence->setSequence($sSequence);
+
+            $this->sequenceManager->setSequence($oSequence);
+            $iGapCount += $this->sequenceManager->symfreq("-");
+
+            if ($iSeqCount >= 1) {
+                if ($iSeqLength > $iMaxLength) {
+                    $iMaxLength = $iSeqLength;
                 }
-
-                $iPrevLength = $iSeqLength;
-                continue;
-            } else {
-                $sSequence = $sSequence . trim($sLine);
+                if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
+                    $bSameLength = false;
+                }
+                array_push($this->aSeqSet, $oSequence);
             }
+
+            $this->iSeqCount = $iSeqCount;
+            $this->iLength   = $iMaxLength;
+            $this->iGapCount = $iGapCount;
+            $this->bFlush    = $bSameLength;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-
-        $iSeqLength = strlen($sSequence);
-
-        $oSequence = new Sequence();
-        $oSequence->setId($iPrevId);
-        $oSequence->setSeqlength($iSeqLength);
-        $oSequence->setSequence($sSequence);
-
-        $this->sequenceManager->setSequence($oSequence);
-        $iGapCount += $this->sequenceManager->symfreq("-");
-
-        if ($iSeqCount >= 1) {
-            if ($iSeqLength > $iMaxLength) {
-                $iMaxLength = $iSeqLength;
-            }
-            if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
-                $bSameLength = false;
-            }
-            array_push($this->aSeqSet, $oSequence);
-        }
-
-        $this->iSeqCount = $iSeqCount;
-        $this->iLength   = $iMaxLength;
-        $this->iGapCount = $iGapCount;
-        $this->bFlush    = $bSameLength;
     }
 
     /**
@@ -293,7 +313,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Returns the length of the longest sequence in an alignment set.
      * @return  int
@@ -314,7 +333,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Counts the number of gaps ("-") found in all sequences in an alignment set.
      * @return  int
@@ -334,7 +352,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Tests if all the sequences in an alignment set have the same length.
      * @return  boolean
@@ -344,7 +361,7 @@ class SequenceAlignmentManager
     {
         try {
             $bSameLength = true;
-            $ctr = 0;
+            $ctr         = 0;
             $iPrevLength = 0;
             foreach($this->aSeqSet as $oSequence) {
                 $ctr++;
@@ -365,7 +382,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Returns the character found at a given residue number in a given sequence.
      * @param   int         $iSeqIdx    Index of the sequence in the array
@@ -376,19 +392,17 @@ class SequenceAlignmentManager
     public function charAtRes($iSeqIdx, $iPos)
     {
         try {
-            $iNonGapCtr   = 0;
+            $iNonGapCtr  = 0;
+            $oSequence   = $this->aSeqSet[$iSeqIdx];
 
-            $oSequence = $this->aSeqSet[$iSeqIdx];
             if ($iPos > $oSequence->getEnd()) {
                 return false;
             }
             if ($iPos < $oSequence->getStart()) {
                 return false;
             }
-
             $iLength      = $oSequence->getSeqLength();
             $iNonGapCount = $iPos - $oSequence->getStart() + 1;
-
             for($x = 0; $x < $iLength; $x++) {
                 $sCurrLet = substr($oSequence->getSequence(), $x, 1);
                 if ($sCurrLet == "-") {
@@ -404,7 +418,6 @@ class SequenceAlignmentManager
             throw new \Exception($ex);
         }
     }
-
 
     /**
      * Gets the substring between two residues in a sequence that is part of an alignment set.
@@ -453,39 +466,38 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Converts a column number to a residue number in a sequence that is part of an alignment set.
-     * @param type $seqidx
-     * @param type $col
-     * @return boolean|string
-     * @throws \Exception
-     * @group Legacy
+     * @param   int         $iSeqIdx
+     * @param   int         $iCol
+     * @return  boolean|string
+     * @throws  \Exception
      */
-    public function col2res($seqidx, $col)
+    public function colToRes($iSeqIdx, $iCol)
     {
         try {
-            $oSeqset = $this->seqAlign->getSeqset();
-            $seqobj = $oSeqset[$seqidx];
+            $sCurrLet       = "";
+            $iNonGapCount   = 0;
+
+            $oSequence = $this->aSeqSet[$iSeqIdx];
             // Later, you can return a code which identifies the type of error.
-            if ($col > $seqobj->seqlen() - 1) {
-                return FALSE;
+            if ($iCol > $oSequence->getSeqLength() - 1) {
+                return false;
             }
-            if ($col < 0) {
-                return FALSE;
+            if ($iCol < 0) {
+                return false;
             }
 
-            $nongap_ctr = 0;
-            for($i = 0; $i <= $col; $i++) {
-                $currlet = substr($seqobj->sequence, $i, 1);
-                if ($currlet != "-") {
-                    $nongap_ctr++;
+            for($i = 0; $i <= $iCol; $i++) {
+                $sCurrLet = substr($oSequence->getSequence(), $i, 1);
+                if ($sCurrLet != "-") {
+                    $iNonGapCount++;
                 }
             }
-            if ($currlet == "-") {
+            if ($sCurrLet == "-") {
                 return "-";
             } else {
-                return ($seqobj->start + $nongap_ctr - 1);
+                return ($oSequence->getStart() + $iNonGapCount - 1);
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex);
@@ -495,36 +507,35 @@ class SequenceAlignmentManager
 
     /**
      * Converts a residue number to a column number in a sequence in an alignment set.
-     * @param type $seqidx
-     * @param type $res
-     * @return boolean|int
-     * @throws \Exception
-     * @group Legacy
+     * @param   int         $iSeqIdx
+     * @param   int         $iPos
+     * @return  boolean|int
+     * @throws  \Exception
      */
-    public function res2col($seqidx, $res)
+    public function resToCol($iSeqIdx, $iPos)
     {
         try {
-            $oSeqset = $this->seqAlign->getSeqset();
-            $seqobj = $oSeqset[$seqidx];
-            // Later, you can return a code which identifies the type of error.
-            if ($res > $seqobj->end) {
-                return FALSE;
-            }
-            if ($res < $seqobj->start) {
-                return FALSE;
-            }
+            $iNonGapCtr = 0;
 
-            $len = $seqobj->seqlen();
-            $nongap_count = $res - $seqobj->start + 1;
-            $nongap_ctr = 0;
-            for($col = 0; $col < $len; $col++) {
-                $currlet = substr($seqobj->sequence, $col, 1);
-                if ($currlet == "-") {
+            $oSequence = $this->aSeqSet[$iSeqIdx];
+            // Later, you can return a code which identifies the type of error.
+            if ($iPos > $oSequence->getEnd()) {
+                return FALSE;
+            }
+            if ($iPos < $oSequence->getStart()) {
+                return FALSE;
+            }
+            $iLength = $oSequence->getSeqLength();
+            $iNonGapCount = $iPos - $oSequence->getStart() + 1;
+
+            for($x = 0; $x < $iLength; $x++) {
+                $sCurrLet = substr($oSequence->getSequence(), $x, 1);
+                if ($sCurrLet == "-") {
                     continue;
                 } else {
-                    $nongap_ctr++;
-                    if ($nongap_ctr == $nongap_count) {
-                        return $col;
+                    $iNonGapCtr++;
+                    if ($iNonGapCtr == $iNonGapCount) {
+                        return $x;
                     }
                 }
             }
@@ -536,30 +547,25 @@ class SequenceAlignmentManager
 
     /**
      * Returns a subset of consecutive sequences in an alignment set.
-     * @param type $beg
-     * @param type $end
-     * @return \AppBundle\Services\SeqAlign
-     * @throws \Exception
+     * @param   int     $iStart
+     * @param   int     $iEnd
+     * @throws  \Exception
      */
-    public function subalign($beg, $end)
+    public function subalign($iStart, $iEnd)
     {
         try {
-            if (($beg < 0) or ($end < 0)) {
+            if (($iStart < 0) or ($iEnd < 0)) {
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
-            if (($beg > $this->seqAlign->getSeqCount() - 1) or ($end > $this->seqAlign->getSeqCount() - 1)) {
+            if (($iStart > $this->iSeqCount - 1) or ($iEnd > $this->iSeqCount - 1)) {
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
 
-            $new_align = new SequenceAlignment();
-            $new_align->setSeqset(array_slice($this->seqAlign->getSeqset(), $beg, $end-$beg+1));
-            $new_align->setLength($new_align->get_length());
-            $new_align->setSeqCount($end - $beg + 1);
-            $new_align->setGapCount($new_align->get_gap_count());
-            $new_align->setSeqptr(0);
-            $new_align->setIsFlush($new_align->get_is_flush());
-
-            return $new_align;
+            $this->aSeqSet      = array_slice($this->aSeqSet, $iStart, $iEnd - $iStart + 1);
+            $this->iLength      = $this->getMaxiLength();
+            $this->iSeqCount    = $iEnd - $iStart + 1;
+            $this->iGapCount    = $this->getGapCount();
+            $this->bFlush       = $this->getIsFlush();
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -567,34 +573,31 @@ class SequenceAlignmentManager
 
 
     /**
-     * Returns a set of (possibly non-consecutive) sequences in an alignment set.
-     * @return SequenceAlignment
+     * Creates a new alignment set from non-consecutive sequences found in another existing alignment set.
      * @throws \Exception
+     * @Todo : length is wrong
      */
     public function select()
     {
         try {
-            $arglist = func_get_args();
-            if (count($arglist) == 0) {
+            $iCtr       = 0;
+            $aNewSeqSet = array();
+            $aArgs      = func_get_args();
+
+            if (count($aArgs) == 0) {
                 throw new \Exception("Must pass at least one argument to SELECT() method!");
             }
-
-            $new_seqset = array();
-            $new_align = new SequenceAlignment();
-            $ctr = 0;
-            foreach($arglist as $seqindex) {
-                $oSeqset = $this->seqAlign->getSeqset();
-                $new_seqset[] = $oSeqset[$seqindex];
-                $ctr++;
+            foreach($aArgs as $iSeqIdx) {
+                $oSequence = $this->aSeqSet;
+                $aNewSeqSet[] = $oSequence[$iSeqIdx];
+                $iCtr++;
             }
 
-            $new_align->setSeqset($new_seqset);
-            $new_align->setLength($new_align->get_length());
-            $new_align->setSeqCount(count($arglist));
-            $new_align->setGapCount($new_align->get_gap_count());
-            $new_align->setIsFlush($new_align->get_is_flush());
-            $new_align->setSeqptr(0);
-            return $new_align;
+            $this->aSeqSet      = $aNewSeqSet;
+            $this->iLength      = $this->getMaxiLength();
+            $this->iSeqCount    = count($aArgs);
+            $this->iGapCount    = $this->getGapCount();
+            $this->bFlush       = $this->getIsFlush();
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -602,46 +605,51 @@ class SequenceAlignmentManager
 
 
     /**
-     * Identifies the positions of variant and invariant (conserved) residues in an alignment set.
-     * @param type $threshold
-     * @return array
-     * @throws \Exception
+     * Determines the index position of both variant and invariant residues according
+     * to a given "percentage threshold" similar to that in the consensus() method.
+     * @param   int         $iThreshold    a number between 0 to 100, indicating the percentage threshold below
+            which the current index position is considered variant, and on or above which the current
+            index position is considered invariant. If omitted, this is set to 100 by default.
+     * @return  array
+     * @throws  \Exception
      */
-    public function res_var($threshold = 100)
+    public function resVar($iThreshold = 100)
     {
         try {
-            $all_pos    = [];
-            $invar_pos  = [];
-            $var_pos    = [];
-            $oSeqset    = $this->seqAlign->getSeqset();
-            $firstseq   = $oSeqset[0];
-            $seqlength  = strlen($firstseq->sequence);
+            $aAllPos     = $aInvarPos = $aVarPos = [];
+            $aGlobFreq   = array();
+            $aSeqSet     = $this->aSeqSet;
+            $oFirstSeq   = $aSeqSet[0];
+            $iSeqLength  = strlen($oFirstSeq->getSequence());
 
-            $globfreq = array();
             for($i = 0; $i < count($this->aAlphabet); $i++) {
-                $currlet = $this->aAlphabet[$i];
-                $globfreq[$currlet] = 0;
+                $sCurrLet = $this->aAlphabet[$i];
+                $aGlobFreq[$sCurrLet] = 0;
             }
 
-            for($i = 0; $i < $seqlength; $i++) {
-                $freq = $globfreq;
-                for($j = 0; $j < $this->seqAlign->getSeqCount(); $j++) {
-                    $currseq = $oSeqset[$j];
-                    $currlet = substr($currseq->sequence, $i, 1);
-                    $freq[$currlet]++;
+            for($i = 0; $i < $iSeqLength; $i++) {
+                $aFrequences = $aGlobFreq;
+                for($j = 0; $j < $this->iSeqCount; $j++) {
+                    $oCurrSeq = $aSeqSet[$j];
+                    $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
+                    if(isset($aFrequences[$sCurrLet])) {
+                        $aFrequences[$sCurrLet]++;
+                    } else {
+                        $aFrequences[$sCurrLet] = 1;
+                    }
                 }
-                arsort($freq);
-                list($key, $value) = each($freq);
-                $maxpercent = ($value/$this->seqAlign->getSeqCount()) * 100;
-                if ($maxpercent >= $threshold) {
-                    array_push($invar_pos, $i);
+                arsort($aFrequences);
+                $aKeys = array_keys($aFrequences);
+                $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+                if ($iMaxPercent >= $iThreshold) {
+                    array_push($aInvarPos, $i);
                 } else {
-                    array_push($var_pos, $i);
+                    array_push($aVarPos, $i);
                 }
             }
-            $all_pos["INVARIANT"] = $invar_pos;
-            $all_pos["VARIANT"] = $var_pos;
-            return $all_pos;
+            $aAllPos["INVARIANT"] = $aInvarPos;
+            $aAllPos["VARIANT"]   = $aVarPos;
+            return $aAllPos;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -650,41 +658,46 @@ class SequenceAlignmentManager
 
     /**
      * Returns the consensus string for an alignment set.  See technical reference for details.
-     * @param type $threshold
-     * @return string
-     * @throws \Exception
+     * @param   int         $iThreshold
+     * @return  string
+     * @throws  \Exception
      */
-    public function consensus($threshold = 100)
+    public function consensus($iThreshold = 100)
     {
         try {
-            $oSeqset    = $this->seqAlign->getSeqset();
-            $resultstr  = "";
-            $firstseq   = $oSeqset[0];
-            $seqlength  = strlen($firstseq->sequence);
+            $aSeqSet     = $this->aSeqSet;
+            $sResult     = "";
+            $oFirstSeq   = $aSeqSet[0];
+            $iSeqLength  = strlen($oFirstSeq->getSequence());
+            $aGlobFreq   = [];
 
-            $globfreq = [];
             for($i = 0; $i < count($this->aAlphabet); $i++) {
-                $currlet = $this->aAlphabet[$i];
-                $globfreq[$currlet] = 0;
+                $sCurrLet = $this->aAlphabet[$i];
+                $aGlobFreq[$sCurrLet] = 0;
             }
 
-            for($i = 0; $i < $seqlength; $i++) {
-                $freq = $globfreq;
-                for($j = 0; $j < $this->seqAlign->getSeqCount(); $j++) {
-                    $currseq = $oSeqset[$j];
-                    $currlet = substr($currseq->sequence, $i, 1);
-                    $freq[$currlet]++;
+            for($i = 0; $i < $iSeqLength; $i++) {
+                $aFrequences = $aGlobFreq;
+                for($j = 0; $j < $this->iSeqCount; $j++) {
+                    $oCurrSeq = $aSeqSet[$j];
+                    $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
+                    if(isset($aFrequences[$sCurrLet])) {
+                        $aFrequences[$sCurrLet]++;
+                    } else {
+                        $aFrequences[$sCurrLet] = 1;
+                    }
                 }
-                arsort($freq);
-                list($key, $value) = each($freq);
-                $maxpercent = ($value/$this->seqAlign->getSeqCount()) * 100;
-                if ($maxpercent >= $threshold) {
-                    $resultstr = $resultstr . $key;
+                arsort($aFrequences);
+
+                $aKeys = array_keys($aFrequences);
+                $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+                if ($iMaxPercent >= $iThreshold) {
+                    $sResult = $sResult . $aKeys[0];
                 } else {
-                    $resultstr = $resultstr . "?";
+                    $sResult = $sResult . "?";
                 }
             }
-            return $resultstr;
+            return $sResult;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -693,37 +706,38 @@ class SequenceAlignmentManager
 
     /**
      * Adds a sequence to an alignment set.
-     * @param type $seqobj
-     * @return type
-     * @throws \Exception
+     * @param   Sequence     $oSequence
+     * @return  int
+     * @throws  \Exception
      */
-    public function add_seq($seqobj)
+    public function addSequence($oSequence)
     {
         try {
-            if (gettype($seqobj) == "object") {
-                array_push($this->seqAlign->getSeqset(), $seqobj);
-                if ($seqobj->seqlen() > $this->seqAlign->getLength()) {
-                    $this->seqAlign->setLength($seqobj->seqlen());
+            if (is_object($oSequence)) {
+                array_push($this->aSeqSet, $oSequence);
+                if ($oSequence->getSeqLength() > $this->iLength) {
+                    $this->iLength = $oSequence->getSeqLength();
                 }
 
-                $this->seqAlign->setGapCount($this->seqAlign->getGapCount() + $seqobj->symfreq("-"));
-                if ($seqobj->seqlen() > $this->seqAlign->getLength()) {
-                    $this->seqAlign->setLength($seqobj->seqlen());
+                $this->sequenceManager->setSequence($oSequence);
+                $this->iGapCount = $this->iGapCount + $this->sequenceManager->symfreq("-");
+                if ($oSequence->getSeqLength() > $this->iLength) {
+                    $this->iLength = $oSequence->getSeqLength();
                 }
 
-                if ($this->seqAlign->getIsFlush()) {
-                    if ($this->seqAlign->getSeqCount() >= 1) {
-                        $firstseq = $this->seqAlign->getSeqset()[0];
-                        if ($seqobj->seqlen() != $firstseq->seqlen()) {
-                            $this->seqAlign->setIsFlush(false);
+                if ($this->bFlush) {
+                    if ($this->iSeqCount >= 1) {
+                        $oFirstSeq = $this->aSeqSet[0];
+                        if ($oSequence->getSeqLength() != $oFirstSeq->getSeqLength()) {
+                            $this->bFlush = false;
                         }
                     }
                 }
 
-                $this->seqAlign->setSeqCount($this->seqAlign->getSeqCount() + 1);
-                return count($this->seqAlign->getSeqset());
-            } elseif (gettype($seqobj) == "string") {
-                print "NOT YET OPERATIONAL";
+                $this->iSeqCount++;
+                return count($this->aSeqSet);
+            } else  {
+                throw new InvalidTypeException("Please give a Sequence object !");
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex);
@@ -737,43 +751,49 @@ class SequenceAlignmentManager
      * @return type
      * @throws \Exception
      */
-    public function del_seq($seqobj)
+    public function deleteSequence($seqobj)
     {
         try {
             $seqid = $seqobj;
             $tempset = array();
-            foreach($this->seqAlign->getSeqset() as $element) {
-                if ($element->id != $seqid) {
+            $removed_seq = new Sequence();
+
+            foreach($this->aSeqSet as $element) {
+                if ($element->getId() != $seqid) {
                     array_push($tempset, $element);
                 } else {
                     $removed_seq = $element;
                 }
             }
-            $this->seqAlign->setSeqset($tempset); // Updates the value of the SEQSET property of the SEQALIGN object.
-            $this->seqAlign->setSeqCount($this->seqAlign->getSeqCount() - 1); // Updates the value of the SEQ_COUNT property of the SEQALIGN object.
+            // Updates the value of the SEQSET property of the SEQALIGN object.
+            $this->aSeqSet = $tempset;
+            // Updates the value of the SEQ_COUNT property of the SEQALIGN object.
+            $this->iSeqCount = $this->iSeqCount - 1;
 
-            if ($removed_seq->seqlen() == $this->length) { // Updates the value of the LENGTH property of the SEQALIGN object.
+            // Updates the value of the LENGTH property of the SEQALIGN object.
+            if ($removed_seq->getSeqLength() == $this->iLength) {
                 $maxlen = 0;
-                foreach($this->seqAlign->getSeqset() as $element) {
-                    if ($element->seqlen() > $maxlen) {
-                        $maxlen = $element->seqlen();
+                foreach($this->aSeqSet as $element) {
+                    if ($element->getSeqLength() > $maxlen) {
+                        $maxlen = $element->getSeqLength();
                     }
                 }
-                $this->seqAlign->setLength($maxlen);
+                $this->iLength = $maxlen;
             }
             // Updates the value of the GAP_COUNT property of the SEQALIGN object.
-            $this->seqAlign->setGapCount($this->seqAlign->setGapCount() - $removed_seq->symfreq("-"));
+            $this->sequenceManager->setSequence($removed_seq);
+            $this->iGapCount = $this->iGapCount - $this->sequenceManager->symfreq("-");
             // Updates the value of the IS_FLUSH property of the SEQALIGN object.
-            if (!$this->seqAlign->getIsFlush()) {
+            if (!$this->bFlush) {
                 // Take note that seq_count has already been decremented in the code above.
-                if ($this->seqAlign->getSeqCount() <= 1) {
-                    $this->seqAlign->setIsFlush(true);
+                if ($this->iSeqCount <= 1) {
+                    $this->bFlush = true;
                 } else {
                     $samelength = TRUE;
                     $ctr = 0;
-                    foreach($this->seqAlign->getSeqset() as $element) {
+                    foreach($this->aSeqSet as $element) {
                         $ctr++;
-                        $currlen = $element->seqlen();
+                        $currlen = $element->getSeqLength();
                         if ($ctr == 1) {
                             $prevlen = $currlen;
                             continue;
@@ -785,12 +805,13 @@ class SequenceAlignmentManager
                         $prevlen = $currlen;
                     }
                     if ($samelength) {
-                        $this->seqAlign->setIsFlush(true);
+                        $this->bFlush = true;
                     }
                 }
             }
             // Return the new number of sequences in the alignment set AFTER delete operation.
-            return count($this->seqAlign->getSeqset());
+            dump($this);
+            return count($this->aSeqSet);
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
