@@ -249,6 +249,7 @@ class SequenceAlignmentManager
 
     /**
      * Main method - Parses FASTA or CLUSTAL file
+     * This "fetches" all sequences into the $aSeqSet property of the service.
      */
     public function parseFile()
     {
@@ -261,7 +262,9 @@ class SequenceAlignmentManager
 
     /**
      * Rearranges the sequences in an alignment set alphabetically by their sequence id.
-     * In addition, you can specify if you wish it be in ascending or descending order via $option.
+     * In addition, you can specify if you wish it be in ascending or descending order via $sOption.
+     * The sOption accepts either "ASC" or "DESC" in whatever case (uppercase, lowercase,
+     * mixed case). This determines the sort order of the alignment set.
      * @param   string          $sOption    ASCendant or DESCendant
      * @throws  \Exception
      */
@@ -335,7 +338,7 @@ class SequenceAlignmentManager
 
     /**
      * Counts the number of gaps ("-") found in all sequences in an alignment set.
-     * @return  int
+     * @return  int         The number of "gap characters" in the all sequences in the alignment set.
      * @throws  \Exception
      */
     public function getGapCount()
@@ -385,24 +388,24 @@ class SequenceAlignmentManager
     /**
      * Returns the character found at a given residue number in a given sequence.
      * @param   int         $iSeqIdx    Index of the sequence in the array
-     * @param   int         $iPos       Position of the element
-     * @return  boolean
+     * @param   int         $iRes       The residue number of the character we wish to get or extract
+     * @return  boolean | string        A single character representing an amino acid residue or a "gap".
      * @throws  \Exception
      */
-    public function charAtRes($iSeqIdx, $iPos)
+    public function charAtRes($iSeqIdx, $iRes)
     {
         try {
             $iNonGapCtr  = 0;
             $oSequence   = $this->aSeqSet[$iSeqIdx];
 
-            if ($iPos > $oSequence->getEnd()) {
+            if ($iRes > $oSequence->getEnd()) {
                 return false;
             }
-            if ($iPos < $oSequence->getStart()) {
+            if ($iRes < $oSequence->getStart()) {
                 return false;
             }
             $iLength      = $oSequence->getSeqLength();
-            $iNonGapCount = $iPos - $oSequence->getStart() + 1;
+            $iNonGapCount = $iRes - $oSequence->getStart() + 1;
             for($x = 0; $x < $iLength; $x++) {
                 $sCurrLet = substr($oSequence->getSequence(), $x, 1);
                 if ($sCurrLet == "-") {
@@ -424,7 +427,7 @@ class SequenceAlignmentManager
      * @param   int            $iSeqIdx     Index of the sequence in the array
      * @param   int            $iResStart   Start of the subsequence
      * @param   int            $iResEnd     End of the subsequence
-     * @return  string | boolean
+     * @return  string | boolean            A substring within the specified sequence.
      * @throws  \Exception
      */
     public function substrBwRes($iSeqIdx, $iResStart, $iResEnd = 0)
@@ -468,9 +471,9 @@ class SequenceAlignmentManager
 
     /**
      * Converts a column number to a residue number in a sequence that is part of an alignment set.
-     * @param   int         $iSeqIdx
-     * @param   int         $iCol
-     * @return  boolean|string
+     * @param   int     $iSeqIdx    Index number of the desired sequence within the alignment set.
+     * @param   int     $iCol       The column number which we want to convert to a residue number.
+     * @return  boolean|string      An integer representing the residue number corresponding to the given column number.
      * @throws  \Exception
      */
     public function colToRes($iSeqIdx, $iCol)
@@ -507,9 +510,9 @@ class SequenceAlignmentManager
 
     /**
      * Converts a residue number to a column number in a sequence in an alignment set.
-     * @param   int         $iSeqIdx
-     * @param   int         $iPos
-     * @return  boolean|int
+     * @param   int     $iSeqIdx    The index number of the desired sequence in the alignment set.
+     * @param   int     $iPos       The residue number we wish to convert into a column number.
+     * @return  boolean|int         An integer representing the column number corresponding to the given residue number.
      * @throws  \Exception
      */
     public function resToCol($iSeqIdx, $iPos)
@@ -546,9 +549,9 @@ class SequenceAlignmentManager
 
 
     /**
-     * Returns a subset of consecutive sequences in an alignment set.
-     * @param   int     $iStart
-     * @param   int     $iEnd
+     * Creates a new alignment set from a series of contiguous/consecutive sequences.
+     * @param   int     $iStart     The index number of the first sequence to include in the new SeqAlign object.
+     * @param   int     $iEnd       The index number of the last sequence to include in the new SeqAlign object.
      * @throws  \Exception
      */
     public function subalign($iStart, $iEnd)
@@ -608,8 +611,8 @@ class SequenceAlignmentManager
      * Determines the index position of both variant and invariant residues according
      * to a given "percentage threshold" similar to that in the consensus() method.
      * @param   int         $iThreshold    a number between 0 to 100, indicating the percentage threshold below
-            which the current index position is considered variant, and on or above which the current
-            index position is considered invariant. If omitted, this is set to 100 by default.
+     * which the current index position is considered variant, and on or above which the current
+     * index position is considered invariant. If omitted, this is set to 100 by default.
      * @return  array
      * @throws  \Exception
      */
@@ -658,8 +661,10 @@ class SequenceAlignmentManager
 
     /**
      * Returns the consensus string for an alignment set.  See technical reference for details.
-     * @param   int         $iThreshold
-     * @return  string
+     * @param   int         $iThreshold     A number between 0 to 100, indicating the percentage threshold before
+     * (or below which) the unknown character "?" is used in a particular position or column in the
+     * consensus string. If omitted, this is set to 100 by default.
+     * @return  string                      The consensus string formed according to the given threshold.
      * @throws  \Exception
      */
     public function consensus($iThreshold = 100)
@@ -705,9 +710,9 @@ class SequenceAlignmentManager
 
 
     /**
-     * Adds a sequence to an alignment set.
-     * @param   Sequence     $oSequence
-     * @return  int
+     * Adds a sequence to an alignment set. It does not perform any sequence alignment.
+     * @param   Sequence     $oSequence     The object to be added to the alignment set.
+     * @return  int                         The number of sequences in the alignment set after the call.
      * @throws  \Exception
      */
     public function addSequence($oSequence)
@@ -747,41 +752,41 @@ class SequenceAlignmentManager
 
     /**
      * Deletes or removes a sequence from an alignment set.
-     * @param type $seqobj
-     * @return type
-     * @throws \Exception
+     * @param   string      $iSequenceId    The id of the sequence to be deleted from the alignment set.
+     * @return  int                         The number of sequences in the alignment set after the call.
+     * @throws  \Exception
      */
-    public function deleteSequence($seqobj)
+    public function deleteSequence($iSequenceId)
     {
         try {
-            $seqid = $seqobj;
-            $tempset = array();
-            $removed_seq = new Sequence();
+            $aTempSet = array();
+            $oRemovedSeq = new Sequence();
+            $iPrevLength = 0;
 
-            foreach($this->aSeqSet as $element) {
-                if ($element->getId() != $seqid) {
-                    array_push($tempset, $element);
+            foreach($this->aSeqSet as $oElement) {
+                if ($oElement->getId() != $iSequenceId) {
+                    array_push($aTempSet, $oElement);
                 } else {
-                    $removed_seq = $element;
+                    $oRemovedSeq = $oElement;
                 }
             }
             // Updates the value of the SEQSET property of the SEQALIGN object.
-            $this->aSeqSet = $tempset;
+            $this->aSeqSet = $aTempSet;
             // Updates the value of the SEQ_COUNT property of the SEQALIGN object.
             $this->iSeqCount = $this->iSeqCount - 1;
 
             // Updates the value of the LENGTH property of the SEQALIGN object.
-            if ($removed_seq->getSeqLength() == $this->iLength) {
-                $maxlen = 0;
-                foreach($this->aSeqSet as $element) {
-                    if ($element->getSeqLength() > $maxlen) {
-                        $maxlen = $element->getSeqLength();
+            if ($oRemovedSeq->getSeqLength() == $this->iLength) {
+                $iMaxLength = 0;
+                foreach($this->aSeqSet as $oElement) {
+                    if ($oElement->getSeqLength() > $iMaxLength) {
+                        $iMaxLength = $oElement->getSeqLength();
                     }
                 }
-                $this->iLength = $maxlen;
+                $this->iLength = $iMaxLength;
             }
             // Updates the value of the GAP_COUNT property of the SEQALIGN object.
-            $this->sequenceManager->setSequence($removed_seq);
+            $this->sequenceManager->setSequence($oRemovedSeq);
             $this->iGapCount = $this->iGapCount - $this->sequenceManager->symfreq("-");
             // Updates the value of the IS_FLUSH property of the SEQALIGN object.
             if (!$this->bFlush) {
@@ -789,28 +794,27 @@ class SequenceAlignmentManager
                 if ($this->iSeqCount <= 1) {
                     $this->bFlush = true;
                 } else {
-                    $samelength = TRUE;
-                    $ctr = 0;
-                    foreach($this->aSeqSet as $element) {
-                        $ctr++;
-                        $currlen = $element->getSeqLength();
-                        if ($ctr == 1) {
-                            $prevlen = $currlen;
+                    $bSameLength = TRUE;
+                    $iCtr = 0;
+                    foreach($this->aSeqSet as $oElement) {
+                        $iCtr++;
+                        $iCurrLength = $oElement->getSeqLength();
+                        if ($iCtr == 1) {
+                            $iPrevLength = $iCurrLength;
                             continue;
                         }
-                        if ($currlen != $prevlen) {
-                            $samelength = FALSE;
+                        if ($iCurrLength != $iPrevLength) {
+                            $bSameLength = FALSE;
                             break;
                         }
-                        $prevlen = $currlen;
+                        $iPrevLength = $iCurrLength;
                     }
-                    if ($samelength) {
+                    if ($bSameLength) {
                         $this->bFlush = true;
                     }
                 }
             }
             // Return the new number of sequences in the alignment set AFTER delete operation.
-            dump($this);
             return count($this->aSeqSet);
         } catch (\Exception $ex) {
             throw new \Exception($ex);

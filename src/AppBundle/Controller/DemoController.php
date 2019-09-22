@@ -104,6 +104,7 @@ class DemoController extends Controller
     }
 
     /**
+     * Here is some samples of how to use the functions
      * @route("/sequence-alignment-clustal", name="sequence_alignment_clustal")
      * @param SequenceAlignmentManager $sequenceAlignmentManager
      * @return Response
@@ -135,9 +136,11 @@ class DemoController extends Controller
 
         $aResVar = $sequenceAlignmentManager->resVar();
         $aConsensus = $sequenceAlignmentManager->consensus();
-dump($oMySuperSeq);
+
+        // Adding a new sequence object
         $sequenceAlignmentManager->addSequence($oMySuperSeq);
-        $sequenceAlignmentManager->deleteSequence($oMySuperSeq);
+        // Dropping a sequence
+        $sequenceAlignmentManager->deleteSequence("sp|O09185|P53_CRIGR");
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
