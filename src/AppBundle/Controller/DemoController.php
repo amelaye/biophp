@@ -111,6 +111,7 @@ class DemoController extends Controller
      */
     public function clustalseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
     {
+        set_time_limit(0);
         //$sequenceAlignmentManager->setFilename("data/fasta-2.txt");
         $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
@@ -125,12 +126,18 @@ class DemoController extends Controller
         $iNumberGaps = $sequenceAlignmentManager->getGapCount();
         // Have the same length ?
         $bIsFlush = $sequenceAlignmentManager->getIsFlush();
-
         $sCharAtRes = $sequenceAlignmentManager->charAtRes(10, 10);
-
-
         $sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
-        dump($sSubstrBwRes);
+        $iColToRes = $sequenceAlignmentManager->colToRes(10, 50);
+        $iResToCol = $sequenceAlignmentManager->resToCol(10, 47);
+        //$sequenceAlignmentManager->subalign(5, 10);
+        //$sequenceAlignmentManager->select(1,2,3);
+
+        $aResVar = $sequenceAlignmentManager->resVar();
+        $aConsensus = $sequenceAlignmentManager->consensus();
+dump($oMySuperSeq);
+        $sequenceAlignmentManager->addSequence($oMySuperSeq);
+        $sequenceAlignmentManager->deleteSequence($oMySuperSeq);
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
