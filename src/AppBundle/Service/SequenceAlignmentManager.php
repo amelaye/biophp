@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 september 2019
+ * Last modified 22 september 2019
  */
 namespace AppBundle\Service;
 
@@ -395,28 +395,8 @@ class SequenceAlignmentManager
     public function charAtRes($iSeqIdx, $iRes)
     {
         try {
-            $iNonGapCtr  = 0;
-            $oSequence   = $this->aSeqSet[$iSeqIdx];
-
-            if ($iRes > $oSequence->getEnd()) {
-                return false;
-            }
-            if ($iRes < $oSequence->getStart()) {
-                return false;
-            }
-            $iLength      = $oSequence->getSeqLength();
-            $iNonGapCount = $iRes - $oSequence->getStart() + 1;
-            for($x = 0; $x < $iLength; $x++) {
-                $sCurrLet = substr($oSequence->getSequence(), $x, 1);
-                if ($sCurrLet == "-") {
-                    continue;
-                } else {
-                    $iNonGapCtr++;
-                    if ($iNonGapCtr == $iNonGapCount) {
-                        return $sCurrLet;
-                    }
-                }
-            }
+             $iNonGapCount = $iLength = 0;
+             return $this->validationRes($iSeqIdx, $iRes, $iNonGapCount, $iLength, "charAtRes");
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -507,46 +487,22 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Converts a residue number to a column number in a sequence in an alignment set.
      * @param   int     $iSeqIdx    The index number of the desired sequence in the alignment set.
-     * @param   int     $iPos       The residue number we wish to convert into a column number.
+     * @param   int     $iRes       The residue number we wish to convert into a column number.
      * @return  boolean|int         An integer representing the column number corresponding to the given residue number.
      * @throws  \Exception
      */
-    public function resToCol($iSeqIdx, $iPos)
+    public function resToCol($iSeqIdx, $iRes)
     {
         try {
-            $iNonGapCtr = 0;
-
-            $oSequence = $this->aSeqSet[$iSeqIdx];
-            // Later, you can return a code which identifies the type of error.
-            if ($iPos > $oSequence->getEnd()) {
-                return FALSE;
-            }
-            if ($iPos < $oSequence->getStart()) {
-                return FALSE;
-            }
-            $iLength = $oSequence->getSeqLength();
-            $iNonGapCount = $iPos - $oSequence->getStart() + 1;
-
-            for($x = 0; $x < $iLength; $x++) {
-                $sCurrLet = substr($oSequence->getSequence(), $x, 1);
-                if ($sCurrLet == "-") {
-                    continue;
-                } else {
-                    $iNonGapCtr++;
-                    if ($iNonGapCtr == $iNonGapCount) {
-                        return $x;
-                    }
-                }
-            }
+            $iNonGapCount = $iLength = 0;
+            return $this->validationRes($iSeqIdx, $iRes, $iNonGapCount, $iLength, "resToCol");
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
     }
-
 
     /**
      * Creates a new alignment set from a series of contiguous/consecutive sequences.
@@ -573,7 +529,6 @@ class SequenceAlignmentManager
             throw new \Exception($ex);
         }
     }
-
 
     /**
      * Creates a new alignment set from non-consecutive sequences found in another existing alignment set.
@@ -605,7 +560,6 @@ class SequenceAlignmentManager
             throw new \Exception($ex);
         }
     }
-
 
     /**
      * Determines the index position of both variant and invariant residues according
@@ -658,7 +612,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Returns the consensus string for an alignment set.  See technical reference for details.
      * @param   int         $iThreshold     A number between 0 to 100, indicating the percentage threshold before
@@ -708,7 +661,6 @@ class SequenceAlignmentManager
         }
     }
 
-
     /**
      * Adds a sequence to an alignment set. It does not perform any sequence alignment.
      * @param   Sequence     $oSequence     The object to be added to the alignment set.
@@ -748,7 +700,6 @@ class SequenceAlignmentManager
             throw new \Exception($ex);
         }
     }
-
 
     /**
      * Deletes or removes a sequence from an alignment set.
@@ -794,7 +745,7 @@ class SequenceAlignmentManager
                 if ($this->iSeqCount <= 1) {
                     $this->bFlush = true;
                 } else {
-                    $bSameLength = TRUE;
+                    $bSameLength = true;
                     $iCtr = 0;
                     foreach($this->aSeqSet as $oElement) {
                         $iCtr++;
@@ -804,7 +755,7 @@ class SequenceAlignmentManager
                             continue;
                         }
                         if ($iCurrLength != $iPrevLength) {
-                            $bSameLength = FALSE;
+                            $bSameLength = false;
                             break;
                         }
                         $iPrevLength = $iCurrLength;
@@ -818,6 +769,47 @@ class SequenceAlignmentManager
             return count($this->aSeqSet);
         } catch (\Exception $ex) {
             throw new \Exception($ex);
+        }
+    }
+
+    /**
+     * Fetches something found at a given residue number in a given sequence
+     * @param   int     $iSeqIdx        The index number of the desired sequence in the alignment set.
+     * @param   int     $iRes           The residue number we wish to convert.
+     * @param   int     $iNonGapCount   Number of non-gap characters
+     * @param   int     $iLength        Length of a sequence
+     * @param   string  $sContext       The original function calling
+     * @return  bool|int|string
+     */
+    private function validationRes($iSeqIdx, $iRes, &$iNonGapCount, &$iLength, $sContext)
+    {
+        $iNonGapCtr = 0;
+        $oSequence   = $this->aSeqSet[$iSeqIdx];
+
+        if ($iRes > $oSequence->getEnd()) {
+            return false;
+        }
+        if ($iRes < $oSequence->getStart()) {
+            return false;
+        }
+        $iLength      = $oSequence->getSeqLength();
+        $iNonGapCount = $iRes - $oSequence->getStart() + 1;
+
+        for($x = 0; $x < $iLength; $x++) {
+            $sCurrLet = substr($oSequence->getSequence(), $x, 1);
+            if ($sCurrLet == "-") {
+                continue;
+            } else {
+                $iNonGapCtr++;
+                if ($iNonGapCtr == $iNonGapCount) {
+                    if ($sContext == "resToCol") {
+                        return $x;
+                    }
+                    else if ($sContext == "charAtRes") {
+                        return $sCurrLet;
+                    }
+                }
+            }
         }
     }
 }
