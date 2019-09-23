@@ -118,23 +118,28 @@ class DemoController extends Controller
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         // You wanna sort your array ? :)
-        $sequenceAlignmentManager->sortAlpha();
+        $sequenceAlignmentManager->sortAlpha("ASC");
+        dump($sequenceAlignmentManager);
         // You wanna fetch something ?
-        $oMySuperSeq = $sequenceAlignmentManager->fetch(13);
+        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(13);
+        dump($oMySuperSeq);
         // You wanna know the longest sequence ?
-        $iMyLength = $sequenceAlignmentManager->getMaxiLength();
+        //$iMyLength = $sequenceAlignmentManager->getMaxiLength();
         // You wanna know the number of gaps ?
-        $iNumberGaps = $sequenceAlignmentManager->getGapCount();
+        //$iNumberGaps = $sequenceAlignmentManager->getGapCount();
         // Have the same length ?
-        $bIsFlush = $sequenceAlignmentManager->getIsFlush();
+        //$bIsFlush = $sequenceAlignmentManager->getIsFlush();
         $sCharAtRes = $sequenceAlignmentManager->charAtRes(10, 10);
         dump($sCharAtRes);
-        $sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
+        //$sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
+        //dump($sSubstrBwRes);
         $iColToRes = $sequenceAlignmentManager->colToRes(10, 50);
         $iResToCol = $sequenceAlignmentManager->resToCol(10, 47);
         dump($iResToCol);
         //$sequenceAlignmentManager->subalign(5, 10);
+        //dump($sequenceAlignmentManager);
         //$sequenceAlignmentManager->select(1,2,3);
+        //dump($sequenceAlignmentManager);
 
         $aResVar = $sequenceAlignmentManager->resVar();
         dump($aResVar);
@@ -145,6 +150,7 @@ class DemoController extends Controller
         $sequenceAlignmentManager->addSequence($oMySuperSeq);
         // Dropping a sequence
         $sequenceAlignmentManager->deleteSequence("sp|O09185|P53_CRIGR");
+        dump($sequenceAlignmentManager);
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
