@@ -35,7 +35,27 @@ trait SequenceTrait
     }
 
     /**
-     * Will yield the Reverse complement of a NA sequence. Allows degenerated nucleotides
+     * Returns complement of RNA sequence
+     * @param   string          $sSequence
+     * @return  string
+     * @throws  \Exception
+     */
+    public function compRNA($sSequence)
+    {
+        try {
+            $sSequence = strtoupper($sSequence);
+            $original   = ["(A)","(U)","(G)","(C)"];
+            $complement = ["u","a","c","g"];
+            $sSequence = preg_replace($original, $complement, $sSequence);
+            $sSequence = strtoupper($sSequence);
+            return $sSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Will yield the Reverse complement of a DNA sequence. Allows degenerated nucleotides
      * @param   string      $sSequence      is the sequence
      * @return  string
      * @throws \Exception
@@ -45,6 +65,23 @@ trait SequenceTrait
         try {
             $sSequence = strrev($sSequence);
             $sSequence = $this->compDNA($sSequence);
+            return $sSequence;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Will yield the Reverse complement of a RNA sequence. Allows degenerated nucleotides
+     * @param   string      $sSequence      is the sequence
+     * @return  string
+     * @throws \Exception
+     */
+    public function revCompRNA($sSequence)
+    {
+        try {
+            $sSequence = strrev($sSequence);
+            $sSequence = $this->compRNA($sSequence);
             return $sSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
