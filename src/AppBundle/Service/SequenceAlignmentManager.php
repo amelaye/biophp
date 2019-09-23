@@ -17,7 +17,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @todo : envisager le tableau de sequences comme iterator
  * @todo : length doit représenter la totalité des séquences
  */
 class SequenceAlignmentManager
@@ -39,12 +38,6 @@ class SequenceAlignmentManager
      * @var int
      */
     private $iLength;
-
-    /**
-     * The number of sequences in the alignment set.
-     * @var int
-     */
-    private $iSeqCount;
 
     /**
      * The total number of gaps ("-") in all sequences in the alignment set.
@@ -84,7 +77,6 @@ class SequenceAlignmentManager
     public function __construct(SequenceManager $sequenceManager)
     {
         $this->sequenceManager = $sequenceManager;
-        $this->iSeqCount       = 0;
         $this->iLength         = 0;
         $this->iGapCount       = 0;
         $this->bFlush          = true;
@@ -171,10 +163,8 @@ class SequenceAlignmentManager
                 $iLength += strlen($sSeqData);
                 $this->sequenceManager->setSequence($oSequence);
                 $iGapCount += $this->sequenceManager->symfreq("-");
-                //array_push($this->aSeqSet, $oSequence);
                 $this->aSeqSet->append($oSequence);
             }
-            $this->iSeqCount = count($aNameList);
             $this->iLength   = $iLength;
             $this->iGapCount = $iGapCount;
             $this->bFlush    = true;
@@ -217,7 +207,6 @@ class SequenceAlignmentManager
                         if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                             $bSameLength = false;
                         }
-                        //array_push($this->aSeqSet, $oSequence);
                         $this->aSeqSet->append($oSequence);
                     }
 
@@ -250,11 +239,9 @@ class SequenceAlignmentManager
                 if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                     $bSameLength = false;
                 }
-                //array_push($this->aSeqSet, $oSequence);
                 $this->aSeqSet->append($oSequence);
             }
 
-            $this->iSeqCount = $iSeqCount;
             $this->iLength   = $iMaxLength;
             $this->iGapCount = $iGapCount;
             $this->bFlush    = $bSameLength;
@@ -512,7 +499,7 @@ class SequenceAlignmentManager
             if (($iStart < 0) or ($iEnd < 0)) {
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
-            if (($iStart > $this->iSeqCount - 1) or ($iEnd > $this->iSeqCount - 1)) {
+            if (($iStart > $this->aSeqSet->count() - 1) or ($iEnd > $this->aSeqSet->count() - 1)) {
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
 
@@ -522,7 +509,6 @@ class SequenceAlignmentManager
 
             $this->aSeqSet      = $oSeqSet->getIterator();
             $this->iLength      = $this->getMaxiLength();
-            $this->iSeqCount    = $iEnd - $iStart + 1;
             $this->iGapCount    = $this->getGapCount();
             $this->bFlush       = $this->getIsFlush();
         } catch (\Exception $ex) {
@@ -553,7 +539,6 @@ class SequenceAlignmentManager
 
             $this->aSeqSet      = $aNewSeqSet;
             $this->iLength      = $this->getMaxiLength();
-            $this->iSeqCount    = count($aArgs);
             $this->iGapCount    = $this->getGapCount();
             $this->bFlush       = $this->getIsFlush();
         } catch (\Exception $ex) {
@@ -653,7 +638,7 @@ class SequenceAlignmentManager
                 $this->aSeqSet->rewind();
 
                 if ($this->bFlush) {
-                    if ($this->iSeqCount >= 1) {
+                    if ($this->aSeqSet->count() >= 1) {
                         $oFirstSeq = $this->aSeqSet->current();
                         if ($oSequence->getSeqLength() != $oFirstSeq->getSeqLength()) {
                             $this->bFlush = false;
