@@ -10,14 +10,18 @@ namespace AppBundle\Service;
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Protein;
+use AppBundle\Traits\SequenceTrait;
 
 /**
  * Class SequenceManager - Functions for sequences
+ * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceManager
 {
+    use SequenceTrait;
+
     /**
      * @var array Taken from API
      */
@@ -42,6 +46,10 @@ class SequenceManager
      * @var array
      */
     private $aCodons;
+
+    /**
+     * @var Sequence
+     */
     private $sequence;
     
     /**
@@ -49,8 +57,8 @@ class SequenceManager
      * @param array $aChemicalGroups
      */
     public function __construct($aChemicalGroups, Bioapi $bioapi) {
-        $this->aDnaComplements  = $bioapi->getNucleotidsDNA();
-        $this->aRnaComplements  = $bioapi->getNucleotidsRNA();
+        $this->aDnaComplements  = $bioapi->getDNAComplement();
+        $this->aRnaComplements  = $bioapi->getRNAComplement();
         $this->aElements        = $bioapi->getElements();
         $this->aChemicalGroups  = $aChemicalGroups;
         $this->aCodons          = $bioapi->getAminosOnlyLetters();
@@ -64,69 +72,69 @@ class SequenceManager
     {
         $this->sequence = $oSequence;
     }
-    /**
-     * Gets the genetic complement of a DNA or RNA sequence.
-     * @param   Sequence  $seq (or array ?)
-     * @param   string    $sMoltypeUnfrmtd
-     * @return  string
-     */
-    public function complement($seq, $sMoltypeUnfrmtd)
-    {
-        if (!isset($sMoltypeUnfrmtd)) {
-            $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
-        }
-
-        $sMoltype = strtoupper($sMoltypeUnfrmtd);
-        if ($sMoltype == "DNA") {
-            $aComplements = $this->aDnaComplements;
-        } elseif ($sMoltype == "RNA") {
-            $aComplements = $this->aRnaComplements;
-        }
-        $seqlen = strlen($seq);
-        $compseq = "";
-        for($i = 0; $i < $seqlen; $i++) {
-            $symbol = substr($seq, $i, 1);
-            $compseq .= $aComplements[$symbol];
-        }
-        return $compseq;
-    }
-
 
     /**
-     * First gets the complement of a DNA or RNA sequence, and then returns it in reverse order.
-     * @param type $seq
-     * @param type $moltype
-     * @return type
+     * Returns a string representing the genetic complement of a sequence.
+     * @param   string    $sSequence            The string whose complement we want to obtain.
+     * @param   string    $sMoltypeUnfrmtd      The type of molecule we are dealing with. If omitted,
+     * we work with "DNA" by default.
+     * @return  string                          A string which is the genetic complement of the input string.
+     * @throws  \Exception
      */
-    public function revcomp($seq, $moltype)
+    public function complement($sSequence, $sMoltypeUnfrmtd)
     {
-        return strrev($this->complement($seq, $moltype));
-    }
+        try {
+            $sComplement = "";
 
+            if (!isset($sMoltypeUnfrmtd)) {
+                $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
+            }
+
+            if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
+                $aComplements = $this->aDnaComplements;
+            } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
+                $aComplements = $this->aRnaComplements;
+            }
+
+            $iSeqLength = strlen($sSequence);
+            for($i = 0; $i < $iSeqLength; $i++) {
+                $sAmino = substr($sSequence, $i, 1);
+                $sComplement .= $aComplements[$sAmino];
+            }
+            return $sComplement;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
+        }
+    }
 
     /**
      * Returns one of the two palindromic "halves" of a palindromic string. 
-     * @param type $string
-     * @param type $no
-     * @return type
+     * @param   string  $sSequence  A palindromic sequence.
+     * @param   int     $iIndex     Pass 0 to get he first palindromic half, pass any other number (e.g. 1)
+     * to get the second palindromic half.
+     * @return  string              A string representing either the first or the second palindromic half of the string.
+     * @throws  \Exception
      */
-    public function halfstr($string, $no)
+    public function halfSequence($sSequence, $iIndex)
     {
-        // for now, this holds for mirror repeats.
-        if(strlen($string) % 2 != 0) { //odd
-            $comp_len = (int)(strlen($string)/2);
-            if ($no == 0) {
-                return substr($string, 0, $comp_len);
+        try {
+            if(strlen($sSequence) % 2 != 0) {
+                $iCompLength = (int)(strlen($sSequence)/2);
+                if ($iIndex == 0) {
+                    return substr($sSequence, 0, $iCompLength);
+                } else {
+                    return substr($sSequence, $iCompLength + 1);
+                }
             } else {
-                return substr($string, $comp_len + 1);
+                $iCompLength = strlen($sSequence)/2;
+                if ($iIndex == 0) {
+                    return substr($sSequence, 0, $iCompLength);
+                } else {
+                    return substr($sSequence, $iCompLength);
+                }
             }
-        } else {
-            $comp_len = strlen($string)/2;
-            if ($no == 0) {
-                return substr($string, 0, $comp_len);
-            } else {
-                return substr($string, $comp_len);
-            }
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
@@ -134,10 +142,11 @@ class SequenceManager
     /**
      * Returns the sequence located between two palindromic halves of a palindromic string.
      * Take note that the "bridge" as I call it, is not necessarily a genetic mirror or a palindrome.
-     * @param type $string
-     * @return string
+     * @param   string    $string     A palindromic or mirror sequence containing the bridge.
+     * @return  string
+     * @todo : Correct it - does not seems to work :/
      */
-    public function get_bridge($string)
+    public function getBridge($string)
     {
         if(strlen($string) % 2 != 0) { // odd
             $comp_len = (int) (strlen($string)/2);
@@ -150,22 +159,27 @@ class SequenceManager
 
     /**
      * Returns the expansion of a nucleic acid sequence, replacing special wildcard symbols 
-     * with the proper PERL regular expression. 
-     * @param type $string
-     * @return type
+     * with the proper regular expression.
+     * @param   string        $sSequence    The nucleic acid sequence to expand
+     * @return  string                      An "expanded" string where special metacharacters are replaced by the
+     * appropriate regular expression.  For example, an N or X is replaced by the dot (.) meta-character, an R is
+     * replaced by [AG], etc.
+     * @throws  \Exception
      */
-    public function expand_na($string)
+    public function expandNa($sSequence)
     {
-        $patterns = [
-            "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", 
-            "/K/", "/B/", "/D/", "/H/", "/R/"
-        ];
-        $replacements = [
-            ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", 
-            "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
-        ];
-        $sExpansion = preg_replace($patterns, $replacements, $string);
-        return $sExpansion;
+        try {
+            $aPattern = [
+                "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
+            ];
+            $aReplacement = [
+                ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
+            ];
+            $sExpansion = preg_replace($aPattern, $aReplacement, $sSequence);
+            return $sExpansion;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
+        }
     }
 
 

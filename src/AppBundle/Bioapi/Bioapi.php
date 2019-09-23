@@ -64,6 +64,16 @@ class Bioapi
         return $dnaComplements;
     }
 
+    public function getRNAComplement()
+    {
+        $nucleos = $this->getNucleotidsRNA();
+        $dnaComplements = array();
+        foreach($nucleos as $nucleo) {
+            $dnaComplements[$nucleo["letter"]] = $nucleo["complement"];
+        }
+        return $dnaComplements;
+    }
+
     public function getDNAWeight()
     {
         $nucleos = $this->getNucleotidsDNA();

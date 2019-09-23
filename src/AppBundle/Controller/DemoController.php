@@ -156,4 +156,38 @@ class DemoController extends Controller
             []
         );
     }
+
+    /**
+     * Here is some samples of how to use the functions
+     * @route("/play-with-sequencies", name="play_with_sequencies")
+     * @param SequenceAlignmentManager $sequenceAlignmentManager
+     * @param SequenceManager $sequenceManager
+     * @return Response
+     * @throws \Exception
+     */
+    public function playwithsequenciesAction(
+        SequenceAlignmentManager $sequenceAlignmentManager,
+        SequenceManager $sequenceManager
+    ) {
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
+
+        //$sequenceManager->setSequence($oSequence);
+        $aComplement = $sequenceManager->complement($oSequence->getSequence(), "DNA");
+       // dump($aComplement);
+        $sHalfStr = $sequenceManager->halfSequence("GATTAG", 0);
+        dump($sHalfStr);
+
+        $sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
+        dump($sBridge);
+
+        $sExpandNa = $sequenceManager->expandNa("GATTAGSW");
+        dump($sExpandNa);
+
+        return $this->render('demo/playwithsequencies.html.twig',
+            []
+        );
+    }
 }
