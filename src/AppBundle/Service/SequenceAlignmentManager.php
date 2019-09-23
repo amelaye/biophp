@@ -54,7 +54,8 @@ class SequenceAlignmentManager
 
     /**
      * An array containing all the sequences in the alignment set.
-     * @var array
+     * As ArrayIterator I dropped the former next(), prev(), fetch(), last(), first() functions, easy pieceeeee <3
+     * @var \ArrayIterator
      */
     private $aSeqSet;
 
@@ -87,8 +88,17 @@ class SequenceAlignmentManager
         $this->iLength         = 0;
         $this->iGapCount       = 0;
         $this->bFlush          = true;
-        $this->aSeqSet         = array();
+        $this->aSeqSet         = new \ArrayIterator();
         $this->aAlphabet       = range('A','Z');
+    }
+
+    /**
+     * The sequences array ... then you can rewind(), next(), prev() on it
+     * @return \ArrayIterator
+     */
+    public function getSeqSet()
+    {
+        return $this->aSeqSet;
     }
 
     /**
@@ -161,7 +171,8 @@ class SequenceAlignmentManager
                 $iLength += strlen($sSeqData);
                 $this->sequenceManager->setSequence($oSequence);
                 $iGapCount += $this->sequenceManager->symfreq("-");
-                array_push($this->aSeqSet, $oSequence);
+                //array_push($this->aSeqSet, $oSequence);
+                $this->aSeqSet->append($oSequence);
             }
             $this->iSeqCount = count($aNameList);
             $this->iLength   = $iLength;
@@ -206,7 +217,8 @@ class SequenceAlignmentManager
                         if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                             $bSameLength = false;
                         }
-                        array_push($this->aSeqSet, $oSequence);
+                        //array_push($this->aSeqSet, $oSequence);
+                        $this->aSeqSet->append($oSequence);
                     }
 
                     $aWords = preg_split("/[\|\/]/", substr($sLine, 1));
@@ -238,7 +250,8 @@ class SequenceAlignmentManager
                 if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
                     $bSameLength = false;
                 }
-                array_push($this->aSeqSet, $oSequence);
+                //array_push($this->aSeqSet, $oSequence);
+                $this->aSeqSet->append($oSequence);
             }
 
             $this->iSeqCount = $iSeqCount;
@@ -274,46 +287,18 @@ class SequenceAlignmentManager
     public function sortAlpha($sOption = "ASC")
     {
         try {
-            $aSequences = [];
-            foreach($this->aSeqSet as $oSequence) {
-                $key = $oSequence->getId() . str_pad($oSequence->getStart(), 9, "0", STR_PAD_LEFT);
-                $aSequences[$key] = $oSequence;
-            }
-
             $sOption = strtoupper($sOption);
             if ($sOption == "ASC") {
-                asort($aSequences);
+                $aSequences = $this->aSeqSet->getArrayCopy();
+                sort($aSequences);
             } elseif ($sOption == "DESC") {
-                arsort($aSequences);
+                $aSequences = $this->aSeqSet->getArrayCopy();
+                rsort($aSequences);
             } else {
                 throw new \Exception("Invalid argument #1 passed to SORT_ALPHA() method!");
             }
-
-            $aSequences2 = [];
-            foreach($aSequences as $sSequence) {
-                $aSequences2[] = $sSequence;
-            }
-            $this->aSeqSet = $aSequences2;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
-    }
-
-    /**
-     * Retrieves a particular sequence (identified by its index number) from an alignment set.
-     * @param   string      $sIndex     The index of the array searched
-     * @return  Sequence | null
-     * @throws  \Exception
-     */
-    public function fetch($sIndex = "")
-    {
-        try {
-            if (isset($this->aSeqSet[$sIndex])) {
-                $oSequence = $this->aSeqSet[$sIndex];
-                return $oSequence;
-            } else {
-                return null;
-            }
+            $oNewSeqSet = new \ArrayObject($aSequences);
+            $this->aSeqSet = $oNewSeqSet->getIterator();
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -419,34 +404,38 @@ class SequenceAlignmentManager
             $iNonGapCtr   = 0;
             $sSubSequence = "";
 
-            $oSequence = $this->aSeqSet[$iSeqIdx];
-            // Later, you can return a code which identifies the type of error.
-            if ($iResEnd > $oSequence->getEnd()) {
-                return false;
-            }
-            if ($iResStart < $oSequence->getStart()) {
-                return false;
-            }
-            if ($iResEnd == 0) {
-                $iResEnd = $oSequence->getEnd();
-            }
-
-            $iResStartCtr = $iResStart - $oSequence->getStart() + 1;
-            $iResEndCtr   = $iResEnd - $oSequence->getStart() + 1;
-            $iLength      = $oSequence->getSeqLength();
-
-            for($x = 0; $x < $iLength; $x++) {
-                $currlet = substr($oSequence->getSequence(), $x, 1);
-                if ($currlet != "-") {
-                    $iNonGapCtr++;
+            if($this->aSeqSet->offsetExists($iSeqIdx)) {
+                $oSequence = $this->aSeqSet->offsetGet($iSeqIdx);
+                // Later, you can return a code which identifies the type of error.
+                if ($iResEnd > $oSequence->getEnd()) {
+                    return false;
                 }
-                if (($iNonGapCtr >= $iResStartCtr) && ($iNonGapCtr <= $iResEndCtr)) {
-                    $sSubSequence .= $currlet;
-                } elseif ($iNonGapCtr > $iResEndCtr) {
-                    break;
+                if ($iResStart < $oSequence->getStart()) {
+                    return false;
                 }
+                if ($iResEnd == 0) {
+                    $iResEnd = $oSequence->getEnd();
+                }
+
+                $iResStartCtr = $iResStart - $oSequence->getStart() + 1;
+                $iResEndCtr   = $iResEnd - $oSequence->getStart() + 1;
+                $iLength      = $oSequence->getSeqLength();
+
+                for($x = 0; $x < $iLength; $x++) {
+                    $currlet = substr($oSequence->getSequence(), $x, 1);
+                    if ($currlet != "-") {
+                        $iNonGapCtr++;
+                    }
+                    if (($iNonGapCtr >= $iResStartCtr) && ($iNonGapCtr <= $iResEndCtr)) {
+                        $sSubSequence .= $currlet;
+                    } elseif ($iNonGapCtr > $iResEndCtr) {
+                        break;
+                    }
+                }
+                return $sSubSequence;
+            } else {
+                throw new \Exception("Offset ".$iSeqIdx." does not exist !");
             }
-            return $sSubSequence;
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -465,25 +454,29 @@ class SequenceAlignmentManager
             $sCurrLet       = "";
             $iNonGapCount   = 0;
 
-            $oSequence = $this->aSeqSet[$iSeqIdx];
-            // Later, you can return a code which identifies the type of error.
-            if ($iCol > $oSequence->getSeqLength() - 1) {
-                return false;
-            }
-            if ($iCol < 0) {
-                return false;
-            }
-
-            for($i = 0; $i <= $iCol; $i++) {
-                $sCurrLet = substr($oSequence->getSequence(), $i, 1);
-                if ($sCurrLet != "-") {
-                    $iNonGapCount++;
+            if($this->aSeqSet->offsetExists($iSeqIdx)) {
+                $oSequence = $this->aSeqSet->offsetGet($iSeqIdx);
+                // Later, you can return a code which identifies the type of error.
+                if ($iCol > $oSequence->getSeqLength() - 1) {
+                    return false;
                 }
-            }
-            if ($sCurrLet == "-") {
-                return "-";
+                if ($iCol < 0) {
+                    return false;
+                }
+
+                for($i = 0; $i <= $iCol; $i++) {
+                    $sCurrLet = substr($oSequence->getSequence(), $i, 1);
+                    if ($sCurrLet != "-") {
+                        $iNonGapCount++;
+                    }
+                }
+                if ($sCurrLet == "-") {
+                    return "-";
+                } else {
+                    return ($oSequence->getStart() + $iNonGapCount - 1);
+                }
             } else {
-                return ($oSequence->getStart() + $iNonGapCount - 1);
+                throw new \Exception("Offset ".$iSeqIdx." does not exist !");
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex);
@@ -523,7 +516,11 @@ class SequenceAlignmentManager
                 throw new \Exception("Invalid argument passed to SUBALIGN() method!");
             }
 
-            $this->aSeqSet      = array_slice($this->aSeqSet, $iStart, $iEnd - $iStart + 1);
+            $aSeqSet = $this->aSeqSet->getArrayCopy();
+            $aSeqSet = array_slice($aSeqSet, $iStart, $iEnd - $iStart + 1);
+            $oSeqSet = new \ArrayObject($aSeqSet);
+
+            $this->aSeqSet      = $oSeqSet->getIterator();
             $this->iLength      = $this->getMaxiLength();
             $this->iSeqCount    = $iEnd - $iStart + 1;
             $this->iGapCount    = $this->getGapCount();
@@ -541,17 +538,17 @@ class SequenceAlignmentManager
     public function select()
     {
         try {
-            $iCtr       = 0;
-            $aNewSeqSet = array();
+            $aNewSeqSet = new \ArrayIterator();
             $aArgs      = func_get_args();
 
             if (count($aArgs) == 0) {
                 throw new \Exception("Must pass at least one argument to SELECT() method!");
             }
             foreach($aArgs as $iSeqIdx) {
-                $oSequence = $this->aSeqSet;
-                $aNewSeqSet[] = $oSequence[$iSeqIdx];
-                $iCtr++;
+                if($this->aSeqSet->offsetExists($iSeqIdx)) {
+                    $oSequence = $this->aSeqSet->offsetGet($iSeqIdx);
+                    $aNewSeqSet->append($oSequence);
+                }
             }
 
             $this->aSeqSet      = $aNewSeqSet;
@@ -576,10 +573,11 @@ class SequenceAlignmentManager
     public function resVar($iThreshold = 100)
     {
         try {
+            $this->aSeqSet->rewind();
+
             $aAllPos     = $aInvarPos = $aVarPos = [];
             $aGlobFreq   = array();
-            $aSeqSet     = $this->aSeqSet;
-            $oFirstSeq   = $aSeqSet[0];
+            $oFirstSeq   = $this->aSeqSet->current();
             $iSeqLength  = strlen($oFirstSeq->getSequence());
 
             for($i = 0; $i < count($this->aAlphabet); $i++) {
@@ -589,7 +587,7 @@ class SequenceAlignmentManager
 
             for($i = 0; $i < $iSeqLength; $i++) {
                 $aKeys = [];
-                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $aSeqSet, $i, $aKeys);
+                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $i, $aKeys);
                 if ($iMaxPercent >= $iThreshold) {
                     array_push($aInvarPos, $i);
                 } else {
@@ -615,9 +613,10 @@ class SequenceAlignmentManager
     public function consensus($iThreshold = 100)
     {
         try {
-            $aSeqSet     = $this->aSeqSet;
+            $this->aSeqSet->rewind();
+
             $sResult     = "";
-            $oFirstSeq   = $aSeqSet[0];
+            $oFirstSeq   = $this->aSeqSet->current();
             $iSeqLength  = strlen($oFirstSeq->getSequence());
             $aGlobFreq   = [];
 
@@ -628,7 +627,7 @@ class SequenceAlignmentManager
 
             for($i = 0; $i < $iSeqLength; $i++) {
                 $aKeys = [];
-                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $aSeqSet, $i, $aKeys);
+                $iMaxPercent = $this->calcMaxPercent($aGlobFreq, $i, $aKeys);
                 if ($iMaxPercent >= $iThreshold) {
                     $sResult = $sResult . $aKeys[0];
                 } else {
@@ -651,7 +650,18 @@ class SequenceAlignmentManager
     {
         try {
             if (is_object($oSequence)) {
-                array_push($this->aSeqSet, $oSequence);
+                $this->aSeqSet->rewind();
+
+                if ($this->bFlush) {
+                    if ($this->iSeqCount >= 1) {
+                        $oFirstSeq = $this->aSeqSet->current();
+                        if ($oSequence->getSeqLength() != $oFirstSeq->getSeqLength()) {
+                            $this->bFlush = false;
+                        }
+                    }
+                }
+
+                $this->aSeqSet->append($oSequence);
                 if ($oSequence->getSeqLength() > $this->iLength) {
                     $this->iLength = $oSequence->getSeqLength();
                 }
@@ -662,17 +672,7 @@ class SequenceAlignmentManager
                     $this->iLength = $oSequence->getSeqLength();
                 }
 
-                if ($this->bFlush) {
-                    if ($this->iSeqCount >= 1) {
-                        $oFirstSeq = $this->aSeqSet[0];
-                        if ($oSequence->getSeqLength() != $oFirstSeq->getSeqLength()) {
-                            $this->bFlush = false;
-                        }
-                    }
-                }
-
-                $this->iSeqCount++;
-                return count($this->aSeqSet);
+                return $this->aSeqSet->count();
             } else  {
                 throw new InvalidTypeException("Please give a Sequence object !");
             }
@@ -690,21 +690,19 @@ class SequenceAlignmentManager
     public function deleteSequence($iSequenceId)
     {
         try {
-            $aTempSet = array();
+            $aTempSet = new \ArrayIterator();
             $oRemovedSeq = new Sequence();
             $iPrevLength = 0;
 
             foreach($this->aSeqSet as $oElement) {
                 if ($oElement->getId() != $iSequenceId) {
-                    array_push($aTempSet, $oElement);
+                    $aTempSet->append($oElement);
                 } else {
                     $oRemovedSeq = $oElement;
                 }
             }
             // Updates the value of the SEQSET property of the SEQALIGN object.
             $this->aSeqSet = $aTempSet;
-            // Updates the value of the SEQ_COUNT property of the SEQALIGN object.
-            $this->iSeqCount = $this->iSeqCount - 1;
 
             // Updates the value of the LENGTH property of the SEQALIGN object.
             if ($oRemovedSeq->getSeqLength() == $this->iLength) {
@@ -722,7 +720,7 @@ class SequenceAlignmentManager
             // Updates the value of the IS_FLUSH property of the SEQALIGN object.
             if (!$this->bFlush) {
                 // Take note that seq_count has already been decremented in the code above.
-                if ($this->iSeqCount <= 1) {
+                if ($this->aSeqSet->count() <= 1) {
                     $this->bFlush = true;
                 } else {
                     $bSameLength = true;
@@ -746,7 +744,7 @@ class SequenceAlignmentManager
                 }
             }
             // Return the new number of sequences in the alignment set AFTER delete operation.
-            return count($this->aSeqSet);
+            return $this->aSeqSet->count();
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
@@ -759,53 +757,56 @@ class SequenceAlignmentManager
      * @param   int         $iNonGapCount   Number of non-gap characters
      * @param   int         $iLength        Length of a sequence
      * @param   string      $sContext       The original function calling
+     * @throws  \Exception
      * @return  bool|int|string
      */
     private function validationRes($iSeqIdx, $iRes, &$iNonGapCount, &$iLength, $sContext)
     {
         $iNonGapCtr = 0;
-        $oSequence   = $this->aSeqSet[$iSeqIdx];
+        if($this->aSeqSet->offsetExists($iSeqIdx)) {
+            $oSequence   = $this->aSeqSet->offsetGet($iSeqIdx);
+            if ($iRes > $oSequence->getEnd()) {
+                return false;
+            }
+            if ($iRes < $oSequence->getStart()) {
+                return false;
+            }
+            $iLength      = $oSequence->getSeqLength();
+            $iNonGapCount = $iRes - $oSequence->getStart() + 1;
 
-        if ($iRes > $oSequence->getEnd()) {
-            return false;
-        }
-        if ($iRes < $oSequence->getStart()) {
-            return false;
-        }
-        $iLength      = $oSequence->getSeqLength();
-        $iNonGapCount = $iRes - $oSequence->getStart() + 1;
-
-        for($x = 0; $x < $iLength; $x++) {
-            $sCurrLet = substr($oSequence->getSequence(), $x, 1);
-            if ($sCurrLet == "-") {
-                continue;
-            } else {
-                $iNonGapCtr++;
-                if ($iNonGapCtr == $iNonGapCount) {
-                    if ($sContext == "resToCol") {
-                        return $x;
-                    }
-                    else if ($sContext == "charAtRes") {
-                        return $sCurrLet;
+            for($x = 0; $x < $iLength; $x++) {
+                $sCurrLet = substr($oSequence->getSequence(), $x, 1);
+                if ($sCurrLet == "-") {
+                    continue;
+                } else {
+                    $iNonGapCtr++;
+                    if ($iNonGapCtr == $iNonGapCount) {
+                        if ($sContext == "resToCol") {
+                            return $x;
+                        }
+                        else if ($sContext == "charAtRes") {
+                            return $sCurrLet;
+                        }
                     }
                 }
             }
+        } else {
+            throw new \Exception("Offset ".$iSeqIdx." does not exist !");
         }
     }
 
     /**
      * Calculates the max percentage of frequencies
      * @param   array       $aGlobFreq      Array of frequencies of the letters
-     * @param   array       $aSeqSet        Array of sequencies
      * @param   int         $i              Current iteration
      * @param   array       $aKeys          Keys of the array of frequencies
      * @return  float|int
      */
-    private function calcMaxPercent($aGlobFreq, $aSeqSet, $i, &$aKeys)
+    private function calcMaxPercent($aGlobFreq, $i, &$aKeys)
     {
         $aFrequences = $aGlobFreq;
-        for($j = 0; $j < $this->iSeqCount; $j++) {
-            $oCurrSeq = $aSeqSet[$j];
+        for($j = 0; $j < $this->aSeqSet->count(); $j++) {
+            $oCurrSeq = $this->aSeqSet->offsetGet($j);
             $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
             if(isset($aFrequences[$sCurrLet])) {
                 $aFrequences[$sCurrLet]++;
@@ -815,7 +816,7 @@ class SequenceAlignmentManager
         }
         arsort($aFrequences);
         $aKeys = array_keys($aFrequences);
-        $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->iSeqCount) * 100;
+        $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->aSeqSet->count()) * 100;
 
         return $iMaxPercent;
     }
