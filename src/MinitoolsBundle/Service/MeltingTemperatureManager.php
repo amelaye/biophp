@@ -8,7 +8,9 @@
  */
 namespace MinitoolsBundle\Service;
 
+use AppBundle\Entity\Sequence;
 use AppBundle\Service\NucleotidsManager;
+use AppBundle\Service\SequenceManager;
 use AppBundle\Bioapi\Bioapi;
 
 /**
@@ -29,16 +31,24 @@ class MeltingTemperatureManager
     private $bioapi;
 
     /**
+     * @var SequenceManager
+     */
+    private $sequenceManager;
+
+    /**
      * MeltingTemperatureManager constructor.
      * @param   NucleotidsManager   $nucleotidsManager      Service counting nucleotids
+     * @param   SequenceManager     $sequenceManager
      * @param   Bioapi              $bioapi
      */
     public function __construct(
         NucleotidsManager $nucleotidsManager,
+        SequenceManager $sequenceManager,
         Bioapi $bioapi
     )
     {
         $this->nucleotidsManager    = $nucleotidsManager;
+        $this->sequenceManager      = $sequenceManager;
         $this->bioapi               = $bioapi;
     }
 
@@ -175,8 +185,6 @@ class MeltingTemperatureManager
     public function tmMin($sPrimer)
     {
         try {
-            $fTemperature = 0;
-
             $iPrimerLen = strlen($sPrimer);
             $sPrimer2 = $this->primerMin($sPrimer);
             $fTemperature = $this->calculateTemperature($sPrimer2, $iPrimerLen);
@@ -217,69 +225,10 @@ class MeltingTemperatureManager
     public function molwt($sSequence, $sMoltype, $sLimit)
     {
         try {
-            $iWlimit = null;
-            $aWater = $this->bioapi->getWater();
-
-            $aDnaWeightsTemp = $this->bioapi->getDNAWeight();
-            $aRnaWeightsTemp = $this->bioapi->getRNAWeight();
-
-            $aDnaWeights = [
-                'A' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["A"]],  // Adenine
-                'C' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["C"]],  // Cytosine
-                'G' => [$aDnaWeightsTemp["G"], $aDnaWeightsTemp["G"]],  // Guanine
-                'T' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["T"]],  // Thymine
-                'M' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C
-                'R' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["G"]],  // A or G
-                'W' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["A"]],  // A or T
-                'S' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G
-                'Y' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["T"]],  // C or T
-                'K' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // G or T
-                'V' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // A or C or G
-                'H' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C or T
-                'D' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // A or G or T
-                'B' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G or T
-                'X' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // G, A, T or C
-                'N' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]]   // G, A, T or C
-            ];
-
-
-            $aRnaWeights = [
-                'A' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["A"]],  // Adenine
-                'C' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["C"]],  // Cytosine
-                'G' => [$aRnaWeightsTemp["G"], $aRnaWeightsTemp["G"]],  // Guanine
-                'U' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["U"]],  // Uracil
-                'M' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C
-                'R' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["G"]],  // A or G
-                'W' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["A"]],  // A or U
-                'S' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G
-                'Y' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["U"]],  // C or U
-                'K' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // G or U
-                'V' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // A or C or G
-                'H' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C or U
-                'D' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // A or G or U
-                'B' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G or U
-                'X' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // G, A, U or C
-                'N' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]]   // G, A, U or C
-            ];
-
-            $aAllNaWts = ['DNA' => $aDnaWeights, 'RNA' => $aRnaWeights];
-            $aNaWts = $aAllNaWts[$sMoltype];
-
-            $fMwt = 0;
-            $iNALen = strlen($sSequence);
-
-            if($sLimit == "lowerlimit") {
-                $iWlimit = 1;
-            }
-            else if($sLimit == "upperlimit") {
-                $iWlimit = 0;
-            }
-
-            for ($i = 0; $i < $iNALen; $i++) {
-                $sNAbase = substr($sSequence, $i, 1);
-                $fMwt += $aNaWts[$sNAbase][$iWlimit];
-            }
-            $fMwt += $aWater["weight"];
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSequence);
+            $this->sequenceManager->setSequence($oSequence);
+            $fMwt = $this->sequenceManager->molwt($sMoltype, $sLimit);
             return $fMwt;
         } catch (\Exception $e) {
             throw new \Exception($e);
