@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 22 september 2019
+ * Last modified 23 september 2019
  */
 namespace AppBundle\Service;
 
@@ -18,6 +18,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
+ * @todo : seems ok. Now I have to create the unit tests :)
  */
 class SequenceAlignmentManager
 {

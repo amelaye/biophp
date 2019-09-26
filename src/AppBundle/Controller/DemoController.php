@@ -176,15 +176,18 @@ class DemoController extends Controller
 
         //$sequenceManager->setSequence($oSequence);
         $aComplement = $sequenceManager->complement($oSequence->getSequence(), "DNA");
-       // dump($aComplement);
+        // dump($aComplement);
         $sHalfStr = $sequenceManager->halfSequence("GATTAG", 0);
-        dump($sHalfStr);
+        //dump($sHalfStr);
 
         $sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
-        dump($sBridge);
+        //dump($sBridge);
 
         $sExpandNa = $sequenceManager->expandNa("GATTAGSW");
-        dump($sExpandNa);
+        //dump($sExpandNa);
+
+        $sMolWt = $sequenceManager->molwt($oSequence->getSequence(), "DNA", "upperlimit");
+        dump($sMolWt);
 
         return $this->render('demo/playwithsequencies.html.twig',
             []

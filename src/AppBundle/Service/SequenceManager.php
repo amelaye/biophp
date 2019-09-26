@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 16 september 2019
+ * Last modified 23 september 2019
  */
 namespace AppBundle\Service;
 
@@ -23,45 +23,23 @@ class SequenceManager
     use SequenceTrait;
 
     /**
-     * @var array Taken from API
-     */
-    private $aDnaComplements;
-
-    /**
-     * @var array Taken from API
-     */
-    private $aRnaComplements;
-
-    /**
-     * @var array Taken from API
-     */
-    private $aElements;
-
-    /**
-     * @var array
-     */
-    private $aChemicalGroups;
-
-    /**
-     * @var array
-     */
-    private $aCodons;
-
-    /**
      * @var Sequence
      */
     private $sequence;
+
+    /**
+     * @var Bioapi
+     */
+    private $bioapi;
     
     /**
      * Constructor
-     * @param array $aChemicalGroups
+     * @param   array   $aChemicalGroups
+     * @param   Bioapi  $bioapi
      */
     public function __construct($aChemicalGroups, Bioapi $bioapi) {
-        $this->aDnaComplements  = $bioapi->getDNAComplement();
-        $this->aRnaComplements  = $bioapi->getRNAComplement();
-        $this->aElements        = $bioapi->getElements();
         $this->aChemicalGroups  = $aChemicalGroups;
-        $this->aCodons          = $bioapi->getAminosOnlyLetters();
+        $this->bioapi           = $bioapi;
     }
 
     /**
@@ -75,25 +53,25 @@ class SequenceManager
 
     /**
      * Returns a string representing the genetic complement of a sequence.
-     * @param   string    $sSequence            The string whose complement we want to obtain.
      * @param   string    $sMoltypeUnfrmtd      The type of molecule we are dealing with. If omitted,
      * we work with "DNA" by default.
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws  \Exception
      */
-    public function complement($sSequence, $sMoltypeUnfrmtd)
+    public function complement($sMoltypeUnfrmtd)
     {
         try {
             $sComplement = "";
+            $sSequence = $this->sequence->getSequence();
 
             if (!isset($sMoltypeUnfrmtd)) {
                 $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
             }
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = $this->aDnaComplements;
+                $aComplements = $this->bioapi->getDNAComplement();
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = $this->aRnaComplements;
+                $aComplements = $this->bioapi->getRNAComplement();
             }
 
             $iSeqLength = strlen($sSequence);
@@ -108,16 +86,16 @@ class SequenceManager
     }
 
     /**
-     * Returns one of the two palindromic "halves" of a palindromic string. 
-     * @param   string  $sSequence  A palindromic sequence.
+     * Returns one of the two palindromic "halves" of a palindromic string.
      * @param   int     $iIndex     Pass 0 to get he first palindromic half, pass any other number (e.g. 1)
      * to get the second palindromic half.
      * @return  string              A string representing either the first or the second palindromic half of the string.
      * @throws  \Exception
      */
-    public function halfSequence($sSequence, $iIndex)
+    public function halfSequence($iIndex)
     {
         try {
+            $sSequence = $this->sequence->getSequence();
             if(strlen($sSequence) % 2 != 0) {
                 $iCompLength = (int)(strlen($sSequence)/2);
                 if ($iIndex == 0) {
@@ -160,15 +138,15 @@ class SequenceManager
     /**
      * Returns the expansion of a nucleic acid sequence, replacing special wildcard symbols 
      * with the proper regular expression.
-     * @param   string        $sSequence    The nucleic acid sequence to expand
      * @return  string                      An "expanded" string where special metacharacters are replaced by the
      * appropriate regular expression.  For example, an N or X is replaced by the dot (.) meta-character, an R is
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa($sSequence)
+    public function expandNa()
     {
         try {
+            $sSequence = $this->sequence->getSequence();
             $aPattern = [
                 "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
             ];
@@ -184,77 +162,59 @@ class SequenceManager
 
 
     /**
-     * Calculates the molecular weight of a sequence.
-     * @return boolean|real
+     * Computes the molecular weight of a particular sequence.
+     * @param   string        $sMolType     The nucleic acid sequence to expand
+     * @param   string        $sLimit       Upper or Lowerlimit
+     * @return  float | bool                The molecular weight, upper or lower limit
+     * @throws  \Exception
      */
-    public function molwt()
+    public function molwt($sMolType, $sLimit = "upperlimit")
     {
-        // Check if characters outside our 20-letter amino alphabet is included in the sequence.
-        if ($this->sequence->getMoltype() == "DNA") {
-            preg_match_all("/[^ACGTMRWSYKVHDBXN]/", $this->sequence->getSequence(), $match);
-            // If there are unknown characters, then do not compute molwt and instead return FALSE.
-            if (count($match[0]) > 0) {
-                return FALSE;
+        try {
+            $sSequence = $this->sequence->getSequence();
+            $sSequence = $this->cleanSequence($sSequence, $sMolType);
+
+            $iLowLimit   = 0;
+            $iUppLimit   = 1;
+            $aMwt        = [0, 0];
+
+            $dna_wts = $this->dnaWts($this->bioapi->getDNAWeight());
+            $rna_wts = $this->rnaWts($this->bioapi->getRNAWeight());
+
+            $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
+            $na_wts = $aAllNaWts[$sMolType];
+
+            $NA_len = $this->seqlen($sSequence);
+            for($i = 0; $i < $NA_len; $i++) {
+                $sNABase = substr($sSequence, $i, 1);
+                $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
+                $aMwt[$iUppLimit] += $na_wts[$sNABase][$iUppLimit];
             }
-        } elseif ($this->sequence->getMoltype() == "RNA") {
-            preg_match_all("/[^ACGUMRWSYKVHDBXN]/", $this->sequence->getSequence(), $match);
-            // If there are unknown characters, then do not compute molwt and instead return FALSE.
-            if (count($match[0]) > 0) {
-                return FALSE;
+
+            $aWater = $this->bioapi->getWater();
+
+            $aMwt[$iLowLimit] += $aWater["weight"];
+            $aMwt[$iUppLimit] += $aWater["weight"];
+
+            if($sLimit == "lowerlimit") {
+                $iWlimit = 1;
             }
-        } elseif ($this->sequence->getMoltype() == "PROTEIN") { // sequence is a protein, so invoke the Protein class' molwt() method.       
-            $prot = new Protein();
-            $prot->setSequence($this->sequence->getSequence());
-            return $prot->molwt();
-        } else {
-            return FALSE; // return FALSE when encountering unknown molecule types		
+            else if($sLimit == "upperlimit") {
+                $iWlimit = 0;
+            }
+
+            return $aMwt[$iWlimit];
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-
-        $lowerlimit = 0;
-        $upperlimit = 1;
-
-        $aMolecules = $this->getTotalmolecules(); // Array with ATGCU nb molecules
-        $aPho       = $this->getPho();
-
-        // the following are single strand molecular weights / base
-        $rna_A_wt = $aMolecules["adenine"] + $aPho["ribo_pho"] - $this->aElements["water"];
-        $rna_C_wt = $aMolecules["cytosine"] + $aPho["ribo_pho"] - $this->aElements["water"];
-        $rna_G_wt = $aMolecules["guanine"] + $aPho["ribo_pho"] - $this->aElements["water"];
-        $rna_U_wt = $aMolecules["uracil"] + $aPho["ribo_pho"] - $this->aElements["water"];
-
-        $dna_A_wt = $aMolecules["adenine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
-        $dna_C_wt = $aMolecules["cytosine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
-        $dna_G_wt = $aMolecules["guanine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
-        $dna_T_wt = $aMolecules["thymine"] + $aPho["deoxy_pho"] - $this->aElements["water"];
-
-        $dna_wts = $this->dnaWts($dna_A_wt, $dna_C_wt, $dna_G_wt, $dna_T_wt);
-        $rna_wts = $this->rnaWts($rna_A_wt, $rna_C_wt, $rna_G_wt, $rna_U_wt);
-
-        $all_na_wts = array("DNA" => $dna_wts, "RNA" => $rna_wts);
-        $na_wts = $all_na_wts[$this->sequence->getMoltype()];
-
-        $weight_lower_bound += $this->aElements["water"];
-        $weight_upper_bound += $this->aElements["water"];
-
-        $mwt = array(0, 0);
-        $NA_len = $this->seqlen();
-        for($i = 0; $i < $NA_len; $i++) {
-            $NA_base = substr($this->sequence->getSequence(), $i, 1);
-            $mwt[$lowerlimit] += $na_wts[$NA_base][$lowerlimit];
-            $mwt[$upperlimit] += $na_wts[$NA_base][$upperlimit];
-        }
-        $mwt_water = 18.015;
-        $mwt[$lowerlimit] += $mwt_water;
-        $mwt[$upperlimit] += $mwt_water;
-        return $mwt;
     }
 
 
     /**
-     * Counts the number of codons (trios of base-pairs) in a DNA/RNA sequence.
-     * @return int
+     * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
+     * @return  int     The number of codons within a sequence, expressed as an non-negative integer.
      */
-    public function count_codons()
+    public function countCodons()
     {
         $aFeatures = $this->sequence->getFeatures();
         $codstart = (isset($aFeatures["CDS"]["/codon_start"])) ? $aFeatures["CDS"]["/codon_start"] : 1;
@@ -262,17 +222,24 @@ class SequenceManager
         return $codcount;
     }
 
-
     /**
-     * @param int $start
-     * @param int $count
-     * @return Sequence
+     * Creates a new sequence object with a sequence that is a substring of another.
+     * @param   int         $iStart         The position in the original sequence from which we will begin extracting
+     * the subsequence; the position is expressed as a zero-based index.
+     * @param   int         $iCount         The number of "letters" to include in the subsequence, starting from the
+     * position specified by the $start parameter.
+     * @return  bool|string     String sequence.
+     * @throws  \Exception
      */
-    public function subseq($start, $count)
+    public function subSeq($iStart, $iCount)
     {
-        $newseq = new Sequence();
-        $newseq->setSequence(substr($this->sequence->getSequence(), $start, $count));
-        return $newseq;
+        try {
+            $sSequence = $this->sequence->getSequence();
+            $newSeq = substr($sSequence, $iStart, $iCount);
+            return $newSeq;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
+        }
     }
 
 
@@ -289,6 +256,10 @@ class SequenceManager
     {
         $outer = array();
         $pf = $this->patfreq($pattern, $options);
+
+        dump($pf);
+
+
         $haystack = $this->sequence->getSequence();
         if (strtoupper($options) == "I") {
             $haystack = strtoupper($haystack);
@@ -406,9 +377,9 @@ class SequenceManager
      * 
      * @return int
      */
-    public function seqlen()
+    public function seqlen($sSequence)
     {
-        return strlen($this->sequence->getSequence());
+        return strlen($sSequence);
     }
 
 
@@ -825,25 +796,25 @@ class SequenceManager
     private function getTotalmolecules()
     {
         $aMolecules = [];
-        $aMolecules["adenine"] = (5 * $this->aElements["carbone"]) 
-                + (5 * $this->aElements["nitrate"]) 
-                + (5 * $this->aElements["hydrogene"]);
-        $aMolecules["guanine"] = (5 * $this->aElements["carbone"]) 
-                + (5 * $this->aElements["nitrate"]) 
-                + (1 * $this->aElements["oxygene"]) 
-                + (5 * $this->aElements["hydrogene"]);
-        $aMolecules["cytosine"] = (4 * $this->aElements["carbone"]) 
-                + (3 * $this->aElements["nitrate"]) 
-                + (1 * $this->aElements["oxygene"]) 
-                + (5 * $this->aElements["hydrogene"]);
-        $aMolecules["thymine"] = (5 * $this->aElements["carbone"]) 
-                + (2 * $this->aElements["nitrate"]) 
-                + (2 * $this->aElements["oxygene"]) 
-                + (6 * $this->aElements["hydrogene"]);
-        $aMolecules["uracil"] = (4 * $this->aElements["carbone"]) 
-                + (2 * $this->aElements["nitrate"]) 
-                + (2 * $this->aElements["oxygene"]) 
-                + (4 * $this->aElements["hydrogene"]);
+        $aMolecules["adenine"] = (5 * $this->bioapi->getElements()["carbone"])
+                + (5 * $this->bioapi->getElements()["nitrate"])
+                + (5 * $this->bioapi->getElements()["hydrogene"]);
+        $aMolecules["guanine"] = (5 * $this->bioapi->getElements()["carbone"])
+                + (5 * $this->bioapi->getElements()["nitrate"])
+                + (1 * $this->bioapi->getElements()["oxygene"])
+                + (5 * $this->bioapi->getElements()["hydrogene"]);
+        $aMolecules["cytosine"] = (4 * $this->bioapi->getElements()["carbone"])
+                + (3 * $this->bioapi->getElements()["nitrate"])
+                + (1 * $this->bioapi->getElements()["oxygene"])
+                + (5 * $this->bioapi->getElements()["hydrogene"]);
+        $aMolecules["thymine"] = (5 * $this->bioapi->getElements()["carbone"])
+                + (2 * $this->bioapi->getElements()["nitrate"])
+                + (2 * $this->bioapi->getElements()["oxygene"])
+                + (6 * $this->bioapi->getElements()["hydrogene"]);
+        $aMolecules["uracil"] = (4 * $this->bioapi->getElements()["carbone"])
+                + (2 * $this->bioapi->getElements()["nitrate"])
+                + (2 * $this->bioapi->getElements()["oxygene"])
+                + (4 * $this->bioapi->getElements()["hydrogene"]);
         return $aMolecules;
     }
 
@@ -857,16 +828,16 @@ class SequenceManager
         $aMolecules = [];
         
         $aMolecules["ribo_pho"] = 
-                (5 * $this->aElements["carbone"]) 
-                + (7 * $this->aElements["oxygene"]) 
-                + (9 * $this->aElements["hydrogene"]) 
-                + (1 * $this->aElements["phosphore"]);
+                (5 * $this->bioapi->getElements()["carbone"])
+                + (7 * $this->bioapi->getElements()["oxygene"])
+                + (9 * $this->bioapi->getElements()["hydrogene"])
+                + (1 * $this->bioapi->getElements()["phosphore"]);
         
         $aMolecules["deoxy_pho"] = 
-                (5 * $this->aElements["carbone"]) 
-                + (6 * $this->aElements["oxygene"]) 
-                + (9 * $this->aElements["hydrogene"]) 
-                + (1 * $this->aElements["phosphore"]);
+                (5 * $this->bioapi->getElements()["carbone"])
+                + (6 * $this->bioapi->getElements()["oxygene"])
+                + (9 * $this->bioapi->getElements()["hydrogene"])
+                + (1 * $this->bioapi->getElements()["phosphore"]);
         
         return $aMolecules;
     }
@@ -883,20 +854,20 @@ class SequenceManager
     {
        switch($letter2) {
             case "U":
-                return $this->aCodons["Valine"][$format]; // GU*
+                return $this->bioapi->getAminosOnlyLetters()["Valine"][$format]; // GU*
             case "C":
-                return $this->aCodons["Alanine"][$format]; // GC*
+                return $this->bioapi->getAminosOnlyLetters()["Alanine"][$format]; // GC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Aspartic_acid"][$format]; // GAU or GAC
+                        return $this->bioapi->getAminosOnlyLetters()["Aspartic_acid"][$format]; // GAU or GAC
                     case "A":
                     case "G":
-                        return $this->aCodons["Glutamic_acid"][$format]; // GAA or GAG
+                        return $this->bioapi->getAminosOnlyLetters()["Glutamic_acid"][$format]; // GAA or GAG
                 }
             case "G":
-                return $this->aCodons["Glycine"][$format]; // GG*
+                return $this->bioapi->getAminosOnlyLetters()["Glycine"][$format]; // GG*
         }
     }
 
@@ -914,29 +885,29 @@ class SequenceManager
             case "U":
                 switch($letter3) {
                     case "G":
-                        return $this->aCodons["Methionine"][$format]; // AUG
+                        return $this->bioapi->getAminosOnlyLetters()["Methionine"][$format]; // AUG
                     default:
-                        return $this->aCodons["Isoleucine"][$format]; // AU* - G
+                        return $this->bioapi->getAminosOnlyLetters()["Isoleucine"][$format]; // AU* - G
                 }
             case "C":
-                return $this->aCodons["Threonine"][$format]; // AC*
+                return $this->bioapi->getAminosOnlyLetters()["Threonine"][$format]; // AC*
             case "A":
                 switch($letter3) {
                 case "U":
                 case "C":
-                    return $this->aCodons["Asparagine"][$format]; // AAU / AAC
+                    return $this->bioapi->getAminosOnlyLetters()["Asparagine"][$format]; // AAU / AAC
                 case "A":
                 case "G":
-                    return $this->aCodons["Lysine"][$format]; // AAA / AAG
+                    return $this->bioapi->getAminosOnlyLetters()["Lysine"][$format]; // AAA / AAG
             }
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Serine"][$format]; // AGU / AGC
+                        return $this->bioapi->getAminosOnlyLetters()["Serine"][$format]; // AGU / AGC
                     case "A":
                     case "G":
-                        return $this->aCodons["Arginine"][$format]; // AGA / AGG
+                        return $this->bioapi->getAminosOnlyLetters()["Arginine"][$format]; // AGA / AGG
                 }
         }
     }
@@ -953,20 +924,20 @@ class SequenceManager
     {
         switch($letter2) {
             case "U":
-                return $this->aCodons["Leucine"][$format]; // CU*
+                return $this->bioapi->getAminosOnlyLetters()["Leucine"][$format]; // CU*
             case "C":
-                return $this->aCodons["Proline"][$format]; // CC*
+                return $this->bioapi->getAminosOnlyLetters()["Proline"][$format]; // CC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Histidine"][$format]; // CAU / CAC
+                        return $this->bioapi->getAminosOnlyLetters()["Histidine"][$format]; // CAU / CAC
                     case "A":
                     case "G":
-                        return $this->aCodons["Glutamine"][$format]; // CAA / CAG
+                        return $this->bioapi->getAminosOnlyLetters()["Glutamine"][$format]; // CAA / CAG
                 }
             case "G":
-                return $this->aCodons["Arginine"][$format]; // CG*
+                return $this->bioapi->getAminosOnlyLetters()["Arginine"][$format]; // CG*
         }
     }
 
@@ -985,79 +956,87 @@ class SequenceManager
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Phenylalanine"][$format]; // UUU / UUC
+                        return $this->bioapi->getAminosOnlyLetters()["Phenylalanine"][$format]; // UUU / UUC
                     case "A":
                     case "G":
-                        return $this->aCodons["Leucine"][$format]; // UUA / UUG
+                        return $this->bioapi->getAminosOnlyLetters()["Leucine"][$format]; // UUA / UUG
                 }
             case "C":
-                return $this->aCodons["Serine"][$format]; // UC*
+                return $this->bioapi->getAminosOnlyLetters()["Serine"][$format]; // UC*
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Tyrosine"][$format]; // UAU / UAC
+                        return $this->bioapi->getAminosOnlyLetters()["Tyrosine"][$format]; // UAU / UAC
                     case "A":
                     case "G":
-                        return $this->aCodons["STOP"][$format]; // UAA / UAG
+                        return $this->bioapi->getAminosOnlyLetters()["STOP"][$format]; // UAA / UAG
                 }
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->aCodons["Cysteine"][$format]; // UGU / UGC
+                        return $this->bioapi->getAminosOnlyLetters()["Cysteine"][$format]; // UGU / UGC
                     case "A":
-                        return $this->aCodons["STOP"][$format]; // UGA
+                        return $this->bioapi->getAminosOnlyLetters()["STOP"][$format]; // UGA
                     case "G":
-                        return $this->aCodons["Tryptophan"][$format]; // UGG
+                        return $this->bioapi->getAminosOnlyLetters()["Tryptophan"][$format]; // UGG
                 }
         }
     }
-    
-    private function dnaWts($dna_A_wt, $dna_C_wt, $dna_G_wt, $dna_T_wt)
+
+    /**
+     * @param $aDnaWeightsTemp
+     * @return array
+     */
+    private function dnaWts($aDnaWeightsTemp)
     {
-        $dna_wts = [
-            'A' => [$dna_A_wt, $dna_A_wt],          // Adenine
-            'C' => [$dna_C_wt, $dna_C_wt],          // Cytosine
-            'G' => [$dna_G_wt, $dna_G_wt],          // Guanine
-            'T' => [$dna_T_wt, $dna_T_wt],          // Thymine
-            'M' => [$dna_C_wt, $dna_A_wt],          // A or C
-            'R' => [$dna_A_wt, $dna_G_wt],          // A or G
-            'W' => [$dna_T_wt, $dna_A_wt],          // A or T
-            'S' => [$dna_C_wt, $dna_G_wt],          // C or G
-            'Y' => [$dna_C_wt, $dna_T_wt],          // C or T
-            'K' => [$dna_T_wt, $dna_G_wt],          // G or T
-            'V' => [$dna_C_wt, $dna_G_wt],          // A or C or G
-            'H' => [$dna_C_wt, $dna_A_wt],          // A or C or T
-            'D' => [$dna_T_wt, $dna_G_wt],          // A or G or T
-            'B' => [$dna_C_wt, $dna_G_wt],          // C or G or T
-            'X' => [$dna_C_wt, $dna_G_wt],          // G or A or T or C
-            'N' => [$dna_C_wt, $dna_G_wt]           // G or A or T or C
-        ];   
-        return $dna_wts;
+        $aDnaWeights = [
+            'A' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["A"]],  // Adenine
+            'C' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["C"]],  // Cytosine
+            'G' => [$aDnaWeightsTemp["G"], $aDnaWeightsTemp["G"]],  // Guanine
+            'T' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["T"]],  // Thymine
+            'M' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C
+            'R' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["G"]],  // A or G
+            'W' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["A"]],  // A or T
+            'S' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G
+            'Y' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["T"]],  // C or T
+            'K' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // G or T
+            'V' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // A or C or G
+            'H' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C or T
+            'D' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // A or G or T
+            'B' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G or T
+            'X' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // G, A, T or C
+            'N' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]]   // G, A, T or C
+        ];
+        return $aDnaWeights;
     }
-    
-    private function rnaWts($rna_A_wt, $rna_C_wt, $rna_G_wt, $rna_U_wt)
+
+    /**
+     * @param $aRnaWeightsTemp
+     * @return array
+     */
+    private function rnaWts($aRnaWeightsTemp)
     {
-        $rna_wts = [
-            'A' => [$rna_A_wt, $rna_A_wt],      // Adenine
-            'C' => [$rna_C_wt, $rna_C_wt],       // Cytosine
-            'G' => [$rna_G_wt, $rna_G_wt],       // Guanine
-            'U' => [$rna_U_wt, $rna_U_wt],       // Uracil
-            'M' => [$rna_C_wt, $rna_A_wt],       // A or C
-            'R' => [$rna_A_wt, $rna_G_wt],       // A or G
-            'W' => [$rna_U_wt, $rna_A_wt],       // A or U
-            'S' => [$rna_C_wt, $rna_G_wt],       // C or G
-            'Y' => [$rna_C_wt, $rna_U_wt],       // C or U
-            'K' => [$rna_U_wt, $rna_G_wt],       // G or U
-            'V' => [$rna_C_wt, $rna_G_wt],       // A or C or G
-            'H' => [$rna_C_wt, $rna_A_wt],       // A or C or U
-            'D' => [$rna_U_wt, $rna_G_wt],       // A or G or U
-            'B' => [$rna_C_wt, $rna_G_wt],       // C or G or U
-            'X' => [$rna_C_wt, $rna_G_wt],       // G or A or U or C
-            'N' => [$rna_C_wt, $rna_G_wt]        // G or A or U or C
+        $aRnaWeights = [
+            'A' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["A"]],  // Adenine
+            'C' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["C"]],  // Cytosine
+            'G' => [$aRnaWeightsTemp["G"], $aRnaWeightsTemp["G"]],  // Guanine
+            'U' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["U"]],  // Uracil
+            'M' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C
+            'R' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["G"]],  // A or G
+            'W' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["A"]],  // A or U
+            'S' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G
+            'Y' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["U"]],  // C or U
+            'K' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // G or U
+            'V' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // A or C or G
+            'H' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C or U
+            'D' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // A or G or U
+            'B' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G or U
+            'X' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // G, A, U or C
+            'N' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]]   // G, A, U or C
         ];
         
-        return $rna_wts;
+        return $aRnaWeights;
     }
 }
