@@ -163,16 +163,16 @@ class SequenceManager
 
     /**
      * Computes the molecular weight of a particular sequence.
-     * @param   string        $sMolType     The nucleic acid sequence to expand
      * @param   string        $sLimit       Upper or Lowerlimit
      * @return  float | bool                The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sMolType, $sLimit = "upperlimit")
+    public function molwt($sLimit = "upperlimit")
     {
         try {
             $sSequence = $this->sequence->getSequence();
-            $sSequence = $this->cleanSequence($sSequence, $sMolType);
+            $sMolType  = $this->sequence->getMoltype();
+            $this->cleanSequence($sSequence, $sMolType);
 
             $iLowLimit   = 0;
             $iUppLimit   = 1;
@@ -185,6 +185,7 @@ class SequenceManager
             $na_wts = $aAllNaWts[$sMolType];
 
             $NA_len = $this->seqlen($sSequence);
+
             for($i = 0; $i < $NA_len; $i++) {
                 $sNABase = substr($sSequence, $i, 1);
                 $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
@@ -213,6 +214,7 @@ class SequenceManager
     /**
      * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
      * @return  int     The number of codons within a sequence, expressed as an non-negative integer.
+     * @todo : test after
      */
     public function countCodons()
     {
