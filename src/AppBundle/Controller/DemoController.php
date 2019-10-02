@@ -150,7 +150,6 @@ class DemoController extends Controller
         $sequenceAlignmentManager->addSequence($oMySuperSeq);
         // Dropping a sequence
         $sequenceAlignmentManager->deleteSequence("sp|O09185|P53_CRIGR");
-        dump($sequenceAlignmentManager);
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
@@ -189,10 +188,13 @@ class DemoController extends Controller
         //dump($sExpandNa);
 
         $sMolWt = $sequenceManager->molwt("upperlimit");
-        dump($sMolWt);
+        //dump($sMolWt);
 
         $sCoupe = $sequenceManager->subSeq(2,8);
-        dump($sCoupe);
+        //dump($sCoupe);
+
+        $test = $sequenceManager->patPos("TTT");
+        dump($test);
 
         return $this->render('demo/playwithsequencies.html.twig',
             []
