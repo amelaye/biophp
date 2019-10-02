@@ -173,21 +173,26 @@ class DemoController extends Controller
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
         $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
+        $oSequence->setMolType("DNA");
 
-        //$sequenceManager->setSequence($oSequence);
-        $aComplement = $sequenceManager->complement($oSequence->getSequence(), "DNA");
+        $sequenceManager->setSequence($oSequence);
+
+        //$aComplement = $sequenceManager->complement("DNA");
         // dump($aComplement);
-        $sHalfStr = $sequenceManager->halfSequence("GATTAG", 0);
+        //$sHalfStr = $sequenceManager->halfSequence("GATTAG", 0);
         //dump($sHalfStr);
 
-        $sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
+        //$sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
         //dump($sBridge);
 
-        $sExpandNa = $sequenceManager->expandNa("GATTAGSW");
+        //$sExpandNa = $sequenceManager->expandNa("GATTAGSW");
         //dump($sExpandNa);
 
-        $sMolWt = $sequenceManager->molwt($oSequence->getSequence(), "DNA", "upperlimit");
+        $sMolWt = $sequenceManager->molwt("upperlimit");
         dump($sMolWt);
+
+        $sCoupe = $sequenceManager->subSeq(2,8);
+        dump($sCoupe);
 
         return $this->render('demo/playwithsequencies.html.twig',
             []

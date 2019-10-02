@@ -227,8 +227,9 @@ class MeltingTemperatureManager
         try {
             $oSequence = new Sequence();
             $oSequence->setSequence($sSequence);
+            $oSequence->setMoltype($sMoltype);
             $this->sequenceManager->setSequence($oSequence);
-            $fMwt = $this->sequenceManager->molwt($sMoltype, $sLimit);
+            $fMwt = $this->sequenceManager->molwt($sLimit);
             return $fMwt;
         } catch (\Exception $e) {
             throw new \Exception($e);
