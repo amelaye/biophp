@@ -138,15 +138,15 @@ class SequenceManager
     /**
      * Returns the expansion of a nucleic acid sequence, replacing special wildcard symbols 
      * with the proper regular expression.
+     * @param   string         $sSequence   The sequence
      * @return  string                      An "expanded" string where special metacharacters are replaced by the
      * appropriate regular expression.  For example, an N or X is replaced by the dot (.) meta-character, an R is
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa()
+    public function expandNa($sSequence)
     {
         try {
-            $sSequence = $this->sequence->getSequence();
             $aPattern = [
                 "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
             ];
@@ -244,43 +244,43 @@ class SequenceManager
         }
     }
 
-
     /**
      * Returns a two-dimensional associative array where each key is a substring matching a 
      * given pattern, and each value is an array of positional indexes which indicate the location of
      * each occurrence of the substring (needle) in the larger string (haystack). This DOES NOT allow 
      * for pattern overlaps.
-     * @param type $pattern
-     * @param type $options
-     * @return array  - value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
+     * @param       string      $sPattern        The pattern to locate
+     * @param       string      $sOptions        If set to "I", pattern-matching will be case-insensitive.
+     * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
+     * @throws      \Exception
      */
-    public function patpos($pattern, $options = "I")
+    public function patPos($sPattern, $sOptions = "I")
     {
-        $outer = array();
-        $pf = $this->patfreq($pattern, $options);
+        try {
 
-        dump($pf);
+        }
+        $aOuter = [];
+        $aPatFreq = $this->patFreq($sPattern, $sOptions);
 
-
-        $haystack = $this->sequence->getSequence();
-        if (strtoupper($options) == "I") {
-            $haystack = strtoupper($haystack);
+        $sSequence = $this->sequence->getSequence();
+        if (strtoupper($sOptions) == "I") {
+            $sSequence = strtoupper($sSequence);
         }
 
-        foreach($pf as $key=>$value) {
-            if ($options == "I") {
-                $key = strtoupper($key);
+        foreach($aPatFreq as $skey => $iValue) {
+            if ($sOptions == "I") {
+                $skey = strtoupper($skey);
             }
-            $inner = array();
-            $start = 0;
-            for($i = 0; $i < $value; $i++) {
-                $lastpos = strpos($haystack, $key, $start);
-                array_push($inner, $lastpos);
-                $start = $lastpos + strlen($key);
+            $aInner = [];
+            $iStart = 0;
+            for($i = 0; $i < $iValue; $i++) {
+                $iLastPos = strpos($sSequence, $skey, $iStart);
+                array_push($aInner, $iLastPos);
+                $iStart = $iLastPos + strlen($skey);
             }
-            $outer[$key] = $inner;
+            $aOuter[$skey] = $aInner;
         }
-        return $outer;
+        return $aOuter;
     }
 
 
@@ -288,10 +288,10 @@ class SequenceManager
      * Similar to patpos() except that this allows for overlapping patterns.
      * Return value format: (index1, index2, ... )
      * Return value sample: ( 0, 8, 17, 29)
-     * @param type $pattern
-     * @param type $options
-     * @param type $cutpos
-     * @return type
+     * @param   string $pattern         The pattern to locate
+     * @param   type $options
+     * @param   type $cutpos
+     * @return  type
      */
     public function patposo($pattern, $options = "I", $cutpos = 1)
     {
@@ -300,7 +300,7 @@ class SequenceManager
         if (strtoupper($options) == "I") {
             $haystack = strtoupper($haystack);
         }
-        $pf = $this->patfreq($pattern, $options);
+        $pf = $this->patFreq($pattern, $options);
         $relpos_r = array();
         $currentpos = -1 * $cutpos;
         $lastpos = -1 * $cutpos;
@@ -343,35 +343,48 @@ class SequenceManager
      * Returns a one-dimensional associative array where each key is a substring matching the
      * given pattern, and  each value is the frequency count of the substring within the larger string.
      * Return value example: ( "GAATTC" => 3, "ATAT" => 4, ... )
-     * @param type $pattern
-     * @param type $options
-     * @return type
+     * @param   string      $sPattern     The pattern to search for and tally.
+     * @param   string      $sOptions     If set to "I", pattern-matching and tallying will be case-insensitive.
+     * Passing anything else would cause it to be case-sensitive.
+     * @return  array                     The function returns an array of the form:
+     * ( substring1 => frequency1, substring2 => frequency2, ... )
+     * @throws  \Exception
      */
-    public function patfreq($pattern, $options = "I")
+    public function patFreq($sPattern, $sOptions = "I")
     {
-        $match = $this->findpattern($pattern, $options);
-        return array_count_values($match[0]);
+        $sMatch = $this->findpattern($sPattern, $sOptions);
+        return array_count_values($sMatch[0]);
     }
 
-
     /**
-     * Findpattern returns: ( "GCG", "GCG", "GCG" ) if pattern is exactly "GCG".
-     * @param type $pattern
-     * @param type $options
-     * @return type
+     * Returns a one-dimensional array enumerating each occurrence or instance of a given
+     * pattern in a larger string or sequence.  This returns the actual substring (that
+     * matches the pattern) itself.
+     * @example Findpattern returns: ( "GCG", "GCG", "GCG" ) if pattern is exactly "GCG".
+     * @param   string      $sPattern      The pattern to search for
+     * @param   string      $sOptions      If set to "I", pattern-matching will be case-insensitive. Passing
+     * anything else would cause the pattern-matching to be case-sensitive.
+     * @return  array                      A one-dimensional array
+     * @throws  \Exception
      */
-    public function findpattern($pattern, $options = "I")
+    public function findPattern($sPattern, $sOptions = "I")
     {
-        if (firstChar($pattern) == "_") {
-            $pattern = getpattern($pattern);
+        try {
+            if (strtoupper($sOptions) == "I") {
+                preg_match_all(
+                    "/" . $this->expandNa(strtoupper($sPattern)) . "/",
+                    strtoupper($this->sequence->getSequence()),
+                    $sMatch);
+            } else {
+                preg_match_all(
+                    "/" . $this->expandNa($sPattern) . "/",
+                    $this->sequence->getSequence(),
+                    $sMatch);
+            }
+            return $sMatch;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-
-        if (strtoupper($options) == "I") {
-            preg_match_all("/" . expand_na(strtoupper($pattern)) . "/", strtoupper($this->sequence->getSequence()), $match);
-        } else {
-            preg_match_all("/" . expand_na($pattern) . "/", $this->sequence->getSequence(), $match);
-        }
-        return $match;
     }
 
 
