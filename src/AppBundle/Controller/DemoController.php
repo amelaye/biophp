@@ -187,26 +187,35 @@ class DemoController extends Controller
         //$sExpandNa = $sequenceManager->expandNa("GATTAGSW");
         //dump($sExpandNa);
 
-        $sMolWt = $sequenceManager->molwt("upperlimit");
+        //$sMolWt = $sequenceManager->molwt("upperlimit");
         //dump($sMolWt);
 
-        $sCoupe = $sequenceManager->subSeq(2,25);
+        //$sCoupe = $sequenceManager->subSeq(2,25);
         //dump($sCoupe);
 
-        $test = $sequenceManager->patPos("TTT");
+        //$test = $sequenceManager->patPos("TTT");
         //dump($test);
 
-        $test = $sequenceManager->patPoso("TTT");
+        //$test = $sequenceManager->patPoso("TTT");
         //dump($test);
 
-        $symfreq = $sequenceManager->symFreq("A");
+        //$symfreq = $sequenceManager->symFreq("A");
         //dump($symfreq);
 
-        $codon = $sequenceManager->getCodon(3);
+        //$codon = $sequenceManager->getCodon(3);
         //dump($codon);
 
-        $translate = $sequenceManager->translate();
-        dump($translate);
+        //$translate = $sequenceManager->translate();
+        //dump($translate);
+
+        //$charge = $sequenceManager->charge("GAVLIFYWKRH");
+        //dump($charge);
+
+        //$charge = $sequenceManager->chemicalGroup("GAVLIFYWKRH");
+        //dump($charge);
+
+        $testPalindrome = $sequenceManager->findPalindrome("", 2, 2);
+        dump($testPalindrome);
 
         return $this->render('demo/playwithsequencies.html.twig',
             []

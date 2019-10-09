@@ -9,6 +9,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Sequence;
+use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;
 
 /**
@@ -20,6 +21,7 @@ use AppBundle\Traits\SequenceTrait;
 class SequenceManager
 {
     use SequenceTrait;
+    use FormatsTrait;
 
     /**
      * @var Sequence
@@ -30,6 +32,11 @@ class SequenceManager
      * @var Bioapi
      */
     private $bioapi;
+
+    /**
+     * @var array
+     */
+    private $aChemicalGroups;
     
     /**
      * Constructor
@@ -448,7 +455,7 @@ class SequenceManager
      * where each of Phe, Leu, and the other 3-letter "words" represent a single amino acid residue.
      * @throws \Exception
      */
-    public function translate($iReadFrame = 0, $iFormat = 3)
+    public function translate($iReadFrame = 0, $iFormat = 1)
     {
         $iCodonIndex = 0;
         $sResult = "";
@@ -469,21 +476,23 @@ class SequenceManager
         return $sResult;
     }
 
-
     /**
+     * Translates an amino acid sequence into its equivalent "charge sequence".
      * Function charge() accepts a string of amino acids in single-letter format and outputs
      * a string of charges in single-letter format also.  A for acidic, C for basic, and N
      * for neutral.
-     * @param   string $sAminoSeq
-     * @return  string
-     * @throws \Exception
+     * @param   string      $sAminoSeq      A string representing an amino acid sequence (e.g. GAVLIFYWKRH).
+     * If omitted, this is set to the sequence property of the "calling" Seq object. If the
+     * latter is not set either, the function returns the boolean value of FALSE.
+     * @return  string                      A string where each amino acid "letter" is replaced by A
+     * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
+     * @throws  \Exception
      */
     public function charge($sAminoSeq)
     {
         $sChargedSequence = "";
-        $ctr = 0;
-        while(1) {
-            $sAminoLetter = substr($sAminoSeq, $ctr, 1);
+        for($i = 0; $i < strlen($sAminoSeq); $i++) {
+            $sAminoLetter = substr($sAminoSeq, $i, 1);
             switch($sAminoLetter) {
                 case "":
                     break;
@@ -508,26 +517,27 @@ class SequenceManager
                     } else {
                         throw new \Exception("Invalid amino acid symbol in input sequence.");
                     }
-                    break;
             }
-            $ctr++;
         }
         return $sChargedSequence;
     }
 
-
     /**
+     * Returns a string of symbols from an 8-letter alphabet: A, L, M, R, C, H, I, S.
      * Chemical groups: L - GAVLI, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *, X - X
-     * @param   string $sAminoSeq
-     * @return  string
-     * @throws \Exception
+     * @param   string      $sAminoSeq      A string representing an amino acid chain (e.g. GAVLI).
+     * If omitted, this is set to the sequence property of the "calling" Seq object. If the
+     * latter is not set either, the function returns the boolean value of FALSE.
+     * @return  string                      A string where each amino acid "letter" is replaced by one of the
+     * following: A (acidic group), L (aliphatic group), M (amide group), R (aromatic group),
+     * C (basic group), H (hydroxyl), I (iminio group), S (sulfur group).
+     * @throws  \Exception
      */
     public function chemicalGroup($sAminoSeq)
     {
         $sChemgrpSeq = "";
-        $ctr = 0;
-        while(1) {
-            $sAminoLetter = substr($sAminoSeq, $ctr, 1);       
+        for($i = 0; $i < strlen($sAminoSeq); $i++) {
+            $sAminoLetter = substr($sAminoSeq, $i, 1);
             if ($sAminoLetter != "") {
                 if(isset($this->aChemicalGroups[$sAminoLetter])) {
                     $sChemgrpSeq .= $this->aChemicalGroups[$sAminoLetter];
@@ -538,20 +548,21 @@ class SequenceManager
                 } else {
                      throw new \Exception("Invalid amino acid symbol in input sequence.");
                 }
-            }   
-            $ctr++;
+            }
         }
         return $sChemgrpSeq;
     }
 
-
     /**
-     * Tranlates string to RNA codon
-     * @param   string $sCodon
-     * @param   int $iFormat
-     * @return  string
-     * @throws \Exception
-     * @group Legacy
+     * Translates a single codon into an amino acid.
+     * @param   string      $sCodon     A three-letter nucleic acid sequence (each letter can be A, U, G,
+     * or C) which translates into a single amino acid residue.
+     * @param   int         $iFormat    This may be passed the value 1 or 3 and determines the format of
+     * the output string. When omitted, $format is set to 3 by default.
+     * @return  string                  When $format is passed a value of 1, the function returns a single letter.
+     * When $format is passed a value of 3, the function returns a string of three letters. The return value
+     * represents a single amino acid residue.
+     * @throws  \Exception
      */
     public function translateCodon($sCodon, $iFormat = 3)
     {
@@ -592,21 +603,9 @@ class SequenceManager
         return $sTranslation;
     }
 
-
     /**
-     * 
-     * @param   int     $iStart
-     * @param   int     $iCount
-     * @return  string
-     * @group Legacy
-     */
-    public function trunc($iStart, $iCount)
-    {
-        return substr($this->sequence->getSequence(), $iStart, $iCount);
-    }
-
-
-    /**
+     * Returns TRUE if the given sequence or string is a "genetic mirror" which is the same
+     * as a "string palindrome", i.e., a sequence that "looks" the same when read backwards.
      * Definition of terms:
      * MIRROR: The equivalent of a string palindrome in programming terms.
      * Comes in two varieties -- ODD-LENGTH and EVEN-LENGTH.
@@ -614,209 +613,157 @@ class SequenceManager
      * MIRROR SEQUENCE: seq1-[X]-seq2, where X is an optional nucleotide base (A, G, C, or T).
      * Seq1 and Seq2 are called the complementary sequences or halves.
      * For our purposes, we shall call [X] as the "bridge".
-     * @param   string  $string
+     * @param   string      $sSequence      A sequence which we want to test if it is a mirror or not.
      * @return  boolean
-     * @group Legacy
      */
-    public function is_mirror($string = "")
+    public function isMirror($sSequence = null)
     {
-        if (strlen($string) == 0) {
-            $string = $this->sequence->getSequence();
+        if ($sSequence == null) {
+            $sSequence = $this->sequence->getSequence();
         }
-        if ($string == strrev($string)) {
+        if ($sSequence == strrev($sSequence)) {
             return true;
         } else {
             return false;
         }
     }
 
-
     /**
-     * Returns 3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
-     * @param   type $haystack
-     * @param   type $pallen1
-     * @param   type $pallen2
-     * @param   type $options
-     * @return  boolean
-     * @group Legacy
+     * Returns a three-dimensional associative array listing all mirror substrings contained
+     * within a given sequence, and their location (expressed as a zero-based index number).
+     * @param   string    $sSequence    The sequence which will be searched by the method for any occurrences
+     * of mirrors. If omitted, this is set to the sequence property of the current Seq object.
+     * @param   int       $iPallen1     The length of the shortest mirror to look for.
+     * @param   int       $iPallen2     The length of the longest mirror to look for.
+     * @param   string    $sOptions     May be "E" or "O" or "A". If "E" is passed, then the method only looks
+     * for mirrors with even lengths. If "O" is passed, the method only looks for mirrors with odd
+     * lengths.  If "A" is passed, then method looks for all mirrors (odd and even lengths). If
+     * omitted, this is set to "E" by default.
+     * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function find_mirror($haystack, $pallen1, $pallen2 = "", $options = "E")
+    public function findMirror($sSequence, $iPallen1, $iPallen2 = null, $sOptions = "E")
     {
-        $haylen = strlen($haystack);
-        if ($haylen == 0) {
-            $haystack = $this->sequence->getSequence();
-            $haylen = strlen($haystack);
-            if ($haylen == 0) {
+        $iSeqLength = strlen($sSequence);
+        if ($iSeqLength == 0) {
+            $sSequence = $this->sequence->getSequence();
+            $iSeqLength = strlen($sSequence);
+            if ($iSeqLength == 0) {
                 return false;
             }
         }
-        if (!isset($pallen1)) {
-            return false;
-        }
-        if ($pallen1 < 2) {
-            return false;
-        }
-        if ($pallen1 > $haylen) {
-            return false;
-        }
-        if (!is_int($pallen1)) {
-            return false;
-        }
-        // if third parameter (representing upper palindrome length) is missing
-        if ((is_string($pallen2)) && ($pallen2 == "")) {
-            $pallen2 = $pallen1;
-        } elseif (!is_int($pallen2)) {
-            return false;
-        } elseif ($pallen2 < $pallen1) {
-            return false;
-        }
-        $options = strtoupper($options);
-        if (($options != "E") && ($options != "O") && ($options != "A")) {
+        if (!isset($iPallen1) || (isset($iPallen1) && (($iPallen1 < 2)
+                    || ($iPallen1 > $iSeqLength) || (!is_int($iPallen1))))) {
             return false;
         }
 
-        $outer_r = array();
-        for($currlen = $pallen1; $currlen <= $pallen2; $currlen++) {
-            if (($options == "E") && ($currlen % 2 != 0)) { // odd
+        if (!is_int($iPallen2)) {
+            return false;
+        } else {
+            if (($iPallen2 < $iPallen1)) {
+                return false;
+            }
+        }
+
+        if ($iPallen2 == null) { // if third parameter (representing upper palindrome length) is missing
+            $iPallen2 = $iPallen1;
+        }
+
+        $sOptions = strtoupper($sOptions);
+        if (($sOptions != "E") && ($sOptions != "O") && ($sOptions != "A")) {
+            return false;
+        }
+
+        $aOuter = [];
+        for($iCurLength = $iPallen1; $iCurLength <= $iPallen2; $iCurLength++) {
+            if (($sOptions == "E") && ($iCurLength % 2 != 0)) { // odd
                 continue;
             }
-            if (($options == "O") && ($currlen % 2 == 0)) { // even
+            if (($sOptions == "O") && ($iCurLength % 2 == 0)) { // even
                 continue;
             }
-            $string_count = $haylen - $currlen + 1;
-            $middle_r = array();
-            for($j = 0; $j < $string_count; $j++) {
-                $string = substr($haystack, $j, $currlen);
-                if ($this->is_mirror($string)) {
-                    $inner_r = array($string, $j);
-                    $middle_r[] = $inner_r;
+            $sStringCount = $iSeqLength - $iCurLength + 1;
+            $aMiddle = [];
+            for($j = 0; $j < $sStringCount; $j++) {
+                $sSubs = substr($sSequence, $j, $iCurLength);
+                if ($this->isMirror($sSubs)) {
+                    $aInner = array($sSubs, $j);
+                    $aMiddle[] = $aInner;
                 }
             }
-            if (count($middle_r) > 0) {
-                $outer_r[$currlen] = $middle_r;
+            if (count($aMiddle) > 0) {
+                $aOuter[$iCurLength] = $aMiddle;
             }
         }
-        return $outer_r;
+        return $aOuter;
     }
 
-
     /**
+     * Tests if a given sequence is a "genetic palindrome" (as opposed to a "string
+     * palindrome"). A "genetic palindrome" is one where the ends of a sequence are
+     * reverse complements of each other.
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
-     * @param type $string
-     * @return boolean
-     * @group Legacy
+     * @param   string      $sSequence   A sequence which we want to test if it is a genetic palindrome or not.
+     * @return  boolean                  TRUE if the given string is a genetic palindrome, FALSE otherwise.
      */
-    public function is_palindrome($string = "")
+    public function isPalindrome($sSequence = "")
     {
-        if (strlen($string) == 0) {
-            $string = $this->sequence->getSequence();
+        if (strlen($sSequence) == 0) {
+            $sSequence = $this->sequence->getSequence();
         }
         // By definition, odd-lengthed strings cannot be a palindrome.
-        if (is_odd(strlen($string))) {
+        if (is_odd(strlen($sSequence))) {
             return false;
         }
-        $half1 = halfstr($string, 0);
-        $half2 = halfstr($string, 1);
-        if ($half1 == @revcomp($half2)) {
+        $sHalf1 = halfstr($sSequence, 0);
+        $sHalf2 = halfstr($sSequence, 1);
+        if ($sHalf1 == @revcomp($sHalf2)) {
             return true;
         } else {
             return false;
         }
     }
-
 
     /**
      * Returns a two-dimensional array containing palindromic substrings found in a sequence,
      * and their location, in terms of zero-based indices.  E.g. ( ("ATGttCAT", 2), ("ATGccccccCAT", 18), ... )
      * CASES:
-            1) seqlen is not set, pallen is not set. - return FALSE (function error)
-            2) seqlen is set, pallen is set.
-            3) seqlen is set, pallen is not set.
-            4) seqlen is not set, pallen is set.
-     * @param type $haystack
-     * @param type $seqlen
-     * @param type $pallen
-     * @return boolean|array|int
-     * @group Legacy
+     * 1) seqlen is not set, pallen is not set. - return FALSE (function error)
+     * 2) seqlen is set, pallen is set.
+     * 3) seqlen is set, pallen is not set.
+     * 4) seqlen is not set, pallen is set.
+     * @param   string          $sSequence    The sequence to be searched by the method for any genetic palindromes.
+     * If omitted, this is set to the sequence property of the current Seq object.
+     * @param   int             $iSeqLen      The length of the palindromic substring within $sSequence. If omitted,
+     * the method searches for palindromes of whatever length.
+     * @param   string          $iPalLen      The length of one of two palindromic edges in a palindromic substring
+     * within $haystack.
+     * @return  boolean|array   A two-dimensional array of the form:
+     * ((palindrome1, position1), (palindrome2, position2), ...)
+     * @throws  \Exception
      */
-    public function find_palindrome($haystack, $seqlen = "", $pallen = "")
+    public function findPalindrome($sSequence, $iSeqLen = null, $iPalLen = null)
     {
+        $aOuter = [];
+        if($sSequence == "") {
+            $sSequence = $this->sequence->getSequence();
+        }
         // CASE 1) seqlen is not set, pallen is not set. - return FALSE (function error)
-        if (is_blankstr($seqlen) && is_blankstr($pallen)) {
+        if ($iPalLen == null && $iSeqLen == null) {
             return FALSE;
         }
-
         // CASE 2) seqlen is set, pallen is set.
-        if (!(is_blankstr($seqlen)) and !(is_blankstr($pallen))) {
-            $haylen = strlen($haystack);
-            $string_count = $haylen - $seqlen + 1;
-            $outer_r = array();
-            for($j = 0; $j < $string_count; $j++) {
-                $string = substr($haystack, $j, $seqlen);
-                $halfstr_count = (int) (strlen($haystack)/2);
-                $palstring1 = substr($string, 0, $pallen);
-                $palstring2 = right($string, $pallen);
-                if ($palstring1 == revcomp($palstring2, "DNA")) {
-                    $outer_r[] = array($string, $j);
-                }
-            }
-            return $outer_r;
+        if ($iSeqLen != null && $iPalLen != null) {
+            $aOuter = $this->palindrSeqSetAndPallenSet($sSequence, $iSeqLen, $iPalLen);
         }
-
         // CASE 3) seqlen is set, pallen is not set.
-        elseif (!(is_blankstr($seqlen)) and is_blankstr($pallen)) {
-            $haylen = strlen($haystack);
-            $string_count = $haylen - $seqlen + 1;
-            $outer_r = array();
-            for($j = 0; $j < $string_count; $j++) {
-                $string = substr($haystack, $j, $seqlen);
-                $halfstr_count = (int) (strlen($haystack)/2);
-                $palstring = "";
-                for($k = 0; $k < $halfstr_count; $k++) {
-                    $let1 = substr($string, $k, 1);
-                    $let2 = substr($string, strlen($string)-1-$k, 1);
-                    if ($let1 == complement($let2, "DNA")) {
-                        $palstring .= $let1;
-                    } else {
-                        break;
-                    }
-                }
-                if (strlen($palstring) >= 3) {
-                    $inner_r = array($string, $j);
-                    $outer_r[] = $inner_r;
-                }
-            }
-            return $outer_r;
+        elseif ($iSeqLen != null && $iPalLen == null) {
+            $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqLen);
         }
-
         // CASE 4) seqlen is not set, pallen is set.
-        elseif (is_blankstr($seqlen) and !(is_blankstr($pallen))) { 
-            $haylen = strlen($haystack);
-            $string_count = ($haylen - $pallen + 1) - $pallen;
-            $middle_r = array();
-            $outer_r = array();
-            $newseq = new Sequence();
-
-            for($j = 0; $j < $string_count; $j++) {
-                $whole = substr($haystack, $j);
-                $head = substr($whole, 0, $pallen);
-                $tail = substr($whole, $pallen);
-                $tail_len = strlen($tail);
-                $needle = $this->complement(strrev($head), "DNA");
-                $newseq->setSequence($tail);
-                $pos_r = $newseq->patposo($needle, "I");
-                if (count($pos_r) == 0) {
-                    continue;
-                }
-                foreach($pos_r as $posidx) {
-                    // Output: ( ("ATGttCAT", 2), ("ATGccccccCAT", 18), ... )
-                    $seqstr = substr($whole, 0, $posidx + 2*$pallen);
-                    $inner_r = array($seqstr, $j);
-                    array_push($outer_r, $inner_r);
-                }
-            }
+        elseif ($iSeqLen == null && $iPalLen != null) {
+            $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLen);
         }
-        return $outer_r;
+        return $aOuter;
     }
 
 
@@ -827,25 +774,26 @@ class SequenceManager
     private function getTotalmolecules()
     {
         $aMolecules = [];
-        $aMolecules["adenine"] = (5 * $this->bioapi->getElements()["carbone"])
-                + (5 * $this->bioapi->getElements()["nitrate"])
-                + (5 * $this->bioapi->getElements()["hydrogene"]);
-        $aMolecules["guanine"] = (5 * $this->bioapi->getElements()["carbone"])
-                + (5 * $this->bioapi->getElements()["nitrate"])
-                + (1 * $this->bioapi->getElements()["oxygene"])
-                + (5 * $this->bioapi->getElements()["hydrogene"]);
-        $aMolecules["cytosine"] = (4 * $this->bioapi->getElements()["carbone"])
-                + (3 * $this->bioapi->getElements()["nitrate"])
-                + (1 * $this->bioapi->getElements()["oxygene"])
-                + (5 * $this->bioapi->getElements()["hydrogene"]);
-        $aMolecules["thymine"] = (5 * $this->bioapi->getElements()["carbone"])
-                + (2 * $this->bioapi->getElements()["nitrate"])
-                + (2 * $this->bioapi->getElements()["oxygene"])
-                + (6 * $this->bioapi->getElements()["hydrogene"]);
-        $aMolecules["uracil"] = (4 * $this->bioapi->getElements()["carbone"])
-                + (2 * $this->bioapi->getElements()["nitrate"])
-                + (2 * $this->bioapi->getElements()["oxygene"])
-                + (4 * $this->bioapi->getElements()["hydrogene"]);
+        $aElements = $this->bioapi->getElements();
+        $aMolecules["adenine"] = (5 * $aElements["carbone"])
+                + (5 * $aElements["nitrate"])
+                + (5 * $aElements["hydrogene"]);
+        $aMolecules["guanine"] = (5 * $aElements["carbone"])
+                + (5 * $aElements["nitrate"])
+                + (1 * $aElements["oxygene"])
+                + (5 * $aElements["hydrogene"]);
+        $aMolecules["cytosine"] = (4 * $aElements["carbone"])
+                + (3 * $aElements["nitrate"])
+                + (1 * $aElements["oxygene"])
+                + (5 * $aElements["hydrogene"]);
+        $aMolecules["thymine"] = (5 * $aElements["carbone"])
+                + (2 * $aElements["nitrate"])
+                + (2 * $aElements["oxygene"])
+                + (6 * $aElements["hydrogene"]);
+        $aMolecules["uracil"] = (4 * $aElements["carbone"])
+                + (2 * $aElements["nitrate"])
+                + (2 * $aElements["oxygene"])
+                + (4 * $aElements["hydrogene"]);
         return $aMolecules;
     }
 
@@ -857,18 +805,19 @@ class SequenceManager
     private function getPho()
     {
         $aMolecules = [];
+        $aElements = $this->bioapi->getElements();
         
         $aMolecules["ribo_pho"] = 
-                (5 * $this->bioapi->getElements()["carbone"])
-                + (7 * $this->bioapi->getElements()["oxygene"])
-                + (9 * $this->bioapi->getElements()["hydrogene"])
-                + (1 * $this->bioapi->getElements()["phosphore"]);
+                (5 * $aElements["carbone"])
+                + (7 * $aElements["oxygene"])
+                + (9 * $aElements["hydrogene"])
+                + (1 * $aElements["phosphore"]);
         
         $aMolecules["deoxy_pho"] = 
-                (5 * $this->bioapi->getElements()["carbone"])
-                + (6 * $this->bioapi->getElements()["oxygene"])
-                + (9 * $this->bioapi->getElements()["hydrogene"])
-                + (1 * $this->bioapi->getElements()["phosphore"]);
+                (5 * $aElements["carbone"])
+                + (6 * $aElements["oxygene"])
+                + (9 * $aElements["hydrogene"])
+                + (1 * $aElements["phosphore"]);
         
         return $aMolecules;
     }
@@ -960,7 +909,6 @@ class SequenceManager
                 break;
         }
     }
-
 
     /**
      * Codons beginning with C
@@ -1106,5 +1054,94 @@ class SequenceManager
         ];
         
         return $aRnaWeights;
+    }
+
+    /**
+     * Find palindromic sequences when sequence length is SET and pallen SET
+     * @param   string      $sSequence
+     * @param   int         $iSeqlen
+     * @param   int         $pallen
+     * @return  array
+     * @throws  \Exception
+     */
+    private function palindrSeqSetAndPallenSet($sSequence, $iSeqlen, $pallen)
+    {
+        $haylen = strlen($sSequence);
+        $string_count = $haylen - $iSeqlen + 1;
+        $outer_r = [];
+        for($j = 0; $j < $string_count; $j++) {
+            $string = substr($sSequence, $j, $iSeqlen);
+            $palstring1 = substr($string, 0, $pallen);
+            $palstring2 = $this->right($string, $pallen);
+            if ($palstring1 == $this->revCompDNA($palstring2)) {
+                $outer_r[] = array($string, $j);
+            }
+        }
+        return $outer_r;
+    }
+
+    /**
+     * @param $sSequence
+     * @param $seqlen
+     * @return array
+     */
+    private function palindrSeqlenSetAndPalenNotSet($sSequence, $seqlen)
+    {
+        $haylen = strlen($sSequence);
+        $string_count = $haylen - $seqlen + 1;
+        $outer_r = array();
+        for($j = 0; $j < $string_count; $j++) {
+            $string = substr($sSequence, $j, $seqlen);
+            $halfstr_count = (int) (strlen($sSequence)/2);
+            $palstring = "";
+            for($k = 0; $k < $halfstr_count; $k++) {
+                $let1 = substr($string, $k, 1);
+                $let2 = substr($string, strlen($string)-1-$k, 1);
+                if ($let1 == complement($let2, "DNA")) {
+                    $palstring .= $let1;
+                } else {
+                    break;
+                }
+            }
+            if (strlen($palstring) >= 3) {
+                $inner_r = array($string, $j);
+                $outer_r[] = $inner_r;
+            }
+        }
+        return $outer_r;
+    }
+
+    /**
+     * @param $sSequence
+     * @param $pallen
+     * @return array
+     * @throws \Exception
+     */
+    private function palindrSeqlenNotSetAndPalenSet($sSequence, $pallen)
+    {
+        $haylen = strlen($sSequence);
+        $string_count = ($haylen - $pallen + 1) - $pallen;
+        $outer_r = array();
+        $newseq = new Sequence();
+
+        for($j = 0; $j < $string_count; $j++) {
+            $whole = substr($sSequence, $j);
+            $head = substr($whole, 0, $pallen);
+            $tail = substr($whole, $pallen);
+            $tail_len = strlen($tail);
+            $needle = $this->complement(strrev($head), "DNA");
+            $newseq->setSequence($tail);
+            $pos_r = $newseq->patposo($needle, "I");
+            if (count($pos_r) == 0) {
+                continue;
+            }
+            foreach($pos_r as $posidx) {
+                // Output: ( ("ATGttCAT", 2), ("ATGccccccCAT", 18), ... )
+                $seqstr = substr($whole, 0, $posidx + 2*$pallen);
+                $inner_r = array($seqstr, $j);
+                array_push($outer_r, $inner_r);
+            }
+        }
+        return $outer_r;
     }
 }
