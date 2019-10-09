@@ -190,11 +190,23 @@ class DemoController extends Controller
         $sMolWt = $sequenceManager->molwt("upperlimit");
         //dump($sMolWt);
 
-        $sCoupe = $sequenceManager->subSeq(2,8);
+        $sCoupe = $sequenceManager->subSeq(2,25);
         //dump($sCoupe);
 
         $test = $sequenceManager->patPos("TTT");
-        dump($test);
+        //dump($test);
+
+        $test = $sequenceManager->patPoso("TTT");
+        //dump($test);
+
+        $symfreq = $sequenceManager->symFreq("A");
+        //dump($symfreq);
+
+        $codon = $sequenceManager->getCodon(3);
+        //dump($codon);
+
+        $translate = $sequenceManager->translate();
+        dump($translate);
 
         return $this->render('demo/playwithsequencies.html.twig',
             []

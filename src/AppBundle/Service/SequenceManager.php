@@ -3,13 +3,12 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 23 september 2019
+ * Last modified 2nd October 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Sequence;
-use AppBundle\Entity\Protein;
 use AppBundle\Traits\SequenceTrait;
 
 /**
@@ -184,7 +183,7 @@ class SequenceManager
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
 
-            $NA_len = $this->seqlen($sSequence);
+            $NA_len = $this->sequence->getSeqlength();
 
             for($i = 0; $i < $NA_len; $i++) {
                 $sNABase = substr($sSequence, $i, 1);
@@ -220,7 +219,7 @@ class SequenceManager
     {
         $aFeatures = $this->sequence->getFeatures();
         $codstart = (isset($aFeatures["CDS"]["/codon_start"])) ? $aFeatures["CDS"]["/codon_start"] : 1;
-        $codcount = (int) (($this->seqlen() - $codstart + 1)/3);
+        $codcount = (int) (($this->sequence->getSeqlength() - $codstart + 1)/3);
         return $codcount;
     }
 
@@ -257,87 +256,95 @@ class SequenceManager
     public function patPos($sPattern, $sOptions = "I")
     {
         try {
+            $aOuter = [];
+            $aPatFreq = $this->patFreq($sPattern, $sOptions);
 
-        }
-        $aOuter = [];
-        $aPatFreq = $this->patFreq($sPattern, $sOptions);
-
-        $sSequence = $this->sequence->getSequence();
-        if (strtoupper($sOptions) == "I") {
-            $sSequence = strtoupper($sSequence);
-        }
-
-        foreach($aPatFreq as $skey => $iValue) {
-            if ($sOptions == "I") {
-                $skey = strtoupper($skey);
+            $sSequence = $this->sequence->getSequence();
+            if (strtoupper($sOptions) == "I") {
+                $sSequence = strtoupper($sSequence);
             }
-            $aInner = [];
-            $iStart = 0;
-            for($i = 0; $i < $iValue; $i++) {
-                $iLastPos = strpos($sSequence, $skey, $iStart);
-                array_push($aInner, $iLastPos);
-                $iStart = $iLastPos + strlen($skey);
+
+            foreach($aPatFreq as $skey => $iValue) {
+                if ($sOptions == "I") {
+                    $skey = strtoupper($skey);
+                }
+                $aInner = [];
+                $iStart = 0;
+                for($i = 0; $i < $iValue; $i++) {
+                    $iLastPos = strpos($sSequence, $skey, $iStart);
+                    array_push($aInner, $iLastPos);
+                    $iStart = $iLastPos + strlen($skey);
+                }
+                $aOuter[$skey] = $aInner;
             }
-            $aOuter[$skey] = $aInner;
+            return $aOuter;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-        return $aOuter;
     }
-
 
     /**
-     * Similar to patpos() except that this allows for overlapping patterns.
+     * Similar to patPos() except that this allows for overlapping patterns.
      * Return value format: (index1, index2, ... )
      * Return value sample: ( 0, 8, 17, 29)
-     * @param   string $pattern         The pattern to locate
-     * @param   type $options
-     * @param   type $cutpos
-     * @return  type
+     * @param       string     $sPattern        The pattern to locate
+     * @param       string     $sOptions        If set to "I", pattern-matching will be case-insensitive.
+     * Passing anything else would cause it to be case-sensitive.
+     * @param       int        $iCutPos         A non-negative integer specifying where search for the
+     * next pattern will resume, relative to the current matching substring.
+     * @return      array                       One-dimensional array of the form:
+     * ( position1, position2, position3, ... )
+     * where position is a zero-based index indicating the location of the substring within the
+     * larger sequence.  Thus, if substring is found at the very beginning of sequence, its
+     * position is equal to zero (0).
+     * @throws      \Exception
      */
-    public function patposo($pattern, $options = "I", $cutpos = 1)
+    public function patPoso($sPattern, $sOptions = "I", $iCutPos = 1)
     {
-        $outer = array();
-        $haystack = $this->sequence->getSequence();
-        if (strtoupper($options) == "I") {
-            $haystack = strtoupper($haystack);
-        }
-        $pf = $this->patFreq($pattern, $options);
-        $relpos_r = array();
-        $currentpos = -1 * $cutpos;
-        $lastpos = -1 * $cutpos;
-        $ctr = 0;
-        $runsum_start = 0;
-        while(strlen($haystack) >= strlen($pattern)) {
-            $ctr++;
-            if ($ctr == 1) {
-                $start = 0;
-            } else {
-                $start = $lastpos + $cutpos;
+        try {
+            $aAbsPos = [];
+            $sSequence = $this->sequence->getSequence();
+            if (strtoupper($sOptions) == "I") {
+                $sSequence = strtoupper($sSequence);
             }
-            $haystack = substr($haystack, $start);
-            $runsum_start += $start;
-            $minpos = 999999;
-            $found_flag = FALSE;
-            foreach($pf as $key=>$value) {
-                $currentpos = strpos($haystack, $key);
-                if (gettype($currentpos) == "integer") {
-                    $found_flag = TRUE;
-                    if ($currentpos < $minpos) $minpos = $currentpos;
+            $aPatFreq = $this->patFreq($sPattern, $sOptions);
+            $iLastPos = -1 * $iCutPos;
+            $iCtr = 0;
+            $iRunSumStart = 0;
+            while(strlen($sSequence) >= strlen($sPattern)) {
+                $iCtr++;
+                if ($iCtr == 1) {
+                    $iStart = 0;
+                } else {
+                    $iStart = $iLastPos + $iCutPos;
                 }
+                $sSequence = substr($sSequence, $iStart);
+                $iRunSumStart += $iStart;
+                $iMinPos = 999999;
+                $bFoundFlag = false;
+                foreach($aPatFreq as $key => $value) {
+                    $iCurrentPos = strpos($sSequence, $key);
+                    if (gettype($iCurrentPos) == "integer") {
+                        $bFoundFlag = true;
+                        if ($iCurrentPos < $iMinPos) $iMinPos = $iCurrentPos;
+                    }
+                }
+                if (!$bFoundFlag) {
+                    break;
+                }
+                $iCurrentPos = $iMinPos;
+                if ($iCtr == 1) {
+                    $aAbsPos[] = $iCurrentPos;
+                } else {
+                    $aAbsPos[] = $iRunSumStart + $iCurrentPos;
+                }
+                $iLastPos = $iCurrentPos;
             }
-            if (!$found_flag) {
-                break;
-            }
-            $currentpos = $minpos;
-            if ($ctr == 1) {
-                $abspos[] = $currentpos;
-            } else {
-                $abspos[] = $runsum_start + $currentpos;
-            }
-            $lastpos = $currentpos;
+            return $aAbsPos;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
-        return $abspos;
     }
-
 
     /**
      * Returns a one-dimensional associative array where each key is a substring matching the
@@ -387,52 +394,58 @@ class SequenceManager
         }
     }
 
-
     /**
-     * 
-     * @return int
+     * Returns the frequency of a given symbol in the sequence property string. Note that you
+     * can pass this a symbol argument which may be not be part of the sequence's alphabet.
+     * In this case, the method will simply return zero (0) value.
+     * @param   string  $sSymbol    The symbol whose frequency in a sequence we wish to determine.
+     * @return  int                 The frequency (number of occurrences) of a particular symbol in a sequence string.
+     * @throws  \Exception
      */
-    public function seqlen($sSequence)
+    public function symFreq($sSymbol)
     {
-        return strlen($sSequence);
-    }
-
-
-    /**
-     * Note legacy
-     * Apr 10, 2003 - This now returns 0 instead of NULL when
-     * $symbol is not found.  0 is the preferred return value.
-     * @param   string $sSymbol
-     * @return  int
-     */
-    public function symfreq($sSymbol)
-    {
-        $symtally = count_chars(strtoupper($this->sequence->getSequence()), 1);
-        if (!isset($symtally[ord($sSymbol)])) {
-            return 0;
-        } else {
-            return $symtally[ord($sSymbol)];
+        try {
+            $iSymTally = count_chars(strtoupper($this->sequence->getSequence()), 1);
+            if (!isset($iSymTally[ord($sSymbol)])) {
+                return 0;
+            } else {
+                return $iSymTally[ord($sSymbol)];
+            }
+        } catch (\Exception $ex) {
+            throw new \Exception($ex);
         }
     }
 
-
     /**
-     * 
-     * @param   int    $iIndex
-     * @param   int    $iReadFrame
-     * @return  string
+     * Returns the n-th codon in a sequence, with numbering starting at 0.
+     * @param   int    $iIndex          The index number of the codon.
+     * @param   int    $iReadFrame      The reading frame, which may be 0, 1, or 2 only.  If omitted, this
+     * is set to 0 by default.
+     * @return  string                  The n-th codon in the sequence.
      */
     public function getCodon($iIndex, $iReadFrame = 0)
     {
         return strtoupper(substr($this->sequence->getSequence(), ($iIndex * 3) + $iReadFrame, 3));
     }
 
-
     /**
-     *
-     * @param   int $iReadFrame
-     * @param   int $iFormat
-     * @return  string  $sResult
+     * Translates a particular DNA sequence into its protein product sequence, using the given substitution matrix.
+     * @param       int         $iReadFrame     The reading frame (0, 1, or 2) to be used in translating a nucleic
+     * sequence into a protein.
+     * A value of 0 means that the first codon would start at the first "letter" in the sequence,
+     * a value of 1 means that the second codon would start the second "letter" in the sequence,
+     * and so on.  When omitted, this argument is set to reading frame 0 by default.
+     * @param       int         $iFormat        This may be passed the value 1 or 3 and determines the format of the
+     * output string.  Passing 1 would cause translate() to output a string made up of single-letter amino acid
+     * symbols strung together without any space in between. Passing 3 would output a string made up of three-letter
+     * amino acid symbols separated by a space.
+     * @return      string      $sResult
+     * @example When $format is passed a value of 1, the function returns a string of this format:
+     * GAVLISNFYW
+     * where each of G, A, V, and the other letters represent a single amino acid residue.
+     * @example When $format is passed a value of 3, the function returns a string of this format:
+     * Phe Leu Ser Tyr Cys STP
+     * where each of Phe, Leu, and the other 3-letter "words" represent a single amino acid residue.
      * @throws \Exception
      */
     public function translate($iReadFrame = 0, $iFormat = 3)
@@ -545,35 +558,38 @@ class SequenceManager
         if (($iFormat != 3) && ($iFormat != 1)) {
             throw new \Exception("Invalid format parameter.");
         }
+
         if (strlen($sCodon) < 3) {
             if ($iFormat == 3) {
                 return "XXX";
+            } else {
+                return "X";
             }
-        } else {
-            return "X";
         }
 
         $sUpperCodon = strtoupper($sCodon);
-        $sFormtdCodon = ereg_replace("T", "U", $sUpperCodon);
+        $sFormtdCodon = str_replace("T", "U", $sUpperCodon);
         $sLetter1 = substr($sFormtdCodon, 0, 1);
         $sLetter2 = substr($sFormtdCodon, 1, 1);
         $sLetter3 = substr($sFormtdCodon, 2, 1);
 
         switch($sLetter1) {
             case "U":
-                $this->uracileLetters($sLetter2, $sLetter3, $iFormat);
+                $sTranslation = $this->uracileLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "C":
-                $this->cytosineLetters($sLetter2, $sLetter3, $iFormat);
+                $sTranslation = $this->cytosineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "A":
-                $this->adenineLetters($sLetter2, $sLetter3, $iFormat);
+                $sTranslation = $this->adenineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             case "G":
-                $this->guanineLetters($sLetter2, $sLetter3, $iFormat);
+                $sTranslation = $this->guanineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
-        }        
-        return "X";  
+            default:
+                $sTranslation =  "X";
+        }
+        return $sTranslation;
     }
 
 
@@ -867,22 +883,29 @@ class SequenceManager
      */
     private function guanineLetters($letter2, $letter3, $format)
     {
-       switch($letter2) {
+        $aAminos = $this->bioapi->getAminosOnlyLetters();
+        switch($letter2) {
             case "U":
-                return $this->bioapi->getAminosOnlyLetters()["Valine"][$format]; // GU*
+                return $aAminos["Valine"][$format]; // GU*
+                break;
             case "C":
-                return $this->bioapi->getAminosOnlyLetters()["Alanine"][$format]; // GC*
+                return $aAminos["Alanine"][$format]; // GC*
+                break;
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Aspartic_acid"][$format]; // GAU or GAC
+                        return $aAminos["Aspartic acid"][$format]; // GAU or GAC
+                        break;
                     case "A":
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Glutamic_acid"][$format]; // GAA or GAG
+                        return $aAminos["Glutamic acid"][$format]; // GAA or GAG
+                        break;
                 }
+                break;
             case "G":
-                return $this->bioapi->getAminosOnlyLetters()["Glycine"][$format]; // GG*
+                return $aAminos["Glycine"][$format]; // GG*
+                break;
         }
     }
 
@@ -896,34 +919,45 @@ class SequenceManager
      */
     private function adenineLetters($letter2, $letter3, $format)
     {
+        $aAminos = $this->bioapi->getAminosOnlyLetters();
         switch($letter2) {
             case "U":
                 switch($letter3) {
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Methionine"][$format]; // AUG
+                        return $aAminos["Methionine"][$format]; // AUG
+                        break;
                     default:
-                        return $this->bioapi->getAminosOnlyLetters()["Isoleucine"][$format]; // AU* - G
+                        return $aAminos["Isoleucine"][$format]; // AU* - G
+                        break;
                 }
+                break;
             case "C":
-                return $this->bioapi->getAminosOnlyLetters()["Threonine"][$format]; // AC*
+                return $aAminos["Threonine"][$format]; // AC*
+                break;
             case "A":
                 switch($letter3) {
-                case "U":
-                case "C":
-                    return $this->bioapi->getAminosOnlyLetters()["Asparagine"][$format]; // AAU / AAC
-                case "A":
-                case "G":
-                    return $this->bioapi->getAminosOnlyLetters()["Lysine"][$format]; // AAA / AAG
-            }
+                    case "U":
+                    case "C":
+                        return $aAminos["Asparagine"][$format]; // AAU / AAC
+                        break;
+                    case "A":
+                    case "G":
+                        return $aAminos["Lysine"][$format]; // AAA / AAG
+                        break;
+                }
+            break;
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Serine"][$format]; // AGU / AGC
+                        return $aAminos["Serine"][$format]; // AGU / AGC
+                        break;
                     case "A":
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Arginine"][$format]; // AGA / AGG
+                        return $aAminos["Arginine"][$format]; // AGA / AGG
+                        break;
                 }
+                break;
         }
     }
 
@@ -937,22 +971,29 @@ class SequenceManager
      */
     private function cytosineLetters($letter2, $letter3, $format)
     {
+        $aAminos = $this->bioapi->getAminosOnlyLetters();
         switch($letter2) {
             case "U":
-                return $this->bioapi->getAminosOnlyLetters()["Leucine"][$format]; // CU*
+                return $aAminos["Leucine"][$format]; // CU*
+                break;
             case "C":
-                return $this->bioapi->getAminosOnlyLetters()["Proline"][$format]; // CC*
+                return $aAminos["Proline"][$format]; // CC*
+                break;
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Histidine"][$format]; // CAU / CAC
+                        return $aAminos["Histidine"][$format]; // CAU / CAC
+                        break;
                     case "A":
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Glutamine"][$format]; // CAA / CAG
+                        return $aAminos["Glutamine"][$format]; // CAA / CAG
+                        break;
                 }
+                break;
             case "G":
-                return $this->bioapi->getAminosOnlyLetters()["Arginine"][$format]; // CG*
+                return $aAminos["Arginine"][$format]; // CG*
+                break;
         }
     }
 
@@ -966,37 +1007,49 @@ class SequenceManager
      */
     private function uracileLetters($letter2, $letter3, $format)
     {
+        $aAminos = $this->bioapi->getAminosOnlyLetters();
         switch($letter2) {
             case "U":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Phenylalanine"][$format]; // UUU / UUC
+                        return $aAminos["Phenylalanine"][$format]; // UUU / UUC
+                        break;
                     case "A":
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Leucine"][$format]; // UUA / UUG
+                        return $aAminos["Leucine"][$format]; // UUA / UUG
+                        break;
                 }
+                break;
             case "C":
-                return $this->bioapi->getAminosOnlyLetters()["Serine"][$format]; // UC*
+                return $aAminos["Serine"][$format]; // UC*
+                break;
             case "A":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Tyrosine"][$format]; // UAU / UAC
+                        return $aAminos["Tyrosine"][$format]; // UAU / UAC
+                        break;
                     case "A":
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["STOP"][$format]; // UAA / UAG
+                        return $aAminos["STOP"][$format]; // UAA / UAG
+                        break;
                 }
+                break;
             case "G":
                 switch($letter3) {
                     case "U":
                     case "C":
-                        return $this->bioapi->getAminosOnlyLetters()["Cysteine"][$format]; // UGU / UGC
+                        return $aAminos["Cysteine"][$format]; // UGU / UGC
+                        break;
                     case "A":
-                        return $this->bioapi->getAminosOnlyLetters()["STOP"][$format]; // UGA
+                        return $aAminos["STOP"][$format]; // UGA
+                        break;
                     case "G":
-                        return $this->bioapi->getAminosOnlyLetters()["Tryptophan"][$format]; // UGG
+                        return $aAminos["Tryptophan"][$format]; // UGG
+                        break;
                 }
+                break;
         }
     }
 
