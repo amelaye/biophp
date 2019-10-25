@@ -1,29 +1,45 @@
 <?php
 /**
  * Protein Managing
- * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
+ * Last modified 25 october 2019
  */
 namespace AppBundle\Service;
 
+use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Protein;
 
+/**
+ * This class represents the end-products of genetic processes of translation and
+ * transcription -- the proteins.  While a protein's primary structure (its amino
+ * acid sequence) is ably represented as a Sequence object, its secondary and tertiary
+ * structures are not. This is the main rationale for creating a separate Protein
+ * class.
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Service
+ */
 class ProteinManager
 {
     private $protein;
+
     private $wts;
 
     /**
      * Constructor
-     * @param Protein $oProtein
-     * @param array $aWts
+     * @param Bioapi $bioapi
      */
-    public function __construct(Protein $oProtein, $aWts)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->protein  = $oProtein;
-        $this->wts      = $aWts;
+        $this->wts      = $bioapi->getAminoweights();
+    }
+
+    /**
+     * @param $oProtein
+     */
+    public function setProtein(Protein $oProtein)
+    {
+        $this->protein = $oProtein;
     }
 
     /**

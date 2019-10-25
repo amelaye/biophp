@@ -1,13 +1,17 @@
 <?php
 /**
  * Protein Entity
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 14 february 2019
  */
 namespace AppBundle\Entity;
 
+/**
+ * Class Protein
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Entity
+ */
 class Protein
 {
     /**
