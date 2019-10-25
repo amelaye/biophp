@@ -8,6 +8,13 @@
  */
 namespace AppBundle\Entity;
 
+/**
+ * An instance of the Sequence class represents a single sequence record in a SeqDB
+ * database object. Usually, we instantiate this with a call to fetch() method
+ * of the SeqDB class.
+ * @package AppBundle\Entity
+ * @todo make a refacto with the detailled structure
+ */
 class Sequence
 {
     private $sId;

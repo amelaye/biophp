@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Controller;
 
+use AppBundle\Service\ProteinManager;
 use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -219,6 +220,20 @@ class DemoController extends Controller
         dump($testPalindrome);
 
         return $this->render('demo/playwithsequencies.html.twig',
+            []
+        );
+    }
+
+    /**
+     * Here is some samples of how to use the functions
+     * @route("/play-with-proteins", name="play_with_proteins")
+     * @param ProteinManager $proteinManager
+     * @return Response
+     * @throws \Exception
+     */
+    public function playwithproteinsAction(ProteinManager $proteinManager)
+    {
+        return $this->render('demo/playwithproteins.html.twig',
             []
         );
     }

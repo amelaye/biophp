@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 9 October 2019
+ * Last modified 25 October 2019
  */
 namespace AppBundle\Service;
 
@@ -14,7 +14,6 @@ use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;
 
 /**
- * Class SequenceManager - Functions for sequences
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -46,7 +45,8 @@ class SequenceManager implements SequenceInterface
      */
     public function __construct($aChemicalGroups, Bioapi $bioapi) {
         $this->aChemicalGroups  = $aChemicalGroups;
-        $this->bioapi           = $bioapi;
+        $this->elements           = $bioapi->getElements();
+        dump($this->elements);
     }
 
     /**
