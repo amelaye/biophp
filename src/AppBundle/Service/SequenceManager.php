@@ -952,8 +952,9 @@ class SequenceManager implements SequenceInterface
     }
 
     /**
-     * @param $aDnaWeightsTemp
-     * @return array
+     * Finds the weigth of aminos
+     * @param   $aDnaWeightsTemp
+     * @return  array
      */
     private function dnaWts($aDnaWeightsTemp)
     {
@@ -979,8 +980,9 @@ class SequenceManager implements SequenceInterface
     }
 
     /**
-     * @param $aRnaWeightsTemp
-     * @return array
+     * Finds the weigth of aminos
+     * @param   array   $aRnaWeightsTemp
+     * @return  array
      */
     private function rnaWts($aRnaWeightsTemp)
     {
@@ -1007,10 +1009,10 @@ class SequenceManager implements SequenceInterface
     }
 
     /**
-     * Find palindromic sequences when sequence length is SET and pallen SET
-     * @param   string      $sSequence
-     * @param   int         $iSeqlen
-     * @param   int         $iPalLen
+     * Find palindromic sequences when sequence length is SET and palindrome length is SET
+     * @param   string      $sSequence  Sequence to analyse
+     * @param   int         $iSeqlen    Sequence length
+     * @param   int         $iPalLen    Palindrome length
      * @return  array
      * @throws  \Exception
      */
@@ -1031,10 +1033,11 @@ class SequenceManager implements SequenceInterface
     }
 
     /**
-     * @param string $sSequence
-     * @param int $iSeqlength
-     * @return array
-     * @throws \Exception
+     * Find palindromic sequences when sequence length only is SET
+     * @param   string      $sSequence      Sequence to analyse
+     * @param   int         $iSeqlength     Sequence length
+     * @return  array
+     * @throws  \Exception
      */
     private function palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqlength)
     {
@@ -1064,35 +1067,34 @@ class SequenceManager implements SequenceInterface
     }
 
     /**
-     * @param $sSequence
-     * @param $pallen
-     * @return array
-     * @throws \Exception
+     * Find palindromic sequences when palindrome length only is SET
+     * @param   string      $sSequence      Sequence to analyse
+     * @param   int         $iPalLength     Palindrome length
+     * @return  array
+     * @throws  \Exception
      */
-    private function palindrSeqlenNotSetAndPalenSet($sSequence, $pallen)
+    private function palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLength)
     {
-        $haylen = strlen($sSequence);
-        $string_count = ($haylen - $pallen + 1) - $pallen;
-        $outer_r = array();
-        //$newseq = new Sequence();
+        $iHayLength = strlen($sSequence);
+        $iSeqLength = ($iHayLength - $iPalLength + 1) - $iPalLength;
+        $aOuter = array();
 
-        for($j = 0; $j < $string_count; $j++) {
-            $whole = substr($sSequence, $j);
-            $head = substr($whole, 0, $pallen);
-            $tail = substr($whole, $pallen);
-            $needle = $this->complement("DNA", strrev($head));
-            $this->sequence->setSequence($tail);
-            $pos_r = $this->patPoso($needle, "I");
-            if (count($pos_r) == 0) {
+        for($j = 0; $j < $iSeqLength; $j++) {
+            $sSeqToAnalyse = substr($sSequence, $j);
+            $sHeadSeq = substr($sSeqToAnalyse, 0, $iPalLength);
+            $sTailSeq = substr($sSeqToAnalyse, $iPalLength);
+            $sNeedle = $this->complement("DNA", strrev($sHeadSeq));
+            $aPos = $this->patPoso($sTailSeq, $sNeedle, "I");
+            if (count($aPos) == 0) {
                 continue;
             }
-            foreach($pos_r as $posidx) {
+            foreach($aPos as $iPosIdx) {
                 // Output: ( ("ATGttCAT", 2), ("ATGccccccCAT", 18), ... )
-                $seqstr = substr($whole, 0, $posidx + 2*$pallen);
-                $inner_r = array($seqstr, $j);
-                array_push($outer_r, $inner_r);
+                $sSubSeq = substr($sSeqToAnalyse, 0, $iPosIdx + 2 * $iPalLength);
+                $aInner = array($sSubSeq, $j);
+                array_push($aOuter, $aInner);
             }
         }
-        return $outer_r;
+        return $aOuter;
     }
 }
