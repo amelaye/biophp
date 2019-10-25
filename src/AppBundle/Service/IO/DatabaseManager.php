@@ -3,9 +3,9 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 10 april 2019
+ * Last modified 25 october 2019
  */
-namespace AppBundle\Service;
+namespace AppBundle\Service\IO;
 
 
 use AppBundle\Interfaces\RecordingOnLocalDb;
@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
  * We provide the create() method to explicitly create a new database.
  * We provide the use() or open() method to explicitly use an existing database.
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class DatabaseManager implements RecordingOnLocalDb
 {

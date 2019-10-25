@@ -3,9 +3,9 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 15 september 2019
+ * Last modified 25 october 2019
  */
-namespace AppBundle\Service;
+namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Interfaces\ParseDatabaseInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 /**
  * Class ParseSwissprotManager
  * @package AppBundle\Service
- * @author Amélie DUVERNET aka Amelaye
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ParseSwissprotManager implements ParseDatabaseInterface
 {
