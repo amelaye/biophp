@@ -190,7 +190,7 @@ class DemoController extends Controller
         //$sMolWt = $sequenceManager->molwt("upperlimit");
         //dump($sMolWt);
 
-        //$sCoupe = $sequenceManager->subSeq(2,25);
+        $sCoupe = $sequenceManager->subSeq(2,100);
         //dump($sCoupe);
 
         //$test = $sequenceManager->patPos("TTT");
@@ -214,7 +214,8 @@ class DemoController extends Controller
         //$charge = $sequenceManager->chemicalGroup("GAVLIFYWKRH");
         //dump($charge);
 
-        $testPalindrome = $sequenceManager->findPalindrome("", 2, 2);
+        //$testPalindrome = $sequenceManager->findPalindrome("", 2, 2);
+        $testPalindrome = $sequenceManager->findPalindrome($sCoupe, null,2);
         dump($testPalindrome);
 
         return $this->render('demo/playwithsequencies.html.twig',

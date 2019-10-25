@@ -3,12 +3,13 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2nd October 2019
+ * Last modified 9 October 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Sequence;
+use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;
 
@@ -18,7 +19,7 @@ use AppBundle\Traits\SequenceTrait;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class SequenceManager
+class SequenceManager implements SequenceInterface
 {
     use SequenceTrait;
     use FormatsTrait;
@@ -64,11 +65,13 @@ class SequenceManager
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws  \Exception
      */
-    public function complement($sMoltypeUnfrmtd)
+    public function complement($sMoltypeUnfrmtd, $sSequence = null)
     {
         try {
             $sComplement = "";
-            $sSequence = $this->sequence->getSequence();
+            if($sSequence == null) {
+                $sSequence = $this->sequence->getSequence();
+            }
 
             if (!isset($sMoltypeUnfrmtd)) {
                 $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
@@ -294,6 +297,7 @@ class SequenceManager
      * Similar to patPos() except that this allows for overlapping patterns.
      * Return value format: (index1, index2, ... )
      * Return value sample: ( 0, 8, 17, 29)
+     * @param       string     $sSequence       The sequence to analyze
      * @param       string     $sPattern        The pattern to locate
      * @param       string     $sOptions        If set to "I", pattern-matching will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
@@ -306,11 +310,14 @@ class SequenceManager
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso($sPattern, $sOptions = "I", $iCutPos = 1)
+    public function patPoso($sSequence, $sPattern, $sOptions = "I", $iCutPos = 1)
     {
         try {
+            if ($sSequence == null) {
+                $sSequence = $this->sequence->getSequence();
+            }
+
             $aAbsPos = [];
-            $sSequence = $this->sequence->getSequence();
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
             }
@@ -766,63 +773,6 @@ class SequenceManager
         return $aOuter;
     }
 
-
-    /**
-     * For each nucleotide, finds the number of molecules
-     * @return array
-     */
-    private function getTotalmolecules()
-    {
-        $aMolecules = [];
-        $aElements = $this->bioapi->getElements();
-        $aMolecules["adenine"] = (5 * $aElements["carbone"])
-                + (5 * $aElements["nitrate"])
-                + (5 * $aElements["hydrogene"]);
-        $aMolecules["guanine"] = (5 * $aElements["carbone"])
-                + (5 * $aElements["nitrate"])
-                + (1 * $aElements["oxygene"])
-                + (5 * $aElements["hydrogene"]);
-        $aMolecules["cytosine"] = (4 * $aElements["carbone"])
-                + (3 * $aElements["nitrate"])
-                + (1 * $aElements["oxygene"])
-                + (5 * $aElements["hydrogene"]);
-        $aMolecules["thymine"] = (5 * $aElements["carbone"])
-                + (2 * $aElements["nitrate"])
-                + (2 * $aElements["oxygene"])
-                + (6 * $aElements["hydrogene"]);
-        $aMolecules["uracil"] = (4 * $aElements["carbone"])
-                + (2 * $aElements["nitrate"])
-                + (2 * $aElements["oxygene"])
-                + (4 * $aElements["hydrogene"]);
-        return $aMolecules;
-    }
-
-
-    /**
-     * For each component, finds the number of molecules
-     * @return array
-     */
-    private function getPho()
-    {
-        $aMolecules = [];
-        $aElements = $this->bioapi->getElements();
-        
-        $aMolecules["ribo_pho"] = 
-                (5 * $aElements["carbone"])
-                + (7 * $aElements["oxygene"])
-                + (9 * $aElements["hydrogene"])
-                + (1 * $aElements["phosphore"]);
-        
-        $aMolecules["deoxy_pho"] = 
-                (5 * $aElements["carbone"])
-                + (6 * $aElements["oxygene"])
-                + (9 * $aElements["hydrogene"])
-                + (1 * $aElements["phosphore"]);
-        
-        return $aMolecules;
-    }
-
-
     /**
      * Codons beginning with G
      * @param   string  $letter2
@@ -1060,55 +1010,57 @@ class SequenceManager
      * Find palindromic sequences when sequence length is SET and pallen SET
      * @param   string      $sSequence
      * @param   int         $iSeqlen
-     * @param   int         $pallen
+     * @param   int         $iPalLen
      * @return  array
      * @throws  \Exception
      */
-    private function palindrSeqSetAndPallenSet($sSequence, $iSeqlen, $pallen)
+    private function palindrSeqSetAndPallenSet($sSequence, $iSeqlen, $iPalLen)
     {
-        $haylen = strlen($sSequence);
-        $string_count = $haylen - $iSeqlen + 1;
-        $outer_r = [];
-        for($j = 0; $j < $string_count; $j++) {
-            $string = substr($sSequence, $j, $iSeqlen);
-            $palstring1 = substr($string, 0, $pallen);
-            $palstring2 = $this->right($string, $pallen);
-            if ($palstring1 == $this->revCompDNA($palstring2)) {
-                $outer_r[] = array($string, $j);
+        $iHayLen = strlen($sSequence);
+        $iCount = $iHayLen - $iSeqlen + 1;
+        $aOuter = [];
+        for($j = 0; $j < $iCount; $j++) {
+            $sSubs = substr($sSequence, $j, $iSeqlen);
+            $sPalString1 = substr($sSubs, 0, $iPalLen);
+            $sPalString2 = $this->right($sSubs, $iPalLen);
+            if ($sPalString1 == $this->revCompDNA($sPalString2)) {
+                $aOuter[] = array($sSubs, $j);
             }
         }
-        return $outer_r;
+        return $aOuter;
     }
 
     /**
-     * @param $sSequence
-     * @param $seqlen
+     * @param string $sSequence
+     * @param int $iSeqlength
      * @return array
+     * @throws \Exception
      */
-    private function palindrSeqlenSetAndPalenNotSet($sSequence, $seqlen)
+    private function palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqlength)
     {
-        $haylen = strlen($sSequence);
-        $string_count = $haylen - $seqlen + 1;
-        $outer_r = array();
-        for($j = 0; $j < $string_count; $j++) {
-            $string = substr($sSequence, $j, $seqlen);
-            $halfstr_count = (int) (strlen($sSequence)/2);
-            $palstring = "";
-            for($k = 0; $k < $halfstr_count; $k++) {
-                $let1 = substr($string, $k, 1);
-                $let2 = substr($string, strlen($string)-1-$k, 1);
-                if ($let1 == complement($let2, "DNA")) {
-                    $palstring .= $let1;
+        $iHayLength = strlen($sSequence);
+        $iCount = $iHayLength - $iSeqlength + 1;
+        $aOuter = array();
+
+        for($j = 0; $j < $iCount; $j++) {
+            $sSubSeq = substr($sSequence, $j, $iSeqlength);
+            $iHalfSeq = (int) (strlen($sSequence)/2);
+            $sPalindrome = "";
+            for($k = 0; $k < $iHalfSeq; $k++) {
+                $sLetter1 = substr($sSubSeq, $k, 1);
+                $sLetter2 = substr($sSubSeq, strlen($sSubSeq)-1-$k, 1);
+                if ($sLetter1 == $this->complement("DNA", $sLetter2)) {
+                    $sPalindrome .= $sLetter1;
                 } else {
                     break;
                 }
             }
-            if (strlen($palstring) >= 3) {
-                $inner_r = array($string, $j);
-                $outer_r[] = $inner_r;
+            if (strlen($sPalindrome) >= 3) {
+                $aInner = array($sSubSeq, $j);
+                $aOuter[] = $aInner;
             }
         }
-        return $outer_r;
+        return $aOuter;
     }
 
     /**
@@ -1122,16 +1074,15 @@ class SequenceManager
         $haylen = strlen($sSequence);
         $string_count = ($haylen - $pallen + 1) - $pallen;
         $outer_r = array();
-        $newseq = new Sequence();
+        //$newseq = new Sequence();
 
         for($j = 0; $j < $string_count; $j++) {
             $whole = substr($sSequence, $j);
             $head = substr($whole, 0, $pallen);
             $tail = substr($whole, $pallen);
-            $tail_len = strlen($tail);
-            $needle = $this->complement(strrev($head), "DNA");
-            $newseq->setSequence($tail);
-            $pos_r = $newseq->patposo($needle, "I");
+            $needle = $this->complement("DNA", strrev($head));
+            $this->sequence->setSequence($tail);
+            $pos_r = $this->patPoso($needle, "I");
             if (count($pos_r) == 0) {
                 continue;
             }
