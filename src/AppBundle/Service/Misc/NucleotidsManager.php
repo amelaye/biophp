@@ -6,14 +6,14 @@
  * Last modified 19 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
-namespace AppBundle\Service;
+namespace AppBundle\Service\Misc;
 
 /**
  * Class NucleotidsManager
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class NucleotidsManager
+abstract class NucleotidsManager
 {
     /**
      * Will count number of A, C, G and T bases in the sequence
@@ -21,7 +21,7 @@ class NucleotidsManager
      * @return  int
      * @throws \Exception
      */
-    public function countACGT($sSequence)
+    public static function CountACGT($sSequence)
     {
         try {
             $cg = substr_count($sSequence,"A")
@@ -64,7 +64,7 @@ class NucleotidsManager
      * @return int
      * @throws \Exception
      */
-    public function countCG($c)
+    public static function CountCG($c)
     {
         try {
             $cg = substr_count($c,"G")

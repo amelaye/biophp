@@ -3,17 +3,17 @@
  * Mathematics Functions
  * Inspired by BioPHP's project biophp.org
  * Created 28 march  2019
- * Last modified 28 march 2019
+ * Last modified 25 october 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
-namespace AppBundle\Service;
+namespace AppBundle\Service\Misc;
 
 /**
  * Class MathematicsManager
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class MathematicsManager
+abstract class MathematicsManager
 {
     /**
      * Calculates the mean
@@ -21,7 +21,7 @@ class MathematicsManager
      * @return      float|int
      * @throws      \Exception
      */
-    public function mean($data)
+    public static function Mean($data)
     {
         try {
             $sum = 0;
@@ -48,7 +48,7 @@ class MathematicsManager
      * @return      float|int
      * @throws      \Exception
      */
-    public function median($data)
+    public static function Median($data)
     {
         try {
             sort($data);
@@ -69,10 +69,10 @@ class MathematicsManager
      * @return      float|int
      * @throws      \Exception
      */
-    public function variance($data)
+    public static function Variance($data)
     {
         try {
-            $mean = $this->mean($data);
+            $mean = self::Mean($data);
             $sum = 0;
             $numValidElements = 0;
 

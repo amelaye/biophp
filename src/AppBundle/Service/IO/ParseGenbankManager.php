@@ -3,9 +3,9 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 10 april 2019
+ * Last modified 25 october 2019
  */
-namespace AppBundle\Service;
+namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Interfaces\ParseDatabaseInterface;
@@ -13,7 +13,7 @@ use AppBundle\Interfaces\ParseDatabaseInterface;
 /**
  * Class ParseGenbankManager
  * @package AppBundle\Service
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ParseGenbankManager implements ParseDatabaseInterface
 {
