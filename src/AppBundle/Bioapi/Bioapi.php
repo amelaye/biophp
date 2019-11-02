@@ -307,6 +307,26 @@ class Bioapi
         return $newData;
     }
 
+    public function getTypeIIEndonucleasesForRest()
+    {
+        $uri = '/type_i_i_endonucleases';
+        $response = $this->bioapiClient->get($uri);
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $newData = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $sPattern = $MaVariable = str_replace("'", "", $elem["recognitionPattern"]);
+            $sPattern = $MaVariable = str_replace("_", "", $sPattern);
+            $newData[$elem["id"]] = [
+                $sPattern,
+                $elem["cleavagePosUpper"],
+            ];
+        }
+
+        return $newData;
+    }
+
     public function getTypeIIsEndonucleases()
     {
         $uri = '/type_i_is_endonucleases';

@@ -24,6 +24,16 @@ class SequenceManager implements SequenceInterface
     use FormatsTrait;
 
     /**
+     * @var array
+     */
+    private $aChemicalGroups;
+
+    /**
+     * @var array
+     */
+    private $elements;
+
+    /**
      * @var Sequence
      */
     private $sequence;
@@ -32,11 +42,6 @@ class SequenceManager implements SequenceInterface
      * @var Bioapi
      */
     private $bioapi;
-
-    /**
-     * @var array
-     */
-    private $aChemicalGroups;
     
     /**
      * Constructor
@@ -45,8 +50,8 @@ class SequenceManager implements SequenceInterface
      */
     public function __construct($aChemicalGroups, Bioapi $bioapi) {
         $this->aChemicalGroups  = $aChemicalGroups;
-        $this->elements           = $bioapi->getElements();
-        dump($this->elements);
+        $this->elements         = $bioapi->getElements();
+        $this->bioapi           = $bioapi;
     }
 
     /**
@@ -56,6 +61,11 @@ class SequenceManager implements SequenceInterface
     public function setSequence($oSequence)
     {
         $this->sequence = $oSequence;
+    }
+
+    public function getSequence()
+    {
+        return $this->sequence;
     }
 
     /**
