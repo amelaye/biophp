@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Protein;
 use AppBundle\Service\ProteinManager;
 use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -233,6 +234,18 @@ class DemoController extends Controller
      */
     public function playwithproteinsAction(ProteinManager $proteinManager)
     {
+        $sProtein = "ARNDCEQGHARNDCEQGHILKMFPSTWYVXARNDKMFPSTWYVXARNDKMFPSTWYVXARNDCEQGHARNDCEQGHHARNDCEQGHILKMFPSTW";
+        $sProtein .= "YVXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPSTHARNDCEQGHILKMFPSTWY";
+        $sProtein .= "VXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPST";
+
+        $oProtein = new Protein();
+        $oProtein->setName("toto");
+        $oProtein->setSequence($sProtein);
+        $proteinManager->setProtein($oProtein);
+
+        dump($proteinManager->seqlen());
+        dump($proteinManager->molwt());
+
         return $this->render('demo/playwithproteins.html.twig',
             []
         );
