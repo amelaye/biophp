@@ -13,7 +13,7 @@ namespace AppBundle\Service\Misc;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-abstract class MathematicsManager
+class MathematicsManager
 {
     /**
      * Calculates the mean

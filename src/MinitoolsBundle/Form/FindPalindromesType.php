@@ -1,37 +1,26 @@
 <?php
 /**
  * Form FindPalindromesType
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 march 2019
- * Last modified 24 june 2019
+ * Last modified 2 november 2019
  */
 namespace MinitoolsBundle\Form;
 
-use AppBundle\Service\NucleotidsManager;
-use AppBundle\Validator\SequenceRecognition;
+use MinitoolsBundle\Validator\SequenceRecognition;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * Class FindPalindromesType
+ * @package MinitoolsBundle\Form
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class FindPalindromesType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    private $nucleotidsManager;
-
-    /**
-     * NucleotidsManager constructor.
-     * @param   NucleotidsManager   $nucleotidsManager
-     */
-    public function __construct(NucleotidsManager $nucleotidsManager)
-    {
-        $this->nucleotidsManager = $nucleotidsManager;
-    }
-
     /**
      * Form builder
      * @param   FormBuilderInterface  $builder

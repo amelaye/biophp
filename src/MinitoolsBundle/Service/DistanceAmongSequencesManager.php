@@ -3,13 +3,13 @@
  * DistanceAmongSequencesManager
  * Freely inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 23 june 2019
+ * Last modified 2 november 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
-use AppBundle\Service\OligosManager;
+use AppBundle\Service\Misc\OligosManager;
 use AppBundle\Traits\SequenceTrait;
 
 /**
@@ -37,22 +37,16 @@ class DistanceAmongSequencesManager
     private $cases = null;
 
     /**
-     * @var OligosManager
-     */
-    private $oligosManager;
-
-    /**
      * @var array
      */
     private $dnaComplements;
 
     /**
      * DistanceAmongSequencesManager constructor.
-     * @param OligosManager $oligosManager
+     * @param   Bioapi  $bioapi
      */
-    public function __construct(OligosManager $oligosManager, Bioapi $bioapi)
+    public function __construct(Bioapi $bioapi)
     {
-        $this->oligosManager = $oligosManager;
         $this->dnaComplements = $bioapi->getDNAComplement();
     }
 
@@ -99,7 +93,7 @@ class DistanceAmongSequencesManager
                 }
                 $seq_and_revseq = $val." ".strtoupper($valRevert);
 
-                $oligos = $this->oligosManager->findOligos(
+                $oligos = OligosManager::FindOligos(
                     $seq_and_revseq,
                     $len
                 );

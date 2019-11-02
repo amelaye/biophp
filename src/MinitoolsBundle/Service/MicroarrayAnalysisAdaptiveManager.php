@@ -3,11 +3,11 @@
  * MicroarrayAnalysisAdaptive
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 15 august 2019
+ * Last modified 2 november 2019
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Service\MathematicsManager;
+use AppBundle\Service\Misc\MathematicsManager;
 use Exception;
 
 /**
@@ -17,17 +17,6 @@ use Exception;
  */
 class MicroarrayAnalysisAdaptiveManager
 {
-    private $oMathematicsManager;
-
-    /**
-     * MicroarrayAnalysisAdaptiveManager constructor.
-     * @param MathematicsManager $oMathematicsManager
-     */
-    public function __construct(MathematicsManager $oMathematicsManager)
-    {
-        $this->oMathematicsManager = $oMathematicsManager;
-    }
-
     /**
      * Processes the Microarray data
      * @param       string      $file
@@ -52,9 +41,9 @@ class MicroarrayAnalysisAdaptiveManager
             if(!empty($aData4)) {
                 foreach($aData4 as $key => $val) {
                     $aResults[$key]["n_data"] = count($aData4[$key][1]);
-                    $aResults[$key]["median1"] = $this->oMathematicsManager->median($aData4[$key][1]);
+                    $aResults[$key]["median1"] = MathematicsManager::Median($aData4[$key][1]);
                     $aResults[$key]["medlog1"] = round(log10($aResults[$key]["median1"]),3);
-                    $aResults[$key]["median2"] = $this->oMathematicsManager->median($aData4[$key][2]);
+                    $aResults[$key]["median2"] = MathematicsManager::Median($aData4[$key][2]);
                     $aResults[$key]["medlog2"] = round(log10($aResults[$key]["median2"]),3);
                 }
             }

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Service\OligosManager;
+use AppBundle\Service\Misc\OligosManager;
 use AppBundle\Traits\OligoTrait;
 
 use MinitoolsBundle\Form\ChaosGameRepresentationType;
@@ -88,13 +88,11 @@ class ChaosGameRepresentationController extends Controller
      * @param Request $request
      * @param ChaosGameRepresentationManager $chaosGameReprentationManager
      * @param $form
-     * @param $oligosManager
      * @return Response
      * @throws \Exception
      */
     public function fcgrCompute(Request $request,
-                                ChaosGameRepresentationManager $chaosGameReprentationManager,
-                                $form, $oligosManager)
+                                ChaosGameRepresentationManager $chaosGameReprentationManager, $form)
     {
         $aOligos = $for_map = null;
         $isMap = $isFreq = false;
@@ -107,7 +105,7 @@ class ChaosGameRepresentationController extends Controller
 
             // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
             //      frequencies are saved to an array named $aOligos
-            $aOligos = $oligosManager->findOligos($aSeqData["sequence"], $aSeqData["length"]);
+            $aOligos = OligosManager::FindOligos($aSeqData["sequence"], $aSeqData["length"]);
 
             // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
             //      check the function for more info on parameters

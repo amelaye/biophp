@@ -46,15 +46,15 @@ services:
         arguments:
             - "%chemical_groups%"
 
-    AppBundle\Twig\AppExtension:
+    MinitoolsBundle\Twig\AppExtension:
         arguments:
             - '%protein_colors%'
             - '%generic_colors%'
 
-    AppBundle\Twig\MinitoolsExtension:
+    MinitoolsBundle\Twig\MinitoolsExtension:
         tags: ['twig.extension']
 
-    AppBundle\Twig\PhpExtension:
+    MinitoolsBundle\Twig\PhpExtension:
         tags: ['twig.extension']
 
     MinitoolsBundle\Service\ChaosGameRepresentationManager:

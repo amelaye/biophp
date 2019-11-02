@@ -3,7 +3,7 @@
  * Demo controller : you can be inspired by this to create you own scripts
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 february 2019
+ * Last modified 2 november 2019
  */
 namespace AppBundle\Controller;
 
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceManager;
-use AppBundle\Service\DatabaseManager;
+use AppBundle\Service\IO\DatabaseManager;
 
 /**
  * Class DemoController

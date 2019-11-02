@@ -3,13 +3,13 @@
  * MeltingTemperatureManager
  * Inspired by BioPHP's project biophp.org
  * Created 26 february 2019
- * Last modified 15 august 2019
+ * Last modified 2 november 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Entity\Sequence;
-use AppBundle\Service\NucleotidsManager;
+use AppBundle\Service\Misc\NucleotidsManager;
 use AppBundle\Service\SequenceManager;
 use AppBundle\Bioapi\Bioapi;
 
@@ -20,11 +20,6 @@ use AppBundle\Bioapi\Bioapi;
  */
 class MeltingTemperatureManager
 {
-    /**
-     * @var NucleotidsManager
-     */
-    private $nucleotidsManager;
-
     /**
      * @var Bioapi
      */
@@ -37,17 +32,14 @@ class MeltingTemperatureManager
 
     /**
      * MeltingTemperatureManager constructor.
-     * @param   NucleotidsManager   $nucleotidsManager      Service counting nucleotids
      * @param   SequenceManager     $sequenceManager
      * @param   Bioapi              $bioapi
      */
     public function __construct(
-        NucleotidsManager $nucleotidsManager,
         SequenceManager $sequenceManager,
         Bioapi $bioapi
     )
     {
-        $this->nucleotidsManager    = $nucleotidsManager;
         $this->sequenceManager      = $sequenceManager;
         $this->bioapi               = $bioapi;
     }
@@ -60,7 +52,7 @@ class MeltingTemperatureManager
      */
     public function calculateCG($primer)
     {
-        $cg = round(100 * $this->nucleotidsManager->countCG($primer) / strlen($primer),1);
+        $cg = round(100 * NucleotidsManager::CountCG($primer) / strlen($primer),1);
         return $cg;
     }
 
@@ -88,7 +80,7 @@ class MeltingTemperatureManager
     public function basicCalculations($bBasic, $primer, &$countATGC, &$tmMin, &$tmMax)
     {
         if($bBasic) {
-            $countATGC = $this->nucleotidsManager->countACGT($primer);
+            $countATGC = NucleotidsManager::CountACGT($primer);
             $tmMin = $this->tmMin($primer);
             $tmMax = $this->tmMax($primer);
         }

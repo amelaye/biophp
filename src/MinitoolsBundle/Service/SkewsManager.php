@@ -8,7 +8,7 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Service\OligosManager;
+use AppBundle\Service\Misc\OligosManager;
 use AppBundle\Traits\SequenceTrait;
 
 /**
@@ -19,13 +19,6 @@ use AppBundle\Traits\SequenceTrait;
 class SkewsManager
 {
     use SequenceTrait;
-
-    private $oligosManager;
-
-    public function __construct(OligosManager $oligosManager)
-    {
-        $this->oligosManager = $oligosManager;
-    }
 
     /**
      * Will  compare oligonucleotide frequencies in all the sequence
@@ -44,7 +37,7 @@ class SkewsManager
             $aDistances = [];
 
             // search for oligos in the complet sequence
-            $aOligosX = $this->oligosManager->findOligos($sSequence, $iOskew);
+            $aOligosX = OligosManager::FindOligos($sSequence, $iOskew);
             $iSeqLength = strlen($sSequence);
             $iPeriod = ceil($iSeqLength / 1400);
             if($iPeriod < 10) {
@@ -57,7 +50,7 @@ class SkewsManager
                 while ($i < $iSeqLength - $iWindow + 1) {
                     $sSequenceCut = substr($sSequence, $i, $iWindow)." ".strrev(substr($sequence2, $i, $iWindow));
                     // compute oligonucleotide frequencies in window
-                    $aOligosY = $this->oligosManager->findOligos($sSequenceCut, $iOskew);
+                    $aOligosY = OligosManager::FindOligos($sSequenceCut, $iOskew);
                     // compute distance between complete sequence and window
                     $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
                     $i += $iPeriod;
@@ -68,7 +61,7 @@ class SkewsManager
                 while($i < $iSeqLength - $iWindow + 1) {
                     $sSequenceCut = substr($sSequence, $i ,$iWindow);
                     // compute oligonucleotide frequencies in window
-                    $aOligosY = $this->oligosManager->findOligos($sSequenceCut, $iOskew);
+                    $aOligosY = OligosManager::FindOligos($sSequenceCut, $iOskew);
                     // compute distance between complete sequence and window
                     $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
                     $i += $iPeriod;

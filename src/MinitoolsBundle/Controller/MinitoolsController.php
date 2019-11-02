@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use AppBundle\Service\OligosManager;
+use AppBundle\Service\Misc\OligosManager;
 use AppBundle\Traits\OligoTrait;
 
 use MinitoolsBundle\Form\OligoNucleotideFrequencyType;
@@ -208,11 +208,10 @@ class MinitoolsController extends Controller
     /**
      * @Route("/minitools/oligonucleotide-frequency", name="oligonucleotide_frequency")
      * @param   Request         $request
-     * @param   OligosManager   $oligosManager
      * @return  Response
      * @throws  \Exception
      */
-    public function oligonucleotideFrequencyAction(Request $request, OligosManager $oligosManager)
+    public function oligonucleotideFrequencyAction(Request $request)
     {
         $aResults = [];
         $iLength = 0;
@@ -227,10 +226,10 @@ class MinitoolsController extends Controller
             // when frequencies at both strands are requested,
             // place sequence and reverse complement of sequence in one line
             if ($formData["strands"] == 2) {
-                $this->createInversion($sSequence, $oligosManager->getDnaComplements());
+                $this->createInversion($sSequence, OligosManager::GetDnaComplements());
             }
 
-            $aResults = $oligosManager->findOligos($sSequence, $iLength);
+            $aResults = OligosManager::FindOligos($sSequence, $iLength);
             ksort($aResults);
         }
 
