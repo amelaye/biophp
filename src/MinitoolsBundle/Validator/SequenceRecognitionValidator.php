@@ -4,9 +4,9 @@
  * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 june 2019
- * Last modified 24 june 2019
+ * Last modified 2 november 2019
  */
-namespace AppBundle\Validator;
+namespace MinitoolsBundle\Validator;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

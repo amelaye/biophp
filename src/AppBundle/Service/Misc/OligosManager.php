@@ -3,7 +3,7 @@
  * Oligo-Nucleotids Functions
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
- * Last modified 25 october 2019
+ * Last modified 2 november 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service\Misc;
@@ -16,7 +16,7 @@ use AppBundle\Interfaces\OligosInterface;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-abstract class OligosManager implements OligosInterface
+class OligosManager implements OligosInterface
 {
     private static $dnaComplements;
 
@@ -29,6 +29,14 @@ abstract class OligosManager implements OligosInterface
         $dnaComplements = $bioapi->getDNAComplement();
         asort($dnaComplements);
         self::$dnaComplements = $dnaComplements;
+    }
+
+    /**
+     * @return array
+     */
+    public static function GetDnaComplements()
+    {
+        return self::$dnaComplements;
     }
 
     /**
@@ -166,25 +174,18 @@ abstract class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public function findOligos7BasesLong($oligos_1step)
+    public static function FindOligos7BasesLong($oligos_1step)
     {
-        $this->base_a = $this->dnaComplements;
-        $this->base_b = $this->dnaComplements;
-        $this->base_c = $this->dnaComplements;
-        $this->base_d = $this->dnaComplements;
-        $this->base_e = $this->dnaComplements;
-        $this->base_f = $this->dnaComplements;
-        $this->base_g = $this->dnaComplements;
-
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = self::$dnaComplements;
         $oligos = [];
 
-        foreach($this->base_a as $key_a => $val_a) {
-            foreach($this->base_b as $key_b => $val_b) {
-                foreach($this->base_c as $key_c => $val_c) {
-                    foreach($this->base_d as $key_d => $val_d) {
-                        foreach($this->base_e as $key_e => $val_e) {
-                            foreach($this->base_f as $key_f => $val_f) {
-                                foreach($this->base_g as $key_g => $val_g) {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            foreach($base_f as $key_f => $val_f) {
+                                foreach($base_g as $key_g => $val_g) {
                                     if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g])) {
                                         $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g];
                                     } else {
@@ -205,27 +206,19 @@ abstract class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public function findOligos8BasesLong($oligos_1step)
+    public static function FindOligos8BasesLong($oligos_1step)
     {
-        $this->base_a = $this->dnaComplements;
-        $this->base_b = $this->dnaComplements;
-        $this->base_c = $this->dnaComplements;
-        $this->base_d = $this->dnaComplements;
-        $this->base_e = $this->dnaComplements;
-        $this->base_f = $this->dnaComplements;
-        $this->base_g = $this->dnaComplements;
-        $this->base_h = $this->dnaComplements;
-
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = self::$dnaComplements;
         $oligos = [];
 
-        foreach($this->base_a as $key_a => $val_a) {
-            foreach($this->base_b as $key_b => $val_b) {
-                foreach($this->base_c as $key_c => $val_c) {
-                    foreach($this->base_d as $key_d => $val_d) {
-                        foreach($this->base_e as $key_e => $val_e) {
-                            foreach($this->base_f as $key_f => $val_f) {
-                                foreach($this->base_g as $key_g => $val_g) {
-                                    foreach($this->base_h as $key_h => $val_h) {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
+                        foreach($base_e as $key_e => $val_e) {
+                            foreach($base_f as $key_f => $val_f) {
+                                foreach($base_g as $key_g => $val_g) {
+                                    foreach($base_h as $key_h => $val_h) {
                                         if(isset($oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h])) {
                                             $oligos[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h] = $oligos_1step[$val_a.$val_b.$val_c.$val_d.$val_e.$val_f.$val_g.$val_h];
                                         } else {
@@ -249,7 +242,7 @@ abstract class OligosManager implements OligosInterface
      * @return      array
      * @throws      \Exception
      */
-    public function findOligos($sSequence, $iOligoLen)
+    public static function FindOligos($sSequence, $iOligoLen)
     {
         try {
             $i              = 0;
@@ -312,18 +305,18 @@ abstract class OligosManager implements OligosInterface
      * @param $oligos4
      * @return array
      */
-    public function findZScore($oligos2, $oligos3, $oligos4)
+    public static function FindZScore($oligos2, $oligos3, $oligos4)
     {
-        $this->base_a = $this->base_b = $this->base_c = $this->base_d = $this->base_e = $this->base_f = $this->dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = self::$dnaComplements;
 
         $i = 0;
         $zscore = [];
         $exp = [];
         $var = [];
-        foreach($this->base_a as $key_a => $val_a) {
-            foreach($this->base_b as $key_b => $val_b) {
-                foreach($this->base_c as $key_c => $val_c) {
-                    foreach($this->base_d as $key_d => $val_d) {
+        foreach($base_a as $key_a => $val_a) {
+            foreach($base_b as $key_b => $val_b) {
+                foreach($base_c as $key_c => $val_c) {
+                    foreach($base_d as $key_d => $val_d) {
                         if(!isset($oligos3[$val_b.$val_c.$val_d])) {
                             $oligos3[$val_b.$val_c.$val_d] = null;
                         }

@@ -13,7 +13,7 @@ namespace AppBundle\Service\Misc;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-abstract class NucleotidsManager
+class NucleotidsManager
 {
     /**
      * Will count number of A, C, G and T bases in the sequence

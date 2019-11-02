@@ -3,9 +3,9 @@
  * Some extensions to format the rending code
  * Freely inspired by BioPHP's project biophp.org
  * Created 6 april 2019
- * Last modified 23 july 2019
+ * Last modified 2 november 2019
  */
-namespace AppBundle\Twig;
+namespace MinitoolsBundle\Twig;
 
 use Twig\TwigFilter;
 use Twig\Extension\AbstractExtension;
@@ -13,7 +13,7 @@ use Twig\Extension\AbstractExtension;
 /**
  * Class AppExtension
  * @package AppBundle\Twig
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class AppExtension extends AbstractExtension
 {
