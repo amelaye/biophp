@@ -1,7 +1,6 @@
 <?php
 /**
  * SubMatrix Entity
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 14 february 2019
@@ -10,6 +9,7 @@ namespace AppBundle\Service;
 
 /**
  * This class allows the use of customized substitution matrices.  See tech doc for details.
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SubMatrixManager
 {
