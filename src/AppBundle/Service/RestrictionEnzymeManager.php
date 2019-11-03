@@ -9,6 +9,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
 use AppBundle\Entity\Enzyme;
+use AppBundle\Entity\Sequence;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
@@ -62,6 +63,7 @@ class RestrictionEnzymeManager
      * @param   string      $sCutpos
      * @param   string      $sMake
      * @throws  \Exception
+     * @todo : penser à faire une factory
      */
     public function parseEnzyme($sName, $sPattern, $sCutpos, $sMake = "custom")
     {
@@ -116,7 +118,6 @@ class RestrictionEnzymeManager
         return $this->aRestEnzimDB[$RestEn_Name][0];
     }
 
-
     /**
      * Returns the cutting position of the restriction enzyme object.
      * @param   string      $RestEn_Name
@@ -126,7 +127,6 @@ class RestrictionEnzymeManager
     {
         return $this->aRestEnzimDB[$RestEn_Name][1];
     }
-
 
     /**
      * Returns the length of the cutting pattern of the restriction enzyme object.
@@ -198,10 +198,37 @@ class RestrictionEnzymeManager
     {
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
-        $iPrevIndex = 0;
-
         $aPos = $this->sequenceManager->patposo(null, $this->enzyme->getPattern(), "I", $this->enzyme->getCutpos());
+        $this->posTraitment($aFragment, $aPos, $oSequence);
+        return $aFragment;
+    }
 
+    /**
+     * Cuts the sequence with option "N"
+     * @return array
+     * @throws \Exception
+     */
+    private function nTreatment()
+    {
+        $oSequence  = $this->sequenceManager->getSequence();
+        $aFragment  = array();
+        // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
+        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
+        foreach($aPatPos as $aPos) {
+            $this->posTraitment($aFragment, $aPos, $oSequence);
+        }
+        return $aFragment;
+    }
+
+    /**
+     * Fetchs insite a Patpos array
+     * @param   array         $aFragment
+     * @param   array         $aPos
+     * @param   Sequence      $oSequence
+     */
+    private function posTraitment(&$aFragment, $aPos, $oSequence)
+    {
+        $iPrevIndex = 0;
         $iCtr = 0;
         foreach($aPos as $iCurrIndex) {
             $iCtr++;
@@ -220,46 +247,6 @@ class RestrictionEnzymeManager
         }
         // The last (right-most) fragment.
         $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
-
-        return $aFragment;
-    }
-
-    /**
-     * Cuts the sequence with option "N"
-     * @return array
-     * @throws \Exception
-     */
-    private function nTreatment()
-    {
-        $oSequence  = $this->sequenceManager->getSequence();
-        $iPrevIndex = 0;
-        $aFragment  = array();
-
-        // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
-
-        foreach($aPatPos as $aPos) {
-            $iCtr = 0;
-            foreach($aPos as $iCurrIndex) {
-                $iCtr++;
-                if ($iCtr == 1) {
-                    // 1st fragment is everything to the left of the 1st occurrence of pattern
-                    $aFragment[] = substr($oSequence->getSequence(), 0, $iCurrIndex + $this->enzyme->getCutpos());
-                    $iPrevIndex = $iCurrIndex;
-                    continue;
-                }
-                if (($iCurrIndex - $iPrevIndex) >= $this->enzyme->getCutpos()) {
-                    $iNewCount = $iCurrIndex - $iPrevIndex;
-                    $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos(), $iNewCount);
-                    $iPrevIndex = $iCurrIndex;
-                } else {
-                    continue;
-                }
-            }
-            // The last (right-most) fragment.
-            $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
-        }
-        return $aFragment;
     }
 
     /**
