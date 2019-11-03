@@ -1,24 +1,78 @@
 <?php
 /**
  * SeqMatch managing
- * @author Amélie DUVERNET akka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 14 february 2019
+ * Last modified 3 november 2019
  */
 namespace AppBundle\Service;
 
-class SeqMatchManager
+use AppBundle\Entity\Sequence;
+
+/**
+ * Class SequenceMatchManager - This class represents the results of performing sequence analysis and matching
+ * on two or more sequences.
+ * @package AppBundle\Service
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
+class SequenceMatchManager
 {
-    var $result;
-    var $hamdist;
-    var $levdist;
+    /**
+     * @var
+     */
+    private $result;
+
+    /**
+     * @var SubMatrix
+     */
+    private $subMatrix;
+
+    /**
+     * SequenceMatchManager constructor.
+     * @param SubMatrix $subMatrix
+     */
+    public function __construct(SubMatrix $subMatrix)
+    {
+        $this->subMatrix = $subMatrix;
+    }
+
+    /**
+     * Compares two letters $let1 and $let2 and returns another letter
+     * indicating if the two were exact matches, partial matches, or non-matches.
+     * @param $let1
+     * @param $let2
+     * @param $matrix
+     * @param $equal
+     * @param string $partial
+     * @param string $nomatch
+     * @return string
+     */
+    public function compareLetter($let1, $let2, $matrix, $equal, $partial = "+", $nomatch = ".")
+    {
+        // if no custom substitution matrix was provided, use the default.
+        if (!isset($matrix)) {
+            $matrix = $this->subMatrix->getRules();
+        }
+        // if no symbol for exact matches was provided, use the residue symbol.
+        if (!isset($equal)) {
+            $equal = $let1;
+        }
+        if ($let1 == $let2) {
+            return $equal;
+        }
+        elseif ($this->partialMatch($let1, $let2, $matrix)) {
+            return $partial;
+        }
+        else {
+            return $nomatch;
+        }
+    }
 
     /**
      * Computes the Hamming Distance between two strings or Seq objects
      * of equal length.  For more information, consult the technical reference.
-     * @param type $seq1
-     * @param type $seq2
+     * @param Sequence $seq1
+     * @param Sequence $seq2
      * @return int
      * @throws \Exception
      * @group Legacy
@@ -27,14 +81,14 @@ class SeqMatchManager
     {
         // If $seq1 is a Seq object, we use its sequence property to compute Hamming Distance.
         if (gettype($seq1) == "object") {
-            $string1 = $seq1->sequence;
+            $string1 = $seq1->getSequence();
         } elseif (gettype($seq1) == "string") {
             $string1 = $seq1;
         }
 
         // If $seq2 is a Seq object, we use its sequence property to compute Hamming Distance.
         if (gettype($seq2) == "object") {
-            $string2 = $seq2->sequence;
+            $string2 = $seq2->getSequence();
         }
         elseif (gettype($seq2) == "string") {
             $string2 = $seq2;
@@ -79,14 +133,14 @@ class SeqMatchManager
     {
         // If $seq1 is a Seq object, we use its sequence property to compute Levenshtein Distance.
         if (gettype($seq1) == "object") {
-            $string1 = $seq1->sequence;
+            $string1 = $seq1->getSequence();
         } elseif (gettype($seq1) == "string") {
             $string1 = $seq1;
         }
 
         // If $seq2 is a Seq object, we use its sequence property to compute Levenshtein Distance.
         if (gettype($seq2) == "object") {
-            $string2 = $seq2->sequence;
+            $string2 = $seq2->getSequence();
         } elseif (gettype($seq2) == "string") {
             $string2 = $seq2;
         }
@@ -182,11 +236,9 @@ class SeqMatchManager
      */
     public function match($str1, $str2, $matrix, $equal, $partial = "+", $nomatch = ".")
     {
-        global $chemgrp_matrix;
-
         // if the user chose not to use a custom submatrix, use the default one.
         if (!isset($matrix)) {
-            $matrix = $chemgrp_matrix->rules;
+            $matrix = $this->subMatrix->getRules();
         }
 
         // if the strings differ in length, terminate code execution.
@@ -211,5 +263,35 @@ class SeqMatchManager
         // Return the result string.  While this line and the line above seems redundant, their
         // presense here actually permits programmers to write more compact code.
         return $resultstr;
+    }
+
+    /**
+     * We abbreviate substitution matrix to "submatrix".  Each element in a submatrix is an array of
+     * symbols that are considered "partial matches" of each other.
+     * Default submatrix:
+     * ( ('G','A','V','L','I'), ('S','T'), ('N','Q'), ('F','Y','W'), ('C', 'M'), ('P'), ('D','E'), ('K','R','H'),
+     * ('*'), ('X') )
+     * 1) Check if both $let1 and $let2 appear in the first element (G,A,V,L,I) of the substitution matrix.
+     * 2) If they are, you've found a "hit", and $let1 and $let2 are partial matches.  Return a TRUE value.
+     * If they are not, then go to the next element in the substitution matrix.
+     * Repeat steps 1 and 2 until you reach a submatrix element where both $let1 and $let2 appear, or
+     * until the last element in the submatrix has been checked.
+     * 3) If you reach the last submatrix element without a "hit", return a FALSE value.
+     * @param $let1
+     * @param $let2
+     * @param $matrix
+     * @return bool
+     */
+    public function partialMatch($let1, $let2, $matrix)
+    {
+        if (!isset($matrix) == FALSE) {
+            $matrix = $this->subMatrix->getRules();
+        }
+        foreach($matrix as $rule) {
+            if ((in_array($let1, $rule)) && (in_array($let2, $rule))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
