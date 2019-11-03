@@ -280,8 +280,16 @@ class DemoController extends Controller
         $cutseq2 = $restrictionEnzymeManager->cutSeq('O');
         dump($cutseq2);
 
-        $list = $restrictionEnzymeManager->findRestEn("AGGCCT");
+        $list = $restrictionEnzymeManager->findRestEn("AGGCCT"); // fetchPatternOnly
         dump($list);
+        $list2 = $restrictionEnzymeManager->findRestEn("AGGCCT",3); // fetchPatternAndCutpos
+        dump($list2);
+        $list3 = $restrictionEnzymeManager->findRestEn(null,3); // fetchCutpos
+        dump($list3);
+        $list4 = $restrictionEnzymeManager->findRestEn(null,"", 6); // fetchLength
+        dump($list4);
+        $list5 = $restrictionEnzymeManager->findRestEn(null,3, 6); // fetchCutposAndPlen
+        dump($list5);
 
         return $this->render('demo/restrictionenzyme.html.twig',
             []
