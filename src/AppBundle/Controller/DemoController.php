@@ -280,6 +280,9 @@ class DemoController extends Controller
         $cutseq2 = $restrictionEnzymeManager->cutSeq('O');
         dump($cutseq2);
 
+        $list = $restrictionEnzymeManager->findRestEn("AGGCCT");
+        dump($list);
+
         return $this->render('demo/restrictionenzyme.html.twig',
             []
         );

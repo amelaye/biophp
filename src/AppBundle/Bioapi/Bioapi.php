@@ -1,23 +1,55 @@
 <?php
-
+/**
+ * Bioapi requests
+ * Created 3 november 2019
+ * Last modified 3 november 2019
+ */
 namespace AppBundle\Bioapi;
 
 use GuzzleHttp\Client;
 use JMS\Serializer\Serializer;
 
-class Bioapi
+/**
+ * This class makes requests on the Bio API api.amelayes-biophp.net
+ * This is the sample database
+ * Class Bioapi
+ * @package AppBundle\Bioapi
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
+class Bioapi implements BioapiInterface
 {
+    /**
+     * @var Client
+     */
     private $bioapiClient;
+
+    /**
+     * @var Serializer
+     */
     private $serializer;
+
+    /**
+     * @var string|null
+     */
     private $apiKey;
 
+    /**
+     * Bioapi constructor.
+     * @param Client        $bioapiClient
+     * @param Serializer    $serializer
+     * @param string        $apiKey
+     */
     public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
     {
         $this->bioapiClient = $bioapiClient;
-        $this->serializer = $serializer;
-        $this->apiKey = $apiKey;
+        $this->serializer   = $serializer;
+        $this->apiKey       = $apiKey;
     }
 
+    /**
+     * List of DNA nucleotids
+     * @return array
+     */
     public function getNucleotidsDNA()
     {
         $uri = '/nucleotids';
@@ -36,6 +68,10 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * List of RNA nucleotids
+     * @return array
+     */
     public function getNucleotidsRNA()
     {
         $uri = '/nucleotids';
@@ -54,6 +90,10 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * List of DNA nucleotids complements
+     * @return array
+     */
     public function getDNAComplement()
     {
         $nucleos = $this->getNucleotidsDNA();
@@ -64,6 +104,10 @@ class Bioapi
         return $dnaComplements;
     }
 
+    /**
+     * List of RNA nucleotids complements
+     * @return array
+     */
     public function getRNAComplement()
     {
         $nucleos = $this->getNucleotidsRNA();
@@ -74,6 +118,9 @@ class Bioapi
         return $dnaComplements;
     }
 
+    /**
+     * @return array
+     */
     public function getDNAWeight()
     {
         $nucleos = $this->getNucleotidsDNA();
@@ -84,6 +131,9 @@ class Bioapi
         return $dnaWeights;
     }
 
+    /**
+     * @return array
+     */
     public function getRNAWeight()
     {
         $nucleos = $this->getNucleotidsRNA();
@@ -97,6 +147,7 @@ class Bioapi
     /**
      * TM Base Stacking
      * Basic temperatures of nucleotids combinations
+     * @return array
      */
     public function getEnthropyValues()
     {
@@ -111,6 +162,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getEnthalpyValues()
     {
         $uri = '/tm_base_stackings';
@@ -125,6 +179,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getElements()
     {
         $uri = '/elements';
@@ -138,6 +195,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
     public function getWater()
     {
         $uri = '/elements/6';
@@ -162,6 +222,9 @@ class Bioapi
         return array_change_key_case($data, CASE_UPPER);
     }
 
+    /**
+     * @return array
+     */
     public function getAminos()
     {
         $uri = '/aminos';
@@ -178,14 +241,14 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getAminoweights()
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
-
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        //return $data["hydra:member"];
         $newData = array();
         foreach($data["hydra:member"] as $key => $elem) {
             $newData[$elem['id']] = [$elem['weight1'], $elem['weight2']];
@@ -194,6 +257,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getAminosOnlyLetters()
     {
         $uri = '/aminos';
@@ -209,6 +275,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTripletsGroups()
     {
         $uri = '/triplet_species';
@@ -225,6 +294,9 @@ class Bioapi
 
     }
 
+    /**
+     * @return array
+     */
     public function getTriplets()
     {
         $uri = '/triplet_species';
@@ -240,6 +312,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTripletsCombinations()
     {
         $uri = '/triplet_species';
@@ -254,6 +329,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getSpeciesNames()
     {
         $uri = '/triplet_species';
@@ -269,6 +347,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTripletsList()
     {
         $uri = '/triplets';
@@ -284,6 +365,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTypeIIEndonucleases()
     {
         $uri = '/type_i_i_endonucleases';
@@ -307,6 +391,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTypeIIEndonucleasesForRest()
     {
         $uri = '/type_i_i_endonucleases';
@@ -327,6 +414,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTypeIIsEndonucleases()
     {
         $uri = '/type_i_is_endonucleases';
@@ -350,6 +440,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getTypeIIbEndonucleases()
     {
         $uri = '/type_i_ib_endonucleases';
@@ -373,6 +466,9 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @return array
+     */
     public function getReductions()
     {
         $uri = '/protein_reductions';
@@ -389,6 +485,10 @@ class Bioapi
         return $newData;
     }
 
+    /**
+     * @param $type
+     * @return array
+     */
     public function getAlphabetInfos($type)
     {
         $uri = '/protein_reductions';
@@ -406,6 +506,9 @@ class Bioapi
         return($newData);
     }
 
+    /**
+     * @return array
+     */
     public function getVendors()
     {
         $uri = '/vendors';
@@ -420,6 +523,9 @@ class Bioapi
         return($newData);
     }
 
+    /**
+     * @return array
+     */
     public function getVendorLinks()
     {
         $uri = '/vendor_links';
@@ -434,6 +540,9 @@ class Bioapi
         return($newData);
     }
 
+    /**
+     * @return array
+     */
     public function getPam250Matrix()
     {
         $uri = '/pam250_matrix_digits';
