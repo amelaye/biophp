@@ -7,8 +7,10 @@
  */
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Enzyme;
 use AppBundle\Entity\Protein;
 use AppBundle\Service\ProteinManager;
+use AppBundle\Service\RestrictionEnzymeManager;
 use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -247,6 +249,38 @@ class DemoController extends Controller
         dump($proteinManager->molwt());
 
         return $this->render('demo/playwithproteins.html.twig',
+            []
+        );
+    }
+
+    /**
+     * Here is some samples of how to use the functions
+     * @route("/restriction-enzyme", name="restriction_enzyme")
+     * @param   RestrictionEnzymeManager $restrictionEnzymeManager
+     * @return  Response
+     * @throws  \Exception
+     */
+    public function restrictionenzymeAction(
+        RestrictionEnzymeManager $restrictionEnzymeManager,
+        SequenceManager $sequenceManager,
+        SequenceAlignmentManager $sequenceAlignmentManager
+    ) {
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
+        $oSequence->setMolType("DNA");
+
+        $sequenceManager->setSequence($oSequence);
+        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
+
+        $cutseq = $restrictionEnzymeManager->cutSeq();
+        dump($cutseq);
+        $cutseq2 = $restrictionEnzymeManager->cutSeq('O');
+        dump($cutseq2);
+
+        return $this->render('demo/restrictionenzyme.html.twig',
             []
         );
     }
