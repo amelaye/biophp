@@ -286,7 +286,7 @@ class DemoController extends Controller
         dump($list2);
         $list3 = $restrictionEnzymeManager->findRestEn(null,3); // fetchCutpos
         dump($list3);
-        $list4 = $restrictionEnzymeManager->findRestEn(null,"", 6); // fetchLength
+        $list4 = $restrictionEnzymeManager->findRestEn(null,null, 6); // fetchLength
         dump($list4);
         $list5 = $restrictionEnzymeManager->findRestEn(null,3, 6); // fetchCutposAndPlen
         dump($list5);
