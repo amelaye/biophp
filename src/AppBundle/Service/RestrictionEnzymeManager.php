@@ -108,8 +108,8 @@ class RestrictionEnzymeManager
 
     /**
      * Returns the pattern associated with a given restriction endonuclease.
-     * @param string $RestEn_Name
-     * @return \AppBundle\Services\type
+     * @param   string      $RestEn_Name
+     * @return  string      The sequence pattern (string) recognized by the given restriction enzyme.
      */
     public function getPattern($RestEn_Name)
     {
@@ -142,120 +142,48 @@ class RestrictionEnzymeManager
         }
     }
 
-
-    private function fetchPatternOnly($pattern)
-    {
-        foreach($this->aRestEnzimDB as $key => $value) {
-            if ($value[0] == $pattern) {
-                $RestEn_List[] = $key;
-            }
-        }
-        return $RestEn_List;
-    }
-
     /**
      * A powerful method for searching our database of endonucleases for a particular
      * restriction enzyme exhibiting certain properties like pattern, cutting position,
      * and length, or combinations thereof.
-     * @param   string      $pattern    The pattern of the restriction enzyme we wish to look for.
-     * @param   int         $cutpos     The cutting position of the restriction enzyme we wish to look for.
-     * @param   int         $plen       The length of the restriction enzyme we wish to look for.
+     * 5 Cases: pattern only, cutpos only, patternlength only, pattern and cutpos, cutpos and patternlength
+     * @param   string      $sPattern    The pattern of the restriction enzyme we wish to look for.
+     * @param   int         $iCutpos     The cutting position of the restriction enzyme we wish to look for.
+     * @param   int         $iPlen       The length of the restriction enzyme we wish to look for.
      * @return  array       A list of restriction enyzmes that meet the criteria specified by the $pattern, $cutpos,
      * and $plen parameters.
      * @throws  \Exception
      */
-    public function findRestEn($pattern = "", $cutpos = "", $plen = "")
+    public function findRestEn($sPattern = null, $iCutpos = null, $iPlen = null)
     {
-        // 5 Cases: pattern only, cutpos only, patternlength only
-        //          pattern and cutpos, cutpos and patternlength
-        $RestEn_List = [];
-
         // Case 1: Pattern only
-        if (($pattern != "") && ($cutpos == "") && ($plen == "")) {
-            $RestEn_List = $this->fetchPatternOnly($pattern);
-            return $RestEn_List;
+        if (!is_null($sPattern) && is_null($iCutpos) && is_null($iPlen)) {
+            $aEnzymes = $this->fetchPatternOnly($sPattern);
+            return $aEnzymes;
         }
 
         // Case 2: Cutpos only
-        if (($pattern == "") && ($cutpos != "") && ($plen == "")) {
-            //$firstchar = substr($cutpos, 0, 1);
-            //$first2chars = substr($cutpos, 0, 2);
-            if (is_string($cutpos)) {
-            if (preg_match("/^<\d+$/", $cutpos)) {
-                    foreach($this->aRestEnzimDB as $key => $value) {
-                        if ($value[1] < (int) substr($cutpos,1)) {
-                            $RestEn_List[] = $key;
-                        }
-                    }
-                    return $RestEn_List;
-                } elseif (preg_match("/^>\d+$/", $cutpos)) {
-                    foreach($this->aRestEnzimDB as $key => $value) {
-                        if ($value[1] > (int) substr($cutpos,1)) {
-                            $RestEn_List[] = $key;
-                        }
-                    }
-                    return $RestEn_List;
-                } elseif (preg_match("/^>=\d+$/", $cutpos)) {
-                    foreach($this->aRestEnzimDB as $key => $value) {
-                        if ($value[1] >= (int) substr($cutpos,2)) {
-                            $RestEn_List[] = $key;
-                        }
-                    }
-                    return $RestEn_List;
-                } elseif (preg_match("/^<=\d+$/", $cutpos)) {
-                    foreach($this->aRestEnzimDB as $key => $value) {
-                        if ($value[1] <= (int) substr($cutpos,2)) {
-                            $RestEn_List[] = $key;
-                        }
-                    }
-                    return $RestEn_List;
-                } elseif (preg_match("/^=\d+$/", $cutpos)) {
-                    foreach($this->aRestEnzimDB as $key => $value) {
-                        if ($value[1] == substr($cutpos,1)) {
-                            $RestEn_List[] = $key;
-                        }
-                    }
-                    return $RestEn_List;
-                } else {
-                    throw new \Exception("Malformed cutpos parameter.");
-                }
-            } elseif (is_int($cutpos)) {
-                foreach($this->aRestEnzimDB as $key => $value)
-                    if ($value[1] == $cutpos) {
-                        $RestEn_List[] = $key;
-                    }
-                    return $RestEn_List;
-            }
+        if (is_null($sPattern) && !is_null($iCutpos) && is_null($iPlen)) {
+            $aEnzymes = $this->fetchCutpos($iCutpos);
+            return $aEnzymes;
         } 
 
         // Case 3: Patternlength only
-        if (($pattern == "") && ($cutpos == "") && ($plen != "")) {
-            foreach($this->aRestEnzimDB as $key => $value) {
-                if (strlen($value[0]) == $plen) {
-                    $RestEn_List[] = $key;
-                }
-            }
-            return $RestEn_List;
+        if (is_null($sPattern) && is_null($iCutpos) && !is_null($iPlen)) {
+            $aEnzymes = $this->fetchLength($iPlen);
+            return $aEnzymes;
         }
 
         // Case 4: Pattern and cutpos only
-        if (($pattern != "") && ($cutpos != "") && ($plen == "")) {
-            foreach($this->aRestEnzimDB as $key => $value) {
-                if (($value[0] == $pattern) && ($value[1] == $cutpos)) {
-                    $RestEn_List[] = $key;
-                }
-            }
-            return $RestEn_List;
+        if (!is_null($sPattern) && !is_null($iCutpos) && is_null($iPlen)) {
+            $aEnzymes = $this->fetchPatternAndCutpos($sPattern, $iCutpos);
+            return $aEnzymes;
         }
 
         // Case 5: Cutpos and plen only.
-        if (($pattern == "") && ($cutpos != "") && ($plen != "")) {
-            foreach($this->aRestEnzimDB as $key => $value) {
-                if (($value[1] == $cutpos) && (strlen($value[0]) == $plen)) {
-                    $RestEn_List[] = $key;
-                }
-            }
-            return $RestEn_List;
+        if (is_null($sPattern) && !is_null($iCutpos) && !is_null($iPlen)) {
+            $aEnzymes = $this->fetchCutposAndPlen($iCutpos, $iPlen);
+            return $aEnzymes;
         }
 
         throw new \Exception("Invalid combination of function parameters.");
@@ -332,5 +260,119 @@ class RestrictionEnzymeManager
             $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
         }
         return $aFragment;
+    }
+
+    /**
+     * @param   string      $sPattern
+     * @return  array
+     */
+    private function fetchPatternOnly($sPattern)
+    {
+        $aEnzymes = [];
+        foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+            if ($aEnzyme[0] == $sPattern) {
+                $aEnzymes[] = $sName;
+            }
+        }
+        return $aEnzymes;
+    }
+
+    /**
+     * @param   string      $sPattern
+     * @param   int         $iCutpos
+     * @return  array
+     */
+    private function fetchPatternAndCutpos($sPattern, $iCutpos)
+    {
+        $aEnzymes = [];
+        foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+            if (($aEnzyme[0] == $sPattern) && ($aEnzyme[1] == $iCutpos)) {
+                $aEnzymes[] = $sName;
+            }
+        }
+        return $aEnzymes;
+    }
+
+    /**
+     * @param   string | int     $sCutpos
+     * @return  array
+     * @throws  \Exception
+     */
+    private function fetchCutpos($sCutpos)
+    {
+        $aEnzymes = [];
+        if (is_string($sCutpos)) {
+            if (preg_match("/^<\d+$/", $sCutpos)) {
+                foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                    if ($aEnzyme[1] < (int) substr($sCutpos,1)) {
+                        $aEnzymes[] = $sName;
+                    }
+                }
+            } elseif (preg_match("/^>\d+$/", $sCutpos)) {
+                foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                    if ($aEnzyme[1] > (int) substr($sCutpos,1)) {
+                        $aEnzymes[] = $sName;
+                    }
+                }
+            } elseif (preg_match("/^>=\d+$/", $sCutpos)) {
+                foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                    if ($aEnzyme[1] >= (int) substr($sCutpos,2)) {
+                        $aEnzymes[] = $sName;
+                    }
+                }
+            } elseif (preg_match("/^<=\d+$/", $sCutpos)) {
+                foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                    if ($aEnzyme[1] <= (int) substr($sCutpos,2)) {
+                        $aEnzymes[] = $sName;
+                    }
+                }
+            } elseif (preg_match("/^=\d+$/", $sCutpos)) {
+                foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                    if ($aEnzyme[1] == substr($sCutpos,1)) {
+                        $aEnzymes[] = $sName;
+                    }
+                }
+            } else {
+                throw new \Exception("Malformed cutpos parameter.");
+            }
+        } elseif (is_int($sCutpos)) {
+            foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+                if ($aEnzyme[1] == $sCutpos) {
+                    $aEnzymes[] = $sName;
+                }
+            }
+        }
+        return $aEnzymes;
+    }
+
+    /**
+     * @param  int    $iPlen
+     * @return array
+     */
+    private function fetchLength($iPlen)
+    {
+        $aEnzymes = [];
+        foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+            if (strlen($aEnzyme[0]) == $iPlen) {
+                $aEnzymes[] = $sName;
+            }
+        }
+        return $aEnzymes;
+    }
+
+    /**
+     * @param   int     $iCutpos
+     * @param   int     $iPlen
+     * @return  array
+     */
+    private function fetchCutposAndPlen($iCutpos, $iPlen)
+    {
+        $aEnzymes = [];
+        foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
+            if (($aEnzyme[1] == $iCutpos) && (strlen($aEnzyme[0]) == $iPlen)) {
+                $RestEn_List[] = $sName;
+            }
+        }
+        return $aEnzymes;
     }
 }
