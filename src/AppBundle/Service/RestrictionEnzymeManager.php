@@ -3,12 +3,11 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2 november 2019
+ * Last modified 3 november 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Bioapi\Bioapi;
-use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Enzyme;
 
 /**
@@ -46,15 +45,6 @@ class RestrictionEnzymeManager
     }
 
     /**
-     * Sets a RestrictionEnzyme object
-     * @param Enzyme $restrictionEnzyme
-     */
-    public function setEnzyme(Enzyme $restrictionEnzyme)
-    {
-        $this->enzyme = $restrictionEnzyme;
-    }
-
-    /**
      * Sets a sequence object
      * @param SequenceManager $sequenceManager
      */
@@ -63,7 +53,7 @@ class RestrictionEnzymeManager
     }
 
     /**
-     * It creates a new RestEn object and initializes its properties accordingly.
+     * It creates a new Enzyme object and initializes its properties accordingly.
      * If passed with make = 'custom', object will be added to aRestEnzimDB.
      * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
@@ -116,9 +106,8 @@ class RestrictionEnzymeManager
         }
     } 
 
-
     /**
-     * returns the pattern associated with a given restriction endonuclease.
+     * Returns the pattern associated with a given restriction endonuclease.
      * @param string $RestEn_Name
      * @return \AppBundle\Services\type
      */
@@ -130,8 +119,8 @@ class RestrictionEnzymeManager
 
     /**
      * Returns the cutting position of the restriction enzyme object.
-     * @param string $RestEn_Name
-     * @return \AppBundle\Services\type
+     * @param   string      $RestEn_Name
+     * @return  int         Returns the cutting position (an integer) of the restriction enzyme object.
      */
     public function getCutPos($RestEn_Name)
     {
@@ -141,28 +130,39 @@ class RestrictionEnzymeManager
 
     /**
      * Returns the length of the cutting pattern of the restriction enzyme object.
-     * @param type $RestEn_Name
-     * @return type
+     * @param   string  $RestEn_Name
+     * @return  int     The length (integer) of the restriction pattern recognized by the enzyme.
      */
     public function getLength($RestEn_Name = "")
     {
         if ($RestEn_Name == "") {
-            return strlen($this->resten->getPattern());
+            return strlen($this->enzyme->getPattern());
         } else {
             return strlen($this->aRestEnzimDB[$RestEn_Name][0]);
         }
     }
 
 
+    private function fetchPatternOnly($pattern)
+    {
+        foreach($this->aRestEnzimDB as $key => $value) {
+            if ($value[0] == $pattern) {
+                $RestEn_List[] = $key;
+            }
+        }
+        return $RestEn_List;
+    }
+
     /**
-     * Flexible method for searching the Restriction Enzyme database
-     * for entries meeting complex criteria.  It returns an array of RestEn objects.
-     * @param type $pattern
-     * @param type $cutpos
-     * @param type $plen
-     * @return type
-     * @throws \Exception
-     * @group Legacy
+     * A powerful method for searching our database of endonucleases for a particular
+     * restriction enzyme exhibiting certain properties like pattern, cutting position,
+     * and length, or combinations thereof.
+     * @param   string      $pattern    The pattern of the restriction enzyme we wish to look for.
+     * @param   int         $cutpos     The cutting position of the restriction enzyme we wish to look for.
+     * @param   int         $plen       The length of the restriction enzyme we wish to look for.
+     * @return  array       A list of restriction enyzmes that meet the criteria specified by the $pattern, $cutpos,
+     * and $plen parameters.
+     * @throws  \Exception
      */
     public function findRestEn($pattern = "", $cutpos = "", $plen = "")
     {
@@ -172,18 +172,14 @@ class RestrictionEnzymeManager
 
         // Case 1: Pattern only
         if (($pattern != "") && ($cutpos == "") && ($plen == "")) {
-            foreach($this->aRestEnzimDB as $key => $value) {
-                if ($value[0] == $pattern) {
-                    $RestEn_List[] = $key;
-                }
-            }
+            $RestEn_List = $this->fetchPatternOnly($pattern);
             return $RestEn_List;
         }
 
         // Case 2: Cutpos only
         if (($pattern == "") && ($cutpos != "") && ($plen == "")) {
-            $firstchar = substr($cutpos, 0, 1);
-            $first2chars = substr($cutpos, 0, 2);
+            //$firstchar = substr($cutpos, 0, 1);
+            //$first2chars = substr($cutpos, 0, 2);
             if (is_string($cutpos)) {
             if (preg_match("/^<\d+$/", $cutpos)) {
                     foreach($this->aRestEnzimDB as $key => $value) {
