@@ -31,9 +31,9 @@ class RestrictionEnzymeManager
     private $enzyme;
 
     /**
-     * @var
+     * @var SequenceManager
      */
-    private $sequence;
+    private $sequenceManager;
 
     /**
      * RestrictionEnzymeManager constructor.
@@ -42,6 +42,7 @@ class RestrictionEnzymeManager
     public function __construct(Bioapi $bioapi)
     {
         $this->aRestEnzimDB = $bioapi->getTypeIIEndonucleasesForRest();
+        $this->enzyme = new Enzyme();
     }
 
     /**
@@ -55,10 +56,10 @@ class RestrictionEnzymeManager
 
     /**
      * Sets a sequence object
-     * @param Sequence $sequence
+     * @param SequenceManager $sequenceManager
      */
-    public function setSequence(Sequence $sequence) {
-        $this->sequence = $sequence;
+    public function setSequenceManager(SequenceManager $sequenceManager) {
+        $this->sequenceManager = $sequenceManager;
     }
 
     /**
@@ -66,26 +67,27 @@ class RestrictionEnzymeManager
      * If passed with make = 'custom', object will be added to aRestEnzimDB.
      * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
-     * @param   array       $args
+     * @param   string      $sName
+     * @param   string      $sPattern
+     * @param   string      $sCutpos
+     * @param   string      $sMake
      * @throws  \Exception
      */
-    public function parseEnzyme($args)
+    public function parseEnzyme($sName, $sPattern, $sCutpos, $sMake = "custom")
     {
-        $arguments = parse_args($args);
-
-        if ($arguments["make"] == "custom") {
-            $this->enzyme->setName($arguments["name"]);
-            $this->enzyme->setPattern($arguments["pattern"]);
-            $this->enzyme->setCutpos($arguments["cutpos"]);
+        if ($sMake == "custom") {
+            $this->enzyme->setName($sName);
+            $this->enzyme->setPattern($sPattern);
+            $this->enzyme->setCutpos($sCutpos);
             $this->enzyme->setLength(strlen($this->enzyme->getPattern()));
 
             $inner = array();
-            $inner[] = $arguments["pattern"];
-            $inner[] = $arguments["cutpos"];
+            $inner[] = $sPattern;
+            $inner[] = $sCutpos;
             $this->aRestEnzimDB[$this->enzyme->getName()] = $inner;
         } else {
             // Look for given endonuclease in the aRestEnzimDB array.
-            $this->enzyme->setName($arguments["name"]);
+            $this->enzyme->setName($sName);
             $temp = $this->getPattern($this->enzyme->getName());
             if (!$temp) {
                 throw new \Exception("Cannot find entry in restriction endonuclease database.");
@@ -99,19 +101,18 @@ class RestrictionEnzymeManager
 
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
-     * @param   SequenceManager    $sequenceManager    The sequence to cut using the current restriction enzyme object.
      * @param   string             $options            May be "N" or "O".  If "N", the sequence is cut using the patpos() group
      * of methods (no overlapping patterns).  If "O", the sequence is cut using the patposo() group
      * of methods (with overlapping patterns). If omitted, this defaults to "N".
      * @return  array       An array of fragments (substrings of the parameter sequence)
      * @throws  \Exception
      */
-    public function cutSeq(SequenceManager $sequenceManager, $options = "N")
+    public function cutSeq($options = "N")
     {
         if ($options == "N") {
-            return $this->nTreatment($sequenceManager);
+            return $this->nTreatment();
         } elseif ($options == "O") {
-            return $this->oTreatment($sequenceManager);
+            return $this->oTreatment();
         }
     } 
 
@@ -143,7 +144,7 @@ class RestrictionEnzymeManager
      * @param type $RestEn_Name
      * @return type
      */
-    public function GetLength($RestEn_Name = "")
+    public function getLength($RestEn_Name = "")
     {
         if ($RestEn_Name == "") {
             return strlen($this->resten->getPattern());
@@ -163,7 +164,7 @@ class RestrictionEnzymeManager
      * @throws \Exception
      * @group Legacy
      */
-    public function FindRestEn($pattern = "", $cutpos = "", $plen = "")
+    public function findRestEn($pattern = "", $cutpos = "", $plen = "")
     {
         // 5 Cases: pattern only, cutpos only, patternlength only
         //          pattern and cutpos, cutpos and patternlength
@@ -265,65 +266,75 @@ class RestrictionEnzymeManager
     }
 
     /**
-     * @param SequenceManager $sequenceManager
-     * @return array
-     * @throws \Exception
+     * Cuts the sequence with option "O"
+     * @return  array
+     * @throws  \Exception
      */
-    private function oTreatment(SequenceManager $sequenceManager)
+    private function oTreatment()
     {
-        $pos_r = $sequenceManager->patposo($this->resten->getPattern(), "I", $this->resten->getCutpos());
-        $ctr = 0;
-        foreach($pos_r as $currindex) {
-            $ctr++;
-            if ($ctr == 1) {
-                $frag[] = substr($sequenceManager->getSequence()->getSequence(), 0, $currindex + $this->resten->getCutpos());
-                $previndex = $currindex;
+        $oSequence  = $this->sequenceManager->getSequence();
+        $aFragment  = array();
+        $iPrevIndex = 0;
+
+        $aPos = $this->sequenceManager->patposo(null, $this->enzyme->getPattern(), "I", $this->enzyme->getCutpos());
+
+        $iCtr = 0;
+        foreach($aPos as $iCurrIndex) {
+            $iCtr++;
+            if ($iCtr == 1) {
+                $aFragment[] = substr($oSequence->getSequence(), 0, $iCurrIndex + $this->enzyme->getCutpos());
+                $iPrevIndex = $iCurrIndex;
                 continue;
             }
-            if (($currindex - $previndex) >= $this->resten->getCutpos()) {
-                $newcount = $currindex - $previndex;
-                $frag[] = substr($sequenceManager->getSequence()->getSequence(), $previndex + $this->resten->getCutpos(), $newcount);
-                $previndex = $currindex;
+            if (($iCurrIndex - $iPrevIndex) >= $this->enzyme->getCutpos()) {
+                $iNewCount = $iCurrIndex - $iPrevIndex;
+                $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos(), $iNewCount);
+                $iPrevIndex = $iCurrIndex;
             } else {
                 continue;
             }
         }
         // The last (right-most) fragment.
-        $frag[] = substr($sequenceManager->getSequence()->getSequence(), $previndex + $this->resten->getCutpos());
-        return $frag;
+        $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
+
+        return $aFragment;
     }
 
     /**
-     * @param SequenceManager $sequenceManager
+     * Cuts the sequence with option "N"
      * @return array
      * @throws \Exception
      */
-    private function nTreatment(SequenceManager $sequenceManager)
+    private function nTreatment()
     {
+        $oSequence  = $this->sequenceManager->getSequence();
+        $iPrevIndex = 0;
+        $aFragment  = array();
+
         // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-        $patpos_r = $sequenceManager->patpos($this->resten->getPattern(), "I");
-        $frag = array();
-        foreach($patpos_r as $patkey => $pos_r) {
-            $ctr = 0;
-            foreach($pos_r as $currindex) {
-                $ctr++;
-                if ($ctr == 1) {
+        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
+
+        foreach($aPatPos as $aPos) {
+            $iCtr = 0;
+            foreach($aPos as $iCurrIndex) {
+                $iCtr++;
+                if ($iCtr == 1) {
                     // 1st fragment is everything to the left of the 1st occurrence of pattern
-                    $frag[] = substr($sequenceManager->getSequence()->getSequence(), 0, $currindex + $this->getCutpos());
-                    $previndex = $currindex;
+                    $aFragment[] = substr($oSequence->getSequence(), 0, $iCurrIndex + $this->enzyme->getCutpos());
+                    $iPrevIndex = $iCurrIndex;
                     continue;
                 }
-                if (($currindex - $previndex) >= $this->resten->getCutpos()) {
-                    $newcount = $currindex - $previndex;
-                    $frag[] = substr($sequenceManager->getSequence()->getSequence(), $previndex + $this->resten->getCutpos(), $newcount);
-                    $previndex = $currindex;
+                if (($iCurrIndex - $iPrevIndex) >= $this->enzyme->getCutpos()) {
+                    $iNewCount = $iCurrIndex - $iPrevIndex;
+                    $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos(), $iNewCount);
+                    $iPrevIndex = $iCurrIndex;
                 } else {
                     continue;
                 }
             }
             // The last (right-most) fragment.
-            $frag[] = substr($sequenceManager->getSequence()->getSequence(), $previndex + $this->resten->getCutpos());
+            $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
         }
-        return $frag;
+        return $aFragment;
     }
 }
