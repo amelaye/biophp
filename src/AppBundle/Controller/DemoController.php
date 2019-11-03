@@ -12,6 +12,7 @@ use AppBundle\Entity\Protein;
 use AppBundle\Service\ProteinManager;
 use AppBundle\Service\RestrictionEnzymeManager;
 use AppBundle\Service\SequenceAlignmentManager;
+use AppBundle\Service\SequenceMatchManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -249,6 +250,20 @@ class DemoController extends Controller
         dump($proteinManager->molwt());
 
         return $this->render('demo/playwithproteins.html.twig',
+            []
+        );
+    }
+
+    /**
+     * Here is some samples of how to use the functions
+     * @route("/sequence-match", name="sequence_match")
+     * @param   SequenceMatchManager $sequenceMatchManager
+     * @return  Response
+     * @throws  \Exception
+     */
+    public function sequencematchManager(SequenceMatchManager $sequenceMatchManager)
+    {
+        return $this->render('demo/restrictionenzyme.html.twig',
             []
         );
     }
