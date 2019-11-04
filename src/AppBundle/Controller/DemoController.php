@@ -7,7 +7,6 @@
  */
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Enzyme;
 use AppBundle\Entity\Protein;
 use AppBundle\Service\ProteinManager;
 use AppBundle\Service\RestrictionEnzymeManager;
