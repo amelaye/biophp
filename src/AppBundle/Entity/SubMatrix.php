@@ -3,9 +3,9 @@
  * SubMatrix Entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 3 november 2019
+ * Last modified 13 november 2019
  */
-namespace AppBundle\Service;
+namespace AppBundle\Entity;
 
 /**
  * This class allows the use of customized substitution matrices. See tech doc for details.
@@ -40,7 +40,7 @@ class SubMatrix
      * Adds a rule to the substitution matrix.
      * @param type $x
      */
-    public function addrule($x)
+    public function addrule()
     {
         $x = func_get_args();
         array_push($this->rules, $x);

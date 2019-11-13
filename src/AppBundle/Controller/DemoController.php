@@ -8,6 +8,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Protein;
+use AppBundle\Entity\SubMatrix;
 use AppBundle\Service\ProteinManager;
 use AppBundle\Service\RestrictionEnzymeManager;
 use AppBundle\Service\SequenceAlignmentManager;
@@ -257,12 +258,48 @@ class DemoController extends Controller
      * Here is some samples of how to use the functions
      * @route("/sequence-match", name="sequence_match")
      * @param   SequenceMatchManager $sequenceMatchManager
+     * @param   SequenceAlignmentManager $sequenceAlignmentManager
+     * @param   SequenceManager $sequenceManager
      * @return  Response
      * @throws  \Exception
      */
-    public function sequencematchManager(SequenceMatchManager $sequenceMatchManager)
-    {
-        return $this->render('demo/restrictionenzyme.html.twig',
+    public function sequencematchManager(
+        SequenceMatchManager $sequenceMatchManager,
+        SequenceAlignmentManager $sequenceAlignmentManager,
+        SequenceManager $sequenceManager
+    ){
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
+        $oSequence->setMolType("DNA");
+        $sequenceManager->setSequence($oSequence);
+
+        $oSubMatrix = new SubMatrix();
+        $oSubMatrix->addrule('D', 'E');
+        $oSubMatrix->addrule('K', 'R', 'H');
+        $oSubMatrix->addrule('X');
+        dump($oSubMatrix);
+
+        $sSeq1 = $sequenceManager->subSeq(2,100);
+        $sSeq2 = $sequenceManager->subSeq(100,100);
+
+        $sequenceMatchManager->setSubMatrix($oSubMatrix);
+        $iDistance = $sequenceMatchManager->hamdist($sSeq1, $sSeq2);
+        dump($iDistance);
+
+        $sCompare1 = $sequenceMatchManager->compareLetter('A', 'T');
+        dump($sCompare1);
+        $sCompare2 = $sequenceMatchManager->compareLetter('A', 'A');
+        dump($sCompare2);
+
+        $test = $sequenceMatchManager->levdist($sSeq1, $sSeq2);
+        dump($test);
+
+        $test2 = $sequenceMatchManager->xlevdist($sSeq1, $sSeq2);
+        dump($test2);
+
+        return $this->render('demo/sequencematch.html.twig',
             []
         );
     }
