@@ -16,7 +16,6 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
             new MinitoolsBundle\MinitoolsBundle(),
-            new SeqDatabaseBundle\SeqDatabaseBundle(),
             new Csa\Bundle\GuzzleBundle\CsaGuzzleBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
         ];

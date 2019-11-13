@@ -3,7 +3,7 @@
  * Some useful functions
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 september 2019
- * Last modified 11 september 2019
+ * Last modified 13 november 2019
  */
 namespace AppBundle\Traits;
 
@@ -44,6 +44,24 @@ trait FormatsTrait
     function intrim($string)
     {
         return str_replace(' ', '', $string);
+    }
+
+    /**
+     * Gets the minimum of three (usually numeric) values $x, $y, and $z.
+     * For now, this can't handle situations when one or more arguments is FALSE.
+     * @param   int     $x
+     * @param   int     $y
+     * @param   int     $z
+     * @return  int
+     */
+    function getmin($x, $y, $z)
+    {
+        if ($x < $y)
+            if ($x < $z) return $x;
+            else return $z;
+        else
+            if ($y < $z) return $y;
+            else return $z;
     }
 
     /**
