@@ -3,9 +3,9 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 march 2019
+ * Last modified 13 november 2019
  */
-namespace SeqDatabaseBundle\Entity;
+namespace AppBundle\Entity\Sequencing;
 
 use Doctrine\ORM\Mapping as ORM;
 
