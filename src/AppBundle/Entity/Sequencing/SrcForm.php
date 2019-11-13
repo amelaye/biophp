@@ -1,35 +1,35 @@
 <?php
 /**
- * Doctrine Entity Keywords
+ * Doctrine Entity SrcForm
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 march 2019
+ * Last modified 13 november 2019
  */
-namespace SeqDatabaseBundle\Entity;
+namespace AppBundle\Entity\Sequencing;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Keywords
+ * Class SrcForm
  * @package SeqDatabaseBundle\Entity
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
- *     name = "keywords",
+ *     name = "src_form",
  *     uniqueConstraints = {
  *        @ORM\UniqueConstraint(
  *            name = "prim_acc",
- *            columns = {"prim_acc", "keywords"}
+ *            columns = {"prim_acc"}
  *        )
  *     }
  * )
  */
-class Keywords
+class SrcForm
 {
     /**
      * @var string
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
      * @ORM\JoinColumn(
      *     name = "prim_acc",
      *     referencedColumnName = "prim_acc"
@@ -39,14 +39,11 @@ class Keywords
 
     /**
      * @var string
-     * @ORM\Id
      * @ORM\Column(
-     *     type = "string",
-     *     length = 80,
-     *     nullable = false
+     *     type="text"
      * )
      */
-    private $keywords;
+    private $entry;
 
     /**
      * @return string
@@ -67,16 +64,16 @@ class Keywords
     /**
      * @return string
      */
-    public function getKeywords()
+    public function getEntry()
     {
-        return $this->keywords;
+        return $this->entry;
     }
 
     /**
-     * @param string $keywords
+     * @param string $entry
      */
-    public function setKeywords($keywords)
+    public function setEntry($entry)
     {
-        $this->keywords = $keywords;
+        $this->entry = $entry;
     }
 }
