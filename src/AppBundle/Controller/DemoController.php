@@ -299,6 +299,9 @@ class DemoController extends Controller
         $test2 = $sequenceMatchManager->xlevdist($sSeq1, $sSeq2);
         dump($test2);
 
+        $test3 = $sequenceMatchManager->match($sSeq1, $sSeq2);
+        dump($test3);
+
         return $this->render('demo/sequencematch.html.twig',
             []
         );

@@ -21,27 +21,9 @@ class SequenceMatchManager
     use FormatsTrait;
 
     /**
-     * @var
-     */
-    private $result;
-
-    /**
      * @var SubMatrix
      */
     private $subMatrix;
-
-    /**
-     * @var array
-     */
-    private $patternDb;
-
-    /**
-     * SequenceMatchManager constructor.
-     */
-    public function __construct()
-    {
-        $this->patternDb =  array("_StartCodon" => "AUG", "_EndCodon" => "[UAA,UAG,UGA]");
-    }
 
     /**
      * @param SubMatrix $subMatrix
@@ -215,51 +197,50 @@ class SequenceMatchManager
     }
 
     /**
-     * The match() method accepts two sequence strings (not objects) of equal length,
+     * This method accepts two sequence strings (not objects) of equal length,
      * and returns a sequence match result string, according to the following rules:
      * If there is an exact match, return the amino acid symbol.
      * If there is a partial match, return a plus sign.
      * If there is no match, return a whitespace character.
-     * @global type $chemgrp_matrix
-     * @param type $str1
-     * @param type $str2
-     * @param type $matrix
-     * @param type $equal
-     * @param type $partial
-     * @param type $nomatch
-     * @return string
-     * @throws \Exception
-     * @group Legacy
+     * @param   string      $sSequence1     The first of two sequences being compared.
+     * @param   string      $sSequence2     The second of two sequences being compared.
+     * @param   array       $aMatrix        An array specifying valid symbol substitution and equivalence rules.
+     * @param   string      $sEqual         The symbol to output if the symbol in the first sequence is
+     * exactly the same as the corresponding symbol in the second sequence.
+     * @param   string      $sPartial       The symbol to output if the symbol in the first sequence is
+     * equivalent but not identical to the corresponding symbol in the second sequence.
+     * @param   string      $sNonmatch      The symbol to output if the symbol in the first sequence is
+     * neither identical nor equivalent to the corresponding symbol in the second sequence.
+     * @return  string      A string which indicates where exact, partial and no matches occur between the first
+     * and second sequences being compared.
+     * @throws  \Exception
      */
-    public function match($str1, $str2, $matrix = null, $equal = null, $partial = "+", $nomatch = ".")
+    public function match($sSequence1, $sSequence2, $aMatrix = null, $sEqual = null, $sPartial = "+", $sNonmatch = ".")
     {
         // if the user chose not to use a custom submatrix, use the default one.
-        if (!isset($matrix)) {
-            $matrix = $this->subMatrix->getRules();
+        if (!isset($aMatrix)) {
+            $aMatrix = $this->subMatrix->getRules();
         }
 
         // if the strings differ in length, terminate code execution.
-        if (strlen($str1) != strlen($str2)) {
+        if (strlen($sSequence1) != strlen($sSequence2)) {
             throw new \Exception("Cannot match sequences with unequal lengths !");
         }
 
-        $resultstr = "";
-        $seqlength = strlen($str1);
+        $sResult = "";
+        $iSeqLength = strlen($sSequence1);
 
         // Match the two strings, character by character.  Each call to compare_letter()
         // function returns a "result character" which is appended to a "result string".
-        for($i = 0; $i < $seqlength; $i++) {
-            $let1 = substr($str1, $i, 1);
-            $let2 = substr($str2, $i, 1);
-            $resultstr = $resultstr . compare_letter($let1, $let2, $matrix, $equal, $partial, $nomatch);
+        for($i = 0; $i < $iSeqLength; $i++) {
+            $sLet1 = substr($sSequence1, $i, 1);
+            $sLet2 = substr($sSequence2, $i, 1);
+            $sResult = $sResult . $this->compareLetter($sLet1, $sLet2, $aMatrix, $sEqual, $sPartial, $sNonmatch);
         }
-
-        // Assign "result string" to the result property of the calling SeqMatch object. 
-        $this->result = $resultstr;
 
         // Return the result string.  While this line and the line above seems redundant, their
         // presense here actually permits programmers to write more compact code.
-        return $resultstr;
+        return $sResult;
     }
 
     /**
@@ -268,24 +249,24 @@ class SequenceMatchManager
      * Default submatrix:
      * ( ('G','A','V','L','I'), ('S','T'), ('N','Q'), ('F','Y','W'), ('C', 'M'), ('P'), ('D','E'), ('K','R','H'),
      * ('*'), ('X') )
-     * 1) Check if both $let1 and $let2 appear in the first element (G,A,V,L,I) of the substitution matrix.
+     * 1) Check if both $iLet1 and $let2 appear in the first element (G,A,V,L,I) of the substitution matrix.
      * 2) If they are, you've found a "hit", and $let1 and $let2 are partial matches.  Return a TRUE value.
      * If they are not, then go to the next element in the substitution matrix.
      * Repeat steps 1 and 2 until you reach a submatrix element where both $let1 and $let2 appear, or
      * until the last element in the submatrix has been checked.
      * 3) If you reach the last submatrix element without a "hit", return a FALSE value.
-     * @param $let1
-     * @param $let2
-     * @param $matrix
-     * @return bool
+     * @param   string      $iLet1       The first amino acid residue.
+     * @param   string      $iLet2       The second amino acid residue.
+     * @param   array       $aMatrix     The substitution matrix to use for determining partial matches.
+     * @return  bool        TRUE if the two symbols belong to the same chemical group, FALSE otherwise.
      */
-    public function partialMatch($let1, $let2, $matrix)
+    public function partialMatch($iLet1, $iLet2, $aMatrix)
     {
-        if (!isset($matrix) == FALSE) {
-            $matrix = $this->subMatrix->getRules();
+        if (!isset($aMatrix) == FALSE) {
+            $aMatrix = $this->subMatrix->getRules();
         }
-        foreach($matrix as $rule) {
-            if ((in_array($let1, $rule)) && (in_array($let2, $rule))) {
+        foreach($aMatrix as $aRule) {
+            if ((in_array($iLet1, $aRule)) && (in_array($iLet2, $aRule))) {
                 return true;
             }
         }
