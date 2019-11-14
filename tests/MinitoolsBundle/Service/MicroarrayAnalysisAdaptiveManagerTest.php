@@ -2,7 +2,7 @@
 
 namespace Tests\MinitoolsBundle\Service;
 
-use AppBundle\Service\MathematicsManager;
+use AppBundle\Service\Misc\MathematicsManager;
 use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
 use PHPUnit\Framework\TestCase;
 
