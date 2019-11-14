@@ -46,6 +46,22 @@ class RestrictionEnzymeManager
     }
 
     /**
+     * Sets a new enzyme element
+     */
+    public function setEnzyme()
+    {
+        $this->enzyme = new Enzyme();
+    }
+
+    /**
+     * @return Enzyme
+     */
+    public function getEnzyme()
+    {
+        return $this->enzyme;
+    }
+
+    /**
      * Sets a sequence object
      * @param SequenceManager $sequenceManager
      */

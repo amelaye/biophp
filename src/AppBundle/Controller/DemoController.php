@@ -276,10 +276,6 @@ class DemoController extends Controller
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
 
-        $cutseq = $restrictionEnzymeManager->cutSeq();
-        dump($cutseq);
-        $cutseq2 = $restrictionEnzymeManager->cutSeq('O');
-        dump($cutseq2);
 
         $list = $restrictionEnzymeManager->findRestEn("AGGCCT"); // fetchPatternOnly
         dump($list);

@@ -1,7 +1,7 @@
 <?php
 /**
- * Protein Entity Testing
- * @author Amélie DUVERNET akka Amelaye
+ * SequenceMatchManager Testing
+ * @author Amélie DUVERNET aka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 14 november 2019
  * Last modified 14 november 2019
