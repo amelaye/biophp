@@ -14,7 +14,7 @@ before_script:
 
 script:
   - composer self-update
-  - composer install --no-interaction --no-suggest
+  - php -d memory_limit=-1 composer install --no-interaction --no-suggest
   - composer require satooshi/php-coveralls:~1.0@stable # Require phpCoveralls
   - bin/console server:run &
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml --test-suffix .php --colors
