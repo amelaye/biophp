@@ -18,8 +18,6 @@ class SequenceMatchManagerTest extends TestCase
 {
     private $apiMock;
 
-    private $chemicalGroups;
-
     private $sequence;
 
     private $subMatrix;

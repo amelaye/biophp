@@ -18,8 +18,6 @@ class RestrictionEnzymeManagerTest extends TestCase
 {
     private $sequence;
 
-    private $chemicalGroups;
-
     private $apiMock;
 
     public function setUp()

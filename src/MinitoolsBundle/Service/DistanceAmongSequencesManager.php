@@ -42,12 +42,18 @@ class DistanceAmongSequencesManager
     private $dnaComplements;
 
     /**
+     * @var OligosManager
+     */
+    private $oligosManager;
+
+    /**
      * DistanceAmongSequencesManager constructor.
      * @param   Bioapi  $bioapi
      */
-    public function __construct(Bioapi $bioapi)
+    public function __construct(OligosManager $oligosManager, Bioapi $bioapi)
     {
         $this->dnaComplements = $bioapi->getDNAComplement();
+        $this->oligosManager = $oligosManager;
     }
 
     /**
@@ -93,7 +99,7 @@ class DistanceAmongSequencesManager
                 }
                 $seq_and_revseq = $val." ".strtoupper($valRevert);
 
-                $oligos = OligosManager::FindOligos(
+                $oligos = $this->oligosManager->findOligos(
                     $seq_and_revseq,
                     $len
                 );
