@@ -54,23 +54,6 @@ class SequenceMatchManagerTest extends TestCase
 
         $this->sequence = $oSequence;
 
-        $this->chemicalGroups = [
-            "S" => "H",
-            "T" => "H",
-            "N" => "M",
-            "Q" => "M",
-            "C" => "S",
-            "M" => "S",
-            "P" => "I",
-            "D" => "A",
-            "E" => "A",
-            "K" => "C",
-            "R" => "C",
-            "H" => "C",
-            "*" => "*",
-            "X" => "X",
-        ];
-
         $aElements = [
             "carbone" => 12.01,
             "oxygene" => 16,
@@ -96,7 +79,7 @@ class SequenceMatchManagerTest extends TestCase
 
     public function testCompareLetter()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
         $sSeq1 = $sequenceManager->subSeq(2,100);
@@ -135,7 +118,7 @@ class SequenceMatchManagerTest extends TestCase
 
     public function testLevdist()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
         $sSeq1 = $sequenceManager->subSeq(2,100);
         $sSeq2 = $sequenceManager->subSeq(100,100);
@@ -151,7 +134,7 @@ class SequenceMatchManagerTest extends TestCase
 
     public function testXlevdist()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
         $sSeq1 = $sequenceManager->subSeq(2,100);
         $sSeq2 = $sequenceManager->subSeq(100,100);
@@ -167,7 +150,7 @@ class SequenceMatchManagerTest extends TestCase
 
     public function testMatch()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
         $sSeq1 = $sequenceManager->subSeq(2,100);
         $sSeq2 = $sequenceManager->subSeq(100,100);

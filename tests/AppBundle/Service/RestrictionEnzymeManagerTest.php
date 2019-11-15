@@ -862,23 +862,6 @@ class RestrictionEnzymeManagerTest extends TestCase
         $oSequence->setSeqlength(1231);
 
         $this->sequence = $oSequence;
-
-        $this->chemicalGroups = [
-            "S" => "H",
-            "T" => "H",
-            "N" => "M",
-            "Q" => "M",
-            "C" => "S",
-            "M" => "S",
-            "P" => "I",
-            "D" => "A",
-            "E" => "A",
-            "K" => "C",
-            "R" => "C",
-            "H" => "C",
-            "*" => "*",
-            "X" => "X",
-        ];
     }
 
     public function testParseEnzymeInner()
@@ -917,7 +900,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     public function testCutSeqPatposo()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
@@ -950,7 +933,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     public function testCutSeqPatpos()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
@@ -983,7 +966,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     public function testFindRestEn()
     {
-        $sequenceManager = new SequenceManager($this->chemicalGroups, $this->apiMock);
+        $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
