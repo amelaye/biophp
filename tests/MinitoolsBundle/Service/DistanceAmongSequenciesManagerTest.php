@@ -51,7 +51,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
             0 => "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG"
         );
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -88,7 +88,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
             )
         );
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -105,7 +105,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $aSeq = false;
         $iLen = 2;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -189,7 +189,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         );
 
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -410,7 +410,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
             )
         );
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -427,7 +427,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
 
         $aSeq = false;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -510,7 +510,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         ];
 
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -1071,7 +1071,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
             [1 => 0.96402018103392]
         ];
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -1356,7 +1356,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
           255 => -1.7632846107208
         ];
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods(['findZScore'])
             ->getMock();
@@ -1891,7 +1891,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
 
         $expected = 0.96402018103392;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -1909,7 +1909,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
 
         $valsy = 5;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -1962,7 +1962,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
 
         $fExpected = 0.20175660877203;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -1980,7 +1980,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $b = 6;
         $len = 0;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -2030,7 +2030,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
             "TT" => 0.43577235772358
         ];
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();
@@ -2047,7 +2047,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $array = 4;
         $len = 2;
 
-        $oligoMock = $this->getMockBuilder('AppBundle\Service\OligosManager')
+        $oligoMock = $this->getMockBuilder('AppBundle\Service\Misc\OligosManager')
             ->setConstructorArgs([$this->apiMock])
             ->setMethods()
             ->getMock();

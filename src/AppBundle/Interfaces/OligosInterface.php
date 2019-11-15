@@ -17,49 +17,49 @@ interface OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos2BasesLong($oligos_1step);
+    public function findOligos2BasesLong($oligos_1step);
 
     /**
      * For oligos 3 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos3BasesLong($oligos_1step);
+    public function findOligos3BasesLong($oligos_1step);
 
     /**
      * For oligos 4 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos4BasesLong($oligos_1step);
+    public function findOligos4BasesLong($oligos_1step);
 
     /**
      * For oligos 5 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos5BasesLong($oligos_1step);
+    public function findOligos5BasesLong($oligos_1step);
 
     /**
      * For oligos 6 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos6BasesLong($oligos_1step);
+    public function findOligos6BasesLong($oligos_1step);
 
     /**
      * For oligos 7 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos7BasesLong($oligos_1step);
+    public function findOligos7BasesLong($oligos_1step);
 
     /**
      * For oligos 8 bases long
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos8BasesLong($oligos_1step);
+    public function findOligos8BasesLong($oligos_1step);
 
     /**
      * Compute frequency of oligonucleotides with length $iOligoLen for sequence $sSequence
@@ -68,7 +68,7 @@ interface OligosInterface
      * @return      array
      * @throws      \Exception
      */
-    public static function FindOligos($sSequence, $iOligoLen);
+    public function findOligos($sSequence, $iOligoLen);
 
     /**
      * COMPUTE Z-SCORES FOR TETRANUCLEOTIDES
@@ -77,5 +77,5 @@ interface OligosInterface
      * @param $oligos4
      * @return array
      */
-    public static function FindZScore($oligos2, $oligos3, $oligos4);
+    public function findZScore($oligos2, $oligos3, $oligos4);
 }

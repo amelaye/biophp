@@ -20,6 +20,13 @@ class SkewsManager
 {
     use SequenceTrait;
 
+    private $oligosManger;
+
+    public function __construct(OligosManager $oligosManger)
+    {
+        $this->oligosManger = $oligosManger;
+    }
+
     /**
      * Will  compare oligonucleotide frequencies in all the sequence
      * with frequencies in each window, and will return an array
@@ -37,7 +44,7 @@ class SkewsManager
             $aDistances = [];
 
             // search for oligos in the complet sequence
-            $aOligosX = OligosManager::FindOligos($sSequence, $iOskew);
+            $aOligosX = $this->oligosManger->findOligos($sSequence, $iOskew);
             $iSeqLength = strlen($sSequence);
             $iPeriod = ceil($iSeqLength / 1400);
             if($iPeriod < 10) {
@@ -50,7 +57,7 @@ class SkewsManager
                 while ($i < $iSeqLength - $iWindow + 1) {
                     $sSequenceCut = substr($sSequence, $i, $iWindow)." ".strrev(substr($sequence2, $i, $iWindow));
                     // compute oligonucleotide frequencies in window
-                    $aOligosY = OligosManager::FindOligos($sSequenceCut, $iOskew);
+                    $aOligosY = $this->oligosManger->findOligos($sSequenceCut, $iOskew);
                     // compute distance between complete sequence and window
                     $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
                     $i += $iPeriod;
@@ -61,7 +68,7 @@ class SkewsManager
                 while($i < $iSeqLength - $iWindow + 1) {
                     $sSequenceCut = substr($sSequence, $i ,$iWindow);
                     // compute oligonucleotide frequencies in window
-                    $aOligosY = OligosManager::FindOligos($sSequenceCut, $iOskew);
+                    $aOligosY = $this->oligosManger->findOligos($sSequenceCut, $iOskew);
                     // compute distance between complete sequence and window
                     $aDistances[$i] = $this->distance($aOligosX, $aOligosY);
                     $i += $iPeriod;

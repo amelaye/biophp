@@ -18,7 +18,7 @@ use AppBundle\Interfaces\OligosInterface;
  */
 class OligosManager implements OligosInterface
 {
-    private static $dnaComplements;
+    private $dnaComplements;
 
     /**
      * OligosManager constructor.
@@ -26,17 +26,15 @@ class OligosManager implements OligosInterface
      */
     public function __construct(Bioapi $bioapi)
     {
-        $dnaComplements = $bioapi->getDNAComplement();
-        asort($dnaComplements);
-        self::$dnaComplements = $dnaComplements;
+        $this->dnaComplements = $bioapi->getDNAComplement();
     }
 
     /**
      * @return array
      */
-    public static function GetDnaComplements()
+    public function getDnaComplements()
     {
-        return self::$dnaComplements;
+        return $this->dnaComplements;
     }
 
     /**
@@ -44,9 +42,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos2BasesLong($oligos_1step)
+    public function findOligos2BasesLong($oligos_1step)
     {
-        $base_a = $base_b = self::$dnaComplements;
+        $base_a = $base_b = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -66,9 +64,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos3BasesLong($oligos_1step)
+    public function findOligos3BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -90,9 +88,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos4BasesLong($oligos_1step)
+    public function findOligos4BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = $base_d = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -116,9 +114,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos5BasesLong($oligos_1step)
+    public function findOligos5BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = $base_d = $base_e = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $base_e = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -144,9 +142,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos6BasesLong($oligos_1step)
+    public function findOligos6BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -174,9 +172,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos7BasesLong($oligos_1step)
+    public function findOligos7BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -206,9 +204,9 @@ class OligosManager implements OligosInterface
      * @param $oligos_1step
      * @return mixed
      */
-    public static function FindOligos8BasesLong($oligos_1step)
+    public function findOligos8BasesLong($oligos_1step)
     {
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = self::$dnaComplements;
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $base_g = $base_h = $this->dnaComplements;
         $oligos = [];
 
         foreach($base_a as $key_a => $val_a) {
@@ -242,7 +240,7 @@ class OligosManager implements OligosInterface
      * @return      array
      * @throws      \Exception
      */
-    public static function FindOligos($sSequence, $iOligoLen)
+    public function findOligos($sSequence, $iOligoLen)
     {
         try {
             $i              = 0;
@@ -263,30 +261,30 @@ class OligosManager implements OligosInterface
 
             switch ($iOligoLen) {
                 case 1:
-                    foreach(self::$dnaComplements as $key => $oligo) {
+                    foreach($this->dnaComplements as $key => $oligo) {
                         $aOligos[$oligo] = substr_count($sSequence, $oligo);
                     }
                     break;
                 case 2:
-                    $aOligos = self::FindOligos2BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos2BasesLong($aOligos1Step);
                     break;
                 case 3:
-                    $aOligos = self::FindOligos3BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos3BasesLong($aOligos1Step);
                     break;
                 case 4:
-                    $aOligos = self::FindOligos4BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos4BasesLong($aOligos1Step);
                     break;
                 case 5:
-                    $aOligos = self::FindOligos5BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos5BasesLong($aOligos1Step);
                     break;
                 case 6:
-                    $aOligos = self::FindOligos6BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos6BasesLong($aOligos1Step);
                     break;
                 case 7:
-                    $aOligos = self::FindOligos7BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos7BasesLong($aOligos1Step);
                     break;
                 case 8:
-                    $aOligos = self::FindOligos8BasesLong($aOligos1Step);
+                    $aOligos = $this->findOligos8BasesLong($aOligos1Step);
                     break;
                 default:
                     throwException(new \Exception("Invalid base format ! "));
@@ -305,10 +303,9 @@ class OligosManager implements OligosInterface
      * @param $oligos4
      * @return array
      */
-    public static function FindZScore($oligos2, $oligos3, $oligos4)
+    public function findZScore($oligos2, $oligos3, $oligos4)
     {
-        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = self::$dnaComplements;
-
+        $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $this->dnaComplements;
         $i = 0;
         $zscore = [];
         $exp = [];

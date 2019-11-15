@@ -2,7 +2,7 @@
 
 namespace Tests\MinitoolsBundle\Service;
 
-use AppBundle\Service\OligosManager;
+use AppBundle\Service\Misc\OligosManager;
 use MinitoolsBundle\Service\SkewsManager;
 use PHPUnit\Framework\TestCase;
 

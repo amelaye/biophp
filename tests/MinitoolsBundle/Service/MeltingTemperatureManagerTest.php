@@ -3,6 +3,7 @@
 namespace Tests\MinitoolsBundle\Service;
 
 use AppBundle\Service\Misc\NucleotidsManager;
+use AppBundle\Service\SequenceManager;
 use MinitoolsBundle\Service\MeltingTemperatureManager;
 use PHPUnit\Framework\TestCase;
 
@@ -79,6 +80,14 @@ class MeltingTemperatureManagerTest extends TestCase
           "C" => 305.215
         ];
 
+        $aElements = [
+            "carbone" => 12.01,
+            "oxygene" => 16,
+            "nitrate" => 14.01,
+            "hydrogene" => 1.01,
+            "phosphore" => 30.97,
+            "water" => 18.015
+        ];
 
         /**
          * Mock API
@@ -90,15 +99,17 @@ class MeltingTemperatureManagerTest extends TestCase
 
         $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getEnthalpyValues','getEnthropyValues','getWater','getDNAWeight','getRNAWeight'])
+            ->setMethods(['getEnthalpyValues','getEnthropyValues','getWater','getDNAWeight','getRNAWeight','getElements'])
             ->getMock();
         $this->apiMock->method("getEnthalpyValues")->will($this->returnValue($this->enthalpyValues));
         $this->apiMock->method("getEnthropyValues")->will($this->returnValue($this->enthropyValues));
         $this->apiMock->method("getWater")->will($this->returnValue($water));
         $this->apiMock->method("getDNAWeight")->will($this->returnValue($aDnaWeights));
         $this->apiMock->method("getRNAWeight")->will($this->returnValue($aRnaWeights));
+        $this->apiMock->method("getElements")->will($this->returnValue($aElements));
 
-        $this->nucleoMock = new NucleotidsManager();
+        //$this->nucleoMock = new NucleotidsManager();
+        $this->sequenceManager = new SequenceManager($this->apiMock);
     }
 
     public function testCalculateCG()
@@ -106,7 +117,9 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "AAAATTTGGGGCCCATGCCC";
         $fExpected = 55.0;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $this->sequenceManager->setSequence($primer);
+
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->calculateCG($primer);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -117,7 +130,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $this->expectException(\Exception::class);
         $primer = [];
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $service->calculateCG($primer);
     }
 
@@ -134,7 +147,7 @@ class MeltingTemperatureManagerTest extends TestCase
             "entropy" => -414.45,
         ];
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->tmBaseStacking($primer, $concPrimer, $concSalt, $concMg);
 
         $this->assertEquals($testFunction, $aExpected);
@@ -148,7 +161,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $concSalt = "50";
         $concMg = "2";
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $service->tmBaseStacking($primer, $concPrimer, $concSalt, $concMg);
     }
 
@@ -157,7 +170,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "AAAATTTGGGGCCCATGCCC";
         $fExpected =  53.8;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->tmMin($primer);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -168,7 +181,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "AAAATTT";
         $fExpected =  14.0;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->tmMin($primer);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -179,7 +192,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $this->expectException(\Exception::class);
         $primer = [];
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $service->tmMin($primer);
     }
 
@@ -188,7 +201,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "AAAATTTGGGGCCCATGCCC";
         $fExpected =  53.8;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->tmMax($primer);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -199,7 +212,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $primer = "GAGAGA";
         $fExpected =  18.0;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->tmMax($primer);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -209,7 +222,7 @@ class MeltingTemperatureManagerTest extends TestCase
     {
         $this->expectException(\Exception::class);
         $primer = [];
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $service->tmMax($primer);
     }
 
@@ -221,7 +234,7 @@ class MeltingTemperatureManagerTest extends TestCase
 
         $fExpected = 6182.655;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -235,7 +248,7 @@ class MeltingTemperatureManagerTest extends TestCase
 
         $fExpected = 6182.655;
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
 
         $this->assertEquals($testFunction, $fExpected);
@@ -248,7 +261,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $sMoltype = "DNA";
         $sLimit = "lowerlimit";
 
-        $service = new MeltingTemperatureManager($this->nucleoMock, $this->apiMock);
+        $service = new MeltingTemperatureManager($this->sequenceManager, $this->apiMock);
         $service->molwt($sSequence, $sMoltype, $sLimit);
     }
 }

@@ -43,11 +43,6 @@ class SequenceManager implements SequenceInterface
     /**
      * @var array
      */
-    //private $aChemicalGroups;
-
-    /**
-     * @var array
-     */
     private $elements;
 
     /**
@@ -62,11 +57,9 @@ class SequenceManager implements SequenceInterface
     
     /**
      * Constructor
-     * @param   array   $aChemicalGroups
      * @param   Bioapi  $bioapi
      */
     public function __construct(Bioapi $bioapi) {
-        //$this->aChemicalGroups  = $aChemicalGroups;
         $this->elements         = $bioapi->getElements();
         $this->bioapi           = $bioapi;
     }
