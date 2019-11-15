@@ -8,13 +8,15 @@ php:
 services:
   - mysql
 
+before_install:
+  - echo "memory_limit=2G" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
 # Run before the build
 before_script:
   - mkdir -p build/logs # Create a folder to store clover files
 
 script:
   - composer self-update
-  - php -d memory_limit=-1
   - composer install --no-interaction --no-suggest
   - composer require satooshi/php-coveralls:~1.0@stable # Require phpCoveralls
   - bin/console server:run &

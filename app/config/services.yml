@@ -42,10 +42,6 @@ services:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Service\SequenceManager:
-        arguments:
-            - "%chemical_groups%"
-
     MinitoolsBundle\Twig\AppExtension:
         arguments:
             - '%protein_colors%'

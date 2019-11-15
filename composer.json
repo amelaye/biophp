@@ -29,7 +29,7 @@
         ]
     },
     "require": {
-        "php": ">=5.5.9",
+        "php": "^7.1",
         "ext-gd": "^7.1",
         "behat/behat": "^3.5",
         "behat/mink": "^1.7",
