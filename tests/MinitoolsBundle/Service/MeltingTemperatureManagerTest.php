@@ -252,7 +252,7 @@ class MeltingTemperatureManagerTest extends TestCase
         $testFunction = $service->molwt($sSequence, $sMoltype, $sLimit);
 
         $this->assertEquals($testFunction, $fExpected);
-    }aa
+    }
 */
     public function testMolwtLowerLimitTest()
     {
