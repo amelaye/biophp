@@ -23,10 +23,27 @@ class SequenceManager implements SequenceInterface
     use SequenceTrait;
     use FormatsTrait;
 
+    const CHEMICAL_GROUPS = [
+        'S' => 'H',
+        'T' => 'H',
+        'N'=>'M',
+        'Q'=>'M',
+        'C'=>'S',
+        'M'=>'S',
+        'P'=>'I',
+        'D'=>'A',
+        'E'=>'A',
+        'K'=>'C',
+        'R'=>'C',
+        'H'=>'C',
+        '*'=>'*',
+        'X'=>'X'
+    ];
+
     /**
      * @var array
      */
-    private $aChemicalGroups;
+    //private $aChemicalGroups;
 
     /**
      * @var array
@@ -48,8 +65,8 @@ class SequenceManager implements SequenceInterface
      * @param   array   $aChemicalGroups
      * @param   Bioapi  $bioapi
      */
-    public function __construct($aChemicalGroups, Bioapi $bioapi) {
-        $this->aChemicalGroups  = $aChemicalGroups;
+    public function __construct(Bioapi $bioapi) {
+        //$this->aChemicalGroups  = $aChemicalGroups;
         $this->elements         = $bioapi->getElements();
         $this->bioapi           = $bioapi;
     }
@@ -557,7 +574,7 @@ class SequenceManager implements SequenceInterface
             $sAminoLetter = substr($sAminoSeq, $i, 1);
             if ($sAminoLetter != "") {
                 if(isset($this->aChemicalGroups[$sAminoLetter])) {
-                    $sChemgrpSeq .= $this->aChemicalGroups[$sAminoLetter];
+                    $sChemgrpSeq .= self::CHEMICAL_GROUPS[$sAminoLetter];
                 } elseif (substr_count("GAVLI", $sAminoLetter) == 1) {
                     $sChemgrpSeq .= "L";
                 } elseif (substr_count("FYW", $sAminoLetter) == 1) {
