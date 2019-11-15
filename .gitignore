@@ -1,5 +1,4 @@
 /.web-server-pid
-/app/config/parameters.yml
 /build/
 /var/*
 !/var/cache
