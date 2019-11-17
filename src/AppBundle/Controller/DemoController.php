@@ -181,40 +181,13 @@ class DemoController extends Controller
 
         $sequenceManager->setSequence($oSequence);
 
-        //$aComplement = $sequenceManager->complement("DNA");
-        // dump($aComplement);
-        //$sHalfStr = $sequenceManager->halfSequence("GATTAG", 0);
-        //dump($sHalfStr);
-
         //$sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
         //dump($sBridge);
 
-        //$sExpandNa = $sequenceManager->expandNa("GATTAGSW");
-        //dump($sExpandNa);
-
-        //$sMolWt = $sequenceManager->molwt("upperlimit");
-        //dump($sMolWt);
-
         $sCoupe = $sequenceManager->subSeq(2,100);
-        //dump($sCoupe);
 
-        //$test = $sequenceManager->patPos("TTT");
-        //dump($test);
-
-        //$test = $sequenceManager->patPoso("TTT");
-        //dump($test);
-
-        //$symfreq = $sequenceManager->symFreq("A");
-        //dump($symfreq);
-
-        //$codon = $sequenceManager->getCodon(3);
-        //dump($codon);
-
-        //$translate = $sequenceManager->translate();
-        //dump($translate);
-
-        //$charge = $sequenceManager->charge("GAVLIFYWKRH");
-        //dump($charge);
+        $charge = $sequenceManager->charge("GAVLIFYWKRH");
+        dump($charge);
 
         //$charge = $sequenceManager->chemicalGroup("GAVLIFYWKRH");
         //dump($charge);
@@ -224,71 +197,6 @@ class DemoController extends Controller
         dump($testPalindrome);
 
         return $this->render('demo/playwithsequencies.html.twig',
-            []
-        );
-    }
-
-    /**
-     * Here is some samples of how to use the functions
-     * @route("/play-with-proteins", name="play_with_proteins")
-     * @param ProteinManager $proteinManager
-     * @return Response
-     * @throws \Exception
-     */
-    public function playwithproteinsAction(ProteinManager $proteinManager)
-    {
-        $sProtein = "ARNDCEQGHARNDCEQGHILKMFPSTWYVXARNDKMFPSTWYVXARNDKMFPSTWYVXARNDCEQGHARNDCEQGHHARNDCEQGHILKMFPSTW";
-        $sProtein .= "YVXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPSTHARNDCEQGHILKMFPSTWY";
-        $sProtein .= "VXARNDKMFPSTHARNDCEQGHILKMFPSTWYVXARNDKMFPST";
-
-        $oProtein = new Protein();
-        $oProtein->setName("toto");
-        $oProtein->setSequence($sProtein);
-        $proteinManager->setProtein($oProtein);
-
-        dump($proteinManager->seqlen());
-        dump($proteinManager->molwt());
-
-        return $this->render('demo/playwithproteins.html.twig',
-            []
-        );
-    }
-
-    /**
-     * Here is some samples of how to use the functions
-     * @route("/restriction-enzyme", name="restriction_enzyme")
-     * @param   RestrictionEnzymeManager $restrictionEnzymeManager
-     * @return  Response
-     * @throws  \Exception
-     */
-    public function restrictionenzymeAction(
-        RestrictionEnzymeManager $restrictionEnzymeManager,
-        SequenceManager $sequenceManager,
-        SequenceAlignmentManager $sequenceAlignmentManager
-    ) {
-        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
-        $sequenceAlignmentManager->setFormat("FASTA");
-        $sequenceAlignmentManager->parseFile();
-        $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
-        $oSequence->setMolType("DNA");
-
-        $sequenceManager->setSequence($oSequence);
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
-        $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
-
-
-        $list = $restrictionEnzymeManager->findRestEn("AGGCCT"); // fetchPatternOnly
-        dump($list);
-        $list2 = $restrictionEnzymeManager->findRestEn("AGGCCT",3); // fetchPatternAndCutpos
-        dump($list2);
-        $list3 = $restrictionEnzymeManager->findRestEn(null,3); // fetchCutpos
-        dump($list3);
-        $list4 = $restrictionEnzymeManager->findRestEn(null,null, 6); // fetchLength
-        dump($list4);
-        $list5 = $restrictionEnzymeManager->findRestEn(null,3, 6); // fetchCutposAndPlen
-        dump($list5);
-
-        return $this->render('demo/restrictionenzyme.html.twig',
             []
         );
     }
