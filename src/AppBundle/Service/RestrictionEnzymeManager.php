@@ -214,7 +214,7 @@ class RestrictionEnzymeManager
     {
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
-        $aPos = $this->sequenceManager->patposo(null, $this->enzyme->getPattern(), "I", $this->enzyme->getCutpos());
+        $aPos = $this->sequenceManager->patposo($this->enzyme->getPattern(),null,"I", $this->enzyme->getCutpos());
         $this->posTraitment($aFragment, $aPos, $oSequence);
         return $aFragment;
     }
