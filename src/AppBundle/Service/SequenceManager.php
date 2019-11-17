@@ -330,7 +330,7 @@ class SequenceManager implements SequenceInterface
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso($sSequence, $sPattern, $sOptions = "I", $iCutPos = 1)
+    public function patPoso($sPattern, $sSequence = null, $sOptions = "I", $iCutPos = 1)
     {
         try {
             if ($sSequence == null) {
