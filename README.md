@@ -1,4 +1,4 @@
-# amelayes-biophp [![Build Status](https://travis-ci.com/amelaye/biophp.svg?branch=develop)](https://travis-ci.com/amelaye/biophp) [![Coverage Status](https://coveralls.io/repos/github/amelaye/biophp/badge.svg?branch=develop)](https://coveralls.io/github/amelaye/biophp?branch=develop)
+# amelayes-biophp [![Build Status](https://travis-ci.com/amelaye/biophp.svg?branch=develop)](https://travis-ci.com/amelaye/biophp) [![codecov](https://codecov.io/gh/amelaye/biophp/branch/develop/graph/badge.svg)](https://codecov.io/gh/amelaye/biophp)
 
 ## Introduction
 You can read the website of the application, with docs and informations about the project : http://www.amelayes-biophp.net.
@@ -11,10 +11,10 @@ The original legacy code is included inside, and the licence is still GPL2.
 
 ## Content
 At this moment, this is a Symfony3.4 application, divided into 3 bundles :
-- **AppBundle :** Core of the application.
-- **MinitoolsBundle :** Some useful forms, directly inspired from the original Minitools, but refactored. This uses some AppBundle features.
-- **DatabaseBundle :** I think it will be fusionned with AppBundle, the database is made to insert sequences data from your experiments.
+- **AppBundle :** Core of the application. The entities will be linked to the datatabase, Made to insert sequences data from your experiments.
 I took and modelized with Doctrine this structure : http://genephp.sourceforge.net/mysql_dbscripts.html
+- **MinitoolsBundle :** Some useful forms, directly inspired from the original Minitools, but refactored. This uses some AppBundle features. 
+This bundle will be soon desolidarized from this project, it will be available in another package.
 
 The application is connected with a **REST API**, for the Biology Data, available at : http://api.amelayes-biophp.net.
 
