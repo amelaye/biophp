@@ -1104,7 +1104,7 @@ class SequenceManager implements SequenceInterface
             $sHeadSeq = substr($sSeqToAnalyse, 0, $iPalLength);
             $sTailSeq = substr($sSeqToAnalyse, $iPalLength);
             $sNeedle = $this->complement("DNA", strrev($sHeadSeq));
-            $aPos = $this->patPoso($sTailSeq, $sNeedle, "I");
+            $aPos = $this->patPoso($sNeedle, $sTailSeq, "I");
             if (count($aPos) == 0) {
                 continue;
             }
