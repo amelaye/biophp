@@ -25,5 +25,4 @@ script:
 
 # After success, run sh to bind coveralls
 after_success:
-  - export CODECOV_TOKEN="e51d30d0-d506-4d7e-8f61-4a0f9ee5ad78"
   - bash <(curl -s https://codecov.io/bash) -t token
