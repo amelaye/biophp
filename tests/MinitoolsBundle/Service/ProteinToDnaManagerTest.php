@@ -431,7 +431,7 @@ class ProteinToDnaManagerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(["getTriplets"])
             ->getMock();

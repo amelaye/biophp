@@ -19,7 +19,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 
 class DnaToProteinType extends AbstractType
 {

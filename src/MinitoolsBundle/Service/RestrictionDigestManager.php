@@ -8,7 +8,7 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 
 /**
  * Class RestrictionDigestManager

@@ -9,7 +9,7 @@
 namespace MinitoolsBundle\Service;
 
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 use AppBundle\Traits\SequenceTrait;
 
 /**

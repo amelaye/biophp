@@ -173,7 +173,7 @@ class SequenceManagerTest extends TestCase
         $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getElements','getDNAComplement','getRNAComplement','getDNAWeight','getRNAWeight','getWater','getAminosOnlyLetters'])
             ->getMock();

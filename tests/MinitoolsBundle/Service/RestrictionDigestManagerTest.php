@@ -3623,7 +3623,7 @@ class RestrictionDigestManagerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(["getVendorLinks","getTypeIIEndonucleases","getTypeIIsEndonucleases","getTypeIIbEndonucleases","getVendors"])
             ->getMock();

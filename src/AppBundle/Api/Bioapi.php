@@ -2,21 +2,21 @@
 /**
  * Bioapi requests
  * Created 3 november 2019
- * Last modified 3 november 2019
+ * Last modified 18 november 2019
  */
-namespace AppBundle\Bioapi;
+namespace AppBundle\Api;
 
 use GuzzleHttp\Client;
 use JMS\Serializer\Serializer;
 
 /**
  * This class makes requests on the Bio API api.amelayes-biophp.net
- * This is the sample database
+ * This is the sample database - implements ApiAdapterInterface
  * Class Bioapi
- * @package AppBundle\Bioapi
+ * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Bioapi implements BioapiInterface
+class Bioapi implements ApiAdapterInterface
 {
     /**
      * @var Client

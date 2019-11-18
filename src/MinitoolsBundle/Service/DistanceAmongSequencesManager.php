@@ -8,7 +8,7 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 use AppBundle\Service\Misc\OligosManager;
 use AppBundle\Traits\SequenceTrait;
 

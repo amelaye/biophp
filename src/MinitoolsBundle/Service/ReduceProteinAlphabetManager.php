@@ -7,7 +7,7 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 
 /**
  * Reduce Protein Alphabet Functions
@@ -34,7 +34,7 @@ class ReduceProteinAlphabetManager
     /**
      * ReduceProteinAlphabetManager constructor.
      * @param       array   $proteinColors
-     * @param       bioapi  $bioapi
+     * @param       Bioapi  $bioapi
      */
     public function __construct($proteinColors, Bioapi $bioapi)
     {
