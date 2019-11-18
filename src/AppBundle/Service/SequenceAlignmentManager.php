@@ -9,6 +9,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequence;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Represents the result of an alignment performed by various third-party
@@ -119,7 +120,7 @@ class SequenceAlignmentManager
     public function parseClustal()
     {
         try {
-            $fLines        = file($this->sFilename);
+            $fLines        = file(__DIR__ . "/../../../web/" . $this->sFilename);
             $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
             $aNameList     = $aSequences = [];
             $aLines        = new \ArrayIterator($fLines);

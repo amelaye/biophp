@@ -7,18 +7,10 @@
  */
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Protein;
-use AppBundle\Entity\SubMatrix;
-use AppBundle\Service\ProteinManager;
-use AppBundle\Service\RestrictionEnzymeManager;
 use AppBundle\Service\SequenceAlignmentManager;
-use AppBundle\Service\SequenceMatchManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-
-use AppBundle\Entity\Sequence;
-use AppBundle\Service\SequenceManager;
 use AppBundle\Service\IO\DatabaseManager;
 
 /**
@@ -35,25 +27,6 @@ class DemoController extends Controller
     {
         return $this->render('demo/index.html.twig');
     }
-
-    /**
-     * @route("/sequence-analysis", name="sequence_analysis")
-     * @param SequenceManager $sequenceManager
-     * @return Response
-     */
-    public function sequenceanalysisAction(SequenceManager $sequenceManager)
-    {
-        $oSequence = new Sequence();
-        $oSequence->setSequence("AGGGAATTAAGTAAATGGTAGTGG");
-        $sequenceManager->setSequence($oSequence);
-        
-        $aMirrors = $sequenceManager->find_mirror($oSequence->getSequence(), 6, 8, "E");
-        
-        return $this->render('demo/sequenceanalysis.html.twig',
-            array('mirrors' => $aMirrors)
-        );
-    }
-
 
     /**
      * Read a sequence from a database
@@ -104,99 +77,6 @@ class DemoController extends Controller
 
 
         return $this->render('demo/parseseqalignment.html.twig',
-            []
-        );
-    }
-
-    /**
-     * Here is some samples of how to use the functions
-     * @route("/sequence-alignment-clustal", name="sequence_alignment_clustal")
-     * @param SequenceAlignmentManager $sequenceAlignmentManager
-     * @return Response
-     * @throws \Exception
-     */
-    public function clustalseqalignmentAction(SequenceAlignmentManager $sequenceAlignmentManager)
-    {
-        set_time_limit(0);
-        //$sequenceAlignmentManager->setFilename("data/fasta-2.txt");
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
-        $sequenceAlignmentManager->setFormat("CLUSTAL");
-        $sequenceAlignmentManager->parseFile();
-        // You wanna sort your array ? :)
-        $sequenceAlignmentManager->sortAlpha("ASC");
-        dump($sequenceAlignmentManager);
-        // You wanna fetch something ?
-        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(13);
-        dump($oMySuperSeq);
-        // You wanna know the longest sequence ?
-        //$iMyLength = $sequenceAlignmentManager->getMaxiLength();
-        // You wanna know the number of gaps ?
-        //$iNumberGaps = $sequenceAlignmentManager->getGapCount();
-        // Have the same length ?
-        //$bIsFlush = $sequenceAlignmentManager->getIsFlush();
-        $sCharAtRes = $sequenceAlignmentManager->charAtRes(10, 10);
-        dump($sCharAtRes);
-        //$sSubstrBwRes = $sequenceAlignmentManager->substrBwRes(10,10);
-        //dump($sSubstrBwRes);
-        $iColToRes = $sequenceAlignmentManager->colToRes(10, 50);
-        $iResToCol = $sequenceAlignmentManager->resToCol(10, 47);
-        dump($iResToCol);
-        //$sequenceAlignmentManager->subalign(5, 10);
-        //dump($sequenceAlignmentManager);
-        //$sequenceAlignmentManager->select(1,2,3);
-        //dump($sequenceAlignmentManager);
-
-        $aResVar = $sequenceAlignmentManager->resVar();
-        dump($aResVar);
-        $aConsensus = $sequenceAlignmentManager->consensus();
-        dump($aConsensus);
-
-        // Adding a new sequence object
-        $sequenceAlignmentManager->addSequence($oMySuperSeq);
-        // Dropping a sequence
-        $sequenceAlignmentManager->deleteSequence("sp|O09185|P53_CRIGR");
-
-        return $this->render('demo/parseseqalignment.html.twig',
-            []
-        );
-    }
-
-    /**
-     * Here is some samples of how to use the functions
-     * @route("/play-with-sequencies", name="play_with_sequencies")
-     * @param SequenceAlignmentManager $sequenceAlignmentManager
-     * @param SequenceManager $sequenceManager
-     * @return Response
-     * @throws \Exception
-     */
-    public function playwithsequenciesAction(
-        SequenceAlignmentManager $sequenceAlignmentManager,
-        SequenceManager $sequenceManager
-    ) {
-        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
-        $sequenceAlignmentManager->setFormat("FASTA");
-        $sequenceAlignmentManager->parseFile();
-        $oSequence = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
-        $oSequence->setMolType("DNA");
-
-        $sequenceManager->setSequence($oSequence);
-
-        //$sBridge = $sequenceManager->getBridge("ATGcacgtcCAT");
-        //dump($sBridge);
-
-        $sCoupe = $sequenceManager->subSeq(2,100);
-
-        $charge = $sequenceManager->charge("GAVLIFYWKRH");
-        dump($charge);
-
-        //$charge = $sequenceManager->chemicalGroup("GAVLIFYWKRH");
-        //dump($charge);
-
-        //$testPalindrome = $sequenceManager->findPalindrome("", 2, 2);
-        $testPalindrome = $sequenceManager->findPalindrome($sCoupe, null,2);
-        dump($testPalindrome);
-
-        return $this->render('demo/playwithsequencies.html.twig',
             []
         );
     }
