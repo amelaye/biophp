@@ -833,7 +833,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getTypeIIEndonucleasesForRest','getElements'])
             ->getMock();

@@ -11,7 +11,7 @@ namespace MinitoolsBundle\Service;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\Misc\NucleotidsManager;
 use AppBundle\Service\SequenceManager;
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 
 /**
  * Class MeltingTemperatureManager

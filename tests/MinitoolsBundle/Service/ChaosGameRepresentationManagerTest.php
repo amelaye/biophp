@@ -43,7 +43,7 @@ class ChaosGameRepresentationManagerTest extends TestCase
             ->getMock();
 
 
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getDNAComplement'])
             ->getMock();

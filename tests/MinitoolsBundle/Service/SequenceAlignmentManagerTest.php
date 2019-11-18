@@ -422,7 +422,7 @@ class SequenceAlignmentManagerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(["getPam250Matrix"])
             ->getMock();

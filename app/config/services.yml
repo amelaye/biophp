@@ -37,10 +37,12 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    AppBundle\Bioapi\Bioapi:
+    AppBundle\Api\Bioapi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
+
+    AppBundle\Api\ApiAdapterInterface: '@AppBundle\Api\Bioapi'
 
     MinitoolsBundle\Twig\AppExtension:
         arguments:

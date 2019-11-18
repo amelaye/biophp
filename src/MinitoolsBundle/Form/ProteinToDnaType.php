@@ -7,7 +7,7 @@
  */
 namespace MinitoolsBundle\Form;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\Bioapi;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;

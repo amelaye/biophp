@@ -97,7 +97,7 @@ class MeltingTemperatureManagerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->apiMock = $this->getMockBuilder('AppBundle\Bioapi\Bioapi')
+        $this->apiMock = $this->getMockBuilder('AppBundle\Api\Bioapi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getEnthalpyValues','getEnthropyValues','getWater','getDNAWeight','getRNAWeight','getElements'])
             ->getMock();

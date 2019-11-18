@@ -7,7 +7,7 @@
  */
 namespace AppBundle\Service;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\ApiAdapterInterface;
 use AppBundle\Entity\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Traits\FormatsTrait;
@@ -57,9 +57,9 @@ class SequenceManager implements SequenceInterface
     
     /**
      * Constructor
-     * @param   Bioapi  $bioapi
+     * @param   ApiAdapterInterface  $bioapi
      */
-    public function __construct(Bioapi $bioapi) {
+    public function __construct(ApiAdapterInterface $bioapi) {
         $this->elements         = $bioapi->getElements();
         $this->bioapi           = $bioapi;
     }

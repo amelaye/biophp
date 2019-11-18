@@ -8,7 +8,7 @@
  */
 namespace AppBundle\Service\Misc;
 
-use AppBundle\Bioapi\Bioapi;
+use AppBundle\Api\ApiAdapterInterface;
 use AppBundle\Interfaces\OligosInterface;
 
 /**
@@ -22,9 +22,9 @@ class OligosManager implements OligosInterface
 
     /**
      * OligosManager constructor.
-     * @param Bioapi $bioapi
+     * @param ApiAdapterInterface $bioapi
      */
-    public function __construct(Bioapi $bioapi)
+    public function __construct(ApiAdapterInterface $bioapi)
     {
         $this->dnaComplements = $bioapi->getDNAComplement();
     }

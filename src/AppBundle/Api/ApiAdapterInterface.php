@@ -2,22 +2,29 @@
 /**
  * Bioapi requests
  * Created 3 november 2019
- * Last modified 3 november 2019
+ * Last modified 18 november 2019
  */
-namespace AppBundle\Bioapi;
+namespace AppBundle\Api;
 
 use GuzzleHttp\Client;
 use JMS\Serializer\Serializer;
 
 /**
- * This class makes requests on the Bio API api.amelayes-biophp.net
- * This is the sample database
- * Class Bioapi
- * @package AppBundle\Bioapi
+ * This class makes requests on any API which implements this interface
+ * Interface API
+ * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-interface BioapiInterface
+interface ApiAdapterInterface
 {
+    /**
+     * ApiInterface constructor.
+     * @param   Client        $bioapiClient
+     * @param   Serializer    $serializer
+     * @param   string        $apiKey
+     */
+    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null);
+
     /**
      * List of DNA nucleotids
      * @return array
