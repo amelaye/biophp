@@ -3,9 +3,9 @@
  * Replaces the .idx file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 10 april 2019
+ * Last modified 21 november 2019
  */
-namespace SeqDatabaseBundle\Entity;
+namespace AppBundle\Entity\IO;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,7 +28,7 @@ class Collection
      *     name = "id"
      * )
      * @ORM\OneToMany(
-     *     targetEntity = "SeqDatabaseBundle\Entity\CollectionElement",
+     *     targetEntity = "AppBundle\Entity\IO\CollectionElement",
      *     mappedBy = "id_collection",
      *     cascade = {"persist"}
      * )

@@ -3,9 +3,9 @@
  * Replaces the .dir file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 10 april 2019
+ * Last modified 21 november 2019
  */
-namespace SeqDatabaseBundle\Entity;
+namespace AppBundle\Entity\IO;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -70,7 +70,7 @@ class CollectionElement
     /**
      * @var int
      * @ORM\ManyToOne(
-     *     targetEntity = "SeqDatabaseBundle\Entity\Collection",
+     *     targetEntity = "AppBundle\Entity\IO\Collection",
      *     inversedBy = "id"
      * ),
      * @ORM\JoinColumn(

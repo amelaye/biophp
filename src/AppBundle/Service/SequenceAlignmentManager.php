@@ -183,7 +183,7 @@ class SequenceAlignmentManager
     public function parseFasta()
     {
         try {
-            $fLines      = file($this->sFilename);
+            $fLines      = file(__DIR__ . "/../../../web/" .$this->sFilename);
             $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
             $bSameLength = true;
             $sSequence   = "";

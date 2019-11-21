@@ -12,8 +12,8 @@ use AppBundle\Interfaces\RecordingOnLocalDb;
 use AppBundle\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use SeqDatabaseBundle\Entity\Collection;
-use SeqDatabaseBundle\Entity\CollectionElement;
+use AppBundle\Entity\IO\Collection;
+use AppBundle\Entity\IO\CollectionElement;
 use AppBundle\Entity\Sequence;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
@@ -85,12 +85,11 @@ class DatabaseManager implements RecordingOnLocalDb
             if (empty($collectionDB)) {
                 return false;
             }
-
-            if(!is_file($collectionDB->getFileName())) {
-                throw new FileException("The file ".$collectionDB->getFileName()." doesn't exist !");
+            if(!is_file(__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName())) {
+                throw new FileException("The file ".__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName()." doesn't exist !");
             }
 
-            $fpSeq = fopen($collectionDB->getFileName(), "r");
+            $fpSeq = fopen(__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName(), "r");
             $aFlines = $this->line2r($fpSeq);
 
             if ($collectionDB->getDbFormat() == "GENBANK") {
@@ -159,7 +158,7 @@ class DatabaseManager implements RecordingOnLocalDb
 
             foreach($datafile as $fileno => $filename) {
                 // Automatically create an index file containing info across all data files.
-                $flines = file($filename);
+                $flines = file(__DIR__ . "/../../../../web/data/" .$filename);
 
                 foreach($flines as $lineno => $linestr) {
                     if ($this->atEntrystart($linestr, $dbformat)) {

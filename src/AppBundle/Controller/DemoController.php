@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -58,6 +59,7 @@ class DemoController extends Controller
     {
         $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
+        dump($oSequence);
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]
         );
@@ -75,6 +77,10 @@ class DemoController extends Controller
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
 
+        $oMySuperSeq1 = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
+        dump($oMySuperSeq1);
+        $oMySuperSeq2 = $sequenceAlignmentManager->getSeqSet()->offsetGet(1);
+        dump($oMySuperSeq2);
 
         return $this->render('demo/parseseqalignment.html.twig',
             []
