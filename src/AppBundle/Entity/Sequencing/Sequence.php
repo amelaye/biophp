@@ -62,6 +62,26 @@ class Sequence
     private $seqLength;
 
     /**
+     * @var int
+     * @ORM\Column(
+     *     type = "integer",
+     *     length = 11,
+     *     nullable = true
+     * )
+     */
+    private $start;
+
+    /**
+     * @var int
+     * @ORM\Column(
+     *     type = "integer",
+     *     length = 11,
+     *     nullable = true
+     * )
+     */
+    private $end;
+
+    /**
      * @var string
      * @ORM\Column(
      *     type = "string",
@@ -162,6 +182,38 @@ class Sequence
     public function setSeqLength($seqLength)
     {
         $this->seqLength = $seqLength;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStart(): int
+    {
+        return $this->start;
+    }
+
+    /**
+     * @param int $start
+     */
+    public function setStart(int $start): void
+    {
+        $this->start = $start;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEnd(): int
+    {
+        return $this->end;
+    }
+
+    /**
+     * @param int $end
+     */
+    public function setEnd(int $end): void
+    {
+        $this->end = $end;
     }
 
     /**
