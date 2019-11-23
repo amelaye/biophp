@@ -9,7 +9,7 @@
 namespace Tests\AppBundle\Service;
 
 use AppBundle\Entity\Enzyme;
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Service\RestrictionEnzymeManager;
 use AppBundle\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;

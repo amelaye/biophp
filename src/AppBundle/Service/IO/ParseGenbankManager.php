@@ -3,12 +3,20 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 25 october 2019
+ * Last modified 23 november 2019
  */
 namespace AppBundle\Service\IO;
 
-use AppBundle\Entity\Sequence;
+//use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Authors;
+use AppBundle\Entity\Sequencing\GbFeatures;
+use AppBundle\Entity\Sequencing\Keywords;
+use AppBundle\Entity\Sequencing\Reference;
+use AppBundle\Entity\Sequencing\Sequence;
+use AppBundle\Entity\Sequencing\GbSequence;
+use AppBundle\Entity\Sequencing\SrcForm;
 use AppBundle\Interfaces\ParseDatabaseInterface;
+use AppBundle\Entity\Sequencing\Accession;
 
 /**
  * Class ParseGenbankManager
@@ -20,7 +28,42 @@ class ParseGenbankManager implements ParseDatabaseInterface
     /**
      * @var array
      */
-    private $ref_array;
+    private $accession;
+
+    /**
+     * @var Sequence
+     */
+    private $sequence;
+
+    /**
+     * @var array
+     */
+    private $authors;
+
+    /**
+     * @var array
+     */
+    private $gbFeatures;
+
+    /**
+     * @var array
+     */
+    private $keywords;
+
+    /**
+     * @var array
+     */
+    private $references;
+
+    /**
+     * @var SrcForm
+     */
+    private $srcForm;
+
+    /**
+     * @var GbSequence
+     */
+    private $gbSequence;
 
     /**
      * @var array
@@ -33,45 +76,49 @@ class ParseGenbankManager implements ParseDatabaseInterface
      */
     public function __construct()
     {
-        $this->ref_array      = [];
+        $this->accession    = []; // array of Accessions();
+        $this->sequence     = new Sequence();
+        $this->authors      = []; // array of Authors()
+        $this->gbSequence   = new GbSequence();
+        $this->gbFeatures   = []; // array of GbFeatures();
+        $this->keywords     = []; // array of Keywords();
+        $this->references   = []; // array of Keywords();
+        $this->srcForm      = new SrcForm();
     }
 
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
      * @param   array       $aFlines        The lines the script has to parse
-     * @return  Sequence    $oSequence      The Sequence object to analyze
      * @throws \Exception
      */
     public function parseDataFile($aFlines)
     {
         try {
-            $oSequence = new Sequence();
             $this->aLines = new \ArrayIterator($aFlines); // <3
 
             foreach($this->aLines as $lineno => $linestr) {
 
                 switch(trim(substr($this->aLines->current(),0,12))) {
                     case "LOCUS":
-                        $this->parseLocus($oSequence);
+                        $this->parseLocus();
                         break;
                     case "DEFINITION":
-                        $this->parseDefinition($oSequence, $aFlines);
+                        $this->parseDefinition($aFlines);
                         break;
                     case "ORGANISM":
-                        $oSequence->setOrganism(trim(substr($linestr,12)));
+                        $this->sequence->setOrganism(trim(substr($linestr,12)));
                         break;
                     case "VERSION":
-                        $this->parseVersion($oSequence);
+                        $this->parseVersion();
                         break;
                     case "KEYWORDS":
-                        $this->parseKeywords($oSequence);
+                        $this->parseKeywords();
                         break;
                     case "ACCESSION":
-                        $this->parseAccession($oSequence);
+                        $this->parseAccession();
                         break;
                     case "FEATURES":
-                        $aFeatures = [];
                         while(1) {
                             // Verify next line
                             $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
@@ -82,36 +129,30 @@ class ParseGenbankManager implements ParseDatabaseInterface
                             $this->aLines->next();
                             $sHead = trim(substr($this->aLines->current(), 0, 20));
                             if(in_array($sHead, $aFields)) {
-                                $this->parseFeatures($aFeatures, $aFlines, $sHead);
+                                $this->parseFeatures($aFlines, $sHead);
                             }
                         }
-                        $oSequence->setFeatures($aFeatures);
                         break;
                     case "REFERENCE":
-                        $ref_rec = $this->parseReferences($aFlines);
-                        array_push($this->ref_array, $ref_rec);
-                        $oSequence->setReference($this->ref_array);
+                        $this->parseReferences($aFlines);
                         break;
                     case "SOURCE":
-                        $oSequence->setSource(trim(substr($linestr, 12)));
+                        $this->sequence->setSource(trim(substr($linestr, 12)));
                         break;
                     case "ORIGIN":
-                        $aSequence = [];
+                        $sWords = "";
                         while(1) {
                             $this->aLines->next();
-                            $key = trim(substr($this->aLines->current(), 0, 9));
-                            $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),9)));
-                            $aSequence[$key] = $aWords;
+                            $sWords .= trim(substr($this->aLines->current(),9))." ";
                             $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
                             if($sHead == '//') {
                                 break;
                             }
                         }
-                        $oSequence->setSequence($aSequence);
+                        $this->sequence->setSequence(trim($sWords));
                         break;
                 }
             }
-            return $oSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -120,30 +161,33 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * @param   array       $aFlines    The lines the script has to parse
-     * @return  array
      * @throws  \Exception
      */
     private function parseReferences($aFlines)
     {
         try {
+            $oReference = new Reference();
             $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
-            $aReferences = [];
-            $aReferences["REFNO"] = $aWords[0];
+            $oReference->setRefno($aWords[0]);
             array_shift($aWords);
-            $aReferences["BASERANGE"] = implode(" ", $aWords);
+            $oReference->setBaseRange(implode(" ", $aWords));
 
-            $sAuthors   = "";
-            $sTitle     = "";
-            $sJournal   = "";
-            $sMedline   = "";
-            $sPubmed    = "";
-            $sRemark    = "";
-            $sComment   = "";
-
+            $sAuthors = $sTitle = $sJournal = $sMedline = $sPubmed = $sRemark = "";
             $this->aLines->next();
 
             if(trim(substr($this->aLines->current(),0,12)) == "AUTHORS") {
                 $this->seekReferences($sAuthors);
+                $sAuthors = trim($sAuthors);
+                $sAuthors = str_replace(" and ", ",", $sAuthors);
+                $sAuthors = str_replace(".", "", $sAuthors);
+                $aAuthors = explode(",",$sAuthors);
+                foreach($aAuthors as $sAuthor) {
+                    $oAuthor = new Authors();
+                    $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
+                    $oAuthor->setRefno($oReference->getRefno());
+                    $oAuthor->setAuthor(trim($sAuthor));
+                    $this->authors[] = $oAuthor;
+                }
             }
 
             if(trim(substr($this->aLines->current(),0,12)) == "CONSRTM") {
@@ -152,19 +196,23 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
             if(trim(substr($this->aLines->current(),0,12)) == "TITLE") {
                 $this->seekReferences($sTitle);
+                $oReference->setTitle(trim($sTitle));
             }
 
             if(trim(substr($this->aLines->current(),0,12)) == "JOURNAL") {
                 $this->seekReferences($sJournal);
+                $oReference->setJournal(trim($sJournal));
             }
 
             if(trim(substr($this->aLines->current(),0,12)) == "MEDLINE") {
                 $this->seekReferences($sMedline);
+                $oReference->setMedline($sMedline);
             }
 
             if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
                 $aPubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12)));
                 $sPubmed = trim($sPubmed." ".implode(" ", $aPubmed));
+                $oReference->setPubmed($sPubmed);
                 // If reference following, don't jump line
                 if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
                     $this->aLines->next();
@@ -185,17 +233,9 @@ class ParseGenbankManager implements ParseDatabaseInterface
                         break;
                     }
                 }
+                $oReference->setRemark(trim($sRemark));
             }
-
-            $aReferences["AUTHORS"] = trim($sAuthors);
-            $aReferences["TITLE"]   = trim($sTitle);
-            $aReferences["JOURNAL"] = trim($sJournal);
-            $aReferences["MEDLINE"] = trim($sMedline);
-            $aReferences["PUBMED"]  = trim($sPubmed);
-            $aReferences["REMARK"]  = trim($sRemark);
-            $aReferences["COMMENT"] = trim($sComment);
-
-            return $aReferences;
+           $this->references[] = $oReference;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -227,33 +267,33 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses line LOCUS
-     * @param       Sequence    $oSequence  The object Sequence to be analyzed
      * @return      mixed
      * @throws      \Exception
      */
-    private function parseLocus(&$oSequence)
+    private function parseLocus()
     {
         try {
-            $oSequence->setId(trim(substr($this->aLines->current(), 12, 16)));
-            $oSequence->setSeqlength(trim(substr($this->aLines->current(), 29, 11)) * 1);
-            $oSequence->setMoltype(trim(substr($this->aLines->current(), 47, 6)));
+            $this->sequence->setPrimAcc(trim(substr($this->aLines->current(), 12, 16)));
+            $this->gbSequence->setPrimAcc($this->sequence->getPrimAcc());
+
+            $this->sequence->setSeqlength(trim(substr($this->aLines->current(), 29, 11)) * 1);
+            $this->sequence->setMoltype(trim(substr($this->aLines->current(), 47, 6)));
 
             switch(substr($this->aLines->current(), 44, 3)) {
                 case "ss-":
-                    $oSequence->setStrands("SINGLE");
+                    $this->gbSequence->setStrands("SINGLE");
                     break;
                 case "ds-":
-                    $oSequence->setStrands("DOUBLE");
+                    $this->gbSequence->setStrands("DOUBLE");
                     break;
                 case "ms-":
-                    $oSequence->setStrands("MIXED");
+                    $this->gbSequence->setStrands("MIXED");
                     break;
             }
 
-
-            $oSequence->setTopology(strtoupper(trim(substr($this->aLines->current(), 55, 8))));
-            $oSequence->setDivision(strtoupper(trim(substr($this->aLines->current(), 64, 3))));
-            $oSequence->setDate(strtoupper(trim(substr($this->aLines->current(), 68, 11))));
+            $this->gbSequence->setTopology(strtoupper(trim(substr($this->aLines->current(), 55, 8))));
+            $this->gbSequence->setDivision(strtoupper(trim(substr($this->aLines->current(), 64, 3))));
+            $this->sequence->setDate(strtoupper(trim(substr($this->aLines->current(), 68, 11))));
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -262,10 +302,10 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses DEFINITION field
-     * @param       Sequence        $oSequence      The object Sequence to be analyzed
+     * @ param      array            $flines
      * @throws      \Exception
      */
-    private function parseDefinition(&$oSequence, $flines)
+    private function parseDefinition($flines)
     {
         try {
             $wordarray = explode(" ", $this->aLines->current());
@@ -279,7 +319,7 @@ class ParseGenbankManager implements ParseDatabaseInterface
                 $this->aLines->next();
                 $sDefinition .= " ".trim($this->aLines->current());
             }
-            $oSequence->setDefinition($sDefinition);
+            $this->sequence->setDescription($sDefinition);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -288,16 +328,15 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses VERSION field
-     * @param       Sequence    $oSequence  The object Sequence to be analyzed
      * @throws      \Exception
      */
-    private function parseVersion(&$oSequence)
+    private function parseVersion()
     {
         try {
             $wordarray = preg_split("/\s+/", trim($this->aLines->current()));
-            $oSequence->setVersion($wordarray[1]);
+            $this->gbSequence->setVersion($wordarray[1]);
             if (count($wordarray) == 3) {
-                $oSequence->setNcbiGiId($wordarray[2]);
+                $this->gbSequence->setNcbiGiId($wordarray[2]);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -307,17 +346,21 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses KEYWORDS field
-     * @param       Sequence    $oSequence  The object Sequence to be analyzed
      * @throws      \Exception
      */
-    private function parseKeywords(&$oSequence)
+    private function parseKeywords()
     {
         try {
             $wordarray = preg_split("/\s+/", trim($this->aLines->current()));
             array_shift($wordarray);
             $wordarray = preg_split("/;+/", implode(" ", $wordarray));
             if ($wordarray[0] != ".") {
-                $oSequence->setKeywords($wordarray);
+                foreach($wordarray as $word) {
+                    $oKeyword = new Keywords();
+                    $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
+                    $oKeyword->setKeywords($word);
+                    $this->keywords[] = $oKeyword;
+                }
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -327,17 +370,21 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses ACCESSION field
-     * @param       Sequence    $oSequence  The object Sequence to be analyzed
      * @throws      \Exception
      */
-    private function parseAccession(&$oSequence)
+    private function parseAccession()
     {
         try {
             $wordarray = preg_split("/\s+/", trim($this->aLines->current()));
-            $oSequence->setAccession($wordarray[1]);
+            $this->sequence->setPrimAcc($wordarray[1]);
             array_shift($wordarray);
             array_shift($wordarray);
-            $oSequence->setSecAccession($wordarray);
+            foreach($wordarray as $word) {
+                $oAccession = new Accession();
+                $oAccession->setPrimAcc($wordarray[1]);
+                $oAccession->setAccession($word);
+                $this->accession[] = $oAccession;
+            }
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -346,23 +393,28 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
     /**
      * Parses each fields for FEATURES
-     * @param   array   $aFeatures      The features part
      * @param   array   $aFlines
      * @param   string  $sField
      * @throws  \Exception
      */
-    private function parseFeatures(&$aFeatures, $aFlines, $sField)
+    private function parseFeatures($aFlines, $sField)
     {
         try {
             $sKey = $sField ." ". trim(substr($this->aLines->current(), 20));
-            $aMyFeature = [];
             $this->aLines->next();
             $sLine = trim(substr($this->aLines->current(), 20));
             while (1) {
                 // If line begins with  /
                 // Adding line in array
                 if(trim($aFlines[$this->aLines->key()+1])[0] == "/") {
-                    $aMyFeature[] = $sLine;
+                    $sLine = str_replace("/","",trim($sLine));
+                    $aLine = explode("=",str_replace('"',"",$sLine));
+                    $oGbFeature = new GbFeatures();
+                    $oGbFeature->setPrimAcc($this->sequence->getPrimAcc());
+                    $oGbFeature->setFtKey($sKey);
+                    $oGbFeature->setFtQual($aLine[0]);
+                    $oGbFeature->setFtValue($aLine[1]);
+                    $this->gbFeatures[] = $oGbFeature;
                     $sLine = ""; // RAZ
                 }
 
@@ -371,11 +423,17 @@ class ParseGenbankManager implements ParseDatabaseInterface
 
                 $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 12));
                 if($sHead != "") { // Stop if we change feature
-                    $aMyFeature[] = $sLine;
+                    $sLine = str_replace("/","",trim($sLine));
+                    $aLine = explode("=",str_replace('"',"",$sLine));
+                    $oGbFeature = new GbFeatures();
+                    $oGbFeature->setPrimAcc($this->sequence->getPrimAcc());
+                    $oGbFeature->setFtKey($sKey);
+                    $oGbFeature->setFtQual($aLine[0]);
+                    $oGbFeature->setFtValue($aLine[1]);
+                    $this->gbFeatures[] = $oGbFeature;
                     break;
                 }
             }
-            $aFeatures[$sKey] = $aMyFeature;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

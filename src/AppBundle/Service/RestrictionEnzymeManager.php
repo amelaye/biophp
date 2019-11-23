@@ -9,7 +9,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Api\ApiAdapterInterface;
 use AppBundle\Entity\Enzyme;
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
