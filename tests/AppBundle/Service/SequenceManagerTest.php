@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\Service;
 
 
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;
 

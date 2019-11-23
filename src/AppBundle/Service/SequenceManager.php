@@ -8,7 +8,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Api\ApiAdapterInterface;
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;

@@ -7,9 +7,8 @@
  */
 namespace AppBundle\Service;
 
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Represents the result of an alignment performed by various third-party
@@ -19,7 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
- * @todo : seems ok. Now I have to create the unit tests :)
  */
 class SequenceAlignmentManager
 {
@@ -156,7 +154,7 @@ class SequenceAlignmentManager
 
             foreach($aSequences as $sKey => $sSeqData) {
                 $oSequence = new Sequence();
-                $oSequence->setId($sKey);
+                $oSequence->setPrimAcc($sKey);
                 $oSequence->setSeqlength(strlen($sSeqData));
                 $oSequence->setSequence($sSeqData);
                 $oSequence->setStart(0);
@@ -195,7 +193,7 @@ class SequenceAlignmentManager
                     $iSeqLength = strlen($sSequence);
 
                     $oSequence = new Sequence();
-                    $oSequence->setId($iPrevId);
+                    $oSequence->setPrimAcc($iPrevId);
                     $oSequence->setSeqlength($iSeqLength);
                     $oSequence->setSequence($sSequence);
 
@@ -227,7 +225,7 @@ class SequenceAlignmentManager
             $iSeqLength = strlen($sSequence);
 
             $oSequence = new Sequence();
-            $oSequence->setId($iPrevId);
+            $oSequence->setPrimAcc($iPrevId);
             $oSequence->setSeqlength($iSeqLength);
             $oSequence->setSequence($sSequence);
 
@@ -682,7 +680,7 @@ class SequenceAlignmentManager
             $iPrevLength = 0;
 
             foreach($this->aSeqSet as $oElement) {
-                if ($oElement->getId() != $iSequenceId) {
+                if ($oElement->getPrimAcc() != $iSequenceId) {
                     $aTempSet->append($oElement);
                 } else {
                     $oRemovedSeq = $oElement;
