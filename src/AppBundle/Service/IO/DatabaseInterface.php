@@ -12,7 +12,7 @@ namespace AppBundle\Service\IO;
  * @package AppBundle\Interfaces
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  */
-interface RecordingOnLocalDb
+interface DatabaseInterface
 {
     /**
      * Retrieves all data from the specified sequence record and returns them in the

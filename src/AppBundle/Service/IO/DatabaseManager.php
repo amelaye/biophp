@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class DatabaseManager implements RecordingOnLocalDb
+class DatabaseManager implements DatabaseInterface
 {
     use FormatsTrait;
 
@@ -57,7 +57,7 @@ class DatabaseManager implements RecordingOnLocalDb
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
      * @param       string          $sSeqId     The id of the seq obj.
-     * @return      ParseSwissprotManager | ParseGenbankManager
+     * @return      ParseSwissprotManager | ParseGenbankManager | bool
      * @throws      \Exception
      */
     public function fetch($sSeqId)

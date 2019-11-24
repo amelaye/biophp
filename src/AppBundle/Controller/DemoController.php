@@ -12,6 +12,7 @@ use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use AppBundle\Service\IO\DatabaseInterface;
 use AppBundle\Service\IO\DatabaseManager;
 
 /**
@@ -33,11 +34,11 @@ class DemoController extends Controller
      * Read a sequence from a database
      * Generates .idx and .dir files
      * @route("/read-sequence-genbank", name="read_sequence_genbank")
-     * @param DatabaseManager $databaseManager
+     * @param DatabaseInterface $databaseManager
      * @return Response
      * @throws \Exception
      */
-    public function parseaseqdbAction(DatabaseManager $databaseManager)
+    public function parseaseqdbAction(DatabaseInterface $databaseManager)
     {
         $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
         $oService = $databaseManager->fetch("NM_031438");
