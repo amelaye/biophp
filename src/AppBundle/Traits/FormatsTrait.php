@@ -10,7 +10,7 @@ namespace AppBundle\Traits;
 /**
  * Trait FormatsTrait - Some useful functions
  * @package AppBundle\Traits
- * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @author AmÃ©lie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 trait FormatsTrait
 {

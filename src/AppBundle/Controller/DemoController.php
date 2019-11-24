@@ -40,10 +40,28 @@ class DemoController extends Controller
     public function parseaseqdbAction(DatabaseManager $databaseManager)
     {
         $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
-        $oSequence = $databaseManager->fetch("NM_031438");
+        $oService = $databaseManager->fetch("NM_031438");
+dump($oService);
+        $oSequence      = $oService->getSequence();
+        $aAccession     = $oService->getAccession();
+        $aAuthors       = $oService->getAuthors();
+        $oGbSequence    = $oService->getGbSequence();
+        $aGbFeatures    = $oService->getGbFeatures();
+        $aReferences    = $oService->getReferences();
+        $oSrcForm       = $oService->getSrcForm();
+        $aKeywords      = $oService->getKeywords();
 
         return $this->render('demo/parseseqdb.html.twig',
-            ["sequence" => $oSequence]
+            [
+                "sequence"      => $oSequence,
+                "accession"     => $aAccession,
+                "authors"       => $aAuthors,
+                "gbsequence"    => $oGbSequence,
+                "gbfeatures"    => $aGbFeatures,
+                "references"    => $aReferences,
+                "srcform"       => $oSrcForm,
+                "keywords"      => $aKeywords
+            ]
         );
     }
 

@@ -22,25 +22,26 @@
             <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
                 <h2>Info :</h2>
                 <div>
-                    ID : {{ sequence.id }} <br/>
-                    MOL. TYPE : {{ sequence.strands }}<br/>
-                    TOPOLOGY : {{ sequence.topology }}<br/>
-                    DIVISION : {{ sequence.division }}<br/>
+                    ID : {{ sequence.primAcc }} <br/>
+                    MOL. TYPE : {{ gbsequence.strands }}<br/>
+                    TOPOLOGY : {{ gbsequence.topology }}<br/>
+                    DIVISION : {{ gbsequence.division }}<br/>
                     SEQ LENGTH : {{ sequence.seqlength }}<br/>
-                    ACCESSION : {{ sequence.accession }}<br/>
-                    VERSION : {{ sequence.version }}<br/>
-                    ncbiGiId : {{ sequence.ncbiGiId }}<br/>
+                    {% for acc in accession %}
+                        ACCESSION : {{ acc.accession }}<br/>
+                    {% endfor %}
+                    VERSION : {{ gbsequence.version }}<br/>
+                    ncbiGiId : {{ gbsequence.ncbiGiId }}<br/>
                 </div>
                 <hr />
                 <h2>Keywords :</h2>
-                {% for keyword in sequence.keywords %}
-                    - {{ keyword }}
+                {% for keyword in keywords %}
+                    - {{ keyword.keywords }}
                 {% endfor %}
                 <hr />
                 <h2>Segment info :</h2>
-                SEGMENT No : {{ sequence.segmentno }}<br/>
-                SEGMENT Count : {{ sequence.segmentcount }}<br/>
-                SEGMENT : {{ sequence.segment }}<br/>
+                SEGMENT No : {{ gbsequence.segmentno }}<br/>
+                SEGMENT Count : {{ gbsequence.segmentcount }}<br/>
                 SOURCE : {{ sequence.source }}<br/>
                 ORGANISM : {{ sequence.organism }}<br/>
             </div>
@@ -63,28 +64,30 @@
             </div>
             <div class="tab-pane fade" id="reference" role="tabpanel" aria-labelledby="reference-tab">
                 <h2>Reference : </h2>
-                {% for ref in sequence.reference %}
+                {% for ref in references %}
                     <table class="table table-striped table-bordered ">
-                        {% for key, line in ref %}
-                            <tr>
-                                <th scope="row">{{ key }}</td>
-                                <td>{{ line }}</td>
-                            </tr>
-                        {% endfor %}
+                        <tr>
+                            <th scope="row">Base Range</td>
+                            <td>{{ ref.baseRange }}</td>
+                        </tr>
                     </table>
                 {% endfor %}
             </div>
             <div class="tab-pane fade" id="feature" role="tabpanel" aria-labelledby="feature-tab">
                 <h2>Features :</h2>
-                {% for key, feature in sequence.features %}
+                {% for feature in gbfeatures %}
                     <table class="table table-striped table-bordered ">
                         <tr>
-                            <td>{{ key }}</td>
-                            <td>
-                                {% for line in feature %}
-                                    {{ line }} <br />
-                                {% endfor %}
-                            </td>
+                            <td>Key</td>
+                            <td>{{ feature.ftKey }}</td>
+                        </tr>
+                        <tr>
+                            <td>Qual</td>
+                            <td>{{ feature.ftQual }}</td>
+                        </tr>
+                        <tr>
+                            <td>Value</td>
+                            <td>{{ feature.ftValue }}</td>
                         </tr>
                     </table>
                 {% endfor %}

@@ -5,7 +5,7 @@
  * Created 11 february 2019
  * Last modified 10 april 2019
  */
-namespace AppBundle\Interfaces;
+namespace AppBundle\Service\IO;
 
 /**
  * Interface RecordingOnLocalDb

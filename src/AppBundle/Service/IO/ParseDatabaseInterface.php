@@ -1,10 +1,19 @@
 <?php
+/**
+ * Global database parsing
+ * Freely inspired by BioPHP's project biophp.org
+ * Created 24 november 2019
+ * Last modified 24 november 2019
+ */
+namespace AppBundle\Service\IO;
 
-namespace AppBundle\Interfaces;
-
+/**
+ * Interface ParseDatabaseInterface
+ * @package AppBundle\Service\IO
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 interface ParseDatabaseInterface
 {
-
     /**
      * ParseGenbankManager constructor.
      */

@@ -8,7 +8,6 @@
 namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequence;
-use AppBundle\Interfaces\ParseDatabaseInterface;
 use AppBundle\Traits\FormatsTrait;
 
 /**

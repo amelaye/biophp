@@ -8,13 +8,13 @@
 namespace AppBundle\Service\IO;
 
 
-use AppBundle\Interfaces\RecordingOnLocalDb;
+use AppBundle\Service\IO\Factory\DatabaseReaderFactory;
+use AppBundle\Service\IO\Factory\DatabaseRecorderFactory;
 use AppBundle\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use AppBundle\Entity\IO\Collection;
 use AppBundle\Entity\IO\CollectionElement;
-use AppBundle\Entity\Sequence;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 
@@ -42,31 +42,14 @@ class DatabaseManager implements RecordingOnLocalDb
      */
     protected $em;
 
-    /**
-     * @var ParseGenbankManager
-     */
-    protected $parseGenbankManager;
-
-    /**
-     * @var ParseSwissprotManager
-     */
-    protected $parseSwissprotManager;
-
 
     /**
      * DatabaseManager constructor.
      * @param EntityManagerInterface     $em                         Entity Manager, for Doctrine
-     * @param ParseGenbankManager        $parseGenbankManager        Service for GENBANK data
-     * @param ParseSwissprotManager      $parseSwissprotManager      Service for SwissProt data
      */
-    public function __construct(
-        EntityManagerInterface $em,
-        ParseGenbankManager $parseGenbankManager,
-        ParseSwissprotManager $parseSwissprotManager
-    ) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
-        $this->parseGenbankManager = $parseGenbankManager;
-        $this->parseSwissprotManager = $parseSwissprotManager;
     }
 
 
@@ -74,7 +57,7 @@ class DatabaseManager implements RecordingOnLocalDb
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
      * @param       string          $sSeqId     The id of the seq obj.
-     * @return      Sequence|bool
+     * @return      ParseSwissprotManager | ParseGenbankManager
      * @throws      \Exception
      */
     public function fetch($sSeqId)
@@ -91,17 +74,8 @@ class DatabaseManager implements RecordingOnLocalDb
 
             $fpSeq = fopen(__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName(), "r");
             $aFlines = $this->line2r($fpSeq);
-
-            if ($collectionDB->getDbFormat() == "GENBANK") {
-                $oSequence = $this->parseGenbankManager->parseDataFile($aFlines);
-            }
-            elseif ($collectionDB->getDbFormat() == "SWISSPROT") {
-                $oSequence = $this->parseSwissprotManager->parseDataFile($aFlines);
-            }
-            else {
-                throw new \Exception("Unknown database format ! ");
-            }
-            return $oSequence;
+            $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
+            return $oService;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -207,11 +181,7 @@ class DatabaseManager implements RecordingOnLocalDb
     private function atEntrystart($linestr, $dbformat)
     {
         try {
-            if ($dbformat == "GENBANK") {
-                return (substr($linestr,0,5) == "LOCUS");
-            } elseif ($dbformat == "SWISSPROT") {
-                return (substr($linestr,0,2) == "ID");
-            }
+            return DatabaseRecorderFactory::getEntryStart($dbformat, $linestr);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -229,19 +199,7 @@ class DatabaseManager implements RecordingOnLocalDb
     private function getEntryid(&$flines, $linestr, $dbformat)
     {
         try {
-            if ($dbformat == "GENBANK") {
-                $locus = preg_split("/\s+/", trim($linestr));
-                $entyId = $locus[1];
-                return trim($entyId);
-            } elseif ($dbformat == "SWISSPROT") {
-                foreach ($flines as $lineno => $linestr) {
-                    if (substr($linestr,0,2) == "AC") {
-                        $words = preg_split("/;/", $this->intrim(substr($linestr,5)));
-                        prev($flines);
-                        return $words[0];
-                    }
-                }
-            }
+            DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

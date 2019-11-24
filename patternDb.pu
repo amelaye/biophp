@@ -1,0 +1,71 @@
+@startuml
+
+package "Factory" #DDDDDD {
+    abstract DatabaseReaderFactory {
+        + {static} readDatabase($sType, $aFlines)
+    }
+
+
+    abstract DatabaseRecorderFactory {
+        + {static} bool getEntryStart($sType, $sLinestr)
+        + {static} string getEntryId($sType, $flines, $linestr)
+    }
+}
+
+class DatabaseManager implements RecordingOnLocalDb {
+    # EntityManager $em
+    + __construct(EntityManagerInterface $em)
+    + fetch($sSeqId)
+    + recording()
+    - atEntrystart($linestr, $dbformat)
+    - getEntryid(&$flines, $linestr, $dbformat)
+}
+
+
+interface ParseDatabaseInterface {
+    + __construct()
+    + void parseDataFile($aFlines)
+}
+
+class ParseGenbankManager extends ParseDbAbstractManager {
+    - array $aLines
+    + parseDataFile($aFlines)
+    - parseReferences($aFlines)
+    - seekReferences(&$sReferenceProperty)
+    - parseLocus()
+    - parseDefinition($flines)
+    - parseVersion()
+    - parseKeywords()
+    - parseAccession()
+    - parseFeatures($aFlines, $sField)
+}
+
+class ParseSwissprotManager extends ParseDbAbstractManager
+
+interface RecordingOnLocalDb {
+    + fetch($sSeqId)
+    + recording()
+}
+
+abstract ParseDbAbstractManager implements ParseDatabaseInterface {
+    # array $accession
+    # Sequence $sequence
+    # array $authors
+    # array $gbFeatures
+    # array $keywords
+    # array $references
+    # SrcForm $srcForm
+    # GbSequence $gbSequence
+    + __construct()
+}
+
+DatabaseRecorderFactory <-- DatabaseManager
+DatabaseReaderFactory <-- DatabaseManager
+
+DatabaseRecorderFactory --> ParseGenbankManager
+DatabaseRecorderFactory --> ParseSwissprotManager
+
+DatabaseReaderFactory --> ParseGenbankManager
+DatabaseReaderFactory --> ParseSwissprotManager
+
+@enduml

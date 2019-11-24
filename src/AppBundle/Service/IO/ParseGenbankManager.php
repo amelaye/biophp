@@ -2,20 +2,15 @@
 /**
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
- * Created 15 february 2019
- * Last modified 23 november 2019
+ * Created 24 november 2019
+ * Last modified 24 november 2019
  */
 namespace AppBundle\Service\IO;
 
-//use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Sequencing\Authors;
 use AppBundle\Entity\Sequencing\GbFeatures;
 use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Reference;
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Entity\Sequencing\GbSequence;
-use AppBundle\Entity\Sequencing\SrcForm;
-use AppBundle\Interfaces\ParseDatabaseInterface;
 use AppBundle\Entity\Sequencing\Accession;
 
 /**
@@ -23,69 +18,12 @@ use AppBundle\Entity\Sequencing\Accession;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class ParseGenbankManager implements ParseDatabaseInterface
+final class ParseGenbankManager extends ParseDbAbstractManager
 {
     /**
      * @var array
      */
-    private $accession;
-
-    /**
-     * @var Sequence
-     */
-    private $sequence;
-
-    /**
-     * @var array
-     */
-    private $authors;
-
-    /**
-     * @var array
-     */
-    private $gbFeatures;
-
-    /**
-     * @var array
-     */
-    private $keywords;
-
-    /**
-     * @var array
-     */
-    private $references;
-
-    /**
-     * @var SrcForm
-     */
-    private $srcForm;
-
-    /**
-     * @var GbSequence
-     */
-    private $gbSequence;
-
-    /**
-     * @var array
-     */
     private $aLines;
-
-
-    /**
-     * ParseGenbankManager constructor.
-     */
-    public function __construct()
-    {
-        $this->accession    = []; // array of Accessions();
-        $this->sequence     = new Sequence();
-        $this->authors      = []; // array of Authors()
-        $this->gbSequence   = new GbSequence();
-        $this->gbFeatures   = []; // array of GbFeatures();
-        $this->keywords     = []; // array of Keywords();
-        $this->references   = []; // array of Keywords();
-        $this->srcForm      = new SrcForm();
-    }
-
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.

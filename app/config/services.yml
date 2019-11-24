@@ -43,6 +43,9 @@ services:
             - '@jms_serializer'
 
     AppBundle\Api\ApiAdapterInterface: '@AppBundle\Api\Bioapi'
+    AppBundle\Service\IO\ParseDbAbstractManager:
+        abstract: true
+    AppBundle\Service\IO\ParseDatabaseInterface: '@AppBundle\Service\IO\ParseDbAbstractManager'
 
     MinitoolsBundle\Twig\AppExtension:
         arguments:
