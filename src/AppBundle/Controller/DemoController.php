@@ -40,7 +40,7 @@ class DemoController extends Controller
      */
     public function parseaseqdbAction(DatabaseInterface $databaseManager)
     {
-        $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
+       // $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
         $oService = $databaseManager->fetch("NM_031438");
 dump($oService);
         $oSequence      = $oService->getSequence();
@@ -78,7 +78,10 @@ dump($oService);
     {
         $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
+
         dump($oSequence);
+
+        exit();
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]
         );

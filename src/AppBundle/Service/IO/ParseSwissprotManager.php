@@ -3,11 +3,13 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 25 october 2019
+ * Last modified 28 november 2019
  */
 namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Accession;
+use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Traits\FormatsTrait;
 
 /**
@@ -15,11 +17,11 @@ use AppBundle\Traits\FormatsTrait;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class ParseSwissprotManager implements ParseDatabaseInterface
+final class ParseSwissprotManager extends ParseDbAbstractManager
 {
     use FormatsTrait;
 
-    private $accession;
+    private $access;
     private $date_r;
     private $desc;
     private $desc_lnctr;
@@ -36,8 +38,6 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     private $rl_str;
     private $db_r;
     private $ft_r;
-    private $kw_str;
-    private $kw_r;
 
     private $aLines;
 
@@ -46,7 +46,9 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      */
     public function __construct()
     {
-        $this->accession  = [];
+        parent::__construct();
+
+        $this->access  = [];
         $this->date_r     = [];
         $this->desc       = "";
         $this->desc_lnctr = 0;
@@ -63,8 +65,6 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $this->rl_str     = "";
         $this->db_r       = [];
         $this->ft_r       = [];
-        $this->kw_str     = "";
-        $this->kw_r       = [];
     }
 
     /**
@@ -82,8 +82,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
         $oSequence = new Sequence();
         $this->aLines = new \ArrayIterator($aFlines); // <3
 
-        $aSwiss = [];
+        //$aSwiss = [];
         $organelle = null;
+
+        $sKeywords = "";
 
         /* Parsing the whole data */
         foreach($this->aLines as $lineno => $linestr) {
@@ -92,28 +94,30 @@ class ParseSwissprotManager implements ParseDatabaseInterface
 
             switch($linelabel) {
                 case "ID":
-                    $this->buildIDFields($aSwiss,$oSequence); // ok
+                    $this->buildIDFields($oSequence); // ok
                     break;
                 case "AC":
                     $this->buildACFields(); // ok
+                    $oSequence->setAccession($this->access[0]);
+                    $this->sequence->setPrimAcc($this->access[0]);
                     break;
                 case "DT":
-                    $this->buildDTFields($aSwiss,$oSequence); // ok
+                    $this->buildDTFields($oSequence); // ok
                     break;
                 case "DE":
-                    $this->buildDEFields($aSwiss); // ok
+                    $this->buildDEFields(); // ok
                     break;
                 case "KW":
-                    $this->buildKWFields(); // ok
+                    $aKeywords = $this->buildKWFields($sKeywords); // ok
                     break;
                 case "OS":
-                    $this->buildOSFields($aSwiss,$oSequence); // ok
+                    $this->buildOSFields($oSequence); // ok
                     break;
                 case "OG":
                     $organelle = $this->rem_right($linedata); // ok
                     break;
                 case "OC":
-                    $this->buildOCField($aSwiss,$oSequence); // ok
+                    $this->buildOCField($oSequence); // ok
                     break;
                 case "FT":
                     $this->buildFTField(); // ok
@@ -128,43 +132,41 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                     $this->buildGNField(); // ok
                     break;
                 case "SQ":
-                    $this->buildSQField($aSwiss,$oSequence);
+                    $this->buildSQField($oSequence);
                     break;
             }
         }
 
-        $oSequence->setAccession($this->accession[0]);
+        $aAccessions = $this->access;
+        array_shift($aAccessions);
 
-        $aSwiss["ACCESSION"]     = $this->accession; // ACCESSION is an ARRAY.
-        $aSwiss["PRIM_AC"]       = $this->accession[0];
+        foreach($aAccessions as $sAccession) {
+            $oAccession = new Accession();
+            $oAccession->setPrimAcc($this->sequence->getPrimAcc());
+            $oAccession->setAccession($sAccession);
+            $this->accession[] = $oAccession;
+        }
 
-        array_shift($this->accession);
-        $oSequence->setSecAccession($this->accession);
-        $oSequence->setDefinition($this->desc);
-        $oSequence->setKeywords($this->kw_r);
-
+        $this->sequence->setDescription($this->desc);
         $genbank_ref_r = $this->makeRefArray();
         $oSequence->setReference($genbank_ref_r);
 
-        $aSwiss["DESC"]          = $this->desc;
-        $aSwiss["KEYWORDS"]      = $this->kw_r; // KEYWORDS is an ARRAY.
-        $aSwiss["ORGANELLE"]     = $organelle;
+        //$aSwiss["DESC"]          = $this->desc;
+        //$aSwiss["KEYWORDS"]      = $this->kw_r; // KEYWORDS is an ARRAY.
+        //$aSwiss["ORGANELLE"]     = $organelle;
         $this->processFT($aSwiss); // FT_<keyword> is an ARRAY.
-        $aSwiss["GENE_NAME"]     = $this->gename_r; // GENE_NAME is an ARRAY.
-        $aSwiss["REFERENCE"]     = $this->ref_r; // REFERENCE is an ARRAY.
+        //$aSwiss["GENE_NAME"]     = $this->gename_r; // GENE_NAME is an ARRAY.
+        //$aSwiss["REFERENCE"]     = $this->ref_r; // REFERENCE is an ARRAY.
 
-        $oSequence->setSwissprot($aSwiss);
         return $oSequence;
     }
 
     /**
      * Parses ID line
      * Format : ID PROTNAME_PROTSOURCE DATA_CLASS; MOL_TYPE; LENGTH AA.
-     * @param   array           $aSwiss
-     * @param   Sequence        $oSequence
      * @throws  \Exception
      */
-    private function buildIDFields(&$aSwiss, &$oSequence)
+    private function buildIDFields()
     {
         try {
             $aWords = [];
@@ -178,20 +180,19 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $aNameSrc       = preg_split("/_/", $sEntryName);
             $sProteinName   = $aNameSrc[0];
             $sProteinSource = $aNameSrc[1];
-            $sDataClass     = $aWords[1];
+            //$sDataClass     = $aWords[1];
             $sMoltype       = $aWords[2];
             $iLength        = (int)$aWords[3];
 
-            $aSwiss["ID"]            = $sProteinName;
-            $aSwiss["PROT_NAME"]     = $sProteinName;
-            $aSwiss["MOL_TYPE"]      = $sMoltype;
-            $aSwiss["PROT_SOURCE"]   = $sProteinSource;
-            $aSwiss["DATA_CLASS"]    = $sDataClass;
-            $aSwiss["LENGTH"]        = $iLength;
 
-            $oSequence->setId($sProteinName);
-            $oSequence->setSeqlength($iLength);
-            $oSequence->setMoltype($sMoltype);
+            $this->sequence->setEntryName($sProteinName);
+            $this->sequence->setMolType($sMoltype);
+            $this->sequence->setSource($sProteinSource);
+            $this->sequence->setSeqLength($iLength);
+
+            //$oSequence->setId($sProteinName);
+            //$oSequence->setSeqlength($iLength);
+            //$oSequence->setMoltype($sMoltype);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -208,7 +209,8 @@ class ParseSwissprotManager implements ParseDatabaseInterface
             $sLineData = trim(substr($this->aLines->current(), 3));
             $sAccession = substr($sLineData, 0, strlen($sLineData)-1);
             $sAccessionLine = preg_split("/;/", $this->intrim($sAccession));
-            $this->accession = array_merge($this->accession, $sAccessionLine);
+            $this->access = array_merge($this->access, $sAccessionLine);
+            dump($this->access);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -217,11 +219,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     /**
      * Parses DT Line
      * Format : DT 21-JUL-1986 (REL. 01, LAST SEQUENCE UPDATE)
-     * @param   array           $aSwiss
      * @param   Sequence        $oSequence
      * @throws  \Exception
      */
-    private function buildDTFields(&$aSwiss, &$oSequence)
+    private function buildDTFields(&$oSequence)
     {
         try {
             $sSequpdDate = $sCreateDate = null;
@@ -261,13 +262,13 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                     break;
             }
 
-            $aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $sCreateDate;
-            $aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $sCreateRel;
+            //$aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $sCreateDate;
+            //$aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $sCreateRel;
 
-            $aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sSequpdDate;
-            $aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sSequpdRel;
-            $aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $sNotupdDate;
-            $aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $sNotupdRel;
+            //$aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sSequpdDate;
+            //$aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sSequpdRel;
+            //$aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $sNotupdDate;
+            //$aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $sNotupdRel;
 
             if($sCreateDate != null) {
                 $oSequence->setDate($sCreateDate);
@@ -280,10 +281,9 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     /**
      * Parses DE line
      * Format : DE TUMOR NECROSIS FACTOR PRECURSOR (TNF-ALPHA) (CACHECTIN).
-     * @param   array           $aSwiss
      * @throws  \Exception
      */
-    private function buildDEFields(&$aSwiss)
+    private function buildDEFields()
     {
         try {
             $sLine = trim(substr($this->aLines->current(), 3));
@@ -304,7 +304,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                 } else {
                     $bIsFragment = false;
                 }
-                $aSwiss["IS_FRAGMENT"]   = $bIsFragment;
+                //$aSwiss["IS_FRAGMENT"]   = $bIsFragment;
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -316,20 +316,23 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Format : KW WORD1; WORD2; WORD3; etc ...
      * @throws \Exception
      */
-    private function buildKWFields()
+    private function buildKWFields(&$sKeywords)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
             $sLineEnd = $this->right($sLineData, 1);
+            $sKeywords .= $sLineData;
 
-            $this->kw_str .= $sLineData;
             if ($sLineEnd == ".") {
-                $this->kw_str = $this->rem_right($this->kw_str);
-                $this->kw_r = preg_split("/;/", $this->kw_str);
-                array_walk($this->kw_r, function(&$sValue) {
+                $sKeywords = $this->rem_right($sKeywords);
+                $aKeywords = preg_split("/;/", $sKeywords);
+                array_walk($aKeywords, function(&$sValue) {
                     $sValue = trim($sValue);
+                    $oKeyword = new Keywords();
+                    $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
+                    $oKeyword->setKeywords($sValue);
+                    $this->keywords[] = $oKeyword;
                 });
-                $this->kw_str = "";
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -339,11 +342,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     /**
      * Parses OS line
      * Format : OS HOMO SAPIENS (HUMAN).
-     * @param   array           $aSwiss
      * @param   Sequence        $oSequence
      * @throws \Exception
      */
-    private function buildOSFields(&$aSwiss, &$oSequence)
+    private function buildOSFields(&$oSequence)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
@@ -360,7 +362,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                 $this->os_str .= " $sLineData";
                 $this->os_str = $this->rem_right($this->os_str);
                 $aOSLine = preg_split("/\, AND /", $this->os_str);
-                $aSwiss["ORGANISM"] = $aOSLine; // ORGANISM is an ARRAY.
+                //$aSwiss["ORGANISM"] = $aOSLine; // ORGANISM is an ARRAY.
                 $oSequence->setSource($aOSLine);
             }
         } catch (\Exception $e) {
@@ -373,11 +375,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
      * Format :
      * OC EUKARYOTA; METAZOA; CHORDATA; VERTEBRATA; TETRAPODA; MAMMALIA;
      * OC EUTHERIA; PRIMATES.
-     * @param   array           $aSwiss
      * @param   Sequence        $oSequence
      * @throws \Exception
      */
-    private function buildOCField(&$aSwiss, &$oSequence)
+    private function buildOCField(&$oSequence)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
@@ -399,7 +400,7 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                 });
 
                 // ORG_CLASS is an ARRAY.
-                $aSwiss["ORG_CLASS"] = $aOCLine;
+                //$aSwiss["ORG_CLASS"] = $aOCLine;
                 $oSequence->setOrganism($aOCLine);
             }
         } catch (\Exception $e) {
@@ -640,11 +641,10 @@ class ParseSwissprotManager implements ParseDatabaseInterface
     /**
      * Parses SQ lines and below
      * SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXX CN;
-     * @param   array           $aSwiss
      * @param   Sequence        $oSequence
      * @throws  \Exception
      */
-    private function buildSQField(&$aSwiss, &$oSequence)
+    private function buildSQField(&$oSequence)
     {
         try {
 
@@ -673,11 +673,11 @@ class ParseSwissprotManager implements ParseDatabaseInterface
                     $this->aLines->next();
                 }
             }
-            $aSwiss["AMINO_COUNT"]   = $iAACount;
-            $aSwiss["MOLWT"]         = $iMolWeight;
-            $aSwiss["CHK_NO"]        = $sChkNo;
-            $aSwiss["CHK_METHOD"]    = $sChkMethod;
-            $aSwiss["SEQUENCE"]      = $sSequence;
+            //$aSwiss["AMINO_COUNT"]   = $iAACount;
+            //$aSwiss["MOLWT"]         = $iMolWeight;
+            //$aSwiss["CHK_NO"]        = $sChkNo;
+            //$aSwiss["CHK_METHOD"]    = $sChkMethod;
+            //$aSwiss["SEQUENCE"]      = $sSequence;
 
             $oSequence->setSequence($sSequence);
         } catch (\Exception $e) {

@@ -12,7 +12,7 @@ package "Factory" #DDDDDD {
     }
 }
 
-class DatabaseManager implements RecordingOnLocalDb {
+class DatabaseManager implements DatabaseInterface {
     # EntityManager $em
     + __construct(EntityManagerInterface $em)
     + fetch($sSeqId)
@@ -42,10 +42,11 @@ class ParseGenbankManager extends ParseDbAbstractManager {
 
 class ParseSwissprotManager extends ParseDbAbstractManager
 
-interface RecordingOnLocalDb {
+interface DatabaseInterface {
     + fetch($sSeqId)
     + recording()
 }
+note top of DatabaseInterface : Inject it in your controller to do your requests <3.
 
 abstract ParseDbAbstractManager implements ParseDatabaseInterface {
     # array $accession
@@ -57,13 +58,19 @@ abstract ParseDbAbstractManager implements ParseDatabaseInterface {
     # SrcForm $srcForm
     # GbSequence $gbSequence
     + __construct()
+    + getAccession()
+    + getSequence()
+    + getAuthors()
+    + getGbSequence()
+    + getGbFeatures()
+    + getKeywords()
+    + getReferences()
+    + getSrcForm()
+    + parseDataFile($aFlines)
 }
 
 DatabaseRecorderFactory <-- DatabaseManager
 DatabaseReaderFactory <-- DatabaseManager
-
-DatabaseRecorderFactory --> ParseGenbankManager
-DatabaseRecorderFactory --> ParseSwissprotManager
 
 DatabaseReaderFactory --> ParseGenbankManager
 DatabaseReaderFactory --> ParseSwissprotManager
