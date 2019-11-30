@@ -8,6 +8,7 @@
 namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequencing\Accession;
+use AppBundle\Entity\Sequencing\Authors;
 use AppBundle\Entity\Sequencing\GbFeatures;
 use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Reference;
@@ -268,6 +269,8 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses OS line
      * Format : OS HOMO SAPIENS (HUMAN).
+     * @param  string       $sSource
+     * @param  int          $iSourceCpt
      * @throws \Exception
      */
     private function buildOSFields(&$sSource, &$iSourceCpt)
@@ -299,6 +302,8 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * Format :
      * OC EUKARYOTA; METAZOA; CHORDATA; VERTEBRATA; TETRAPODA; MAMMALIA;
      * OC EUTHERIA; PRIMATES.
+     * @param  string       $sOrganism
+     * @param  int          $iOrgaCpt
      * @throws \Exception
      */
     private function buildOCField(&$sOrganism, &$iOrgaCpt)
@@ -401,8 +406,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * RA ECK M.J., SPRANG S.R.;
      * RL J. BIOL. CHEM. 264:17595-17605(1989).
      * @param   array           $aFlines
+     * @param   array           $aReferences
+     * @param   array           $aAuthors
      * @throws  \Exception
-     * @todo : search RC examples
      */
     private function buildRNField($aFlines, &$aReferences, &$aAuthors)
     {
@@ -508,6 +514,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * 4) Singletons are translated into (GNAME1).
      * Multiple-tons are translated into (GNAME1, GNAME 2).
      * 5) Push gene name array into larger array. Go to next token.
+     * @param  $aGename
      * @throws \Exception
      */
     private function buildGNField(&$aGename)
@@ -586,6 +593,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
 
     /**
      * Creates references array
+     * @param       array       $aReferences
      * @throws      \Exception
      */
     private function makeRefArray($aReferences)
@@ -612,6 +620,16 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 }
                 if(isset($value["RC"])) {
                     $oReference->setComments($value["RC"]);
+                }
+                if(isset($value["RA"])) {
+                    $aAuthors = $value["RA"];
+                    foreach($aAuthors as $sAuthor) {
+                        $oAuthor = new Authors();
+                        $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
+                        $oAuthor->setRefno($key);
+                        $oAuthor->setAuthor($sAuthor);
+                        $this->authors[] = $oAuthor;
+                    }
                 }
                 $this->references[] = $oReference;
             }
