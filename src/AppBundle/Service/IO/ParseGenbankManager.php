@@ -8,7 +8,7 @@
 namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequencing\Authors;
-use AppBundle\Entity\Sequencing\GbFeatures;
+use AppBundle\Entity\Sequencing\Features;
 use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Entity\Sequencing\Accession;
@@ -347,12 +347,12 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                 if(trim($aFlines[$this->aLines->key()+1])[0] == "/") {
                     $sLine = str_replace("/","",trim($sLine));
                     $aLine = explode("=",str_replace('"',"",$sLine));
-                    $oGbFeature = new GbFeatures();
-                    $oGbFeature->setPrimAcc($this->sequence->getPrimAcc());
-                    $oGbFeature->setFtKey($sKey);
-                    $oGbFeature->setFtQual($aLine[0]);
-                    $oGbFeature->setFtValue($aLine[1]);
-                    $this->gbFeatures[] = $oGbFeature;
+                    $oFeature = new Features();
+                    $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+                    $oFeature->setFtKey($sKey);
+                    $oFeature->setFtQual($aLine[0]);
+                    $oFeature->setFtValue($aLine[1]);
+                    $this->features[] = $oFeature;
                     $sLine = ""; // RAZ
                 }
 
@@ -363,12 +363,12 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                 if($sHead != "") { // Stop if we change feature
                     $sLine = str_replace("/","",trim($sLine));
                     $aLine = explode("=",str_replace('"',"",$sLine));
-                    $oGbFeature = new GbFeatures();
-                    $oGbFeature->setPrimAcc($this->sequence->getPrimAcc());
-                    $oGbFeature->setFtKey($sKey);
-                    $oGbFeature->setFtQual($aLine[0]);
-                    $oGbFeature->setFtValue($aLine[1]);
-                    $this->gbFeatures[] = $oGbFeature;
+                    $oFeature = new Features();
+                    $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+                    $oFeature->setFtKey($sKey);
+                    $oFeature->setFtQual($aLine[0]);
+                    $oFeature->setFtValue($aLine[1]);
+                    $this->features[] = $oFeature;
                     break;
                 }
             }

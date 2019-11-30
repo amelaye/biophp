@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  */
-class GbFeatures
+class Features
 {
     /**
      * @var string

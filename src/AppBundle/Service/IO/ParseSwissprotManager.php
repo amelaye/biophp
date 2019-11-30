@@ -9,7 +9,7 @@ namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequencing\Accession;
 use AppBundle\Entity\Sequencing\Authors;
-use AppBundle\Entity\Sequencing\GbFeatures;
+use AppBundle\Entity\Sequencing\Features;
 use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Entity\Sequencing\SpDatabank;
@@ -353,14 +353,14 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             array_shift($aFtExplode);
             $sFTDesc = $this->rem_right(trim(implode(" ", $aFtExplode)));
 
-            $oFeature = new GbFeatures();
+            $oFeature = new Features();
             $oFeature->setPrimAcc($this->sequence->getPrimAcc());
             $oFeature->setFtKey($sFTKey);
             $oFeature->setFtFrom($iFTFrom);
             $oFeature->setFtTo($iFTTo);
             $oFeature->setFtValue($sFTKey);
             $oFeature->setFtDesc($sFTDesc);
-            $this->gbFeatures[] = $oFeature;
+            $this->features[] = $oFeature;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
