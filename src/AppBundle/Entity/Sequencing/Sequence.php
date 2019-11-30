@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 13 november 2019
+ * Last modified 28 november 2019
  */
 namespace AppBundle\Entity\Sequencing;
 
@@ -128,13 +128,23 @@ class Sequence
     private $description;
 
     /**
-     * @var string
+     * @var array
      * @ORM\Column(
-     *     type = "string",
+     *     type = "array",
      *     nullable = true
      * )
      */
     private $organism;
+
+    /**
+     * @var int
+     * @ORM\Column(
+     *     type = "integer",
+     *     length = 1,
+     *     nullable = true
+     * )
+     */
+    private $fragment;
 
     /**
      * @return string
@@ -305,10 +315,26 @@ class Sequence
     }
 
     /**
-     * @param string $organism
+     * @param array $organism
      */
     public function setOrganism($organism)
     {
         $this->organism = $organism;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFragment(): int
+    {
+        return $this->fragment;
+    }
+
+    /**
+     * @param int $fragment
+     */
+    public function setFragment(int $fragment): void
+    {
+        $this->fragment = $fragment;
     }
 }

@@ -10,6 +10,7 @@ namespace AppBundle\Service\IO;
 use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Sequencing\Accession;
 use AppBundle\Entity\Sequencing\Keywords;
+use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Traits\FormatsTrait;
 
 /**
@@ -21,7 +22,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
 {
     use FormatsTrait;
 
-    private $access;
     private $date_r;
     private $desc;
     private $desc_lnctr;
@@ -30,12 +30,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     private $os_str;
     private $oc_linectr;
     private $oc_str;
-    private $ref_r;
     private $ra_r;
-    private $ra_ctr;
-    private $ra_str;
-    private $rl_ctr;
-    private $rl_str;
     private $db_r;
     private $ft_r;
 
@@ -48,7 +43,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     {
         parent::__construct();
 
-        $this->access  = [];
         $this->date_r     = [];
         $this->desc       = "";
         $this->desc_lnctr = 0;
@@ -57,12 +51,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
         $this->os_str     = "";
         $this->oc_linectr = 0;
         $this->oc_str     = "";
-        $this->ref_r      = [];
         $this->ra_r       = [];
-        $this->ra_ctr     = 0;
-        $this->ra_str     = "";
-        $this->rl_ctr     = 0;
-        $this->rl_str     = "";
         $this->db_r       = [];
         $this->ft_r       = [];
     }
@@ -81,10 +70,10 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     {
         $oSequence = new Sequence();
         $this->aLines = new \ArrayIterator($aFlines); // <3
+        $aReferences = [];
+        $aAccessions = [];
 
-        //$aSwiss = [];
         $organelle = null;
-
         $sKeywords = "";
 
         /* Parsing the whole data */
@@ -94,12 +83,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
 
             switch($linelabel) {
                 case "ID":
-                    $this->buildIDFields($oSequence); // ok
+                    $this->buildIDFields(); // ok
                     break;
                 case "AC":
-                    $this->buildACFields(); // ok
-                    $oSequence->setAccession($this->access[0]);
-                    $this->sequence->setPrimAcc($this->access[0]);
+                    $this->buildACFields($aAccessions); // ok
+                    $oSequence->setAccession($aAccessions[0]);
+                    $this->sequence->setPrimAcc($aAccessions[0]);
                     break;
                 case "DT":
                     $this->buildDTFields($oSequence); // ok
@@ -108,16 +97,16 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $this->buildDEFields(); // ok
                     break;
                 case "KW":
-                    $aKeywords = $this->buildKWFields($sKeywords); // ok
+                    $this->buildKWFields($sKeywords); // ok
                     break;
                 case "OS":
-                    $this->buildOSFields($oSequence); // ok
+                    $this->buildOSFields(); // ok
                     break;
                 case "OG":
                     $organelle = $this->rem_right($linedata); // ok
                     break;
                 case "OC":
-                    $this->buildOCField($oSequence); // ok
+                    $this->buildOCField(); // ok
                     break;
                 case "FT":
                     $this->buildFTField(); // ok
@@ -126,7 +115,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $this->buildDRField(); // ok
                     break;
                 case "RN":
-                    $this->buildRNField($aFlines); // ok
+                    $this->buildRNField($aFlines, $aReferences); // ok
                     break;
                 case "GN":
                     $this->buildGNField(); // ok
@@ -137,7 +126,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             }
         }
 
-        $aAccessions = $this->access;
         array_shift($aAccessions);
 
         foreach($aAccessions as $sAccession) {
@@ -148,15 +136,11 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
         }
 
         $this->sequence->setDescription($this->desc);
-        $genbank_ref_r = $this->makeRefArray();
+
+        $genbank_ref_r = $this->makeRefArray($aReferences);
         $oSequence->setReference($genbank_ref_r);
 
-        //$aSwiss["DESC"]          = $this->desc;
-        //$aSwiss["KEYWORDS"]      = $this->kw_r; // KEYWORDS is an ARRAY.
-        //$aSwiss["ORGANELLE"]     = $organelle;
         $this->processFT($aSwiss); // FT_<keyword> is an ARRAY.
-        //$aSwiss["GENE_NAME"]     = $this->gename_r; // GENE_NAME is an ARRAY.
-        //$aSwiss["REFERENCE"]     = $this->ref_r; // REFERENCE is an ARRAY.
 
         return $oSequence;
     }
@@ -180,7 +164,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             $aNameSrc       = preg_split("/_/", $sEntryName);
             $sProteinName   = $aNameSrc[0];
             $sProteinSource = $aNameSrc[1];
-            //$sDataClass     = $aWords[1];
             $sMoltype       = $aWords[2];
             $iLength        = (int)$aWords[3];
 
@@ -189,10 +172,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             $this->sequence->setMolType($sMoltype);
             $this->sequence->setSource($sProteinSource);
             $this->sequence->setSeqLength($iLength);
-
-            //$oSequence->setId($sProteinName);
-            //$oSequence->setSeqlength($iLength);
-            //$oSequence->setMoltype($sMoltype);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -203,14 +182,14 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * Format : AC P01375;
      * @throws  \Exception
      */
-    private function buildACFields()
+    private function buildACFields(&$aAccess)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
             $sAccession = substr($sLineData, 0, strlen($sLineData)-1);
             $sAccessionLine = preg_split("/;/", $this->intrim($sAccession));
-            $this->access = array_merge($this->access, $sAccessionLine);
-            dump($this->access);
+            $aAccess = array_merge($aAccess, $sAccessionLine);
+            return($aAccess);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -242,6 +221,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $sCreateDate = substr($aWords[0], 0, 11);
                     $sCreateRel = substr($aWords[1], 5, ($iFirstComma-5));
                     $this->date_r[$sComment] = array($sCreateDate, $sCreateRel);
+                    $this->sequence->setDate($sCreateDate);
                     break;
                 case "LAST SEQUENCE UPDATE":
                     $sSequpdDate = substr($aWords[0], 0, 11);
@@ -261,14 +241,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $this->date_r[$sComment] = array($sOtherDate, $sOtherRel);
                     break;
             }
-
-            //$aSwiss["CREATE_DATE"] = $aSwiss["CREATE_DATE"]   ?? $sCreateDate;
-            //$aSwiss["CREATE_REL"]  = $aSwiss["CREATE_REL"]    ?? $sCreateRel;
-
-            //$aSwiss["SEQUPD_DATE"]  = $aSwiss["SEQUPD_DATE"]   ?? $sSequpdDate;
-            //$aSwiss["SEQUPD_REL"]   = $aSwiss["SEQUPD_REL"]    ?? $sSequpdRel;
-            //$aSwiss["NOTUPD_DATE"]  = $aSwiss["NOTUPD_DATE"]   ?? $sNotupdDate;
-            //$aSwiss["NOTUPD_REL"]   = $aSwiss["NOTUPD_REL"]    ?? $sNotupdRel;
 
             if($sCreateDate != null) {
                 $oSequence->setDate($sCreateDate);
@@ -300,11 +272,11 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             if ($this->right($sLine, 1) == ".") {
                 if ((strtoupper($this->right($sLine, 11)) == "(FRAGMENT).")
                     && (strtoupper($this->right($sLine, 12)) == "(FRAGMENTS).")) {
-                    $bIsFragment = true;
+                    $bIsFragment = 1;
                 } else {
-                    $bIsFragment = false;
+                    $bIsFragment = 0;
                 }
-                //$aSwiss["IS_FRAGMENT"]   = $bIsFragment;
+                $this->sequence->setFragment($bIsFragment);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -342,10 +314,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses OS line
      * Format : OS HOMO SAPIENS (HUMAN).
-     * @param   Sequence        $oSequence
      * @throws \Exception
      */
-    private function buildOSFields(&$oSequence)
+    private function buildOSFields()
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
@@ -362,8 +333,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 $this->os_str .= " $sLineData";
                 $this->os_str = $this->rem_right($this->os_str);
                 $aOSLine = preg_split("/\, AND /", $this->os_str);
-                //$aSwiss["ORGANISM"] = $aOSLine; // ORGANISM is an ARRAY.
-                $oSequence->setSource($aOSLine);
+                $this->sequence->setSource(trim($aOSLine[0]));
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -375,10 +345,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * Format :
      * OC EUKARYOTA; METAZOA; CHORDATA; VERTEBRATA; TETRAPODA; MAMMALIA;
      * OC EUTHERIA; PRIMATES.
-     * @param   Sequence        $oSequence
      * @throws \Exception
      */
-    private function buildOCField(&$oSequence)
+    private function buildOCField()
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
@@ -399,9 +368,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $sValue = trim($sValue);
                 });
 
-                // ORG_CLASS is an ARRAY.
-                //$aSwiss["ORG_CLASS"] = $aOCLine;
-                $oSequence->setOrganism($aOCLine);
+                $this->sequence->setOrganism($aOCLine);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -473,9 +440,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @throws  \Exception
      * @todo : search RC examples
      */
-    private function buildRNField($aFlines)
+    private function buildRNField($aFlines, &$aReferences)
     {
         try {
+            $ra_ctr = 0;
+            $rl_ctr = 0;
+
             $sMainLineData = trim(substr($this->aLines->current(), 3));
 
             // Remove the [ and ] between the reference number.
@@ -496,17 +466,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                         break;
                     case "RC":
                         $sRCLine .= $sLineData;
-                        /*while (list($no, $linestr) = each($flines)) {
-                            $linelabel = $this->left($linestr, 2);
-                            $linedata = trim(substr($linestr, 5));
-                            $lineend = $this->right($linedata, 1);
-                            if ($linelabel == "RC") {
-                                $rc_str .= " $linedata";
-                            } else {
-                                prev($flines);
-                                break;
-                            }
-                        }*/
                         // we remove the last character if it is ";"
                         $sRCLine = trim($sRCLine);
                         if (right($sRCLine,1) == ";") {
@@ -539,11 +498,11 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                         $aInner["RX_ID"] = $aRXLine[1];
                         break;
                     case "RA":
-                        $this->ra_ctr++;
-                        $this->ra_str = ($this->ra_ctr == 1) ? $sLineData : " $sLineData";
+                        $ra_ctr++;
+                        $ra_str = ($ra_ctr == 1) ? $sLineData : " $sLineData";
                         if ($sLineEnd == ";") {
-                            $this->ra_str = $this->rem_right($this->ra_str);
-                            $this->ra_r = preg_split("/\,/", $this->ra_str);
+                            $ra_str = $this->rem_right($ra_str);
+                            $this->ra_r = preg_split("/\,/", $ra_str);
                             array_walk($this->ra_r, function(&$sValue) {
                                 $sValue = trim($sValue);
                             });
@@ -551,8 +510,8 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                         }
                         break;
                     case "RL":
-                        $this->rl_ctr++;
-                        $this->rl_ctr = ($this->rl_ctr == 1) ? $sLineData : " $sLineData";
+                        $rl_ctr++;
+                        $rl_ctr = ($rl_ctr == 1) ? $sLineData : " $sLineData";
                         $aInner["RL"] = $sLineData;
                         break;
                 }
@@ -566,11 +525,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 $this->aLines->next();
             }
 
-            $this->ref_r[$iRefNo - 1] = $aInner;
-            $this->ra_str = "";
-            $this->ra_ctr = 0;
-            $this->rl_str = "";
-            $this->rl_ctr = 0;
+            $aReferences[$iRefNo - 1] = $aInner;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -673,11 +628,6 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     $this->aLines->next();
                 }
             }
-            //$aSwiss["AMINO_COUNT"]   = $iAACount;
-            //$aSwiss["MOLWT"]         = $iMolWeight;
-            //$aSwiss["CHK_NO"]        = $sChkNo;
-            //$aSwiss["CHK_METHOD"]    = $sChkMethod;
-            //$aSwiss["SEQUENCE"]      = $sSequence;
 
             $oSequence->setSequence($sSequence);
         } catch (\Exception $e) {
@@ -712,27 +662,35 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
 
     /**
      * Creates references array
-     * @return      array
      * @throws      \Exception
      */
-    private function makeRefArray()
+    private function makeRefArray($aReferences)
     {
         try {
-            $genbank_ref_r = [];
-            $inner_r = [];
-
-            foreach($this->ref_r as $key => $value) {
-                $inner_r["REFNO"]   = $key;
-                $db_id              = $value["RX_BDN"] ?? null;
-                $inner_r[$db_id]    = $value["RX_ID"] ?? null;
-                $inner_r["REMARKS"] = $value["RP"] ?? null;
-                $inner_r["COMMENT"] = $value["RC"] ?? null;
-                $inner_r["TITLE"]   = $value["RL"] ?? null;
-                $inner_r["JOURNAL"] = $value["RL"] ?? null;
-                $inner_r["AUTHORS"] = $value["RA"] ?? null;
-                $genbank_ref_r[]    = $inner_r;
+            foreach($aReferences as $key => $value) {
+                $oReference = new Reference();
+                $oReference->setPrimAcc($this->sequence->getPrimAcc());
+                $oReference->setRefno($key);
+                if(isset($value["RL"])) {
+                    $oReference->setTitle($value["RL"]);
+                }
+                if($value["RX_BDN"] == 'MEDLINE' && isset($value["RX_ID"])) {
+                    $oReference->setMedline($value["RX_ID"]);
+                }
+                if($value["RX_BDN"] == 'PUBMED' && isset($value["RX_ID"])) {
+                    $oReference->setPubmed($value["RX_ID"]);
+                }
+                if(isset($value["RP"])) {
+                    $oReference->setRemark($value["RP"]);
+                }
+                if(isset($value["RL"] )) {
+                    $oReference->setJournal($value["RL"]);
+                }
+                if(isset($value["RC"])) {
+                    $oReference->setComments($value["RC"]);
+                }
+                $this->references[] = $oReference;
             }
-            return $genbank_ref_r;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

@@ -110,6 +110,16 @@ class Reference
     private $journal;
 
     /**
+     * @var string
+     * @ORM\Column(
+     *     type = "string",
+     *     length = 255,
+     *     nullable = true
+     * )
+     */
+    private $comments;
+
+    /**
      * @return string
      */
     public function getPrimAcc()
@@ -235,5 +245,21 @@ class Reference
     public function setRemark($remark)
     {
         $this->remark = $remark;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComments(): string
+    {
+        return $this->comments;
+    }
+
+    /**
+     * @param string $comments
+     */
+    public function setComments(string $comments): void
+    {
+        $this->comments = $comments;
     }
 }
