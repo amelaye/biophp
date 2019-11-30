@@ -49,6 +49,26 @@ class GbFeatures
     private $ftKey;
 
     /**
+     * @var int
+     * @ORM\Column(
+     *     type = "integer",
+     *     length = 11,
+     *     nullable = true
+     * )
+     */
+    private $ftFrom;
+
+    /**
+     * @var int
+     * @ORM\Column(
+     *     type = "integer",
+     *     length = 11,
+     *     nullable = true
+     * )
+     */
+    private $ftTo;
+
+    /**
      * @var string
      * @ORM\Id
      * @ORM\Column(
@@ -66,6 +86,14 @@ class GbFeatures
      * )
      */
     private $ftValue;
+
+    /**
+     * @var string
+     * @ORM\Column(
+     *     type="text"
+     * )
+     */
+    private $ftDesc;
 
     /**
      * @return string
@@ -129,5 +157,53 @@ class GbFeatures
     public function setFtValue($ftValue)
     {
         $this->ftValue = $ftValue;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFtFrom(): int
+    {
+        return $this->ftFrom;
+    }
+
+    /**
+     * @param int $ftFrom
+     */
+    public function setFtFrom(int $ftFrom): void
+    {
+        $this->ftFrom = $ftFrom;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFtTo(): int
+    {
+        return $this->ftTo;
+    }
+
+    /**
+     * @param int $ftTo
+     */
+    public function setFtTo(int $ftTo): void
+    {
+        $this->ftTo = $ftTo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFtDesc(): string
+    {
+        return $this->ftDesc;
+    }
+
+    /**
+     * @param string $ftDesc
+     */
+    public function setFtDesc(string $ftDesc): void
+    {
+        $this->ftDesc = $ftDesc;
     }
 }

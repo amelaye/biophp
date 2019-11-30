@@ -10,6 +10,7 @@ namespace AppBundle\Service\IO;
 use AppBundle\Entity\Sequencing\GbSequence;
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Entity\Sequencing\SrcForm;
+use AppBundle\Traits\FormatsTrait;
 
 /**
  * Class ParseDbAbstractManager
@@ -18,6 +19,8 @@ use AppBundle\Entity\Sequencing\SrcForm;
  */
 abstract class ParseDbAbstractManager implements ParseDatabaseInterface
 {
+    use FormatsTrait;
+
     /**
      * @var array
      */
@@ -59,6 +62,11 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     protected $gbSequence;
 
     /**
+     * @var array
+     */
+    protected $spDatabank;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -71,6 +79,7 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
         $this->keywords     = []; // array of Keywords();
         $this->references   = []; // array of Keywords();
         $this->srcForm      = new SrcForm();
+        $this->spDatabank   = [];
     }
 
     /**
@@ -199,6 +208,22 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     public function setGbSequence(GbSequence $gbSequence): void
     {
         $this->gbSequence = $gbSequence;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSpDatabank(): array
+    {
+        return $this->spDatabank;
+    }
+
+    /**
+     * @param array $spDatabank
+     */
+    public function setSpDatabank(array $spDatabank): void
+    {
+        $this->spDatabank = $spDatabank;
     }
 
     /**

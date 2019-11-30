@@ -3,15 +3,15 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 28 november 2019
+ * Last modified 30 november 2019
  */
 namespace AppBundle\Service\IO;
 
-use AppBundle\Entity\Sequence;
 use AppBundle\Entity\Sequencing\Accession;
+use AppBundle\Entity\Sequencing\GbFeatures;
 use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Reference;
-use AppBundle\Traits\FormatsTrait;
+use AppBundle\Entity\Sequencing\SpDatabank;
 
 /**
  * Class ParseSwissprotManager
@@ -20,41 +20,10 @@ use AppBundle\Traits\FormatsTrait;
  */
 final class ParseSwissprotManager extends ParseDbAbstractManager
 {
-    use FormatsTrait;
-
-    private $date_r;
-    private $desc;
-    private $desc_lnctr;
-    private $gename_r;
-    private $os_linectr;
-    private $os_str;
-    private $oc_linectr;
-    private $oc_str;
-    private $ra_r;
-    private $db_r;
-    private $ft_r;
-
-    private $aLines;
-
     /**
-     * ParseSwissprotManager constructor.
+     * @var array
      */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->date_r     = [];
-        $this->desc       = "";
-        $this->desc_lnctr = 0;
-        $this->gename_r   = [];
-        $this->os_linectr = 0;
-        $this->os_str     = "";
-        $this->oc_linectr = 0;
-        $this->oc_str     = "";
-        $this->ra_r       = [];
-        $this->db_r       = [];
-        $this->ft_r       = [];
-    }
+    private $aLines;
 
     /**
      * Parses a Swissprot data file and returns a Seq object containing parsed data.
@@ -62,13 +31,10 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * data file, extracts the feature key name, from endpoint, to endpoint, and description, and
      * stores them in a (simple) array.
      * @param   array       $aFlines
-     * @return  Sequence    $oSequence
-     * @group   Legacy
      * @throws  \Exception
      */
     public function parseDataFile($aFlines)
     {
-        $oSequence = new Sequence();
         $this->aLines = new \ArrayIterator($aFlines); // <3
         $aReferences = [];
         $aAccessions = [];
@@ -76,52 +42,60 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
         $organelle = null;
         $sKeywords = "";
 
+        $sDescription = "";
+        $iDescCpt = 0;
+
+        $aGename = [];
+
+        $sSource = "";
+        $iSourceCpt = 0;
+
+        $sOrganism = "";
+        $iOrgaCpt = 0;
+
+        $aAuthors = [];
+
         /* Parsing the whole data */
         foreach($this->aLines as $lineno => $linestr) {
             $linelabel = $this->left($this->aLines->current(), 2);
-            $linedata = trim(substr($this->aLines->current(), 3));
 
             switch($linelabel) {
                 case "ID":
                     $this->buildIDFields(); // ok
                     break;
                 case "AC":
-                    $this->buildACFields($aAccessions); // ok
-                    $oSequence->setAccession($aAccessions[0]);
+                    $this->buildACFields($aAccessions);
                     $this->sequence->setPrimAcc($aAccessions[0]);
                     break;
                 case "DT":
-                    $this->buildDTFields($oSequence); // ok
+                    $this->buildDTFields();
                     break;
                 case "DE":
-                    $this->buildDEFields(); // ok
+                    $this->buildDEFields($sDescription, $iDescCpt);
                     break;
                 case "KW":
-                    $this->buildKWFields($sKeywords); // ok
+                    $this->buildKWFields($sKeywords);
                     break;
                 case "OS":
-                    $this->buildOSFields(); // ok
-                    break;
-                case "OG":
-                    $organelle = $this->rem_right($linedata); // ok
+                    $this->buildOSFields($sSource, $iSourceCpt);
                     break;
                 case "OC":
-                    $this->buildOCField(); // ok
+                    $this->buildOCField($sOrganism, $iOrgaCpt);
                     break;
                 case "FT":
-                    $this->buildFTField(); // ok
+                    $this->buildFTField();
                     break;
                 case "DR":
-                    $this->buildDRField(); // ok
+                    $this->buildDRField();
                     break;
                 case "RN":
-                    $this->buildRNField($aFlines, $aReferences); // ok
+                    $this->buildRNField($aFlines, $aReferences, $aAuthors);
                     break;
                 case "GN":
-                    $this->buildGNField(); // ok
+                    $this->buildGNField($aGename);
                     break;
                 case "SQ":
-                    $this->buildSQField($oSequence);
+                    $this->buildSQField();
                     break;
             }
         }
@@ -135,14 +109,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             $this->accession[] = $oAccession;
         }
 
-        $this->sequence->setDescription($this->desc);
+        $this->makeRefArray($aReferences);
 
-        $genbank_ref_r = $this->makeRefArray($aReferences);
-        $oSequence->setReference($genbank_ref_r);
-
-        $this->processFT($aSwiss); // FT_<keyword> is an ARRAY.
-
-        return $oSequence;
+        $this->sequence->setDescription($sDescription);
     }
 
     /**
@@ -180,6 +149,8 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses AC line
      * Format : AC P01375;
+     * @param   array           $aAccess
+     * @return  array
      * @throws  \Exception
      */
     private function buildACFields(&$aAccess)
@@ -198,15 +169,14 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses DT Line
      * Format : DT 21-JUL-1986 (REL. 01, LAST SEQUENCE UPDATE)
-     * @param   Sequence        $oSequence
      * @throws  \Exception
      */
-    private function buildDTFields(&$oSequence)
+    private function buildDTFields()
     {
         try {
-            $sSequpdDate = $sCreateDate = null;
-            $sCreateRel  = $sSequpdRel  = null;
-            $sNotupdDate = $sNotupdRel  = null;
+            $sCreateDate = null;
+            $sSequpdRel  = null;
+            $sNotupdRel  = null;
 
             $sLineData = trim(substr($this->aLines->current(), 3));
 
@@ -219,31 +189,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 case "CREATED":
                     // this DT line is a DATE CREATED line.
                     $sCreateDate = substr($aWords[0], 0, 11);
-                    $sCreateRel = substr($aWords[1], 5, ($iFirstComma-5));
-                    $this->date_r[$sComment] = array($sCreateDate, $sCreateRel);
                     $this->sequence->setDate($sCreateDate);
-                    break;
-                case "LAST SEQUENCE UPDATE":
-                    $sSequpdDate = substr($aWords[0], 0, 11);
-                    $sSequpdRel = substr($aWords[1], 5, ($iFirstComma-5));
-                    $this->date_r[$sComment] = array($sSequpdDate, $sSequpdRel);
-                    break;
-                case "LAST ANNOTATION UPDATE":
-                    $sNotupdDate = substr($aWords[0], 0, 11);
-                    $sNotupdRel = substr($aWords[1], 5, ($iFirstComma-5));
-                    $this->date_r[$sComment] = array($sNotupdDate, $sNotupdRel);
-                    break;
-                default:
-                    // For now, we do not check vs. duplicate comments.
-                    // We just overwrite the older comment with new one.
-                    $sOtherDate = substr($aWords[0], 0, 11);
-                    $sOtherRel = substr($aWords[1], 5, ($iFirstComma-5));
-                    $this->date_r[$sComment] = array($sOtherDate, $sOtherRel);
                     break;
             }
 
             if($sCreateDate != null) {
-                $oSequence->setDate($sCreateDate);
+                $this->sequence->setDate($sCreateDate);
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
@@ -253,18 +204,20 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses DE line
      * Format : DE TUMOR NECROSIS FACTOR PRECURSOR (TNF-ALPHA) (CACHECTIN).
+     * @param   string      $sDescription
+     * @param   int         $iDescCpt
      * @throws  \Exception
      */
-    private function buildDEFields()
+    private function buildDEFields(&$sDescription, &$iDescCpt)
     {
         try {
             $sLine = trim(substr($this->aLines->current(), 3));
 
-            $this->desc_lnctr++;
-            if ($this->desc_lnctr == 1) {
-                $this->desc .= $sLine;
+            $iDescCpt++;
+            if ($iDescCpt == 1) {
+                $sDescription .= $sLine;
             } else {
-                $this->desc .= " " . $sLine;
+                $sDescription .= " " . $sLine;
             }
 
             // Checks if (FRAGMENT) or (FRAGMENTS) is found at the end
@@ -286,7 +239,8 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses KW Fields
      * Format : KW WORD1; WORD2; WORD3; etc ...
-     * @throws \Exception
+     * @param   string      $sKeywords
+     * @throws  \Exception
      */
     private function buildKWFields(&$sKeywords)
     {
@@ -316,23 +270,23 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * Format : OS HOMO SAPIENS (HUMAN).
      * @throws \Exception
      */
-    private function buildOSFields()
+    private function buildOSFields(&$sSource, &$iSourceCpt)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
             $sLineEnd = $this->right($sLineData, 1);
 
-            $this->os_linectr++;
+            $iSourceCpt++;
             if ($sLineEnd != ".") {
-                if ($this->os_linectr == 1) {
-                    $this->os_str .= $sLineData;
+                if ($iSourceCpt == 1) {
+                    $sSource .= $sLineData;
                 } else {
-                    $this->os_str .= " $sLineData";
+                    $sSource .= " $sLineData";
                 }
             } else {
-                $this->os_str .= " $sLineData";
-                $this->os_str = $this->rem_right($this->os_str);
-                $aOSLine = preg_split("/\, AND /", $this->os_str);
+                $sSource .= " $sLineData";
+                $sSource = $this->rem_right($sSource);
+                $aOSLine = preg_split("/\, AND /", $sSource);
                 $this->sequence->setSource(trim($aOSLine[0]));
             }
         } catch (\Exception $e) {
@@ -347,23 +301,23 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * OC EUTHERIA; PRIMATES.
      * @throws \Exception
      */
-    private function buildOCField()
+    private function buildOCField(&$sOrganism, &$iOrgaCpt)
     {
         try {
             $sLineData = trim(substr($this->aLines->current(), 3));
             $sLineEnd = $this->right($sLineData, 1);
 
-            $this->oc_linectr++;
+            $iOrgaCpt++;
             if ($sLineEnd != ".") {
-                if ($this->oc_linectr == 1) {
-                    $this->oc_str .= $sLineData;
+                if ($iOrgaCpt == 1) {
+                    $sOrganism .= $sLineData;
                 } else {
-                    $this->oc_str .= " $sLineData";
+                    $sOrganism .= " $sLineData";
                 }
             } else {
-                $this->oc_str .= " $sLineData";
-                $this->oc_str = $this->rem_right($this->oc_str);
-                $aOCLine = preg_split("/;/", $this->oc_str);
+                $sOrganism .= " $sLineData";
+                $sOrganism = $this->rem_right($sOrganism);
+                $aOCLine = preg_split("/;/", $sOrganism);
                 array_walk($aOCLine, function(&$sValue) {
                     $sValue = trim($sValue);
                 });
@@ -392,9 +346,16 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             array_shift($aFtExplode);
             $iFTTo = (int) $aFtExplode[0];
             array_shift($aFtExplode);
-
             $sFTDesc = $this->rem_right(trim(implode(" ", $aFtExplode)));
-            $this->ft_r[] = array($sFTKey, $iFTFrom, $iFTTo, $sFTDesc);
+
+            $oFeature = new GbFeatures();
+            $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+            $oFeature->setFtKey($sFTKey);
+            $oFeature->setFtFrom($iFTFrom);
+            $oFeature->setFtTo($iFTTo);
+            $oFeature->setFtValue($sFTKey);
+            $oFeature->setFtDesc($sFTDesc);
+            $this->gbFeatures[] = $oFeature;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -419,10 +380,13 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             array_walk($aDrLine, function(&$sValue) {
                 $sValue = trim($sValue);
             });
-            $sDbName = $aDrLine[0];
-            $sDbPid = $aDrLine[1];
-            $sDbSid = $aDrLine[2];
-            $this->db_r[] = [$sDbName, $sDbPid, $sDbSid];
+            $oSpDatabank = new SpDatabank();
+            $oSpDatabank->setPrimAcc($this->sequence->getPrimAcc());
+            $oSpDatabank->setDbName($aDrLine[0]);
+            $oSpDatabank->setPid1($aDrLine[1]);
+            $oSpDatabank->setPid2($aDrLine[2]);
+
+            $this->spDatabank[] = $oSpDatabank;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
@@ -440,7 +404,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @throws  \Exception
      * @todo : search RC examples
      */
-    private function buildRNField($aFlines, &$aReferences)
+    private function buildRNField($aFlines, &$aReferences, &$aAuthors)
     {
         try {
             $ra_ctr = 0;
@@ -502,11 +466,11 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                         $ra_str = ($ra_ctr == 1) ? $sLineData : " $sLineData";
                         if ($sLineEnd == ";") {
                             $ra_str = $this->rem_right($ra_str);
-                            $this->ra_r = preg_split("/\,/", $ra_str);
-                            array_walk($this->ra_r, function(&$sValue) {
+                            $aAuthors = preg_split("/\,/", $ra_str);
+                            array_walk($aAuthors, function(&$sValue) {
                                 $sValue = trim($sValue);
                             });
-                            $aInner["RA"] = $this->ra_r;
+                            $aInner["RA"] = $aAuthors;
                         }
                         break;
                     case "RL":
@@ -546,7 +510,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * 5) Push gene name array into larger array. Go to next token.
      * @throws \Exception
      */
-    private function buildGNField()
+    private function buildGNField(&$aGename)
     {
         try {
             // Remove "GN " at the beginning of our line.
@@ -560,15 +524,15 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 if (strpos($sLine, " OR ")) {
                     // Case 1: GNAME1 OR GNAME2.
                     $aTemp = preg_split("/ OR /", $sLine);
-                    $this->gename_r[] = $aTemp;
+                    $aGename[] = $aTemp;
                 } elseif (strpos($sLine, " AND ")) {
                     // Case 2: GNAME1 AND GNAME2 AND GNAME3.
                     $aTemp = preg_split("/ AND /", $sLine);
                     foreach($aTemp as $sGene) {
-                        $this->gename_r[] = array($sGene);
+                        $aGename[] = array($sGene);
                     }
                 } else {
-                    $this->gename_r[] = array($sLine);
+                    $aGename[] = array($sLine);
                 }
                 // Case 0: GN GENENAME1. One gene name (no OR, AND).
             } else {
@@ -582,9 +546,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                         $sGene              = substr($sGene, 1);
                         $sGene              = substr($sGene, 0, strlen($sGene)-1);
                         $aGeneList          = preg_split("/ OR /", $sGene);
-                        $this->gename_r[]   = $aGeneList;
+                        $aGename[]          = $aGeneList;
                     } else { // singleton
-                        $this->gename_r[]   = array($sGene);
+                        $aGename[]          = array($sGene);
                     }
                 }
             }
@@ -596,27 +560,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     /**
      * Parses SQ lines and below
      * SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXX CN;
-     * @param   Sequence        $oSequence
      * @throws  \Exception
      */
-    private function buildSQField(&$oSequence)
+    private function buildSQField()
     {
         try {
-
-            $sLineData = trim(substr($this->aLines->current(), 3));
-            $sLineData = $this->rem_right($sLineData);
-
-            // XXXX AA, XXXX MW, XXXX CN
-            $aWords     = preg_split("/;/", substr($sLineData, 8));
-            $aAAData    = preg_split("/\s+/", trim($aWords[0]));
-            $iAACount   = (int) trim($aAAData[0]);
-            $aMWData    = preg_split("/\s+/", trim($aWords[1]));
-            $iMolWeight = (int) trim($aMWData[0]);
-            $aCNData    = preg_split("/\s+/", trim($aWords[2]));
-            $sChkNo     = trim($aCNData[0]);
-            $sChkMethod = trim($aCNData[1]);
             $sSequence  = "";
-
             $this->aLines->next();
             while(1) {
                 $sLineLabel = $this->left($this->aLines->current(), 2);
@@ -629,32 +578,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 }
             }
 
-            $oSequence->setSequence($sSequence);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
-    }
-
-    /**
-     * Then pushes this array into a larger associative array, called $swiss, which is
-     * also an attribute of the Seq object. It is assigned a key of the form: FT_<feature_key_name>.
-     * Examples are: FT_PEPTIDE, FT_DISULFID.
-     * @param   array       $swiss
-     * @throws  \Exception
-     */
-    private function processFT(&$swiss)
-    {
-        try {
-            foreach($this->ft_r as $element) {
-                $index = "FT_" . $element[0];
-                array_shift($element);
-                if (!isset($swiss[$index]) || (isset($swiss[$index]) && count($swiss[$index]) == 0)) {
-                    $swiss[$index] = array();
-                    array_push($swiss[$index], $element);
-                } else {
-                    array_push($swiss[$index], $element);
-                }
-            }
+            $this->sequence->setSequence($sSequence);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
