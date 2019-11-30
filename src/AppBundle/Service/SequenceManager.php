@@ -51,7 +51,7 @@ class SequenceManager implements SequenceInterface
     private $sequence;
 
     /**
-     * @var Bioapi
+     * @var ApiAdapterInterface
      */
     private $bioapi;
     

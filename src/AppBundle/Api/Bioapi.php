@@ -14,7 +14,7 @@ use JMS\Serializer\Serializer;
  * This is the sample database - implements ApiAdapterInterface
  * Class Bioapi
  * @package AppBundle\Api
- * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @author AmÃ©lie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class Bioapi implements ApiAdapterInterface
 {

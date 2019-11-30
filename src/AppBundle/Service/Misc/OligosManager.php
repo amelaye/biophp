@@ -30,14 +30,6 @@ class OligosManager implements OligosInterface
     }
 
     /**
-     * @return array
-     */
-    public function getDnaComplements()
-    {
-        return $this->dnaComplements;
-    }
-
-    /**
      * For oligos 2 bases long
      * @param $oligos_1step
      * @return mixed

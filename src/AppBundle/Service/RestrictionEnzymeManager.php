@@ -37,12 +37,13 @@ class RestrictionEnzymeManager
 
     /**
      * RestrictionEnzymeManager constructor.
-     * @param ApiAdapterInterface $bioapi
+     * @param ApiAdapterInterface   $bioapi
+     * @param Enzyme                $oEnzyme
      */
-    public function __construct(ApiAdapterInterface $bioapi)
+    public function __construct(ApiAdapterInterface $bioapi, Enzyme $oEnzyme)
     {
         $this->aRestEnzimDB = $bioapi->getTypeIIEndonucleasesForRest();
-        $this->enzyme = new Enzyme();
+        $this->enzyme       = $oEnzyme;
     }
 
     /**

@@ -13,7 +13,7 @@ use JMS\Serializer\Serializer;
  * This class makes requests on any API which implements this interface
  * Interface API
  * @package AppBundle\Api
- * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ * @author AmÃ©lie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface ApiAdapterInterface
 {
