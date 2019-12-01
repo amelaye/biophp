@@ -54,7 +54,6 @@ class AminoApi
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
-
-        return $this->serializer->denormalize($response, AminoDTO::class);
+        return $this->serializer->deserialize($response->getBody()->getContents(), AminoDTO::class, 'json');
     }
 }

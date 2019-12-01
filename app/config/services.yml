@@ -19,21 +19,10 @@ services:
         # but if a service is unused, it's removed anyway
         exclude: '../../src/AppBundle/{Entity,Repository,Tests,Legacy,Bioapi}'
 
-    MinitoolsBundle\:
-        resource: '../../src/MinitoolsBundle/*'
-        # you can exclude directories or files
-        # but if a service is unused, it's removed anyway
-        exclude: '../../src/MinitoolsBundle/{Entity,Repository,Tests,Legacy}'
-
     # controllers are imported separately to make sure they're public
     # and have a tag that allows actions to type-hint services
     AppBundle\Controller\:
         resource: '../../src/AppBundle/Controller'
-        public: true
-        tags: ['controller.service_arguments']
-
-    MinitoolsBundle\Controller\:
-        resource: '../../src/MinitoolsBundle/Controller'
         public: true
         tags: ['controller.service_arguments']
 
@@ -50,27 +39,3 @@ services:
     AppBundle\Api\ApiAdapterInterface: '@AppBundle\Api\Bioapi'
 
     AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'
-
-    MinitoolsBundle\Twig\AppExtension:
-        arguments:
-            - '%protein_colors%'
-            - '%generic_colors%'
-
-    MinitoolsBundle\Twig\MinitoolsExtension:
-        tags: ['twig.extension']
-
-    MinitoolsBundle\Twig\PhpExtension:
-        tags: ['twig.extension']
-
-    MinitoolsBundle\Service\ChaosGameRepresentationManager:
-        arguments:
-            - '%nucleotids_graphs%'
-
-    MinitoolsBundle\Service\RandomSequencesManager:
-        arguments:
-            - '%dna_complements%'
-            - '%codons%'
-
-    MinitoolsBundle\Service\ReduceProteinAlphabetManager:
-        arguments:
-            - '%protein_colors%'

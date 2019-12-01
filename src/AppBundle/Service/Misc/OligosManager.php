@@ -26,7 +26,9 @@ class OligosManager implements OligosInterface
      */
     public function __construct(ApiAdapterInterface $bioapi)
     {
-        $this->dnaComplements = $bioapi->getDNAComplement();
+        $dnaComplements = $bioapi->getDNAComplement();
+        asort($dnaComplements);
+        $this->dnaComplements = $dnaComplements;
     }
 
     /**

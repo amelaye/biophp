@@ -53,9 +53,6 @@ dump($oService);
         $oSrcForm       = $oService->getSrcForm();
         $aKeywords      = $oService->getKeywords();
 
-        $test = $aminoApi->getAminos();
-        dump($test);
-
         return $this->render('demo/parseseqdb.html.twig',
             [
                 "sequence"      => $oSequence,
