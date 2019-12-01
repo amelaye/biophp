@@ -9,6 +9,7 @@
 namespace MinitoolsBundle\Controller;
 
 
+use AppBundle\Service\Misc\GeneticsFunctions;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,7 +57,7 @@ class ProteinController extends Controller
             $results        = true;
 
             // remove non coding (works by default)
-            $seq = $this->removeNonCodingProt($formData["seq"]);
+            $seq = GeneticsFunctions::removeNonCodingProt($formData["seq"]);
             $subsequence = $proteinPropertiesManager->writeSubsequence($formData["start"], $formData["end"], $seq);
             // calculate nucleotide composition
             $aminoacid_content = $proteinPropertiesManager->aminoacidContent($subsequence);

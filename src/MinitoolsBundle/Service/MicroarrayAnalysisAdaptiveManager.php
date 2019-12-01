@@ -7,7 +7,7 @@
  */
 namespace MinitoolsBundle\Service;
 
-use AppBundle\Service\Misc\MathematicsManager;
+use AppBundle\Service\Misc\MathematicsFunctions;
 use Exception;
 
 /**
@@ -41,9 +41,9 @@ class MicroarrayAnalysisAdaptiveManager
             if(!empty($aData4)) {
                 foreach($aData4 as $key => $val) {
                     $aResults[$key]["n_data"] = count($aData4[$key][1]);
-                    $aResults[$key]["median1"] = MathematicsManager::Median($aData4[$key][1]);
+                    $aResults[$key]["median1"] = MathematicsFunctions::Median($aData4[$key][1]);
                     $aResults[$key]["medlog1"] = round(log10($aResults[$key]["median1"]),3);
-                    $aResults[$key]["median2"] = MathematicsManager::Median($aData4[$key][2]);
+                    $aResults[$key]["median2"] = MathematicsFunctions::Median($aData4[$key][2]);
                     $aResults[$key]["medlog2"] = round(log10($aResults[$key]["median2"]),3);
                 }
             }

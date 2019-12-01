@@ -9,7 +9,7 @@
 namespace MinitoolsBundle\Service;
 
 use AppBundle\Entity\Sequence;
-use AppBundle\Service\Misc\NucleotidsManager;
+use AppBundle\Service\Misc\GeneticsFunctions;
 use AppBundle\Service\SequenceManager;
 use AppBundle\Api\Bioapi;
 
@@ -52,7 +52,7 @@ class MeltingTemperatureManager
      */
     public function calculateCG($primer)
     {
-        $cg = round(100 * NucleotidsManager::CountCG($primer) / strlen($primer),1);
+        $cg = round(100 * GeneticsFunctions::CountCG($primer) / strlen($primer),1);
         return $cg;
     }
 
@@ -80,7 +80,7 @@ class MeltingTemperatureManager
     public function basicCalculations($bBasic, $primer, &$countATGC, &$tmMin, &$tmMax)
     {
         if($bBasic) {
-            $countATGC = NucleotidsManager::CountACGT($primer);
+            $countATGC = GeneticsFunctions::CountACGT($primer);
             $tmMin = $this->tmMin($primer);
             $tmMax = $this->tmMax($primer);
         }

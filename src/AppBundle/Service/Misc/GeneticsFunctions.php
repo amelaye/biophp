@@ -13,7 +13,7 @@ namespace AppBundle\Service\Misc;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class NucleotidsManager
+class GeneticsFunctions
 {
     /**
      * Will count number of A, C, G and T bases in the sequence
@@ -40,7 +40,7 @@ class NucleotidsManager
      * @return  int
      * @throws \Exception
      */
-    /*public function countYRWSKMDVHB($c)
+    public function countYRWSKMDVHB($c)
     {
         try {
             $cg = substr_count($c,"Y")
@@ -57,7 +57,7 @@ class NucleotidsManager
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
-    }*/
+    }
 
     /**
      * @param $c
@@ -70,6 +70,38 @@ class NucleotidsManager
             $cg = substr_count($c,"G")
                 + substr_count($c,"C");
             return $cg;
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
+
+    /**
+     * Place sequence and reverse complement of sequence in one line
+     * @param $sSequence
+     * @param $dnaComplements
+     */
+    public static function createInversion(&$sSequence, $dnaComplements)
+    {
+        $seqRevert = strrev($sSequence);
+        foreach ($dnaComplements as $nucleotide => $complement) {
+            $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+        }
+        $sSequence .= " ".strtoupper($seqRevert);
+    }
+
+    /**
+     * Removes non-coding characters
+     * @param       string      $sSequence
+     * @return      string
+     * @throws      \Exception
+     */
+    public static function removeNonCodingProt($sSequence)
+    {
+        try {
+            $sSequence = strtoupper($sSequence);
+            // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
+            $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
+            return $sSequence;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

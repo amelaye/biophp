@@ -42,6 +42,11 @@ services:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
+    AppBundle\Api\AminoApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
     AppBundle\Api\ApiAdapterInterface: '@AppBundle\Api\Bioapi'
 
     AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'

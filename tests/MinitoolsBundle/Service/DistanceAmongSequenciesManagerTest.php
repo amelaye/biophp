@@ -200,7 +200,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $this->assertEquals($aExpected, $testFunction);
     }
 
-    /*public function testComputeOligonucleotidsFrequenciesPearson()
+    public function testComputeOligonucleotidsFrequenciesPearson()
     {
         $aSeq = [0 => "GTGCCGAGCTGAGTTCCTTATAAGAATTAATCTTAATTTTGTATTTTTTCCTGTAAGACAATAGGCCATG"];
 
@@ -419,7 +419,7 @@ class DistanceAmongSequenciesManagerTest extends TestCase
         $testFunction = $service->computeOligonucleotidsFrequencies($aSeq);
 
         $this->assertEquals($aExpected, $testFunction);
-    }*/
+    }
 
     public function testComputeOligonucleotidsFrequenciesPearsonException()
     {

@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Controller;
 
+use AppBundle\Api\AminoApi;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\SequenceAlignmentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -38,7 +39,7 @@ class DemoController extends Controller
      * @return Response
      * @throws \Exception
      */
-    public function parseaseqdbAction(DatabaseInterface $databaseManager)
+    public function parseaseqdbAction(DatabaseInterface $databaseManager, AminoApi $aminoApi)
     {
        // $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
         $oService = $databaseManager->fetch("NM_031438");
@@ -47,10 +48,13 @@ dump($oService);
         $aAccession     = $oService->getAccession();
         $aAuthors       = $oService->getAuthors();
         $oGbSequence    = $oService->getGbSequence();
-        $aGbFeatures    = $oService->getGbFeatures();
+        $aGbFeatures    = $oService->getFeatures();
         $aReferences    = $oService->getReferences();
         $oSrcForm       = $oService->getSrcForm();
         $aKeywords      = $oService->getKeywords();
+
+        $test = $aminoApi->getAminos();
+        dump($test);
 
         return $this->render('demo/parseseqdb.html.twig',
             [

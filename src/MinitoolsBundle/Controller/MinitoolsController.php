@@ -8,6 +8,7 @@
  */
 namespace MinitoolsBundle\Controller;
 
+use AppBundle\Service\Misc\GeneticsFunctions;
 use MinitoolsBundle\Form\SequenceManipulationType;
 use MinitoolsBundle\Form\SkewsType;
 use MinitoolsBundle\Service\SequenceManipulationAndDataManager;
@@ -226,7 +227,7 @@ class MinitoolsController extends Controller
             // when frequencies at both strands are requested,
             // place sequence and reverse complement of sequence in one line
             if ($formData["strands"] == 2) {
-                $this->createInversion($sSequence, OligosManager::GetDnaComplements());
+                GeneticsFunctions::createInversion($sSequence, OligosManager::GetDnaComplements());
             }
 
             $aResults = OligosManager::FindOligos($sSequence, $iLength);

@@ -864,7 +864,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     public function testParseEnzymeInner()
     {
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
@@ -881,7 +881,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     public function testParseEnzymeCustom()
     {
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "custom");
@@ -901,7 +901,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -934,7 +934,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -967,7 +967,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -984,7 +984,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -999,7 +999,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -1117,7 +1117,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -1166,7 +1166,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);
@@ -1183,7 +1183,7 @@ class RestrictionEnzymeManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiMock);
         $sequenceManager->setSequence($this->sequence);
 
-        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock);
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
         $restrictionEnzymeManager->setSequenceManager($sequenceManager);

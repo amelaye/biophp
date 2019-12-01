@@ -2,7 +2,7 @@
 
 namespace Tests\MinitoolsBundle\Service;
 
-use AppBundle\Service\Misc\NucleotidsManager;
+use AppBundle\Service\Misc\GeneticsFunctions;
 use AppBundle\Service\SequenceManager;
 use MinitoolsBundle\Service\MeltingTemperatureManager;
 use PHPUnit\Framework\TestCase;

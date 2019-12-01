@@ -26,8 +26,6 @@ use MinitoolsBundle\Service\ChaosGameRepresentationManager;
  */
 class ChaosGameRepresentationController extends Controller
 {
-    use OligoTrait;
-
     /**
      * @Route("/minitools/chaos-game-representation/{schema}", name="chaos_game_representation")
      * @param   string                          $schema
@@ -85,14 +83,15 @@ class ChaosGameRepresentationController extends Controller
 
 
     /**
-     * @param Request $request
-     * @param ChaosGameRepresentationManager $chaosGameReprentationManager
+     * @param Request                           $request
+     * @param ChaosGameRepresentationManager    $chaosGameReprentationManager
+     * @param OligosManager                     $oligosManager
      * @param $form
      * @return Response
      * @throws \Exception
      */
     public function fcgrCompute(Request $request,
-                                ChaosGameRepresentationManager $chaosGameReprentationManager, $form)
+                                ChaosGameRepresentationManager $chaosGameReprentationManager, $form, OligosManager $oligosManager)
     {
         $aOligos = $for_map = null;
         $isMap = $isFreq = false;
@@ -105,7 +104,7 @@ class ChaosGameRepresentationController extends Controller
 
             // COMPUTE OLIGONUCLEOTIDE FREQUENCIES
             //      frequencies are saved to an array named $aOligos
-            $aOligos = OligosManager::FindOligos($aSeqData["sequence"], $aSeqData["length"]);
+            $aOligos = $oligosManager->findOligos($aSeqData["sequence"], $aSeqData["length"]);
 
             // CREATE CHAOS GAME REPRESENTATION OF FREQUENCIES IMAGE
             //      check the function for more info on parameters

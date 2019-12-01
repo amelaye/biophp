@@ -2,7 +2,7 @@
 
 namespace Tests\MinitoolsBundle\Service;
 
-use AppBundle\Service\Misc\MathematicsManager;
+use AppBundle\Service\Misc\MathematicsFunctions;
 use MinitoolsBundle\Service\MicroarrayAnalysisAdaptiveManager;
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +12,7 @@ class MicroarrayAnalysisAdaptiveManagerTest extends TestCase
 
     public function setUp()
     {
-        $this->mathematicsManager = new MathematicsManager();
+        $this->mathematicsManager = new MathematicsFunctions();
     }
 
     public function testProcessMicroarrayDataAdaptiveQuantificationMethod()
