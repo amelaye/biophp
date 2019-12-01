@@ -6,21 +6,12 @@ csa_guzzle:
 
 imports:
     - { resource: parameters.yml }
-    - { resource: inc/chemical.yml }
-    - { resource: inc/codons.yml }
-    - { resource: inc/protein.yml }
     - { resource: security.yml }
     - { resource: services.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    dna_complements:
-        A: T
-        T: A
-        G: C
-        C: G
-    brochures_directory: '%kernel.project_dir%/web/public/uploads/fasta'
     locale: en
 
 framework:
