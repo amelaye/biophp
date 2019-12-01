@@ -11,8 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Keywords
- * @package SeqDatabaseBundle\Entity
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Entity\Sequencing
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
  *     name = "keywords",
@@ -29,7 +29,7 @@ class Keywords
     /**
      * @var string
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\ManyToOne(targetEntity = "AppBundle\Entity\Sequencing\Sequence")
      * @ORM\JoinColumn(
      *     name = "prim_acc",
      *     referencedColumnName = "prim_acc"

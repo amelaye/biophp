@@ -11,8 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Sequence
- * @package SeqDatabaseBundle\Entity
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Entity\Sequencing
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
  *     name = "sequence",
@@ -32,12 +32,12 @@ class Sequence
      *     options = {"default":0},
      *     nullable = false
      * )
-     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\GbSequence")
-     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\GbFeatures")
-     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\ScForm")
-     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Accession")
-     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Keywords")
-     * @ORM\OneToMany(targetEntity = "SeqDatabaseBundle\Entity\Reference")
+     * @ORM\OneToOne(targetEntity = "AppBundle\Entity\Sequencing\GbSequence")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\GbFeatures")
+     * @ORM\OneToOne(targetEntity = "AppBundle\Entity\Sequencing\ScForm")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Accession")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Keywords")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Reference")
      */
     private $primAcc;
 

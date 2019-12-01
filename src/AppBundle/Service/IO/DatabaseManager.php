@@ -199,7 +199,8 @@ class DatabaseManager implements DatabaseInterface
     private function getEntryid(&$flines, $linestr, $dbformat)
     {
         try {
-            DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
+            $iEntryId = DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
+            return($iEntryId);
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

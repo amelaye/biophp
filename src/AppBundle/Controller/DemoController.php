@@ -82,7 +82,6 @@ dump($oService);
 
         dump($oSequence);
 
-        exit();
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]
         );

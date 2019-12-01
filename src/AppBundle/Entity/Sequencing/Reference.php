@@ -11,8 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Reference
- * @package SeqDatabaseBundle\Entity
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Entity\Sequencing
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(name="reference")
  */
@@ -27,13 +27,13 @@ class Reference
      *     options = {"default":0},
      *     nullable = false
      * )
-     * @ORM\ManyToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\ManyToOne(targetEntity = "AppBundle\Entity\Sequencing\Sequence")
      * @ORM\JoinColumn(
      *     name = "prim_acc",
      *     referencedColumnName = "prim_acc"
      * )
      * @ORM\OneToMany(
-     *     targetEntity = "SeqDatabaseBundle\Entity\Authors",
+     *     targetEntity = "AppBundle\Entity\Sequencing\Authors",
      *     mappedBy = "primAcc"
      * )
      */

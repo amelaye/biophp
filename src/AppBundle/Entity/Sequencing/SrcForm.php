@@ -11,8 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class SrcForm
- * @package SeqDatabaseBundle\Entity
- * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
+ * @package AppBundle\Entity\Sequencing
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
  *     name = "src_form",
@@ -29,7 +29,7 @@ class SrcForm
     /**
      * @var string
      * @ORM\Id
-     * @ORM\OneToOne(targetEntity = "SeqDatabaseBundle\Entity\Sequence")
+     * @ORM\OneToOne(targetEntity = "AppBundle\Entity\Sequencing\Sequence")
      * @ORM\JoinColumn(
      *     name = "prim_acc",
      *     referencedColumnName = "prim_acc"
