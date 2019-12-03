@@ -15,7 +15,7 @@ namespace AppBundle\Api\DTO;
 class AminoDTO
 {
     /**
-     * @var     string         Id of the amino acid (auto-increment)
+     * @var     string      Id of the amino acid (auto-increment)
      */
     private $id;
 

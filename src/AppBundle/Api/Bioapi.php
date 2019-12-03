@@ -232,7 +232,6 @@ class Bioapi implements ApiAdapterInterface
 
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
 
-        //return $data["hydra:member"];
         $newData = array();
         foreach($data["hydra:member"] as $key => $elem) {
             $newData[$elem['id']] = $elem;

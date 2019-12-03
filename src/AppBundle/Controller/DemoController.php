@@ -43,7 +43,7 @@ class DemoController extends Controller
     {
        // $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
         $oService = $databaseManager->fetch("NM_031438");
-dump($oService);
+
         $oSequence      = $oService->getSequence();
         $aAccession     = $oService->getAccession();
         $aAuthors       = $oService->getAuthors();
@@ -77,7 +77,7 @@ dump($oService);
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
+        //$databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
 
         dump($oSequence);

@@ -155,6 +155,70 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     }
 
     /**
+     * @param array $accession
+     */
+    public function setAccession(array $accession): void
+    {
+        $this->accession = $accession;
+    }
+
+    /**
+     * @param Sequence $sequence
+     */
+    public function setSequence(Sequence $sequence): void
+    {
+        $this->sequence = $sequence;
+    }
+
+    /**
+     * @param array $authors
+     */
+    public function setAuthors(array $authors): void
+    {
+        $this->authors = $authors;
+    }
+
+    /**
+     * @param array $features
+     */
+    public function setFeatures(array $features): void
+    {
+        $this->features = $features;
+    }
+
+    /**
+     * @param array $keywords
+     */
+    public function setKeywords(array $keywords): void
+    {
+        $this->keywords = $keywords;
+    }
+
+    /**
+     * @param array $references
+     */
+    public function setReferences(array $references): void
+    {
+        $this->references = $references;
+    }
+
+    /**
+     * @param SrcForm $srcForm
+     */
+    public function setSrcForm(SrcForm $srcForm): void
+    {
+        $this->srcForm = $srcForm;
+    }
+
+    /**
+     * @param GbSequence $gbSequence
+     */
+    public function setGbSequence(GbSequence $gbSequence): void
+    {
+        $this->gbSequence = $gbSequence;
+    }
+
+    /**
      * @param array $spDatabank
      */
     public function setSpDatabank(array $spDatabank): void
