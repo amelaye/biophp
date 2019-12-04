@@ -39,10 +39,12 @@ class DemoController extends Controller
      * @return Response
      * @throws \Exception
      */
-    public function parseaseqdbAction(DatabaseInterface $databaseManager, AminoApi $aminoApi)
+    public function parseaseqdbAction(DatabaseInterface $databaseManager)
     {
-       // $databaseManager->recording("humandb", "GENBANK", "human.seq", "demo.seq");
+        $databaseManager->recording("humandb", "GENBANK", "human.seq");
         $oService = $databaseManager->fetch("NM_031438");
+
+        dump($oService);
 
         $oSequence      = $oService->getSequence();
         $aAccession     = $oService->getAccession();
@@ -77,7 +79,7 @@ class DemoController extends Controller
      */
     public function parseaswissprotdbAction(DatabaseManager $databaseManager)
     {
-        //$databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
+        $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
 
         dump($oSequence);
