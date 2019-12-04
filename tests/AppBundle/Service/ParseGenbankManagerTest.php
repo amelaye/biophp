@@ -7,6 +7,7 @@ use AppBundle\Entity\IO\Collection;
 use AppBundle\Entity\IO\CollectionElement;
 use AppBundle\Entity\Sequencing\Authors;
 use AppBundle\Entity\Sequencing\Features;
+use AppBundle\Entity\Sequencing\Keywords;
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Service\IO\DatabaseManager;
 use Doctrine\ORM\EntityManager;
@@ -676,6 +677,14 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtValue("alignment:Splign:2.1.0");
         $aExpectedFeatures[] = $oFeature;
         $this->assertEquals($aExpectedFeatures, $oParseSwisprotManager->getFeatures());
+
+        $aExpectedKeywords = [];
+        $oKeywords = new Keywords();
+        $oKeywords->setPrimAcc("NM_031438");
+        $oKeywords->setKeywords("RefSeq.");
+        $aExpectedKeywords[] = $oKeywords;
+        $this->assertEquals($aExpectedKeywords, $oParseSwisprotManager->getKeywords());
+
 
     }
 }

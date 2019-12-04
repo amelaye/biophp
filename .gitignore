@@ -16,7 +16,6 @@
 /nbproject/*
 *.dir
 *.idx
-*.seq
 *.db
 /.idea/*
 web/code-coverage/*
