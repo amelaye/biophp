@@ -45,7 +45,8 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                         $this->parseDefinition($aFlines);
                         break;
                     case "ORGANISM":
-                        $this->sequence->setOrganism(trim(substr($linestr,12)));
+                        $this->parseOrganism($aFlines);
+                        //$this->sequence->setOrganism(trim(substr($linestr,12)));
                         break;
                     case "VERSION":
                         $this->parseVersion();
@@ -109,7 +110,9 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $oReference->setPrimAcc($this->sequence->getPrimAcc());
             $oReference->setRefno($aWords[0]);
             array_shift($aWords);
-            $oReference->setBaseRange(implode(" ", $aWords));
+            $sbaseRange = implode(" ", $aWords);
+            $sbaseRange = str_replace(["(bases ",")"], "", $sbaseRange);
+            $oReference->setBaseRange($sbaseRange);
 
             $sAuthors = $sTitle = $sJournal = $sMedline = $sPubmed = $sRemark = "";
             $this->aLines->next();
@@ -203,6 +206,34 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         }
     }
 
+    /**
+     * Parses information about organism
+     * @throws \Exception
+     */
+    private function parseOrganism($flines)
+    {
+        try {
+            $organism = array();
+            $organism[] = trim(substr($this->aLines->current(),12));
+            while(1) {
+                $head = trim(substr($flines[$this->aLines->key()+1],0, 12));
+                if($head != "") {
+                    break;
+                }
+                $this->aLines->next();
+                $sLine = trim($this->aLines->current());
+                $aElems = explode(";", $sLine);
+                foreach($aElems as $sElem) {
+                    if($sElem != "") {
+                        $organism[] = trim($sElem);
+                    }
+                }
+            }
+            $this->sequence->setOrganism($organism);
+        } catch (\Exception $e) {
+            throw new \Exception($e);
+        }
+    }
 
     /**
      * Parses line LOCUS
@@ -340,41 +371,48 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     {
         try {
             $sKey = $sField ." ". trim(substr($this->aLines->current(), 20));
+            $aLineKeys = explode(" ", $sKey);
+            $sKey = $aLineKeys[0];
+            $aBounds = explode("..", $aLineKeys[1]);
             $this->aLines->next();
             $sLine = trim(substr($this->aLines->current(), 20));
             while (1) {
                 // If line begins with  /
                 // Adding line in array
                 if(trim($aFlines[$this->aLines->key()+1])[0] == "/") {
-                    $sLine = str_replace("/","",trim($sLine));
-                    $aLine = explode("=",str_replace('"',"",$sLine));
-                    $oFeature = new Features();
-                    $oFeature->setPrimAcc($this->sequence->getPrimAcc());
-                    $oFeature->setFtKey($sKey);
-                    $oFeature->setFtQual($aLine[0]);
-                    $oFeature->setFtValue($aLine[1]);
-                    $this->features[] = $oFeature;
+                    $this->buildFeature($sLine, $sKey, $aBounds);
                     $sLine = ""; // RAZ
                 }
-
                 $this->aLines->next();
                 $sLine .= " ".trim(substr($this->aLines->current(), 20));
-
                 $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 12));
                 if($sHead != "") { // Stop if we change feature
-                    $sLine = str_replace("/","",trim($sLine));
-                    $aLine = explode("=",str_replace('"',"",$sLine));
-                    $oFeature = new Features();
-                    $oFeature->setPrimAcc($this->sequence->getPrimAcc());
-                    $oFeature->setFtKey($sKey);
-                    $oFeature->setFtQual($aLine[0]);
-                    $oFeature->setFtValue($aLine[1]);
-                    $this->features[] = $oFeature;
+                    $this->buildFeature($sLine, $sKey, $aBounds);
                     break;
                 }
             }
         } catch (\Exception $e) {
             throw new \Exception($e);
         }
+    }
+
+    /**
+     * Creates Feature object
+     * @param   string  $sLine
+     * @param   string  $sKey
+     * @param   array   $aBounds
+     */
+    private function buildFeature($sLine, $sKey, $aBounds)
+    {
+        $sLine = str_replace("/","",trim($sLine));
+        $aLine = explode("=",str_replace('"',"",$sLine));
+        $oFeature = new Features();
+        $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+        $oFeature->setFtKey($sKey);
+        $oFeature->setFtQual($aLine[0]);
+        $oFeature->setFtValue($aLine[1]);
+        $oFeature->setFtFrom($aBounds[0]);
+        $oFeature->setFtTo($aBounds[1]);
+        $this->features[] = $oFeature;
     }
 }
