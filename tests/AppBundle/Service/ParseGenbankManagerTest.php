@@ -7,8 +7,11 @@ use AppBundle\Entity\IO\Collection;
 use AppBundle\Entity\IO\CollectionElement;
 use AppBundle\Entity\Sequencing\Authors;
 use AppBundle\Entity\Sequencing\Features;
+use AppBundle\Entity\Sequencing\GbSequence;
 use AppBundle\Entity\Sequencing\Keywords;
+use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Entity\Sequencing\Sequence;
+use AppBundle\Entity\Sequencing\SrcForm;
 use AppBundle\Service\IO\DatabaseManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -43,11 +46,11 @@ class ParseGenbankManagerTest extends WebTestCase
             ->willReturn($collectionElement);
 
         $databaseManager = new DatabaseManager($mockedEm);
-        $oParseSwisprotManager = $databaseManager->fetch("NM_031438");
+        $oParseGenbankManager = $databaseManager->fetch("NM_031438");
 
         // Accession
         $aExpectedAccession = [];
-        $this->assertEquals($aExpectedAccession, $oParseSwisprotManager->getAccession());
+        $this->assertEquals($aExpectedAccession, $oParseGenbankManager->getAccession());
 
         $oExpectedSequence = new Sequence();
         $oExpectedSequence->setPrimAcc("NM_031438");
@@ -102,7 +105,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oExpectedSequence->setSequence($sSequence);
         $oExpectedSequence->setDescription("Homo sapiens nudix hydrolase 12 (NUDT12), transcript variant 1, mRNA.");
         $oExpectedSequence->setOrganism("Homo sapiens");
-        $this->assertEquals($oExpectedSequence, $oParseSwisprotManager->getSequence());
+        $this->assertEquals($oExpectedSequence, $oParseGenbankManager->getSequence());
 
         $aExpectedAuthors = [];
         $oAuthor = new Authors();
@@ -325,7 +328,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oAuthor->setRefno("9");
         $oAuthor->setAuthor("Wiemann S");
         $aExpectedAuthors[] = $oAuthor;
-        $this->assertEquals($aExpectedAuthors, $oParseSwisprotManager->getAuthors());
+        $this->assertEquals($aExpectedAuthors, $oParseGenbankManager->getAuthors());
 
         $aExpectedFeatures = [];
         $oFeature = new Features();
@@ -676,15 +679,99 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
         $aExpectedFeatures[] = $oFeature;
-        $this->assertEquals($aExpectedFeatures, $oParseSwisprotManager->getFeatures());
+        $this->assertEquals($aExpectedFeatures, $oParseGenbankManager->getFeatures());
 
         $aExpectedKeywords = [];
         $oKeywords = new Keywords();
         $oKeywords->setPrimAcc("NM_031438");
         $oKeywords->setKeywords("RefSeq.");
         $aExpectedKeywords[] = $oKeywords;
-        $this->assertEquals($aExpectedKeywords, $oParseSwisprotManager->getKeywords());
+        $this->assertEquals($aExpectedKeywords, $oParseGenbankManager->getKeywords());
 
+        $aExpectedReferences = [];
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("1");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Widespread macromolecular interaction perturbations in human genetic disorders");
+        $oReference->setPubmed("25910212");
+        $oReference->setJournal("Cell 161 (3), 647-660 (2015)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("2");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("A genome-wide association study in the genetic analysis of idiopathic thrombophilia project suggests sex-specific regulation of mitochondrial DNA levels");
+        $oReference->setPubmed("25240745");
+        $oReference->setJournal("Mitochondrion 18, 34-40 (2014)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("3");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Genome-wide association study combining pathway analysis for typical sporadic amyotrophic lateral sclerosis in Chinese Han populations");
+        $oReference->setPubmed("24529757");
+        $oReference->setJournal("Neurobiol. Aging 35 (7), 1778 (2014)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("4");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Genome-wide association analyses suggest NELL1 influences adverse metabolic response to HCTZ in African Americans");
+        $oReference->setPubmed("23400010");
+        $oReference->setJournal("Pharmacogenomics J. 14 (1), 35-40 (2014)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("5");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("A genome-wide association study of depressive symptoms");
+        $oReference->setPubmed("23290196");
+        $oReference->setJournal("Biol. Psychiatry 73 (7), 667-678 (2013)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("6");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Genome-wide association study of smoking behaviours in patients with COPD");
+        $oReference->setPubmed("21685187");
+        $oReference->setJournal("Thorax 66 (10), 894-902 (2011)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("7");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Identification of intrahepatic cholangiocarcinoma related genes by comparison with normal liver tissues using expressed sequence tags");
+        $oReference->setPubmed("16712791");
+        $oReference->setJournal("Biochem. Biophys. Res. Commun. 345 (3), 1022-1032 (2006)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("8");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Mammalian NADH diphosphatases of the Nudix family: cloning and characterization of the human peroxisomal NUDT12 protein");
+        $oReference->setPubmed("12790796");
+        $oReference->setRemark("GeneRIF: NUDT12 may act to regulate the concentration of peroxisomal nicotinamide nucleotide cofactors required for oxidative metabolism in this organelle.");
+        $oReference->setJournal("Biochem. J. 374 (Pt 2), 329-335 (2003)");
+        $aExpectedReferences[] = $oReference;
+        $oReference = new Reference();
+        $oReference->setPrimAcc("NM_031438");
+        $oReference->setRefno("9");
+        $oReference->setBaseRange("(bases 1 to 3488)");
+        $oReference->setTitle("Systematic subcellular localization of novel proteins identified by large-scale cDNA sequencing");
+        $oReference->setPubmed("11256614");
+        $oReference->setJournal("EMBO Rep. 1 (3), 287-292 (2000)");
+        $aExpectedReferences[] = $oReference;
+        $this->assertEquals($aExpectedReferences, $oParseGenbankManager->getReferences());
 
+        $oExpectedSrcForm = new SrcForm();
+        $this->assertEquals($oExpectedSrcForm, $oParseGenbankManager->getSrcForm());
+
+        $oGbSequence = new GbSequence();
+        $oGbSequence->setPrimAcc("NM_031438");
+        $oGbSequence->setTopology("LINEAR");
+        $oGbSequence->setDivision("PRI");
+        $oGbSequence->setVersion("NM_031438.4");
+        $this->assertEquals($oGbSequence, $oParseGenbankManager->getGbSequence());
     }
 }

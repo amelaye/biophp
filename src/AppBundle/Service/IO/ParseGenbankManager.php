@@ -106,6 +106,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         try {
             $oReference = new Reference();
             $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
+            $oReference->setPrimAcc($this->sequence->getPrimAcc());
             $oReference->setRefno($aWords[0]);
             array_shift($aWords);
             $oReference->setBaseRange(implode(" ", $aWords));
