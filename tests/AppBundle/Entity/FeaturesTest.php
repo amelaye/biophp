@@ -18,12 +18,14 @@ class FeaturesTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setFtDesc("description of my feature.");
 
-        $this->assertEquals("NM_031438", $oFeature->getPrimAcc("NM_031438"));
-        $this->assertEquals("gene", $oFeature->getFtKey("gene"));
+        $this->assertEquals("NM_031438", $oFeature->getPrimAcc());
+        $this->assertEquals("gene", $oFeature->getFtKey());
         $this->assertEquals(1, $oFeature->getFtFrom());
         $this->assertEquals(3488, $oFeature->getFtTo());
         $this->assertEquals("gene", $oFeature->getFtQual());
         $this->assertEquals("NUDT12", $oFeature->getFtValue());
+        $this->assertEquals("description of my feature.", $oFeature->getFtDesc());
     }
 }
