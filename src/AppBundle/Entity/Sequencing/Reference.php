@@ -33,7 +33,7 @@ class Reference
      *     referencedColumnName = "prim_acc"
      * )
      * @ORM\OneToMany(
-     *     targetEntity = "AppBundle\Entity\Sequencing\Authors",
+     *     targetEntity = "AppBundle\Entity\Sequencing\Author",
      *     mappedBy = "primAcc"
      * )
      */

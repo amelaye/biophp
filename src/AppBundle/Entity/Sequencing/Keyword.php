@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
- *     name = "keywords",
+ *     name = "keyword",
  *     uniqueConstraints = {
  *        @ORM\UniqueConstraint(
  *            name = "prim_acc",
@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  */
-class Keywords
+class Keyword
 {
     /**
      * @var string

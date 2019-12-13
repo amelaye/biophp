@@ -7,9 +7,9 @@
  */
 namespace AppBundle\Service\IO;
 
-use AppBundle\Entity\Sequencing\Authors;
-use AppBundle\Entity\Sequencing\Features;
-use AppBundle\Entity\Sequencing\Keywords;
+use AppBundle\Entity\Sequencing\Author;
+use AppBundle\Entity\Sequencing\Feature;
+use AppBundle\Entity\Sequencing\Keyword;
 use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Entity\Sequencing\Accession;
 
@@ -124,7 +124,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                 $sAuthors = str_replace(".", "", $sAuthors);
                 $aAuthors = explode(",",$sAuthors);
                 foreach($aAuthors as $sAuthor) {
-                    $oAuthor = new Authors();
+                    $oAuthor = new Author();
                     $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
                     $oAuthor->setRefno($oReference->getRefno());
                     $oAuthor->setAuthor(trim($sAuthor));
@@ -326,7 +326,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $wordarray = preg_split("/;+/", implode(" ", $wordarray));
             if ($wordarray[0] != ".") {
                 foreach($wordarray as $word) {
-                    $oKeyword = new Keywords();
+                    $oKeyword = new Keyword();
                     $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
                     $oKeyword->setKeywords($word);
                     $this->keywords[] = $oKeyword;
@@ -406,7 +406,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     {
         $sLine = str_replace("/","",trim($sLine));
         $aLine = explode("=",str_replace('"',"",$sLine));
-        $oFeature = new Features();
+        $oFeature = new Feature();
         $oFeature->setPrimAcc($this->sequence->getPrimAcc());
         $oFeature->setFtKey($sKey);
         $oFeature->setFtQual($aLine[0]);

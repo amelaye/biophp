@@ -14,9 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @package AppBundle\Entity\Sequencing
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
- * @ORM\Table(name = "authors")
+ * @ORM\Table(name = "author")
  */
-class Authors
+class Author
 {
 
     /**
