@@ -8,9 +8,9 @@
 namespace AppBundle\Service\IO;
 
 use AppBundle\Entity\Sequencing\Accession;
-use AppBundle\Entity\Sequencing\Authors;
-use AppBundle\Entity\Sequencing\Features;
-use AppBundle\Entity\Sequencing\Keywords;
+use AppBundle\Entity\Sequencing\Author;
+use AppBundle\Entity\Sequencing\Feature;
+use AppBundle\Entity\Sequencing\Keyword;
 use AppBundle\Entity\Sequencing\Reference;
 use AppBundle\Entity\Sequencing\SpDatabank;
 
@@ -255,7 +255,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 $aKeywords = preg_split("/;/", $sKeywords);
                 array_walk($aKeywords, function(&$sValue) {
                     $sValue = trim($sValue);
-                    $oKeyword = new Keywords();
+                    $oKeyword = new Keyword();
                     $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
                     $oKeyword->setKeywords($sValue);
                     $this->keywords[] = $oKeyword;
@@ -353,7 +353,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             array_shift($aFtExplode);
             $sFTDesc = $this->rem_right(trim(implode(" ", $aFtExplode)));
 
-            $oFeature = new Features();
+            $oFeature = new Feature();
             $oFeature->setPrimAcc($this->sequence->getPrimAcc());
             $oFeature->setFtKey($sFTKey);
             $oFeature->setFtFrom($iFTFrom);
@@ -624,7 +624,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                 if(isset($value["RA"])) {
                     $aAuthors = $value["RA"];
                     foreach($aAuthors as $sAuthor) {
-                        $oAuthor = new Authors();
+                        $oAuthor = new Author();
                         $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
                         $oAuthor->setRefno($key);
                         $oAuthor->setAuthor($sAuthor);

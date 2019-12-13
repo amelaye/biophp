@@ -33,10 +33,10 @@ class Sequence
      *     nullable = false
      * )
      * @ORM\OneToOne(targetEntity = "AppBundle\Entity\Sequencing\GbSequence")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\GbFeatures")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Feature")
      * @ORM\OneToOne(targetEntity = "AppBundle\Entity\Sequencing\ScForm")
      * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Accession")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Keywords")
+     * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Keyword")
      * @ORM\OneToMany(targetEntity = "AppBundle\Entity\Sequencing\Reference")
      */
     private $primAcc;

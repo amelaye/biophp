@@ -2,14 +2,14 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\Authors;
+use AppBundle\Entity\Sequencing\Author;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AuthorsTest extends WebTestCase
 {
     public function testNewAuthor()
     {
-        $oAuthor = new Authors();
+        $oAuthor = new Author();
         $oAuthor->setPrimAcc("NM_031438");
         $oAuthor->setRefno("1");
         $oAuthor->setAuthor("Sahni N");

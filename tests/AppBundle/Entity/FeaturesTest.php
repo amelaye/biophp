@@ -4,14 +4,14 @@
 namespace Tests\AppBundle\Entity;
 
 
-use AppBundle\Entity\Sequencing\Features;
+use AppBundle\Entity\Sequencing\Feature;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FeaturesTest extends WebTestCase
 {
     public function testNewFeature()
     {
-        $oFeature = new Features();
+        $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
         $oFeature->setFtKey("gene");
         $oFeature->setFtFrom(1);
