@@ -8,7 +8,7 @@
  */
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Entity\SubMatrix;
 use AppBundle\Service\SequenceManager;
 use AppBundle\Service\SequenceMatchManager;
