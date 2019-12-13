@@ -7,7 +7,7 @@ namespace Tests\AppBundle\Entity;
 use AppBundle\Entity\Sequencing\SpDatabank;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class SpDataBankTests extends WebTestCase
+class SpDataBankTest extends WebTestCase
 {
     public function testNewSpDatabank()
     {
