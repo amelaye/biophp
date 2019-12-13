@@ -8,6 +8,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequencing\Sequence;
+use Factory\SequenceFactory;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 /**
@@ -72,9 +73,9 @@ class SequenceAlignmentManager
 
     /**
      * SequenceAlignmentManager constructor.
-     * @param SequenceManager $sequenceManager
+     * @param SequenceFactory $sequenceManager
      */
-    public function __construct(SequenceManager $sequenceManager)
+    public function __construct(SequenceFactory $sequenceManager)
     {
         $this->sequenceManager = $sequenceManager;
         $this->iLength         = 0;
