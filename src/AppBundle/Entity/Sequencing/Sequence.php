@@ -307,7 +307,7 @@ class Sequence
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getOrganism()
     {
