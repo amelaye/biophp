@@ -26,40 +26,6 @@ interface ApiAdapterInterface
     public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null);
 
     /**
-     * List of DNA nucleotids
-     * @return array
-     */
-    public function getNucleotidsDNA();
-
-    /**
-     * List of RNA nucleotids
-     * @return array
-     */
-    public function getNucleotidsRNA();
-
-    /**
-     * List of DNA nucleotids complements
-     * @return array
-     */
-    public function getDNAComplement();
-
-    /**
-     * List of RNA nucleotids complements
-     * @return array
-     */
-    public function getRNAComplement();
-
-    /**
-     * @return array
-     */
-    public function getDNAWeight();
-
-    /**
-     * @return array
-     */
-    public function getRNAWeight();
-
-    /**
      * TM Base Stacking
      * Basic temperatures of nucleotids combinations
      * @return array
