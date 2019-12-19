@@ -5,14 +5,14 @@
  * Created 19 december 2019
  * Last modified 19 december 2019
  */
-namespace App\Entity;
+namespace AppBundle\Api\DTO;
 
 /**
  * Database of nucleotids - weigths included
  * @package AppBundle\Api\DTO
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Nucleotid
+class NucleotidDTO
 {
     /**
      * @var     int         Id of the nucleotid (auto-increment)

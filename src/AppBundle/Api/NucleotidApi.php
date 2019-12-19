@@ -7,7 +7,7 @@
  */
 namespace AppBundle\Api;
 
-use App\Entity\Nucleotid;
+use AppBundle\Api\DTO\NucleotidDTO;
 use GuzzleHttp\Client;
 use JMS\Serializer\Serializer;
 
