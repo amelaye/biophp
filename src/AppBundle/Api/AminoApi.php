@@ -48,12 +48,37 @@ class AminoApi
 
     /**
      * Retrives Aminos informations
-     * @return object
+     * @return array
      */
     public function getAminos()
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
-        return $this->serializer->deserialize($response->getBody()->getContents(), AminoDTO::class, 'json');
+
+        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
+
+        $aAminos = array();
+        foreach($data["hydra:member"] as $key => $elem) {
+            $oAminoDTO = new AminoDTO();
+            $oAminoDTO->setName($elem["name"]);
+            $oAminoDTO->setName1Letter($elem["name1Letter"]);
+            $oAminoDTO->setName3Letters($elem["name3Letters"]);
+            $oAminoDTO->setWeight1($elem["weight1"]);
+            $oAminoDTO->setWeight2($elem["weight2"]);
+            $oAminoDTO->setResidueMolWeight(floatval($elem["residueMolWeight"]));
+            $aAminos[] = $oAminoDTO;
+        }
+
+        return $aAminos;
+    }
+
+    public static function GetAminosOnlyLetters($aAminos)
+    {
+        $aFormattedAminos = array();
+        foreach($aAminos as $key => $elem) {
+            $aFormattedAminos[$elem->getName()] = [1 => $elem->getName1Letter(), 3 => $elem->getName3Letters()];
+        }
+
+        return $aFormattedAminos;
     }
 }

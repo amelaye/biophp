@@ -225,7 +225,7 @@ class Bioapi implements ApiAdapterInterface
     /**
      * @return array
      */
-    public function getAminos()
+    /*public function getAminos()
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
@@ -238,7 +238,7 @@ class Bioapi implements ApiAdapterInterface
         }
 
         return $newData;
-    }
+    }*/
 
     /**
      * @return array
@@ -259,7 +259,7 @@ class Bioapi implements ApiAdapterInterface
     /**
      * @return array
      */
-    public function getAminosOnlyLetters()
+    /*public function getAminosOnlyLetters()
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
@@ -272,7 +272,7 @@ class Bioapi implements ApiAdapterInterface
         }
 
         return $newData;
-    }
+    }*/
 
     /**
      * @return array

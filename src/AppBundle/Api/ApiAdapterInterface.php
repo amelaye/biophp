@@ -90,7 +90,7 @@ interface ApiAdapterInterface
     /**
      * @return array
      */
-    public function getAminos();
+    //public function getAminos();
 
     /**
      * @return array
@@ -100,7 +100,7 @@ interface ApiAdapterInterface
     /**
      * @return array
      */
-    public function getAminosOnlyLetters();
+    //public function getAminosOnlyLetters();
 
     /**
      * @return array

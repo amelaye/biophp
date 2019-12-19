@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Service;
 
+use AppBundle\Api\AminoApi;
 use AppBundle\Api\ApiAdapterInterface;
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
@@ -54,14 +55,17 @@ class SequenceManager implements SequenceInterface
      * @var ApiAdapterInterface
      */
     private $bioapi;
+
+    private $aminoApi;
     
     /**
      * Constructor
      * @param   ApiAdapterInterface  $bioapi
      */
-    public function __construct(ApiAdapterInterface $bioapi) {
+    public function __construct(ApiAdapterInterface $bioapi, AminoApi $aminoApi) {
         $this->elements         = $bioapi->getElements();
         $this->bioapi           = $bioapi;
+        $this->aminoApi         = $aminoApi->getAminos();
     }
 
     /**
@@ -802,7 +806,7 @@ class SequenceManager implements SequenceInterface
      */
     private function guanineLetters($letter2, $letter3, $format)
     {
-        $aAminos = $this->bioapi->getAminosOnlyLetters();
+        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
         switch($letter2) {
             case "U":
                 return $aAminos["Valine"][$format]; // GU*
@@ -838,7 +842,7 @@ class SequenceManager implements SequenceInterface
      */
     private function adenineLetters($letter2, $letter3, $format)
     {
-        $aAminos = $this->bioapi->getAminosOnlyLetters();
+        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
         switch($letter2) {
             case "U":
                 switch($letter3) {
@@ -889,7 +893,7 @@ class SequenceManager implements SequenceInterface
      */
     private function cytosineLetters($letter2, $letter3, $format)
     {
-        $aAminos = $this->bioapi->getAminosOnlyLetters();
+        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
         switch($letter2) {
             case "U":
                 return $aAminos["Leucine"][$format]; // CU*
@@ -925,7 +929,7 @@ class SequenceManager implements SequenceInterface
      */
     private function uracileLetters($letter2, $letter3, $format)
     {
-        $aAminos = $this->bioapi->getAminosOnlyLetters();
+        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
         switch($letter2) {
             case "U":
                 switch($letter3) {

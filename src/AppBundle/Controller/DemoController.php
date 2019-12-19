@@ -77,12 +77,12 @@ class DemoController extends Controller
      * @return Response
      * @throws \Exception
      */
-    public function parseaswissprotdbAction(DatabaseManager $databaseManager)
+    public function parseaswissprotdbAction(DatabaseManager $databaseManager, AminoApi $aminoApi)
     {
         $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
 
-        dump($oSequence);
+        dump($aminoApi->getAminos());
 
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]
