@@ -225,58 +225,6 @@ class Bioapi implements ApiAdapterInterface
     /**
      * @return array
      */
-    /*public function getAminos()
-    {
-        $uri = '/aminos';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['id']] = $elem;
-        }
-
-        return $newData;
-    }*/
-
-    /**
-     * @return array
-     */
-    public function getAminoweights()
-    {
-        $uri = '/aminos';
-        $response = $this->bioapiClient->get($uri);
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['id']] = [$elem['weight1'], $elem['weight2']];
-        }
-
-        return $newData;
-    }
-
-    /**
-     * @return array
-     */
-    /*public function getAminosOnlyLetters()
-    {
-        $uri = '/aminos';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['name']] = [1 => $elem["name1Letter"], 3 => $elem["name3Letters"]];
-        }
-
-        return $newData;
-    }*/
-
-    /**
-     * @return array
-     */
     public function getTripletsGroups()
     {
         $uri = '/triplet_species';

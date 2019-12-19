@@ -7,7 +7,9 @@
  */
 namespace AppBundle\Service;
 
+use AppBundle\Api\AminoApi;
 use AppBundle\Api\ApiAdapterInterface;
+use AppBundle\Api\Bioapi;
 use AppBundle\Entity\Protein;
 
 /**
@@ -29,11 +31,11 @@ class ProteinManager
 
     /**
      * Constructor
-     * @param ApiAdapterInterface $bioapi
+     * @param AminoApi $aminoApi
      */
-    public function __construct(ApiAdapterInterface $bioapi)
+    public function __construct(AminoApi $aminoApi)
     {
-        $this->wts      = $bioapi->getAminoweights();
+        $this->wts      = AminoApi::GetAminoweights($aminoApi->getAminos());
     }
 
     /**

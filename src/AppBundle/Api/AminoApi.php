@@ -60,6 +60,7 @@ class AminoApi
         $aAminos = array();
         foreach($data["hydra:member"] as $key => $elem) {
             $oAminoDTO = new AminoDTO();
+            $oAminoDTO->setId($elem["id"]);
             $oAminoDTO->setName($elem["name"]);
             $oAminoDTO->setName1Letter($elem["name1Letter"]);
             $oAminoDTO->setName3Letters($elem["name3Letters"]);
@@ -77,6 +78,16 @@ class AminoApi
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
             $aFormattedAminos[$elem->getName()] = [1 => $elem->getName1Letter(), 3 => $elem->getName3Letters()];
+        }
+
+        return $aFormattedAminos;
+    }
+
+    public static function GetAminoweights($aAminos)
+    {
+        $aFormattedAminos = array();
+        foreach($aAminos as $key => $elem) {
+            $aFormattedAminos[$elem->getId()] = [$elem->getWeight1(), $elem->getWeight2()];
         }
 
         return $aFormattedAminos;

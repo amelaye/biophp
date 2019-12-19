@@ -90,21 +90,6 @@ interface ApiAdapterInterface
     /**
      * @return array
      */
-    //public function getAminos();
-
-    /**
-     * @return array
-     */
-    public function getAminoweights();
-
-    /**
-     * @return array
-     */
-    //public function getAminosOnlyLetters();
-
-    /**
-     * @return array
-     */
     public function getTripletsGroups();
 
     /**
