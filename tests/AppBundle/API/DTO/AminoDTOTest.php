@@ -18,6 +18,7 @@ class AminoDTOTest extends WebTestCase
         $amino->setName3Letters('N/A');
         $amino->setWeight1(75.07);
         $amino->setWeight2(204.22);
+        $amino->setResidueMolWeight(56.77);
 
         $this->assertEquals("Z", $amino->getId());
         $this->assertEquals("Glutamate or glutamine", $amino->getName());
@@ -25,5 +26,6 @@ class AminoDTOTest extends WebTestCase
         $this->assertEquals('N/A', $amino->getName3Letters());
         $this->assertEquals(75.07, $amino->getWeight1());
         $this->assertEquals(204.22, $amino->getWeight2());
+        $this->assertEquals(56.77, $amino->getResidueMolWeight());
     }
 }
