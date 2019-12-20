@@ -20,7 +20,7 @@ class AminoApi extends Bioapi
      * Retrives Aminos informations : gets a full array of objects
      * @return array
      */
-    public function getAminos()
+    public function getAminos() : array
     {
         $uri = '/aminos';
         $response = $this->bioapiClient->get($uri);
@@ -49,7 +49,7 @@ class AminoApi extends Bioapi
      * @param   array   $aAminos    Array of objects
      * @return  array
      */
-    public static function GetAminosOnlyLetters($aAminos)
+    public static function GetAminosOnlyLetters($aAminos) : array
     {
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
@@ -64,7 +64,7 @@ class AminoApi extends Bioapi
      * @param   array     $aAminos    Array of objects
      * @return  array
      */
-    public static function GetAminoweights($aAminos)
+    public static function GetAminoweights($aAminos) : array
     {
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {

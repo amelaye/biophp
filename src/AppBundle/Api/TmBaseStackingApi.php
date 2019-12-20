@@ -4,40 +4,13 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TmBaseStackingDTO;
-use GuzzleHttp\Client;
-use JMS\Serializer\Serializer;
 
-class TmBaseStackingApi
+class TmBaseStackingApi extends Bioapi
 {
     /**
-     * @var Client
+     * @return array
      */
-    private $bioapiClient;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @var string|null
-     */
-    private $apiKey;
-
-    /**
-     * Bioapi constructor.
-     * @param Client        $bioapiClient
-     * @param Serializer    $serializer
-     * @param string        $apiKey
-     */
-    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
-    {
-        $this->bioapiClient = $bioapiClient;
-        $this->serializer   = $serializer;
-        $this->apiKey       = $apiKey;
-    }
-
-    public function getTmBaseStackings()
+    public function getTmBaseStackings() : array
     {
         $uri = '/tm_base_stackings';
         $response = $this->bioapiClient->get($uri);
@@ -59,7 +32,7 @@ class TmBaseStackingApi
      * Basic temperatures of nucleotids combinations
      * @return array
      */
-    public static function GetEnthropyValues($aTmBaseStackings)
+    public static function GetEnthropyValues($aTmBaseStackings) : array
     {
         $newData = array();
         foreach($aTmBaseStackings as $key => $elem) {
@@ -71,7 +44,7 @@ class TmBaseStackingApi
     /**
      * @return array
      */
-    public static function getEnthalpyValues($aTmBaseStackings)
+    public static function getEnthalpyValues($aTmBaseStackings) : array
     {
         $newData = array();
         foreach($aTmBaseStackings as $key => $elem) {

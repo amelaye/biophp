@@ -16,41 +16,13 @@ use JMS\Serializer\Serializer;
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class NucleotidApi
+class NucleotidApi extends Bioapi
 {
     /**
-     * @var Client
-     */
-    private $bioapiClient;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @var string|null
-     */
-    private $apiKey;
-
-    /**
-     * Bioapi constructor.
-     * @param Client        $bioapiClient
-     * @param Serializer    $serializer
-     * @param string        $apiKey
-     */
-    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
-    {
-        $this->bioapiClient = $bioapiClient;
-        $this->serializer   = $serializer;
-        $this->apiKey       = $apiKey;
-    }
-
-    /**
      * List of RNA nucleotids
-     * @return array
+     * @return      array
      */
-    public function getNucleotids()
+    public function getNucleotids() : array
     {
         $uri = '/nucleotids';
         $response = $this->bioapiClient->get($uri);
@@ -71,9 +43,10 @@ class NucleotidApi
 
     /**
      * List of DNA nucleotids
-     * @return array
+     * @param   array   $aNucleotids
+     * @return  array
      */
-    public static function GetNucleotidsDNA($aNucleotids)
+    public static function GetNucleotidsDNA($aNucleotids) : array
     {
         $newData = array();
 
@@ -88,7 +61,8 @@ class NucleotidApi
 
     /**
      * List of RNA nucleotids
-     * @return array
+     * @param   array   $aNucleotids
+     * @return  array
      */
     public static function GetNucleotidsRNA($aNucleotids)
     {
@@ -105,7 +79,8 @@ class NucleotidApi
 
     /**
      * List of DNA nucleotids complements
-     * @return array
+     * @param   array   $aNucleotids
+     * @return  array
      */
     public static function GetDNAComplement($aNucleotids)
     {
@@ -118,7 +93,8 @@ class NucleotidApi
     }
 
     /**
-     * @return array
+     * @param   array   $aNucleotids
+     * @return  array
      */
     public static function GetDNAWeight($aNucleotids)
     {
