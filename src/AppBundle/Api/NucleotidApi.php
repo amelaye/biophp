@@ -59,7 +59,7 @@ class NucleotidApi
 
         $aNucleotids = array();
         foreach($data["hydra:member"] as $key => $elem) {
-            $nucleotid = new Nucleotid();
+            $nucleotid = new NucleotidDTO();
             $nucleotid->setLetter($data["letter"]);
             $nucleotid->setComplement($data["complement"]);
             $nucleotid->setNature($data["nature"]);

@@ -26,18 +26,6 @@ interface ApiAdapterInterface
     public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null);
 
     /**
-     * TM Base Stacking
-     * Basic temperatures of nucleotids combinations
-     * @return array
-     */
-    public function getEnthropyValues();
-
-    /**
-     * @return array
-     */
-    public function getEnthalpyValues();
-
-    /**
      * @return array
      */
     public function getElements();

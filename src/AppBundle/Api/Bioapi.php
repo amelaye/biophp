@@ -47,41 +47,6 @@ class Bioapi implements ApiAdapterInterface
     }
 
     /**
-     * TM Base Stacking
-     * Basic temperatures of nucleotids combinations
-     * @return array
-     */
-    public function getEnthropyValues()
-    {
-        $uri = '/tm_base_stackings';
-        $response = $this->bioapiClient->get($uri);
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['id']] = $elem['temperatureEnthropy'];
-        }
-        return $newData;
-    }
-
-    /**
-     * @return array
-     */
-    public function getEnthalpyValues()
-    {
-        $uri = '/tm_base_stackings';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['id']] = $elem['temperatureEnthalpy'];
-        }
-        return $newData;
-    }
-
-    /**
      * @return array
      */
     public function getElements()
