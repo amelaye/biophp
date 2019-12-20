@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AppBundle\Api\DTO;
+namespace AppBundle\Api;
 
 
 use AppBundle\Api\DTO\ElementDTO;
