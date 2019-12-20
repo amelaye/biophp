@@ -47,22 +47,6 @@ class Bioapi implements ApiAdapterInterface
     }
 
     /**
-     * @return array
-     */
-    public function getElements()
-    {
-        $uri = '/elements';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem['name']] = $elem['weight'];
-        }
-        return $newData;
-    }
-
-    /**
      * @return array|\JMS\Serializer\scalar|mixed|object
      */
     public function getWater()

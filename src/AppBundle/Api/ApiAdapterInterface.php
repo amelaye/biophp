@@ -26,11 +26,6 @@ interface ApiAdapterInterface
     public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null);
 
     /**
-     * @return array
-     */
-    public function getElements();
-
-    /**
      * @return array|\JMS\Serializer\scalar|mixed|object
      */
     public function getWater();
