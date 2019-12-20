@@ -12,7 +12,7 @@ namespace AppBundle\Api\DTO;
  * @package AppBundle\Api\DTO
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  */
-class Vendor
+class VendorDTO
 {
     /**
      * @var string
