@@ -7,8 +7,6 @@ namespace Tests\AppBundle\API;
 use AppBundle\Api\AminoApi;
 use AppBundle\Api\DTO\AminoDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp;
 
 class AminoApiTest extends WebTestCase

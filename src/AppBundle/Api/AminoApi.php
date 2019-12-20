@@ -3,51 +3,21 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 1st December 2019
- * Last modified 1st December 2019
+ * Last modified 20 December 2019
  */
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\AminoDTO;
-use GuzzleHttp\Client;
-use JMS\Serializer\Serializer;
 
 /**
  * Database of elements - Amino acids
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class AminoApi
+class AminoApi extends Bioapi
 {
     /**
-     * @var Client
-     */
-    private $bioapiClient;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @var string|null
-     */
-    private $apiKey;
-
-    /**
-     * Bioapi constructor.
-     * @param Client        $bioapiClient
-     * @param Serializer    $serializer
-     * @param string        $apiKey
-     */
-    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
-    {
-        $this->bioapiClient = $bioapiClient;
-        $this->serializer   = $serializer;
-        $this->apiKey       = $apiKey;
-    }
-
-    /**
-     * Retrives Aminos informations
+     * Retrives Aminos informations : gets a full array of objects
      * @return array
      */
     public function getAminos()
@@ -73,6 +43,12 @@ class AminoApi
         return $aAminos;
     }
 
+    /**
+     * Creates a simple array of aminos
+     * @example $aFormattedAminos["name"] = [$aFormattedAminos["name1Letter"], $aFormattedAminos["name3Letters"]]
+     * @param   array   $aAminos    Array of objects
+     * @return  array
+     */
     public static function GetAminosOnlyLetters($aAminos)
     {
         $aFormattedAminos = array();
@@ -83,6 +59,11 @@ class AminoApi
         return $aFormattedAminos;
     }
 
+    /**
+     * Creates a simple array juste with aminos weights
+     * @param   array     $aAminos    Array of objects
+     * @return  array
+     */
     public static function GetAminoweights($aAminos)
     {
         $aFormattedAminos = array();

@@ -16,22 +16,22 @@ use JMS\Serializer\Serializer;
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Bioapi implements ApiAdapterInterface
+abstract class Bioapi implements ApiAdapterInterface
 {
     /**
      * @var Client
      */
-    private $bioapiClient;
+    protected $bioapiClient;
 
     /**
      * @var Serializer
      */
-    private $serializer;
+    protected $serializer;
 
     /**
      * @var string|null
      */
-    private $apiKey;
+    protected $apiKey;
 
     /**
      * Bioapi constructor.
