@@ -11,9 +11,11 @@ class ElementDTOTest extends WebTestCase
     public function testNewElementDTO()
     {
         $element = new ElementDTO();
+        $element->setId("AA");
         $element->setName("carbone");
         $element->setWeight(12.01);
 
+        $this->assertEquals("AA", $element->getId());
         $this->assertEquals("carbone", $element->getName());
         $this->assertEquals(12.01, $element->getWeight());
     }
