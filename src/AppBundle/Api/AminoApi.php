@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\AminoDTO;
+use AppBundle\Api\Interfaces\AminoApiAdapter;
 
 /**
  * Database of aminos - Amino acids
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class AminoApi extends Bioapi
+class AminoApi extends Bioapi implements AminoApiAdapter
 {
     /**
      * Retrives Aminos informations : gets a full array of objects
