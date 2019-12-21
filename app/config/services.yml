@@ -36,6 +36,16 @@ services:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
+    AppBundle\Api\ElementApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\NucleotidApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
     AppBundle\Api\ApiAdapterInterface: '@AppBundle\Api\Bioapi'
 
     AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'
