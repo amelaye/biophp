@@ -1,10 +1,7 @@
 <?php
 
 
-namespace AppBundle\Api\DTO;
-
-
-use AppBundle\Api\Bioapi;
+namespace AppBundle\Api;
 
 class TypeIIEndonucleaseApi extends Bioapi
 {
