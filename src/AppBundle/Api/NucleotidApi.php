@@ -3,7 +3,7 @@
  * Database of elements - Nucleotids
  * Inspired by BioPHP's project biophp.org
  * Created 19 December 2019
- * Last modified 19 December 2019
+ * Last modified 21 December 2019
  */
 namespace AppBundle\Api;
 
@@ -17,7 +17,7 @@ use AppBundle\Api\DTO\NucleotidDTO;
 class NucleotidApi extends Bioapi
 {
     /**
-     * List of RNA nucleotids
+     * List of DNA/RNA nucleotids
      * @return      array
      */
     public function getNucleotids() : array
@@ -44,7 +44,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetNucleotidsDNA($aNucleotids) : array
+    public static function GetNucleotidsDNA(array $aNucleotids) : array
     {
         $newData = array();
 
@@ -62,7 +62,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetNucleotidsRNA($aNucleotids)
+    public static function GetNucleotidsRNA(array $aNucleotids)
     {
         $newData = array();
 
@@ -80,7 +80,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetDNAComplement($aNucleotids)
+    public static function GetDNAComplement(array $aNucleotids)
     {
         $nucleos = self::GetNucleotidsDNA($aNucleotids);
         $dnaComplements = array();
@@ -95,7 +95,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetRNAComplement($aNucleotids)
+    public static function GetRNAComplement(array $aNucleotids)
     {
         $nucleos = self::GetNucleotidsRNA($aNucleotids);
         $dnaComplements = array();
@@ -109,7 +109,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetDNAWeight($aNucleotids)
+    public static function GetDNAWeight(array $aNucleotids)
     {
         $nucleos = self::GetNucleotidsDNA($aNucleotids);
         $dnaWeights = array();
@@ -123,7 +123,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetRNAWeight($aNucleotids)
+    public static function GetRNAWeight(array $aNucleotids)
     {
         $nucleos = self::GetNucleotidsRNA($aNucleotids);
         $dnaWeights = array();

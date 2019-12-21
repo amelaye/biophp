@@ -1,13 +1,23 @@
 <?php
-
-
+/**
+ * Database of elements - Tm Base stackings
+ * Inspired by BioPHP's project biophp.org
+ * Created 21 December 2019
+ * Last modified 21 December 2019
+ */
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TmBaseStackingDTO;
 
+/**
+ * Class TmBaseStackingApi
+ * @package AppBundle\Api
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class TmBaseStackingApi extends Bioapi
 {
     /**
+     * Gets the list of objects from Api
      * @return array
      */
     public function getTmBaseStackings() : array
@@ -29,10 +39,11 @@ class TmBaseStackingApi extends Bioapi
 
     /**
      * TM Base Stacking
-     * Basic temperatures of nucleotids combinations
-     * @return array
+     * Basic temperatures of nucleotids combinations - enthropy
+     * @param   array   $aTmBaseStackings
+     * @return  array
      */
-    public static function GetEnthropyValues($aTmBaseStackings) : array
+    public static function GetEnthropyValues(array $aTmBaseStackings) : array
     {
         $newData = array();
         foreach($aTmBaseStackings as $key => $elem) {
@@ -42,9 +53,12 @@ class TmBaseStackingApi extends Bioapi
     }
 
     /**
-     * @return array
+     * TM Base Stacking
+     * Basic temperatures of nucleotids combinations - enthalpy
+     * @param   array   $aTmBaseStackings
+     * @return  array
      */
-    public static function getEnthalpyValues($aTmBaseStackings) : array
+    public static function getEnthalpyValues(array $aTmBaseStackings) : array
     {
         $newData = array();
         foreach($aTmBaseStackings as $key => $elem) {

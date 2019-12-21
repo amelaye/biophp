@@ -1,16 +1,26 @@
 <?php
-
-
+/**
+ * Database of elements - Type II endonucleases
+ * Inspired by BioPHP's project biophp.org
+ * Created 21 December 2019
+ * Last modified 21 December 2019
+ */
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TypeIIEndonucleaseDTO;
 
+/**
+ * Class TypeIIEndonucleaseApi
+ * @package AppBundle\Api
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class TypeIIEndonucleaseApi extends Bioapi
 {
     /**
+     * Gets the list of objects from Api
      * @return array
      */
-    public function getTypeIIEndonucleases()
+    public function getTypeIIEndonucleases() : array
     {
         $uri = '/type_i_i_endonucleases';
         $response = $this->bioapiClient->get($uri);
@@ -35,9 +45,11 @@ class TypeIIEndonucleaseApi extends Bioapi
     }
 
     /**
-     * @return array
+     * Gets a list as array
+     * @param   array   $aType2Endonucleases
+     * @return  array
      */
-    public static function GetTypeIIEndonucleasesArray($aType2Endonucleases)
+    public static function GetTypeIIEndonucleasesArray(array $aType2Endonucleases) : array
     {
         $newData = array();
         foreach($aType2Endonucleases as $key => $elem) {
@@ -54,7 +66,12 @@ class TypeIIEndonucleaseApi extends Bioapi
         return $newData;
     }
 
-    public static function GetTypeIIbEndonucleasesCleavagePosUpper($aEndonucleases)
+    /**
+     * Gets a list of cleavages pos-upper
+     * @param   array   $aEndonucleases
+     * @return  array
+     */
+    public static function GetTypeIIbEndonucleasesCleavagePosUpper(array $aEndonucleases) : array
     {
         $newData = array();
         foreach($aEndonucleases as $key => $elem) {

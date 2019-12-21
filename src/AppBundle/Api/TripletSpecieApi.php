@@ -1,21 +1,29 @@
 <?php
-
-
+/**
+ * Database of elements - Triplets species
+ * Inspired by BioPHP's project biophp.org
+ * Created 21 December 2019
+ * Last modified 21 December 2019
+ */
 namespace AppBundle\Api;
-
 
 use AppBundle\Api\DTO\TripletSpecieDTO;
 
+/**
+ * Class TripletSpecieApi
+ * @package AppBundle\Api
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class TripletSpecieApi extends Bioapi
 {
     /**
+     * Gets the list of objects from Api
      * @return array
      */
-    public function getTriplets()
+    public function getTriplets() : array
     {
         $uri = '/triplet_species';
         $response = $this->bioapiClient->get($uri);
-
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
 
         $aTriplets = array();
@@ -29,13 +37,14 @@ class TripletSpecieApi extends Bioapi
         }
 
         return $aTriplets;
-
     }
 
     /**
-     * @return array
+     * Gets a list of groups as array
+     * @param   array   $aTriplets
+     * @return  array
      */
-    public static function GetTripletsGroups($aTriplets)
+    public static function GetTripletsGroups(array $aTriplets) : array
     {
         $newData = array();
         foreach($aTriplets as $key => $elem) {
@@ -45,9 +54,11 @@ class TripletSpecieApi extends Bioapi
     }
 
     /**
-     * @return array
+     * Gets a list as array
+     * @param   array   $aTriplets
+     * @return  array
      */
-    public static function GetTripletsArray($aTriplets)
+    public static function GetTripletsArray(array $aTriplets) : array
     {
         $newData = array();
         foreach($aTriplets as $key => $elem) {
@@ -57,9 +68,11 @@ class TripletSpecieApi extends Bioapi
     }
 
     /**
-     * @return array
+     * Gets a list of triplets combinations
+     * @param   array   $aTriplets
+     * @return  array
      */
-    public static function GetTripletsCombinations($aTriplets)
+    public static function GetTripletsCombinations(array $aTriplets) : array
     {
         $newData = array();
         foreach($aTriplets as $key => $elem) {
@@ -69,9 +82,11 @@ class TripletSpecieApi extends Bioapi
     }
 
     /**
-     * @return array
+     * Gets a list of species as array
+     * @param   array   $aTriplets
+     * @return  array
      */
-    public function GetSpeciesNames($aTriplets)
+    public function GetSpeciesNames(array $aTriplets) : array
     {
         $newData = array();
         foreach($aTriplets as $key => $elem) {

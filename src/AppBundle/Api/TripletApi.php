@@ -1,17 +1,26 @@
 <?php
-
-
+/**
+ * Database of elements - Triplets
+ * Inspired by BioPHP's project biophp.org
+ * Created 21 December 2019
+ * Last modified 21 December 2019
+ */
 namespace AppBundle\Api;
-
 
 use AppBundle\Api\DTO\TripletDTO;
 
+/**
+ * Class TripletApi
+ * @package AppBundle\Api
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 class TripletApi extends Bioapi
 {
     /**
+     * Gets the list of objects from Api
      * @return array
      */
-    public function getTriplets()
+    public function getTriplets() : array
     {
         $uri = '/triplets';
         $response = $this->bioapiClient->get($uri);
@@ -30,9 +39,11 @@ class TripletApi extends Bioapi
     }
 
     /**
-     * @return array
+     * Gets a list as array
+     * @param   array   $aTripletList
+     * @return  array
      */
-    public static function GetTripletsList($aTripletList)
+    public static function GetTripletsArray(array $aTripletList) : array
     {
         $newData = array();
         foreach($aTripletList as $key => $elem) {

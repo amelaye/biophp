@@ -10,7 +10,7 @@ namespace AppBundle\Api;
 use AppBundle\Api\DTO\AminoDTO;
 
 /**
- * Database of elements - Amino acids
+ * Database of aminos - Amino acids
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
@@ -49,7 +49,7 @@ class AminoApi extends Bioapi
      * @param   array   $aAminos    Array of objects
      * @return  array
      */
-    public static function GetAminosOnlyLetters($aAminos) : array
+    public static function GetAminosOnlyLetters(array $aAminos) : array
     {
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
@@ -64,7 +64,7 @@ class AminoApi extends Bioapi
      * @param   array     $aAminos    Array of objects
      * @return  array
      */
-    public static function GetAminoweights($aAminos) : array
+    public static function GetAminoweights(array $aAminos) : array
     {
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
