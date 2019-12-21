@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TripletSpecieDTO;
+use AppBundle\Api\Interfaces\TripletSpecieApiAdapter;
 
 /**
  * Class TripletSpecieApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class TripletSpecieApi extends Bioapi
+class TripletSpecieApi extends Bioapi implements TripletSpecieApiAdapter
 {
     /**
      * Gets the list of objects from Api

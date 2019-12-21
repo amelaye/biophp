@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\ProteinReductionDTO;
+use AppBundle\Api\Interfaces\ProteinReductionApiAdapter;
 
 /**
  * Class ProteinReductionApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class ProteinReductionApi extends Bioapi
+class ProteinReductionApi extends Bioapi implements ProteinReductionApiAdapter
 {
     /**
      * Gets the list of objects from Api

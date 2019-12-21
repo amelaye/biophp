@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\VendorDTO;
+use AppBundle\Api\Interfaces\VendorApiAdapter;
 
 /**
  * Class VendorApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class VendorApi extends Bioapi
+class VendorApi extends Bioapi implements VendorApiAdapter
 {
     /**
      * Gets the list of objects from Api

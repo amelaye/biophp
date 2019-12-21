@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TypeIIbEndonucleaseDTO;
+use AppBundle\Api\Interfaces\TypeIIbEndonucleaseApiAdapter;
 
 /**
  * Class TypeIIbEndonucleaseApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class TypeIIbEndonucleaseApi extends Bioapi
+class TypeIIbEndonucleaseApi extends Bioapi implements TypeIIbEndonucleaseApiAdapter
 {
     /**
      * Gets the list of objects from Api

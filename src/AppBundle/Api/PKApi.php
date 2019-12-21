@@ -7,12 +7,14 @@
  */
 namespace AppBundle\Api;
 
+use AppBundle\Api\Interfaces\PKApiAdapter;
+
 /**
  * Database of elements - Nucleotids
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class PKApi extends Bioapi
+class PKApi extends Bioapi implements PKApiAdapter
 {
     /**
      * @param $id

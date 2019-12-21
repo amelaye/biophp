@@ -8,19 +8,20 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\Pam250MatrixDigitDTO;
+use AppBundle\Api\Interfaces\Pam250MatrixDigitApiAdapter;
 
 /**
  * Class Pam250MatrixDigitApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Pam250MatrixDigitApi extends Bioapi
+class Pam250MatrixDigitApi extends Bioapi implements Pam250MatrixDigitApiAdapter
 {
     /**
      * Gets the list of objects from Api
      * @return array
      */
-    public function getPam250Matrix()
+    public function getPam250Matrix() : array
     {
         $uri = '/pam250_matrix_digits';
         $response = $this->bioapiClient->get($uri);
@@ -41,7 +42,7 @@ class Pam250MatrixDigitApi extends Bioapi
      * @param   array   $aPam250
      * @return  array
      */
-    public static function GetPam250MatrixArray(array $aPam250)
+    public static function GetPam250MatrixArray(array $aPam250) : array
     {
         $newData = array();
         foreach($aPam250 as $key => $elem) {

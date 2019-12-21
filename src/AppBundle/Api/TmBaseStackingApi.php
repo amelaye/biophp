@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TmBaseStackingDTO;
+use AppBundle\Api\Interfaces\TmBaseStackingApiAdapter;
 
 /**
  * Class TmBaseStackingApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class TmBaseStackingApi extends Bioapi
+class TmBaseStackingApi extends Bioapi implements TmBaseStackingApiAdapter
 {
     /**
      * Gets the list of objects from Api

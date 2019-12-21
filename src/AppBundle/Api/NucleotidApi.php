@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\NucleotidDTO;
+use AppBundle\Api\Interfaces\NucleotidApiAdapter;
 
 /**
  * Database of elements - Nucleotids
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class NucleotidApi extends Bioapi
+class NucleotidApi extends Bioapi implements NucleotidApiAdapter
 {
     /**
      * List of DNA/RNA nucleotids
@@ -62,7 +63,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetNucleotidsRNA(array $aNucleotids)
+    public static function GetNucleotidsRNA(array $aNucleotids) : array
     {
         $newData = array();
 
@@ -80,7 +81,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetDNAComplement(array $aNucleotids)
+    public static function GetDNAComplement(array $aNucleotids) : array
     {
         $nucleos = self::GetNucleotidsDNA($aNucleotids);
         $dnaComplements = array();
@@ -95,7 +96,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetRNAComplement(array $aNucleotids)
+    public static function GetRNAComplement(array $aNucleotids) : array
     {
         $nucleos = self::GetNucleotidsRNA($aNucleotids);
         $dnaComplements = array();
@@ -109,7 +110,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetDNAWeight(array $aNucleotids)
+    public static function GetDNAWeight(array $aNucleotids) : array
     {
         $nucleos = self::GetNucleotidsDNA($aNucleotids);
         $dnaWeights = array();
@@ -123,7 +124,7 @@ class NucleotidApi extends Bioapi
      * @param   array   $aNucleotids
      * @return  array
      */
-    public static function GetRNAWeight(array $aNucleotids)
+    public static function GetRNAWeight(array $aNucleotids) : array
     {
         $nucleos = self::GetNucleotidsRNA($aNucleotids);
         $dnaWeights = array();

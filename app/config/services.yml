@@ -46,4 +46,72 @@ services:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
+    AppBundle\Api\Pam250MatrixDigitApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\PKApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\ProteinReductionApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TmBaseStackingApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TripletApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TripletSpecieApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TypeIIbEndonucleaseApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TypeIIEndonucleaseApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\TypeIIsEndonucleaseApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\VendorApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
+    AppBundle\Api\VendorLinkApi:
+        arguments:
+            - '@csa_guzzle.client.bioapi'
+            - '@jms_serializer'
+
     AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'
+    AppBundle\Api\Interfaces\AminoApiAdapter: '@AppBundle\Api\AminoApi'
+    AppBundle\Api\Interfaces\ElementApiAdapter: '@AppBundle\Api\ElementApi'
+    AppBundle\Api\Interfaces\NucleotidApiAdapter: '@AppBundle\Api\NucleotidApi'
+    AppBundle\Api\Interfaces\Pam250MatrixDigitApiAdapter: '@AppBundle\Api\Pam250MatrixDigitApi'
+    AppBundle\Api\Interfaces\ProteinReductionApiAdapter: '@AppBundle\Api\ProteinReductionApi'
+    AppBundle\Api\Interfaces\TmBaseStackingApiAdapter: '@AppBundle\Api\TmBaseStackingApi'
+    AppBundle\Api\Interfaces\TripletApiAdapter: '@AppBundle\Api\TripletApi'
+    AppBundle\Api\Interfaces\TripletSpecieApiAdapter: '@AppBundle\Api\TripletSpecieApi'
+    AppBundle\Api\Interfaces\TypeIIbEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIbEndonucleaseApi'
+    AppBundle\Api\Interfaces\TypeIIEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIEndonucleaseApi'
+    AppBundle\Api\Interfaces\TypeIIsEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIsEndonucleaseApi'
+    AppBundle\Api\Interfaces\VendorApiAdapter: '@AppBundle\Api\VendorApi'
+    AppBundle\Api\Interfaces\VendorLinkApiAdapter: '@AppBundle\Api\VendorLinkApi'

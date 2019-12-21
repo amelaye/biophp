@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\ElementDTO;
+use AppBundle\Api\Interfaces\ElementApiAdapter;
 
 /**
  * Database of elements
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class ElementApi extends Bioapi
+class ElementApi extends Bioapi implements ElementApiAdapter
 {
     /**
      * Gets the list of objects from Api

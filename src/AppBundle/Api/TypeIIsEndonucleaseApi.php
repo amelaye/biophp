@@ -1,6 +1,6 @@
 <?php
 /**
- * Database of elements - Type II endonucleases
+ * Database of elements - Type IIs endonucleases
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
  * Last modified 21 December 2019
@@ -8,13 +8,14 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\TypeIIsEndonucleaseDTO;
+use AppBundle\Api\Interfaces\TypeIIsEndonucleaseApiAdapter;
 
 /**
  * Class TypeIIsEndonucleaseApi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class TypeIIsEndonucleaseApi extends Bioapi
+class TypeIIsEndonucleaseApi extends Bioapi implements TypeIIsEndonucleaseApiAdapter
 {
     /**
      * Gets the list of objects from Api
