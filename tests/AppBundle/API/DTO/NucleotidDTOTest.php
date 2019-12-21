@@ -15,12 +15,12 @@ class NucleotidDTOTest extends WebTestCase
         $nucleotid->setLetter("A");
         $nucleotid->setComplement("T");
         $nucleotid->setNature("DNA");
-        $nucleotid->setWeigth(313.245);
+        $nucleotid->setWeight(313.245);
 
         $this->assertEquals("1", $nucleotid->getId());
         $this->assertEquals("A", $nucleotid->getLetter());
         $this->assertEquals("T", $nucleotid->getComplement());
         $this->assertEquals("DNA", $nucleotid->getNature());
-        $this->assertEquals(313.245, $nucleotid->getWeigth());
+        $this->assertEquals(313.245, $nucleotid->getWeight());
     }
 }

@@ -26,47 +26,6 @@ interface ApiAdapterInterface
     public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null);
 
     /**
-     * @return array|\JMS\Serializer\scalar|mixed|object
-     */
-    public function getWater();
-
-    /**
-     * @param $id
-     * @return array|\JMS\Serializer\scalar|mixed|object
-     */
-    public function getPkValueById($id);
-
-    /**
-     * @return array
-     */
-    public function getTripletsGroups();
-
-    /**
-     * @return array
-     */
-    public function getTriplets();
-
-    /**
-     * @return array
-     */
-    public function getTripletsCombinations();
-
-    /**
-     * @return array
-     */
-    public function getSpeciesNames();
-
-    /**
-     * @return array
-     */
-    public function getTripletsList();
-
-    /**
-     * @return array
-     */
-    public function getTypeIIEndonucleases();
-
-    /**
      * @return array
      */
     public function getTypeIIEndonucleasesForRest();

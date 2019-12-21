@@ -37,7 +37,7 @@ class NucleotidDTO
     /**
      * @var     float       Weight of the nucleotid
      */
-    private $weigth;
+    private $weight;
 
     /**
      * @return int
@@ -106,16 +106,16 @@ class NucleotidDTO
     /**
      * @return float
      */
-    public function getWeigth(): float
+    public function getWeight(): float
     {
-        return $this->weigth;
+        return $this->weight;
     }
 
     /**
-     * @param float $weigth
+     * @param float $weight
      */
-    public function setWeigth(float $weigth): void
+    public function setWeight(float $weight): void
     {
-        $this->weigth = $weigth;
+        $this->weight = $weight;
     }
 }

@@ -5,39 +5,9 @@ namespace AppBundle\Api;
 
 
 use AppBundle\Api\DTO\ElementDTO;
-use GuzzleHttp\Client;
-use JMS\Serializer\Serializer;
 
-class ElementApi
+class ElementApi extends Bioapi
 {
-    /**
-     * @var Client
-     */
-    private $bioapiClient;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @var string|null
-     */
-    private $apiKey;
-
-    /**
-     * Bioapi constructor.
-     * @param Client        $bioapiClient
-     * @param Serializer    $serializer
-     * @param string        $apiKey
-     */
-    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
-    {
-        $this->bioapiClient = $bioapiClient;
-        $this->serializer   = $serializer;
-        $this->apiKey       = $apiKey;
-    }
-
     /**
      * @return array
      */
@@ -55,6 +25,19 @@ class ElementApi
             $aElements[] = $oElement;
         }
         return $aElements;
+    }
+
+    /**
+     * @param $iElement
+     * @return ElementDTO
+     */
+    public function getElement($iElement) : ElementDTO
+    {
+        $uri = '/elements/'.$iElement;
+        $response = $this->bioapiClient->get($uri);
+
+        $oElement = $this->serializer->deserialize($response->getBody()->getContents(), ElementDTO::class, 'json');
+        return $oElement;
     }
 
     /**

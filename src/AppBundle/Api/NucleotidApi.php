@@ -8,8 +8,6 @@
 namespace AppBundle\Api;
 
 use AppBundle\Api\DTO\NucleotidDTO;
-use GuzzleHttp\Client;
-use JMS\Serializer\Serializer;
 
 /**
  * Database of elements - Nucleotids
@@ -35,7 +33,7 @@ class NucleotidApi extends Bioapi
             $nucleotid->setLetter($data["letter"]);
             $nucleotid->setComplement($data["complement"]);
             $nucleotid->setNature($data["nature"]);
-            $nucleotid->setWeigth($data["weight"]);
+            $nucleotid->setWeight($data["weight"]);
             $aNucleotids[] = $nucleotid;
         }
         return $aNucleotids;
@@ -51,7 +49,7 @@ class NucleotidApi extends Bioapi
         $newData = array();
 
         foreach($aNucleotids as $key => $elem) {
-            if($elem->setNature == "DNA") {
+            if($elem->getNature() == "DNA") {
                 $newData[] = $elem;
             }
         }
@@ -69,7 +67,7 @@ class NucleotidApi extends Bioapi
         $newData = array();
 
         foreach($aNucleotids as $key => $elem) {
-            if($elem->setNature == "RNA") {
+            if($elem->getNature() == "RNA") {
                 $newData[] = $elem;
             }
         }
@@ -93,10 +91,39 @@ class NucleotidApi extends Bioapi
     }
 
     /**
+     * List of RNA nucleotids complements
+     * @param   array   $aNucleotids
+     * @return  array
+     */
+    public static function GetRNAComplement($aNucleotids)
+    {
+        $nucleos = self::GetNucleotidsRNA($aNucleotids);
+        $dnaComplements = array();
+        foreach($nucleos as $nucleo) {
+            $dnaComplements[$nucleo->getLetter()] = $nucleo->getComplement();
+        }
+        return $dnaComplements;
+    }
+
+    /**
      * @param   array   $aNucleotids
      * @return  array
      */
     public static function GetDNAWeight($aNucleotids)
+    {
+        $nucleos = self::GetNucleotidsDNA($aNucleotids);
+        $dnaWeights = array();
+        foreach($nucleos as $nucleo) {
+            $dnaWeights[$nucleo->getLetter()] = $nucleo->getWeight();
+        }
+        return $dnaWeights;
+    }
+
+    /**
+     * @param   array   $aNucleotids
+     * @return  array
+     */
+    public static function GetRNAWeight($aNucleotids)
     {
         $nucleos = self::GetNucleotidsRNA($aNucleotids);
         $dnaWeights = array();

@@ -3,7 +3,7 @@
  * SeqMatch managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 13 november 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Service;
 
@@ -16,7 +16,7 @@ use AppBundle\Traits\FormatsTrait;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class SequenceMatchManager
+final class SequenceMatchManager
 {
     use FormatsTrait;
 

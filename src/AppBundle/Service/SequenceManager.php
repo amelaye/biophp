@@ -3,12 +3,13 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 25 October 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\AminoApi;
-use AppBundle\Api\ApiAdapterInterface;
+use AppBundle\Api\ElementApi;
+use AppBundle\Api\NucleotidApi;
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Traits\FormatsTrait;
@@ -19,7 +20,7 @@ use AppBundle\Traits\SequenceTrait;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class SequenceManager implements SequenceInterface
+final class SequenceManager implements SequenceInterface
 {
     use SequenceTrait;
     use FormatsTrait;
@@ -51,28 +52,27 @@ class SequenceManager implements SequenceInterface
      */
     private $sequence;
 
-    /**
-     * @var ApiAdapterInterface
-     */
-    private $bioapi;
-
     private $aminoApi;
+    private $nucleotids;
+    private $water;
     
     /**
-     * Constructor
-     * @param   ApiAdapterInterface  $bioapi
+     * SequenceManager constructor.
+     * @param AminoApi $aminoApi
+     * @param NucleotidApi $nucleotidApi
+     * @param ElementApi $elementApi
      */
-    public function __construct(ApiAdapterInterface $bioapi, AminoApi $aminoApi) {
-        $this->elements         = $bioapi->getElements();
-        $this->bioapi           = $bioapi;
+    public function __construct(AminoApi $aminoApi, NucleotidApi $nucleotidApi, ElementApi $elementApi) {
         $this->aminoApi         = $aminoApi->getAminos();
+        $this->nucleotids       = $nucleotidApi->getNucleotids();
+        $this->water            = $elementApi->getElement(7);
     }
 
     /**
      * Injection Sequence
      * @param Sequence $oSequence
      */
-    public function setSequence($oSequence)
+    public function setSequence(Sequence $oSequence)
     {
         $this->sequence = $oSequence;
     }
@@ -89,7 +89,7 @@ class SequenceManager implements SequenceInterface
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws  \Exception
      */
-    public function complement($sMoltypeUnfrmtd, $sSequence = null)
+    public function complement(string $sMoltypeUnfrmtd, string $sSequence = null)
     {
         try {
             $sComplement = "";
@@ -102,9 +102,9 @@ class SequenceManager implements SequenceInterface
             }
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = $this->bioapi->getDNAComplement();
+                $aComplements = NucleotidApi::GetDNAComplement($this->nucleotids);
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = $this->bioapi->getRNAComplement();
+                $aComplements = NucleotidApi::GetRNAComplement($this->nucleotids);
             }
 
             $iSeqLength = strlen($sSequence);
@@ -125,7 +125,7 @@ class SequenceManager implements SequenceInterface
      * @return  string              A string representing either the first or the second palindromic half of the string.
      * @throws  \Exception
      */
-    public function halfSequence($iIndex)
+    public function halfSequence(int $iIndex)
     {
         try {
             $sSequence = $this->sequence->getSequence();
@@ -157,7 +157,7 @@ class SequenceManager implements SequenceInterface
      * @return  string
      * @todo : Correct it - does not seems to work :/
      */
-    public function getBridge($string)
+    public function getBridge(string $string)
     {
         if(strlen($string) % 2 != 0) { // odd
             $comp_len = (int) (strlen($string)/2);
@@ -177,7 +177,7 @@ class SequenceManager implements SequenceInterface
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa($sSequence)
+    public function expandNa(string $sSequence)
     {
         try {
             $aPattern = [
@@ -200,7 +200,7 @@ class SequenceManager implements SequenceInterface
      * @return  float | bool                The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit")
+    public function molwt(string $sLimit = "upperlimit")
     {
         try {
             $sSequence = $this->sequence->getSequence();
@@ -211,24 +211,21 @@ class SequenceManager implements SequenceInterface
             $iUppLimit   = 1;
             $aMwt        = [0, 0];
 
-            $dna_wts = $this->dnaWts($this->bioapi->getDNAWeight());
-            $rna_wts = $this->rnaWts($this->bioapi->getRNAWeight());
+            $dna_wts = NucleotidApi::GetDNAWeight($this->nucleotids);
+            $rna_wts = NucleotidApi::GetRNAWeight($this->nucleotids);
 
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
-
             $NA_len = $this->sequence->getSeqlength();
 
             for($i = 0; $i < $NA_len; $i++) {
                 $sNABase = substr($sSequence, $i, 1);
-                $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
-                $aMwt[$iUppLimit] += $na_wts[$sNABase][$iUppLimit];
+                $aMwt[$iLowLimit] += $na_wts[$sNABase];
+                $aMwt[$iUppLimit] += $na_wts[$sNABase];
             }
 
-            $aWater = $this->bioapi->getWater();
-
-            $aMwt[$iLowLimit] += $aWater["weight"];
-            $aMwt[$iUppLimit] += $aWater["weight"];
+            $aMwt[$iLowLimit] += $this->water->getWeight();
+            $aMwt[$iUppLimit] += $this->water->getWeight();
 
             if($sLimit == "lowerlimit") {
                 $iWlimit = 1;
@@ -266,7 +263,7 @@ class SequenceManager implements SequenceInterface
      * @return  bool|string     String sequence.
      * @throws  \Exception
      */
-    public function subSeq($iStart, $iCount)
+    public function subSeq(int $iStart, int $iCount)
     {
         try {
             $sSequence = $this->sequence->getSequence();
@@ -287,7 +284,7 @@ class SequenceManager implements SequenceInterface
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos($sPattern, $sOptions = "I")
+    public function patPos(string $sPattern, string $sOptions = "I")
     {
         try {
             $aOuter = [];
@@ -334,7 +331,7 @@ class SequenceManager implements SequenceInterface
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso($sPattern, $sSequence = null, $sOptions = "I", $iCutPos = 1)
+    public function patPoso(string $sPattern, string $sSequence = null, string $sOptions = "I", int $iCutPos = 1)
     {
         try {
             if ($sSequence == null) {
@@ -395,7 +392,7 @@ class SequenceManager implements SequenceInterface
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq($sPattern, $sOptions = "I")
+    public function patFreq(string $sPattern, string $sOptions = "I")
     {
         $sMatch = $this->findpattern($sPattern, $sOptions);
         return array_count_values($sMatch[0]);
@@ -412,7 +409,7 @@ class SequenceManager implements SequenceInterface
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern($sPattern, $sOptions = "I")
+    public function findPattern(string $sPattern, string $sOptions = "I")
     {
         try {
             if (strtoupper($sOptions) == "I") {
@@ -440,7 +437,7 @@ class SequenceManager implements SequenceInterface
      * @return  int                 The frequency (number of occurrences) of a particular symbol in a sequence string.
      * @throws  \Exception
      */
-    public function symFreq($sSymbol)
+    public function symFreq(string $sSymbol)
     {
         try {
             $iSymTally = count_chars(strtoupper($this->sequence->getSequence()), 1);
@@ -461,7 +458,7 @@ class SequenceManager implements SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon($iIndex, $iReadFrame = 0)
+    public function getCodon(int $iIndex, int $iReadFrame = 0)
     {
         return strtoupper(substr($this->sequence->getSequence(), ($iIndex * 3) + $iReadFrame, 3));
     }
@@ -486,7 +483,7 @@ class SequenceManager implements SequenceInterface
      * where each of Phe, Leu, and the other 3-letter "words" represent a single amino acid residue.
      * @throws \Exception
      */
-    public function translate($iReadFrame = 0, $iFormat = 1)
+    public function translate(int $iReadFrame = 0, int $iFormat = 1)
     {
         $iCodonIndex = 0;
         $sResult = "";
@@ -519,7 +516,7 @@ class SequenceManager implements SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge($sAminoSeq)
+    public function charge(string $sAminoSeq)
     {
         $sChargedSequence = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
@@ -564,7 +561,7 @@ class SequenceManager implements SequenceInterface
      * C (basic group), H (hydroxyl), I (iminio group), S (sulfur group).
      * @throws  \Exception
      */
-    public function chemicalGroup($sAminoSeq)
+    public function chemicalGroup(string $sAminoSeq) : string
     {
         $sChemgrpSeq = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
@@ -595,7 +592,7 @@ class SequenceManager implements SequenceInterface
      * represents a single amino acid residue.
      * @throws  \Exception
      */
-    public function translateCodon($sCodon, $iFormat = 3)
+    public function translateCodon(string $sCodon, int $iFormat = 3) : string
     {
         if (($iFormat != 3) && ($iFormat != 1)) {
             throw new \Exception("Invalid format parameter.");
@@ -647,7 +644,7 @@ class SequenceManager implements SequenceInterface
      * @param   string      $sSequence      A sequence which we want to test if it is a mirror or not.
      * @return  boolean
      */
-    public function isMirror($sSequence = null)
+    public function isMirror(string $sSequence = null) : bool
     {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -672,7 +669,7 @@ class SequenceManager implements SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror($sSequence, $iPallen1, $iPallen2 = null, $sOptions = "E")
+    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2 = null, string $sOptions = "E")
     {
         $iSeqLength = strlen($sSequence);
         if ($iSeqLength == 0) {
@@ -736,7 +733,7 @@ class SequenceManager implements SequenceInterface
      * @param   string      $sSequence   A sequence which we want to test if it is a genetic palindrome or not.
      * @return  boolean                  TRUE if the given string is a genetic palindrome, FALSE otherwise.
      */
-    public function isPalindrome($sSequence = "")
+    public function isPalindrome(string $sSequence = "") : bool
     {
         if (strlen($sSequence) == 0) {
             $sSequence = $this->sequence->getSequence();
@@ -772,7 +769,7 @@ class SequenceManager implements SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome($sSequence, $iSeqLen = null, $iPalLen = null)
+    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null)
     {
         $aOuter = [];
         if($sSequence == "") {
@@ -804,7 +801,7 @@ class SequenceManager implements SequenceInterface
      * @param   int     $format
      * @return  string
      */
-    private function guanineLetters($letter2, $letter3, $format)
+    private function guanineLetters(string $letter2, string $letter3, int $format)
     {
         $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
         switch($letter2) {

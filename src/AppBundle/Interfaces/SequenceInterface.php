@@ -2,7 +2,7 @@
 
 namespace AppBundle\Interfaces;
 
-use AppBundle\Entity\Sequence;
+use AppBundle\Entity\Sequencing\Sequence;
 
 
 interface SequenceInterface
@@ -11,7 +11,7 @@ interface SequenceInterface
      * Injection Sequence
      * @param Sequence $oSequence
      */
-    public function setSequence($oSequence);
+    public function setSequence(Sequence $oSequence);
 
     /**
      * Returns a string representing the genetic complement of a sequence.
@@ -20,7 +20,7 @@ interface SequenceInterface
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws  \Exception
      */
-    public function complement($sMoltypeUnfrmtd);
+    public function complement(string $sMoltypeUnfrmtd);
 
     /**
      * Returns one of the two palindromic "halves" of a palindromic string.
@@ -29,7 +29,7 @@ interface SequenceInterface
      * @return  string              A string representing either the first or the second palindromic half of the string.
      * @throws  \Exception
      */
-    public function halfSequence($iIndex);
+    public function halfSequence(int $iIndex);
 
 
     /**
@@ -39,7 +39,7 @@ interface SequenceInterface
      * @return  string
      * @todo : Correct it - does not seems to work :/
      */
-    public function getBridge($string);
+    public function getBridge(string $string);
 
 
     /**
@@ -51,7 +51,7 @@ interface SequenceInterface
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa($sSequence);
+    public function expandNa(string $sSequence);
 
 
     /**
@@ -60,7 +60,7 @@ interface SequenceInterface
      * @return  float | bool                The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit");
+    public function molwt(string $sLimit = "upperlimit");
 
 
     /**
@@ -79,7 +79,7 @@ interface SequenceInterface
      * @return  bool|string     String sequence.
      * @throws  \Exception
      */
-    public function subSeq($iStart, $iCount);
+    public function subSeq(int $iStart, int $iCount);
 
     /**
      * Returns a two-dimensional associative array where each key is a substring matching a
@@ -91,7 +91,7 @@ interface SequenceInterface
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos($sPattern, $sOptions = "I");
+    public function patPos(string $sPattern, string $sOptions = "I");
 
     /**
      * Similar to patPos() except that this allows for overlapping patterns.
@@ -110,7 +110,7 @@ interface SequenceInterface
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso($sSequence, $sPattern, $sOptions = "I", $iCutPos = 1);
+    public function patPoso(string $sSequence, string $sPattern, string $sOptions = "I", int $iCutPos = 1);
 
     /**
      * Returns a one-dimensional associative array where each key is a substring matching the
@@ -123,7 +123,7 @@ interface SequenceInterface
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq($sPattern, $sOptions = "I");
+    public function patFreq(string $sPattern, string $sOptions = "I");
 
     /**
      * Returns a one-dimensional array enumerating each occurrence or instance of a given
@@ -136,7 +136,7 @@ interface SequenceInterface
      * @throws  \Exception
      * @example Findpattern returns: ( "GCG", "GCG", "GCG" ) if pattern is exactly "GCG".
      */
-    public function findPattern($sPattern, $sOptions = "I");
+    public function findPattern(string $sPattern, string $sOptions = "I");
 
     /**
      * Returns the frequency of a given symbol in the sequence property string. Note that you
@@ -146,7 +146,7 @@ interface SequenceInterface
      * @return  int                 The frequency (number of occurrences) of a particular symbol in a sequence string.
      * @throws  \Exception
      */
-    public function symFreq($sSymbol);
+    public function symFreq(string $sSymbol);
 
     /**
      * Returns the n-th codon in a sequence, with numbering starting at 0.
@@ -155,7 +155,7 @@ interface SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon($iIndex, $iReadFrame = 0);
+    public function getCodon(int $iIndex, int $iReadFrame = 0);
 
     /**
      * Translates a particular DNA sequence into its protein product sequence, using the given substitution matrix.
@@ -177,7 +177,7 @@ interface SequenceInterface
      * GAVLISNFYW
      * where each of G, A, V, and the other letters represent a single amino acid residue.
      */
-    public function translate($iReadFrame = 0, $iFormat = 1);
+    public function translate(int $iReadFrame = 0, int $iFormat = 1);
 
     /**
      * Translates an amino acid sequence into its equivalent "charge sequence".
@@ -191,7 +191,7 @@ interface SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge($sAminoSeq);
+    public function charge(string $sAminoSeq);
 
     /**
      * Returns a string of symbols from an 8-letter alphabet: A, L, M, R, C, H, I, S.
@@ -204,7 +204,7 @@ interface SequenceInterface
      * C (basic group), H (hydroxyl), I (iminio group), S (sulfur group).
      * @throws  \Exception
      */
-    public function chemicalGroup($sAminoSeq);
+    public function chemicalGroup(string $sAminoSeq);
 
     /**
      * Translates a single codon into an amino acid.
@@ -217,7 +217,7 @@ interface SequenceInterface
      * represents a single amino acid residue.
      * @throws  \Exception
      */
-    public function translateCodon($sCodon, $iFormat = 3);
+    public function translateCodon(string $sCodon, int $iFormat = 3);
 
     /**
      * Returns TRUE if the given sequence or string is a "genetic mirror" which is the same
@@ -232,7 +232,7 @@ interface SequenceInterface
      * @param string $sSequence A sequence which we want to test if it is a mirror or not.
      * @return  boolean
      */
-    public function isMirror($sSequence = null);
+    public function isMirror(string $sSequence = null);
 
     /**
      * Returns a three-dimensional associative array listing all mirror substrings contained
@@ -247,7 +247,7 @@ interface SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror($sSequence, $iPallen1, $iPallen2 = null, $sOptions = "E");
+    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2 = null, string $sOptions = "E");
 
     /**
      * Tests if a given sequence is a "genetic palindrome" (as opposed to a "string
@@ -257,7 +257,7 @@ interface SequenceInterface
      * @param string $sSequence A sequence which we want to test if it is a genetic palindrome or not.
      * @return  boolean                  TRUE if the given string is a genetic palindrome, FALSE otherwise.
      */
-    public function isPalindrome($sSequence = "");
+    public function isPalindrome(string $sSequence = "");
 
     /**
      * Returns a two-dimensional array containing palindromic substrings found in a sequence,
@@ -271,11 +271,11 @@ interface SequenceInterface
      * If omitted, this is set to the sequence property of the current Seq object.
      * @param int $iSeqLen The length of the palindromic substring within $sSequence. If omitted,
      * the method searches for palindromes of whatever length.
-     * @param string $iPalLen The length of one of two palindromic edges in a palindromic substring
+     * @param int  $iPalLen The length of one of two palindromic edges in a palindromic substring
      * within $haystack.
      * @return  boolean|array   A two-dimensional array of the form:
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome($sSequence, $iSeqLen = null, $iPalLen = null);
+    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null);
 }
