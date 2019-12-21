@@ -3,13 +3,12 @@
  * Oligo-Nucleotids Functions
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
- * Last modified 2 november 2019
+ * Last modified 20 december 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  */
 namespace AppBundle\Service\Misc;
 
-use AppBundle\Api\ApiAdapterInterface;
-use AppBundle\Api\NucleotidApi;
+use AppBundle\Api\Interfaces\NucleotidApiAdapter;
 use AppBundle\Interfaces\OligosInterface;
 
 /**
@@ -23,11 +22,11 @@ class OligosManager implements OligosInterface
 
     /**
      * OligosManager constructor.
-     * @param NucleotidApi $nucleotidApi
+     * @param NucleotidApiAdapter $nucleotidApi
      */
-    public function __construct(NucleotidApi $nucleotidApi)
+    public function __construct(NucleotidApiAdapter $nucleotidApi)
     {
-        $dnaComplements = NucleotidApi::GetDNAComplement($nucleotidApi);
+        $dnaComplements = $nucleotidApi::GetDNAComplement($nucleotidApi->getNucleotids());
         asort($dnaComplements);
         $this->dnaComplements = $dnaComplements;
     }

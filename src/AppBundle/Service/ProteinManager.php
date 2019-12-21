@@ -7,7 +7,7 @@
  */
 namespace AppBundle\Service;
 
-use AppBundle\Api\AminoApi;
+use AppBundle\Api\Interfaces\AminoApiAdapter;
 use AppBundle\Entity\Protein;
 
 /**
@@ -29,11 +29,11 @@ final class ProteinManager
 
     /**
      * Constructor
-     * @param AminoApi $aminoApi
+     * @param AminoApiAdapter $aminoApi
      */
-    public function __construct(AminoApi $aminoApi)
+    public function __construct(AminoApiAdapter $aminoApi)
     {
-        $this->wts      = AminoApi::GetAminoweights($aminoApi->getAminos());
+        $this->wts      = $aminoApi::GetAminoweights($aminoApi->getAminos());
     }
 
     /**

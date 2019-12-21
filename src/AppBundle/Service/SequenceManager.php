@@ -7,13 +7,14 @@
  */
 namespace AppBundle\Service;
 
-use AppBundle\Api\AminoApi;
-use AppBundle\Api\ElementApi;
-use AppBundle\Api\NucleotidApi;
+use AppBundle\Api\Interfaces\AminoApiAdapter;
+use AppBundle\Api\Interfaces\ElementApiAdapter;
+use AppBundle\Api\Interfaces\NucleotidApiAdapter;
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;
+use AppBundle\Api\DTO\ElementDTO;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
@@ -52,18 +53,45 @@ final class SequenceManager implements SequenceInterface
      */
     private $sequence;
 
+    /**
+     * @var AminoApiAdapter
+     */
     private $aminoApi;
+
+    /**
+     * @var NucleotidApiAdapter
+     */
+    private $nucleotidApi;
+
+    /**
+     * @var array
+     */
     private $nucleotids;
+
+    /**
+     * @var ElementDTO
+     */
     private $water;
+
+    /**
+     * @var array
+     */
+    private $aminos;
     
     /**
      * SequenceManager constructor.
-     * @param AminoApi $aminoApi
-     * @param NucleotidApi $nucleotidApi
-     * @param ElementApi $elementApi
+     * @param   AminoApiAdapter         $aminoApi
+     * @param   NucleotidApiAdapter     $nucleotidApi
+     * @param   ElementApiAdapter       $elementApi
      */
-    public function __construct(AminoApi $aminoApi, NucleotidApi $nucleotidApi, ElementApi $elementApi) {
-        $this->aminoApi         = $aminoApi->getAminos();
+    public function __construct(
+        AminoApiAdapter $aminoApi,
+        NucleotidApiAdapter $nucleotidApi,
+        ElementApiAdapter $elementApi
+    ) {
+        $this->aminoApi         = $aminoApi;
+        $this->aminos           = $aminoApi->getAminos();
+        $this->nucleotidApi     = $nucleotidApi;
         $this->nucleotids       = $nucleotidApi->getNucleotids();
         $this->water            = $elementApi->getElement(7);
     }
@@ -102,9 +130,9 @@ final class SequenceManager implements SequenceInterface
             }
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = NucleotidApi::GetDNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = NucleotidApi::GetRNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
             }
 
             $iSeqLength = strlen($sSequence);
@@ -211,8 +239,8 @@ final class SequenceManager implements SequenceInterface
             $iUppLimit   = 1;
             $aMwt        = [0, 0];
 
-            $dna_wts = NucleotidApi::GetDNAWeight($this->nucleotids);
-            $rna_wts = NucleotidApi::GetRNAWeight($this->nucleotids);
+            $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
+            $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
 
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
@@ -803,7 +831,7 @@ final class SequenceManager implements SequenceInterface
      */
     private function guanineLetters(string $letter2, string $letter3, int $format)
     {
-        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
+        $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
                 return $aAminos["Valine"][$format]; // GU*
@@ -839,7 +867,7 @@ final class SequenceManager implements SequenceInterface
      */
     private function adenineLetters($letter2, $letter3, $format)
     {
-        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
+        $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
                 switch($letter3) {
@@ -890,7 +918,7 @@ final class SequenceManager implements SequenceInterface
      */
     private function cytosineLetters($letter2, $letter3, $format)
     {
-        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
+        $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
                 return $aAminos["Leucine"][$format]; // CU*
@@ -926,7 +954,7 @@ final class SequenceManager implements SequenceInterface
      */
     private function uracileLetters($letter2, $letter3, $format)
     {
-        $aAminos = AminoApi::GetAminosOnlyLetters($this->aminoApi);
+        $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
                 switch($letter3) {

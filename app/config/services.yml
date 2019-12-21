@@ -102,6 +102,7 @@ services:
             - '@jms_serializer'
 
     AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'
+
     AppBundle\Api\Interfaces\AminoApiAdapter: '@AppBundle\Api\AminoApi'
     AppBundle\Api\Interfaces\ElementApiAdapter: '@AppBundle\Api\ElementApi'
     AppBundle\Api\Interfaces\NucleotidApiAdapter: '@AppBundle\Api\NucleotidApi'

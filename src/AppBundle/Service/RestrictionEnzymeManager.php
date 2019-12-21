@@ -7,8 +7,7 @@
  */
 namespace AppBundle\Service;
 
-use AppBundle\Api\ApiAdapterInterface;
-use AppBundle\Api\TypeIIEndonucleaseApi;
+use AppBundle\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use AppBundle\Entity\Enzyme;
 use AppBundle\Entity\Sequencing\Sequence;
 
@@ -38,13 +37,13 @@ final class RestrictionEnzymeManager
 
     /**
      * RestrictionEnzymeManager constructor.
-     * @param Enzyme                $oEnzyme
-     * @param TypeIIEndonucleaseApi $typeIIEndonucleaseApi
+     * @param Enzyme                        $oEnzyme
+     * @param TypeIIEndonucleaseApiAdapter  $typeIIEndonucleaseApi
      */
-    public function __construct(TypeIIEndonucleaseApi $typeIIEndonucleaseApi, Enzyme $oEnzyme)
+    public function __construct(TypeIIEndonucleaseApiAdapter $typeIIEndonucleaseApi, Enzyme $oEnzyme)
     {
-        $aEnzymes = $typeIIEndonucleaseApi->getTypeIIEndonucleases();
-        $this->aRestEnzimDB = TypeIIEndonucleaseApi::GetTypeIIbEndonucleasesCleavagePosUpper($aEnzymes);
+        $aEnzymes           = $typeIIEndonucleaseApi->getTypeIIEndonucleases();
+        $this->aRestEnzimDB = $typeIIEndonucleaseApi::GetTypeIIbEndonucleasesCleavagePosUpper($aEnzymes);
         $this->enzyme       = $oEnzyme;
     }
 
