@@ -3,11 +3,12 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 3 november 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\ApiAdapterInterface;
+use AppBundle\Api\TypeIIEndonucleaseApi;
 use AppBundle\Entity\Enzyme;
 use AppBundle\Entity\Sequencing\Sequence;
 
@@ -18,7 +19,7 @@ use AppBundle\Entity\Sequencing\Sequence;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class RestrictionEnzymeManager
+final class RestrictionEnzymeManager
 {
     /**
      * @var array
@@ -37,12 +38,13 @@ class RestrictionEnzymeManager
 
     /**
      * RestrictionEnzymeManager constructor.
-     * @param ApiAdapterInterface   $bioapi
      * @param Enzyme                $oEnzyme
+     * @param TypeIIEndonucleaseApi $typeIIEndonucleaseApi
      */
-    public function __construct(ApiAdapterInterface $bioapi, Enzyme $oEnzyme)
+    public function __construct(TypeIIEndonucleaseApi $typeIIEndonucleaseApi, Enzyme $oEnzyme)
     {
-        $this->aRestEnzimDB = $bioapi->getTypeIIEndonucleasesForRest();
+        $aEnzymes = $typeIIEndonucleaseApi->getTypeIIEndonucleases();
+        $this->aRestEnzimDB = TypeIIEndonucleaseApi::GetTypeIIbEndonucleasesCleavagePosUpper($aEnzymes);
         $this->enzyme       = $oEnzyme;
     }
 

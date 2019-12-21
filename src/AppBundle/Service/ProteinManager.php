@@ -3,13 +3,11 @@
  * Protein Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2 november 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\AminoApi;
-use AppBundle\Api\ApiAdapterInterface;
-use AppBundle\Api\Bioapi;
 use AppBundle\Entity\Protein;
 
 /**
@@ -17,7 +15,7 @@ use AppBundle\Entity\Protein;
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @package AppBundle\Service
  */
-class ProteinManager
+final class ProteinManager
 {
     /**
      * @var Protein

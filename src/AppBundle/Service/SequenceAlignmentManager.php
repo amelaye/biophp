@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 23 september 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Service;
 
@@ -19,7 +19,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
  */
-class SequenceAlignmentManager
+final class SequenceAlignmentManager
 {
     /**
      * Dependency injection for the Sequences Services

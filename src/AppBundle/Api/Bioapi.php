@@ -2,7 +2,7 @@
 /**
  * Bioapi requests
  * Created 3 november 2019
- * Last modified 18 november 2019
+ * Last modified 21 december 2019
  */
 namespace AppBundle\Api;
 
@@ -11,12 +11,12 @@ use JMS\Serializer\Serializer;
 
 /**
  * This class makes requests on the Bio API api.amelayes-biophp.net
- * This is the sample database - implements ApiAdapterInterface
+ * This is the sample database
  * Class Bioapi
  * @package AppBundle\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-abstract class Bioapi implements ApiAdapterInterface
+abstract class Bioapi
 {
     /**
      * @var Client
@@ -44,171 +44,5 @@ abstract class Bioapi implements ApiAdapterInterface
         $this->bioapiClient = $bioapiClient;
         $this->serializer   = $serializer;
         $this->apiKey       = $apiKey;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTypeIIEndonucleasesForRest()
-    {
-        $uri = '/type_i_i_endonucleases';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $sPattern = $MaVariable = str_replace("'", "", $elem["recognitionPattern"]);
-            $sPattern = $MaVariable = str_replace("_", "", $sPattern);
-            $newData[$elem["id"]] = [
-                $sPattern,
-                $elem["cleavagePosUpper"],
-            ];
-        }
-
-        return $newData;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTypeIIsEndonucleases()
-    {
-        $uri = '/type_i_is_endonucleases';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["id"]] = [
-                $elem["samePattern"][0],
-                $elem["recognitionPattern"],
-                $elem["computingPattern"],
-                $elem["lengthRecognitionPattern"],
-                $elem["cleavagePosUpper"],
-                $elem["cleavagePosLower"],
-                $elem["nbNonNBases"],
-            ];
-        }
-
-        return $newData;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTypeIIbEndonucleases()
-    {
-        $uri = '/type_i_ib_endonucleases';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["id"]] = [
-                $elem["samePattern"][0],
-                $elem["recognitionPattern"],
-                $elem["computingPattern"],
-                $elem["lengthRecognitionPattern"],
-                $elem["cleavagePosUpper"],
-                $elem["cleavagePosLower"],
-                $elem["nbNonNBases"],
-            ];
-        }
-
-        return $newData;
-    }
-
-    /**
-     * @return array
-     */
-    public function getReductions()
-    {
-        $uri = '/protein_reductions';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["alphabet"]]["pattern"][] = '/'.$elem["pattern"].'/';
-            $newData[$elem["alphabet"]]["reduction"][] = $elem["reduction"];
-        }
-
-        return $newData;
-    }
-
-    /**
-     * @param $type
-     * @return array
-     */
-    public function getAlphabetInfos($type)
-    {
-        $uri = '/protein_reductions';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            if($elem["alphabet"] == $type) {
-                $newData["Description"] = $elem["description"];
-                $newData["Elements"][str_replace("|","",$elem["pattern"])] = $elem["nature"];
-            }
-        }
-        return($newData);
-    }
-
-    /**
-     * @return array
-     */
-    public function getVendors()
-    {
-        $uri = '/vendors';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["id"]] = $elem["vendor"];
-        }
-        return($newData);
-    }
-
-    /**
-     * @return array
-     */
-    public function getVendorLinks()
-    {
-        $uri = '/vendor_links';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["id"]] = ["name" => $elem["name"], "url" => $elem["link"]];
-        }
-        return($newData);
-    }
-
-    /**
-     * @return array
-     */
-    public function getPam250Matrix()
-    {
-        $uri = '/pam250_matrix_digits';
-        $response = $this->bioapiClient->get($uri);
-
-        $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-
-        $newData = array();
-        foreach($data["hydra:member"] as $key => $elem) {
-            $newData[$elem["id"]] = $elem["value"];
-        }
-        return($newData);
     }
 }

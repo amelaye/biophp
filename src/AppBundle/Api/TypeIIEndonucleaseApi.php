@@ -3,6 +3,8 @@
 
 namespace AppBundle\Api;
 
+use AppBundle\Api\DTO\TypeIIEndonucleaseDTO;
+
 class TypeIIEndonucleaseApi extends Bioapi
 {
     /**
@@ -47,6 +49,20 @@ class TypeIIEndonucleaseApi extends Bioapi
                 $elem->getCleavagePosUpper(),
                 $elem->getCleavagePosLower(),
                 $elem->getNbNonNBases(),
+            ];
+        }
+        return $newData;
+    }
+
+    public static function GetTypeIIbEndonucleasesCleavagePosUpper($aEndonucleases)
+    {
+        $newData = array();
+        foreach($aEndonucleases as $key => $elem) {
+            $sPattern = $MaVariable = str_replace("'", "", $elem->getRecognitionPattern());
+            $sPattern = $MaVariable = str_replace("_", "", $sPattern);
+            $newData[$elem->getId()] = [
+                $sPattern,
+                $elem->getCleavagePosUpper(),
             ];
         }
         return $newData;
