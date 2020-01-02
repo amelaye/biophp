@@ -31,10 +31,10 @@ class NucleotidApi extends Bioapi implements NucleotidApiAdapter
         $aNucleotids = array();
         foreach($data["hydra:member"] as $key => $elem) {
             $nucleotid = new NucleotidDTO();
-            $nucleotid->setLetter($data["letter"]);
-            $nucleotid->setComplement($data["complement"]);
-            $nucleotid->setNature($data["nature"]);
-            $nucleotid->setWeight($data["weight"]);
+            $nucleotid->setLetter($elem["letter"]);
+            $nucleotid->setComplement($elem["complement"]);
+            $nucleotid->setNature($elem["nature"]);
+            $nucleotid->setWeight($elem["weight"]);
             $aNucleotids[] = $nucleotid;
         }
         return $aNucleotids;

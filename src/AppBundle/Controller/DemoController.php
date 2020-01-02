@@ -8,6 +8,8 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Api\AminoApi;
+use AppBundle\Api\PKApi;
+use AppBundle\Api\ProteinReductionApi;
 use AppBundle\Entity\Sequence;
 use AppBundle\Service\ProteinManager;
 use AppBundle\Service\SequenceAlignmentManager;
@@ -78,12 +80,12 @@ class DemoController extends Controller
      * @return Response
      * @throws \Exception
      */
-    public function parseaswissprotdbAction(DatabaseManager $databaseManager, ProteinManager $aaa)
+    public function parseaswissprotdbAction(DatabaseManager $databaseManager, ProteinReductionApi $aaa)
     {
         $databaseManager->recording("humandbSwiss", "SWISSPROT", "basicswiss.txt");
         $oSequence = $databaseManager->fetch("1375");
 
-        //dump($aminoApi->getAminos());
+        dump($aaa->getReductions());
 
         return $this->render('demo/parseswissprotdb.html.twig',
             ["sequence" => $oSequence]

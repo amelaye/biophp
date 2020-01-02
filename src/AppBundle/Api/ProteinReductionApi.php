@@ -29,6 +29,7 @@ class ProteinReductionApi extends Bioapi implements ProteinReductionApiAdapter
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
 
         $aReductions = array();
+
         foreach($data["hydra:member"] as $key => $elem) {
             $reduction = new ProteinReductionDTO();
             $reduction->setAlphabet($elem["alphabet"]);
