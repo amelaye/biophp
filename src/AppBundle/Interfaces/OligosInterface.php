@@ -1,11 +1,11 @@
 <?php
 /**
  * Oligo-Nucleotids Functions
- * @author Amélie DUVERNET akka Amelaye
+ * @author AmÃ©lie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
  * Last modified 2 november 2019
- * RIP Pasha, gone 27 february 2019 =^._.^= ?
+ * RIP Pasha, gone 27 february 2019 =^._.^=
  */
 namespace AppBundle\Interfaces;
 

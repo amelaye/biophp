@@ -3,11 +3,12 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 december 2019
+ * Last modified 10 january 2020
  */
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Sequencing\Sequence;
+use AppBundle\Interfaces\SequenceAlignmentInterface;
 use Factory\SequenceFactory;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
@@ -20,7 +21,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
  */
-final class SequenceAlignmentManager
+class SequenceAlignmentManager implements SequenceAlignmentInterface
 {
     /**
      * Dependency injection for the Sequences Services
@@ -89,7 +90,7 @@ final class SequenceAlignmentManager
      * The sequences array ... then you can rewind(), next(), prev() on it
      * @return \ArrayIterator
      */
-    public function getSeqSet()
+    public function getSeqSet() : \ArrayIterator
     {
         return $this->aSeqSet;
     }
@@ -272,7 +273,7 @@ final class SequenceAlignmentManager
      * @param   string          $sOption    ASCendant or DESCendant
      * @throws  \Exception
      */
-    public function sortAlpha($sOption = "ASC")
+    public function sortAlpha(string $sOption = "ASC")
     {
         try {
             $sOption = strtoupper($sOption);
@@ -297,7 +298,7 @@ final class SequenceAlignmentManager
      * @return  int
      * @throws  \Exception
      */
-    public function getMaxiLength()
+    public function getMaxiLength() : int
     {
         try {
             $iMaxLen = 0;
@@ -317,7 +318,7 @@ final class SequenceAlignmentManager
      * @return  int         The number of "gap characters" in the all sequences in the alignment set.
      * @throws  \Exception
      */
-    public function getGapCount()
+    public function getGapCount() : int
     {
         try {
             $iGapsCount = 0;
@@ -336,7 +337,7 @@ final class SequenceAlignmentManager
      * @return  boolean
      * @throws  \Exception
      */
-    public function getIsFlush()
+    public function getIsFlush() : bool
     {
         try {
             $bSameLength = true;
@@ -368,7 +369,7 @@ final class SequenceAlignmentManager
      * @return  boolean | string        A single character representing an amino acid residue or a "gap".
      * @throws  \Exception
      */
-    public function charAtRes($iSeqIdx, $iRes)
+    public function charAtRes(int $iSeqIdx, int $iRes)
     {
         try {
              $iNonGapCount = $iLength = 0;
@@ -386,7 +387,7 @@ final class SequenceAlignmentManager
      * @return  string | boolean            A substring within the specified sequence.
      * @throws  \Exception
      */
-    public function substrBwRes($iSeqIdx, $iResStart, $iResEnd = 0)
+    public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0)
     {
         try {
             $iNonGapCtr   = 0;
@@ -436,7 +437,7 @@ final class SequenceAlignmentManager
      * @return  boolean|string      An integer representing the residue number corresponding to the given column number.
      * @throws  \Exception
      */
-    public function colToRes($iSeqIdx, $iCol)
+    public function colToRes(int $iSeqIdx, int $iCol)
     {
         try {
             $sCurrLet       = "";
@@ -478,7 +479,7 @@ final class SequenceAlignmentManager
      * @return  boolean|int         An integer representing the column number corresponding to the given residue number.
      * @throws  \Exception
      */
-    public function resToCol($iSeqIdx, $iRes)
+    public function resToCol(int $iSeqIdx, int $iRes)
     {
         try {
             $iNonGapCount = $iLength = 0;
@@ -494,7 +495,7 @@ final class SequenceAlignmentManager
      * @param   int     $iEnd       The index number of the last sequence to include in the new SeqAlign object.
      * @throws  \Exception
      */
-    public function subalign($iStart, $iEnd)
+    public function subalign(int $iStart, int $iEnd)
     {
         try {
             if (($iStart < 0) or ($iEnd < 0)) {
@@ -556,7 +557,7 @@ final class SequenceAlignmentManager
      * @return  array
      * @throws  \Exception
      */
-    public function resVar($iThreshold = 100)
+    public function resVar(int $iThreshold = 100) : array
     {
         try {
             $this->aSeqSet->rewind();
@@ -596,7 +597,7 @@ final class SequenceAlignmentManager
      * @return  string                      The consensus string formed according to the given threshold.
      * @throws  \Exception
      */
-    public function consensus($iThreshold = 100)
+    public function consensus(int $iThreshold = 100) : string
     {
         try {
             $this->aSeqSet->rewind();
@@ -632,7 +633,7 @@ final class SequenceAlignmentManager
      * @return  int                         The number of sequences in the alignment set after the call.
      * @throws  \Exception
      */
-    public function addSequence($oSequence)
+    public function addSequence(Sequence $oSequence) : int
     {
         try {
             if (is_object($oSequence)) {
@@ -673,7 +674,7 @@ final class SequenceAlignmentManager
      * @return  int                         The number of sequences in the alignment set after the call.
      * @throws  \Exception
      */
-    public function deleteSequence($iSequenceId)
+    public function deleteSequence(string $iSequenceId) : int
     {
         try {
             $aTempSet = new \ArrayIterator();
@@ -746,7 +747,7 @@ final class SequenceAlignmentManager
      * @throws  \Exception
      * @return  bool|int|string
      */
-    private function validationRes($iSeqIdx, $iRes, &$iNonGapCount, &$iLength, $sContext)
+    private function validationRes(int $iSeqIdx, int $iRes, int &$iNonGapCount, int &$iLength, string $sContext)
     {
         $iNonGapCtr = 0;
         if($this->aSeqSet->offsetExists($iSeqIdx)) {
@@ -788,7 +789,7 @@ final class SequenceAlignmentManager
      * @param   array       $aKeys          Keys of the array of frequencies
      * @return  float|int
      */
-    private function calcMaxPercent($aGlobFreq, $i, &$aKeys)
+    private function calcMaxPercent(array $aGlobFreq, int $i, array &$aKeys)
     {
         $aFrequences = $aGlobFreq;
         for($j = 0; $j < $this->aSeqSet->count(); $j++) {

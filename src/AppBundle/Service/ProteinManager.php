@@ -3,19 +3,20 @@
  * Protein Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 december 2019
+ * Last modified 10 january 2020
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\Interfaces\AminoApiAdapter;
 use AppBundle\Entity\Protein;
+use AppBundle\Interfaces\ProteinInterface;
 
 /**
  * We can have manipulation with proteins
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @package AppBundle\Service
  */
-final class ProteinManager
+class ProteinManager implements ProteinInterface
 {
     /**
      * @var Protein
@@ -48,7 +49,8 @@ final class ProteinManager
      * Returns the length of a protein sequence().
      * @return  int  An integer representing the number of amino acids in the protein.
      */
-    public function seqlen() {
+    public function seqlen() : int
+    {
         return strlen($this->protein->getSequence());
     }
 

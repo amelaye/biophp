@@ -8,6 +8,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\SubMatrix;
+use AppBundle\Interfaces\SequenceMatchInterface;
 use AppBundle\Traits\FormatsTrait;
 
 /**
@@ -16,7 +17,7 @@ use AppBundle\Traits\FormatsTrait;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-final class SequenceMatchManager
+class SequenceMatchManager implements SequenceMatchInterface
 {
     use FormatsTrait;
 
@@ -46,7 +47,9 @@ final class SequenceMatchManager
      * negative matches.
      * @throws      \Exception
      */
-    public function compareLetter($sLetter1, $sLetter2, $aMatrix = null, $sEqual = null, $sPartial = "+", $sNomatch = ".")
+    public function compareLetter(
+        string $sLetter1, string $sLetter2, array $aMatrix = null, string $sEqual = null,
+        string $sPartial = "+", string $sNomatch = ".") : string
     {
         try {
             if (!isset($aMatrix)) { // if no custom substitution matrix was provided, use the default.
@@ -78,7 +81,7 @@ final class SequenceMatchManager
      * "mismatching" characters found in corresponding positions in the two strings.
      * @throws  \Exception
      */
-    public function hamdist($sSequence1, $sSequence2)
+    public function hamdist(string $sSequence1, string $sSequence2) : int
     {
         try {
             // We terminate code execution if the two strings differ in length.
@@ -120,7 +123,8 @@ final class SequenceMatchManager
      * can become identical.
      * @throws  \Exception
      */
-    public function levdist($sSequence1, $sSequence2, $iCostInser = 1, $iCostRepl = 1, $iCostDel = 1)
+    public function levdist(string $sSequence1, string $sSequence2,
+                            int $iCostInser = 1, int $iCostRepl = 1, int $iCostDel = 1) : int
     {
         try {
             // Check the lengths of the two strings.  If they exceed 255 characters, terminate code.
@@ -146,7 +150,7 @@ final class SequenceMatchManager
      * @return  int         The Levenshtein Distance between two strings, as defined in levdist().
      * @throws  \Exception
      */
-    public function xlevdist($sSequence1, $sSequence2)
+    public function xlevdist(string $sSequence1, string $sSequence2) : int
     {
         $iSeqLen1 = strlen($sSequence1);
         $iSeqLen2 = strlen($sSequence2);
@@ -215,7 +219,9 @@ final class SequenceMatchManager
      * and second sequences being compared.
      * @throws  \Exception
      */
-    public function match($sSequence1, $sSequence2, $aMatrix = null, $sEqual = null, $sPartial = "+", $sNonmatch = ".")
+    public function match(string $sSequence1, string $sSequence2,
+                          array $aMatrix = null, string $sEqual = null,
+                          string $sPartial = "+", string $sNonmatch = ".") : string
     {
         // if the user chose not to use a custom submatrix, use the default one.
         if (!isset($aMatrix)) {
@@ -255,18 +261,18 @@ final class SequenceMatchManager
      * Repeat steps 1 and 2 until you reach a submatrix element where both $let1 and $let2 appear, or
      * until the last element in the submatrix has been checked.
      * 3) If you reach the last submatrix element without a "hit", return a FALSE value.
-     * @param   string      $iLet1       The first amino acid residue.
-     * @param   string      $iLet2       The second amino acid residue.
+     * @param   string      $sLet1       The first amino acid residue.
+     * @param   string      $sLet2       The second amino acid residue.
      * @param   array       $aMatrix     The substitution matrix to use for determining partial matches.
      * @return  bool        TRUE if the two symbols belong to the same chemical group, FALSE otherwise.
      */
-    public function partialMatch($iLet1, $iLet2, $aMatrix)
+    public function partialMatch(string $sLet1, string $sLet2, array $aMatrix) : bool
     {
         if (!isset($aMatrix) == FALSE) {
             $aMatrix = $this->subMatrix->getRules();
         }
         foreach($aMatrix as $aRule) {
-            if ((in_array($iLet1, $aRule)) && (in_array($iLet2, $aRule))) {
+            if ((in_array($sLet1, $aRule)) && (in_array($sLet2, $aRule))) {
                 return true;
             }
         }

@@ -3,13 +3,14 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 december 2019
+ * Last modified 20 january 2019
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use AppBundle\Entity\Enzyme;
 use AppBundle\Entity\Sequencing\Sequence;
+use AppBundle\Interfaces\RestrictionEnzymeInterface;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
@@ -18,7 +19,7 @@ use AppBundle\Entity\Sequencing\Sequence;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-final class RestrictionEnzymeManager
+class RestrictionEnzymeManager implements RestrictionEnzymeInterface
 {
     /**
      * @var array
@@ -58,7 +59,7 @@ final class RestrictionEnzymeManager
     /**
      * @return Enzyme
      */
-    public function getEnzyme()
+    public function getEnzyme() : Enzyme
     {
         return $this->enzyme;
     }
@@ -83,7 +84,7 @@ final class RestrictionEnzymeManager
      * @throws  \Exception
      * @todo : penser à faire une factory
      */
-    public function parseEnzyme($sName, $sPattern, $sCutpos, $sMake = "custom")
+    public function parseEnzyme(string $sName, string $sPattern, string $sCutpos, string $sMake = "custom")
     {
         if ($sMake == "custom") {
             $this->enzyme->setName($sName);
@@ -117,7 +118,7 @@ final class RestrictionEnzymeManager
      * @return  array       An array of fragments (substrings of the parameter sequence)
      * @throws  \Exception
      */
-    public function cutSeq($options = "N")
+    public function cutSeq(string $options = "N") : array
     {
         if ($options == "N") {
             return $this->nTreatment();
@@ -131,7 +132,7 @@ final class RestrictionEnzymeManager
      * @param   string      $RestEn_Name
      * @return  string      The sequence pattern (string) recognized by the given restriction enzyme.
      */
-    public function getPattern($RestEn_Name)
+    public function getPattern(string $RestEn_Name) : string
     {
         return $this->aRestEnzimDB[$RestEn_Name][0];
     }
@@ -141,7 +142,7 @@ final class RestrictionEnzymeManager
      * @param   string      $RestEn_Name
      * @return  int         Returns the cutting position (an integer) of the restriction enzyme object.
      */
-    public function getCutPos($RestEn_Name)
+    public function getCutPos(string $RestEn_Name) : int
     {
         return $this->aRestEnzimDB[$RestEn_Name][1];
     }
@@ -151,7 +152,7 @@ final class RestrictionEnzymeManager
      * @param   string  $RestEn_Name
      * @return  int     The length (integer) of the restriction pattern recognized by the enzyme.
      */
-    public function getLength($RestEn_Name = "")
+    public function getLength(string $RestEn_Name = "") : int
     {
         if ($RestEn_Name == "") {
             return strlen($this->enzyme->getPattern());
@@ -172,7 +173,7 @@ final class RestrictionEnzymeManager
      * and $plen parameters.
      * @throws  \Exception
      */
-    public function findRestEn($sPattern = null, $iCutpos = null, $iPlen = null)
+    public function findRestEn(string $sPattern = null, int $iCutpos = null, int $iPlen = null) : array
     {
         // Case 1: Pattern only
         if (!is_null($sPattern) && is_null($iCutpos) && is_null($iPlen)) {
