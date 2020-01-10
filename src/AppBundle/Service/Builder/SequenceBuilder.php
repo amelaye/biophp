@@ -5,13 +5,13 @@
  * Created 13 december 2019
  * Last modified 20 january 2020
  */
-namespace Factory;
+namespace AppBundle\Service\Builder;
 
 use AppBundle\Entity\Sequencing\Sequence;
 use AppBundle\Interfaces\SequenceInterface;
 use AppBundle\Service\SequenceManager;
 
-class SequenceFactory implements SequenceInterface
+class SequenceBuilder implements SequenceInterface
 {
     /**
      * @var Sequence
