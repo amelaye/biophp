@@ -45,7 +45,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     {
         $aEnzymes           = $typeIIEndonucleaseApi->getTypeIIEndonucleases();
         $this->aRestEnzimDB = $typeIIEndonucleaseApi::GetTypeIIbEndonucleasesCleavagePosUpper($aEnzymes);
-        $this->enzyme       = $oEnzyme;
+
     }
 
     /**
