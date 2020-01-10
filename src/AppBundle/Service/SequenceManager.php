@@ -3,15 +3,14 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 21 december 2019
+ * Last modified 10 january 2020
  */
 namespace AppBundle\Service;
 
 use AppBundle\Api\Interfaces\AminoApiAdapter;
 use AppBundle\Api\Interfaces\ElementApiAdapter;
 use AppBundle\Api\Interfaces\NucleotidApiAdapter;
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Interfaces\SequenceInterface;
+use AppBundle\Service\Misc\GeneticsFunctions;
 use AppBundle\Traits\FormatsTrait;
 use AppBundle\Traits\SequenceTrait;
 use AppBundle\Api\DTO\ElementDTO;
@@ -21,7 +20,7 @@ use AppBundle\Api\DTO\ElementDTO;
  * @package AppBundle\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-final class SequenceManager implements SequenceInterface
+abstract class SequenceManager
 {
     use SequenceTrait;
     use FormatsTrait;
@@ -47,11 +46,6 @@ final class SequenceManager implements SequenceInterface
      * @var array
      */
     private $elements;
-
-    /**
-     * @var Sequence
-     */
-    private $sequence;
 
     /**
      * @var AminoApiAdapter
@@ -97,42 +91,21 @@ final class SequenceManager implements SequenceInterface
     }
 
     /**
-     * Injection Sequence
-     * @param Sequence $oSequence
-     */
-    public function setSequence(Sequence $oSequence)
-    {
-        $this->sequence = $oSequence;
-    }
-
-    public function getSequence()
-    {
-        return $this->sequence;
-    }
-
-    /**
      * Returns a string representing the genetic complement of a sequence.
-     * @param   string    $sMoltypeUnfrmtd      The type of molecule we are dealing with. If omitted,
-     * we work with "DNA" by default.
+     * @param   string      $sSequence          The sequence
+     * @param   string      $sMoltypeUnfrmtd    The type of molecule we are dealing with.
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws  \Exception
      */
-    public function complement(string $sMoltypeUnfrmtd, string $sSequence = null)
+    public function complement(string $sSequence, string $sMoltypeUnfrmtd) : string
     {
         try {
             $sComplement = "";
-            if($sSequence == null) {
-                $sSequence = $this->sequence->getSequence();
-            }
-
-            if (!isset($sMoltypeUnfrmtd)) {
-                $sMoltypeUnfrmtd = (null !== $this->sequence->getMoltype()) ? $this->sequence->getMoltype() : "DNA";
-            }
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
+                $aComplements = NucleotidApiAdapter::GetDNAComplement($this->nucleotids);
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
+                $aComplements = NucleotidApiAdapter::GetRNAComplement($this->nucleotids);
             }
 
             $iSeqLength = strlen($sSequence);
@@ -148,15 +121,15 @@ final class SequenceManager implements SequenceInterface
 
     /**
      * Returns one of the two palindromic "halves" of a palindromic string.
+     * @param   string  $sSequence  The sequence
      * @param   int     $iIndex     Pass 0 to get he first palindromic half, pass any other number (e.g. 1)
      * to get the second palindromic half.
      * @return  string              A string representing either the first or the second palindromic half of the string.
      * @throws  \Exception
      */
-    public function halfSequence(int $iIndex)
+    public function halfSequence(string $sSequence, int $iIndex) : string
     {
         try {
-            $sSequence = $this->sequence->getSequence();
             if(strlen($sSequence) % 2 != 0) {
                 $iCompLength = (int)(strlen($sSequence)/2);
                 if ($iIndex == 0) {
@@ -177,7 +150,6 @@ final class SequenceManager implements SequenceInterface
         }
     }
 
-
     /**
      * Returns the sequence located between two palindromic halves of a palindromic string.
      * Take note that the "bridge" as I call it, is not necessarily a genetic mirror or a palindrome.
@@ -195,7 +167,6 @@ final class SequenceManager implements SequenceInterface
         }
     }
 
-
     /**
      * Returns the expansion of a nucleic acid sequence, replacing special wildcard symbols 
      * with the proper regular expression.
@@ -205,7 +176,7 @@ final class SequenceManager implements SequenceInterface
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa(string $sSequence)
+    public function expandNa(string $sSequence) : string
     {
         try {
             $aPattern = [
@@ -224,19 +195,21 @@ final class SequenceManager implements SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * @param   string        $sSequence    The sequence
+     * @param   string        $sMolType     DNA or RNA
+     * @param   int           $iNALen       Length of the sequence
      * @param   string        $sLimit       Upper or Lowerlimit
-     * @return  float | bool                The molecular weight, upper or lower limit
+     * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt(string $sLimit = "upperlimit")
+    public function molwt(string $sSequence, string $sMolType, int $iNALen, string $sLimit) : float
     {
         try {
-            $sSequence = $this->sequence->getSequence();
-            $sMolType  = $this->sequence->getMoltype();
             $this->cleanSequence($sSequence, $sMolType);
 
             $iLowLimit   = 0;
             $iUppLimit   = 1;
+            $iWlimit     = 1;
             $aMwt        = [0, 0];
 
             $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
@@ -244,9 +217,8 @@ final class SequenceManager implements SequenceInterface
 
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
-            $NA_len = $this->sequence->getSeqlength();
 
-            for($i = 0; $i < $NA_len; $i++) {
+            for($i = 0; $i < $iNALen; $i++) {
                 $sNABase = substr($sSequence, $i, 1);
                 $aMwt[$iLowLimit] += $na_wts[$sNABase];
                 $aMwt[$iUppLimit] += $na_wts[$sNABase];
@@ -271,14 +243,15 @@ final class SequenceManager implements SequenceInterface
 
     /**
      * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
-     * @return  int     The number of codons within a sequence, expressed as an non-negative integer.
+     * @param   array     $aFeatures
+     * @param   int       $iSeqLength
+     * @return  int       The number of codons within a sequence, expressed as an non-negative integer.
      * @todo : test after
      */
-    public function countCodons()
+    public function countCodons(array $aFeatures, int $iSeqLength) : int
     {
-        $aFeatures = $this->sequence->getFeatures();
         $codstart = (isset($aFeatures["CDS"]["/codon_start"])) ? $aFeatures["CDS"]["/codon_start"] : 1;
-        $codcount = (int) (($this->sequence->getSeqlength() - $codstart + 1)/3);
+        $codcount = (int) (($iSeqLength - $codstart + 1)/3);
         return $codcount;
     }
 
@@ -288,13 +261,13 @@ final class SequenceManager implements SequenceInterface
      * the subsequence; the position is expressed as a zero-based index.
      * @param   int         $iCount         The number of "letters" to include in the subsequence, starting from the
      * position specified by the $start parameter.
-     * @return  bool|string     String sequence.
+     * @param   string      $sSequence      The sequence
+     * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq(int $iStart, int $iCount)
+    public function subSeq($iStart, $iCount, $sSequence) : string
     {
         try {
-            $sSequence = $this->sequence->getSequence();
             $newSeq = substr($sSequence, $iStart, $iCount);
             return $newSeq;
         } catch (\Exception $ex) {
@@ -308,17 +281,17 @@ final class SequenceManager implements SequenceInterface
      * each occurrence of the substring (needle) in the larger string (haystack). This DOES NOT allow 
      * for pattern overlaps.
      * @param       string      $sPattern        The pattern to locate
+     * @param       string      $sSequence       The sequence
      * @param       string      $sOptions        If set to "I", pattern-matching will be case-insensitive.
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos(string $sPattern, string $sOptions = "I")
+    public function patPos($sPattern, $sSequence = null, $sOptions = "I") : array
     {
         try {
             $aOuter = [];
             $aPatFreq = $this->patFreq($sPattern, $sOptions);
 
-            $sSequence = $this->sequence->getSequence();
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
             }
@@ -362,10 +335,6 @@ final class SequenceManager implements SequenceInterface
     public function patPoso(string $sPattern, string $sSequence = null, string $sOptions = "I", int $iCutPos = 1)
     {
         try {
-            if ($sSequence == null) {
-                $sSequence = $this->sequence->getSequence();
-            }
-
             $aAbsPos = [];
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
@@ -432,23 +401,24 @@ final class SequenceManager implements SequenceInterface
      * matches the pattern) itself.
      * @example Findpattern returns: ( "GCG", "GCG", "GCG" ) if pattern is exactly "GCG".
      * @param   string      $sPattern      The pattern to search for
+     * @param   string      $sSequence     The sequence
      * @param   string      $sOptions      If set to "I", pattern-matching will be case-insensitive. Passing
      * anything else would cause the pattern-matching to be case-sensitive.
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sOptions = "I")
+    public function findPattern(string $sPattern, string $sSequence, string $sOptions = "I") : array
     {
         try {
             if (strtoupper($sOptions) == "I") {
                 preg_match_all(
                     "/" . $this->expandNa(strtoupper($sPattern)) . "/",
-                    strtoupper($this->sequence->getSequence()),
+                    strtoupper($sSequence),
                     $sMatch);
             } else {
                 preg_match_all(
                     "/" . $this->expandNa($sPattern) . "/",
-                    $this->sequence->getSequence(),
+                    $sSequence,
                     $sMatch);
             }
             return $sMatch;
@@ -462,13 +432,14 @@ final class SequenceManager implements SequenceInterface
      * can pass this a symbol argument which may be not be part of the sequence's alphabet.
      * In this case, the method will simply return zero (0) value.
      * @param   string  $sSymbol    The symbol whose frequency in a sequence we wish to determine.
+     * @param   string  $sSequence  The sequence
      * @return  int                 The frequency (number of occurrences) of a particular symbol in a sequence string.
      * @throws  \Exception
      */
-    public function symFreq(string $sSymbol)
+    public function symFreq(string $sSymbol, string $sSequence) : int
     {
         try {
-            $iSymTally = count_chars(strtoupper($this->sequence->getSequence()), 1);
+            $iSymTally = count_chars(strtoupper($sSequence), 1);
             if (!isset($iSymTally[ord($sSymbol)])) {
                 return 0;
             } else {
@@ -481,18 +452,20 @@ final class SequenceManager implements SequenceInterface
 
     /**
      * Returns the n-th codon in a sequence, with numbering starting at 0.
-     * @param   int    $iIndex          The index number of the codon.
-     * @param   int    $iReadFrame      The reading frame, which may be 0, 1, or 2 only.  If omitted, this
+     * @param   int     $iIndex         The index number of the codon.
+     * @param   string  $sSequence      The sequence
+     * @param   int     $iReadFrame     The reading frame, which may be 0, 1, or 2 only.  If omitted, this
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, int $iReadFrame = 0)
+    public function getCodon(int $iIndex, string $sSequence, int $iReadFrame)
     {
-        return strtoupper(substr($this->sequence->getSequence(), ($iIndex * 3) + $iReadFrame, 3));
+        return strtoupper(substr($sSequence, ($iIndex * 3) + $iReadFrame, 3));
     }
 
     /**
      * Translates a particular DNA sequence into its protein product sequence, using the given substitution matrix.
+     * @param       string      $sSequence      The sequence
      * @param       int         $iReadFrame     The reading frame (0, 1, or 2) to be used in translating a nucleic
      * sequence into a protein.
      * A value of 0 means that the first codon would start at the first "letter" in the sequence,
@@ -502,7 +475,7 @@ final class SequenceManager implements SequenceInterface
      * output string.  Passing 1 would cause translate() to output a string made up of single-letter amino acid
      * symbols strung together without any space in between. Passing 3 would output a string made up of three-letter
      * amino acid symbols separated by a space.
-     * @return      string      $sResult
+     * @return      string
      * @example When $format is passed a value of 1, the function returns a string of this format:
      * GAVLISNFYW
      * where each of G, A, V, and the other letters represent a single amino acid residue.
@@ -511,12 +484,12 @@ final class SequenceManager implements SequenceInterface
      * where each of Phe, Leu, and the other 3-letter "words" represent a single amino acid residue.
      * @throws \Exception
      */
-    public function translate(int $iReadFrame = 0, int $iFormat = 1)
+    public function translate(string $sSequence, int $iReadFrame, int $iFormat) : string
     {
         $iCodonIndex = 0;
         $sResult = "";
         while(1) {
-            $sCodon = $this->getCodon($iCodonIndex, $iReadFrame);
+            $sCodon = $this->getCodon($iCodonIndex, $sSequence, $iReadFrame);
             if ($sCodon == "") {
                 break;
             }
@@ -544,7 +517,7 @@ final class SequenceManager implements SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge(string $sAminoSeq)
+    public function charge(string $sAminoSeq) : string
     {
         $sChargedSequence = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
@@ -672,11 +645,8 @@ final class SequenceManager implements SequenceInterface
      * @param   string      $sSequence      A sequence which we want to test if it is a mirror or not.
      * @return  boolean
      */
-    public function isMirror(string $sSequence = null) : bool
+    public function isMirror(string $sSequence) : bool
     {
-        if ($sSequence == null) {
-            $sSequence = $this->sequence->getSequence();
-        }
         if ($sSequence == strrev($sSequence)) {
             return true;
         } else {
@@ -697,28 +667,9 @@ final class SequenceManager implements SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2 = null, string $sOptions = "E")
+    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2, string $sOptions)
     {
         $iSeqLength = strlen($sSequence);
-        if ($iSeqLength == 0) {
-            $sSequence = $this->sequence->getSequence();
-            $iSeqLength = strlen($sSequence);
-            if ($iSeqLength == 0) {
-                return false;
-            }
-        }
-        if (!isset($iPallen1) || (isset($iPallen1) && (($iPallen1 < 2)
-                    || ($iPallen1 > $iSeqLength) || (!is_int($iPallen1))))) {
-            return false;
-        }
-
-        if (!is_int($iPallen2)) {
-            return false;
-        } else {
-            if (($iPallen2 < $iPallen1)) {
-                return false;
-            }
-        }
 
         if ($iPallen2 == null) { // if third parameter (representing upper palindrome length) is missing
             $iPallen2 = $iPallen1;
@@ -759,20 +710,20 @@ final class SequenceManager implements SequenceInterface
      * reverse complements of each other.
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
      * @param   string      $sSequence   A sequence which we want to test if it is a genetic palindrome or not.
-     * @return  boolean                  TRUE if the given string is a genetic palindrome, FALSE otherwise.
+     * @return  bool                     TRUE if the given string is a genetic palindrome, FALSE otherwise.
      */
-    public function isPalindrome(string $sSequence = "") : bool
+    public function isPalindrome(string $sSequence) : bool
     {
-        if (strlen($sSequence) == 0) {
-            $sSequence = $this->sequence->getSequence();
-        }
         // By definition, odd-lengthed strings cannot be a palindrome.
         if (is_odd(strlen($sSequence))) {
             return false;
         }
         $sHalf1 = halfstr($sSequence, 0);
         $sHalf2 = halfstr($sSequence, 1);
-        if ($sHalf1 == @revcomp($sHalf2)) {
+        if ($sHalf1 == GeneticsFunctions::createInversion(
+            $sHalf2,
+            NucleotidApiAdapter::GetDNAComplement($this->nucleotids))
+        ) {
             return true;
         } else {
             return false;
@@ -791,18 +742,15 @@ final class SequenceManager implements SequenceInterface
      * If omitted, this is set to the sequence property of the current Seq object.
      * @param   int             $iSeqLen      The length of the palindromic substring within $sSequence. If omitted,
      * the method searches for palindromes of whatever length.
-     * @param   string          $iPalLen      The length of one of two palindromic edges in a palindromic substring
+     * @param   int             $iPalLen      The length of one of two palindromic edges in a palindromic substring
      * within $haystack.
      * @return  boolean|array   A two-dimensional array of the form:
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null)
+    public function findPalindrome(string $sSequence, int $iSeqLen, int $iPalLen)
     {
         $aOuter = [];
-        if($sSequence == "") {
-            $sSequence = $this->sequence->getSequence();
-        }
         // CASE 1) seqlen is not set, pallen is not set. - return FALSE (function error)
         if ($iPalLen == null && $iSeqLen == null) {
             return FALSE;
@@ -829,7 +777,7 @@ final class SequenceManager implements SequenceInterface
      * @param   int     $format
      * @return  string
      */
-    private function guanineLetters(string $letter2, string $letter3, int $format)
+    private function guanineLetters(string $letter2, string $letter3, int $format) : string
     {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
@@ -865,7 +813,7 @@ final class SequenceManager implements SequenceInterface
      * @param   int     $format
      * @return  string
      */
-    private function adenineLetters($letter2, $letter3, $format)
+    private function adenineLetters($letter2, $letter3, $format) : string
     {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
@@ -1002,10 +950,10 @@ final class SequenceManager implements SequenceInterface
 
     /**
      * Finds the weigth of aminos
-     * @param   $aDnaWeightsTemp
+     * @param   array   $aDnaWeightsTemp
      * @return  array
      */
-    private function dnaWts($aDnaWeightsTemp)
+    private function dnaWts(array $aDnaWeightsTemp) : array
     {
         $aDnaWeights = [
             'A' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["A"]],  // Adenine
@@ -1033,7 +981,7 @@ final class SequenceManager implements SequenceInterface
      * @param   array   $aRnaWeightsTemp
      * @return  array
      */
-    private function rnaWts($aRnaWeightsTemp)
+    private function rnaWts(array $aRnaWeightsTemp) : array
     {
         $aRnaWeights = [
             'A' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["A"]],  // Adenine
@@ -1065,7 +1013,7 @@ final class SequenceManager implements SequenceInterface
      * @return  array
      * @throws  \Exception
      */
-    private function palindrSeqSetAndPallenSet($sSequence, $iSeqlen, $iPalLen)
+    private function palindrSeqSetAndPallenSet(string $sSequence, int $iSeqlen, int $iPalLen) : array
     {
         $iHayLen = strlen($sSequence);
         $iCount = $iHayLen - $iSeqlen + 1;
@@ -1088,7 +1036,7 @@ final class SequenceManager implements SequenceInterface
      * @return  array
      * @throws  \Exception
      */
-    private function palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqlength)
+    private function palindrSeqlenSetAndPalenNotSet(string $sSequence, int $iSeqlength) : array
     {
         $iHayLength = strlen($sSequence);
         $iCount = $iHayLength - $iSeqlength + 1;
@@ -1122,7 +1070,7 @@ final class SequenceManager implements SequenceInterface
      * @return  array
      * @throws  \Exception
      */
-    private function palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLength)
+    private function palindrSeqlenNotSetAndPalenSet(string $sSequence, int $iPalLength) : array
     {
         $iHayLength = strlen($sSequence);
         $iSeqLength = ($iHayLength - $iPalLength + 1) - $iPalLength;
