@@ -1,3 +1,0 @@
-app:
-    resource: '@AppBundle/Infra/Controller/'
-    type: annotation

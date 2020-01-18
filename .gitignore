@@ -12,22 +12,15 @@
 !var/sessions/.gitkeep
 !var/SymfonyRequirements.php
 /vendor/
-/web/bundles/
 /nbproject/*
 *.dir
 *.idx
 *.db
 /.idea/*
-web/code-coverage/*
 *.DS_STORE*
 *.DS_Store*
-/web/FCGR.png
-/web/dendogram.png
-/web/public/diagrams
-/web/public/diagrams/*
-/web/docs/
-/web/docs/*
-/web/public/uploads
+/public/docs/
+/public/docs/*
 /myreport
 composer.lock
 
