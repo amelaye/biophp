@@ -17,12 +17,12 @@ services:
         resource: '../../src/AppBundle/*'
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
-        exclude: '../../src/AppBundle/{Entity,Repository,Tests,Legacy}'
+        exclude: '../../src/AppBundle/{*/Entity,Legacy}'
 
     # controllers are imported separately to make sure they're public
     # and have a tag that allows actions to type-hint services
-    AppBundle\Controller\:
-        resource: '../../src/AppBundle/Controller'
+    AppBundle\Infra\Controller\:
+        resource: '../../src/AppBundle/Infra/Controller'
         public: true
         tags: ['controller.service_arguments']
 
@@ -101,16 +101,16 @@ services:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Service\Builder\SequenceBuilder: ~
+    AppBundle\Domain\Sequence\Builder\SequenceBuilder: ~
 
-    AppBundle\Service\IO\DatabaseInterface: '@AppBundle\Service\IO\DatabaseManager'
+    AppBundle\Domain\Database\Interfaces\DatabaseInterface: '@AppBundle\Domain\Database\Service\DatabaseManager'
 
-    AppBundle\Interfaces\OligosInterface: '@AppBundle\Service\Misc\OligosManager'
-    AppBundle\Interfaces\ProteinInterface: '@AppBundle\Service\ProteinManager'
-    AppBundle\Interfaces\RestrictionEnzymeInterface: '@AppBundle\Service\RestrictionEnzymeManager'
-    AppBundle\Interfaces\SequenceAlignmentInterface: '@AppBundle\Service\SequenceAlignmentManager'
-    AppBundle\Interfaces\SequenceInterface: '@AppBundle\Service\Builder\SequenceBuilder'
-    AppBundle\Interfaces\SequenceMatchInterface: '@AppBundle\Service\SequenceMatchManager'
+    AppBundle\Domain\Tools\Interfaces\OligosInterface: '@AppBundle\Domain\Tools\Service\OligosManager'
+    AppBundle\Domain\Sequence\Interfaces\ProteinInterface: '@AppBundle\Domain\Sequence\Service\ProteinManager'
+    AppBundle\Domain\Sequence\Interfaces\RestrictionEnzymeInterface: '@AppBundle\Domain\Sequence\Service\RestrictionEnzymeManager'
+    AppBundle\Domain\Sequence\Interfaces\SequenceAlignmentInterface: '@AppBundle\Domain\Sequence\Service\SequenceAlignmentManager'
+    AppBundle\Domain\Sequence\Interfaces\SequenceInterface: '@AppBundle\Domain\Sequence\Service\SequenceBuilder'
+    AppBundle\Domain\Sequence\Interfaces\SequenceMatchInterface: '@AppBundle\Domain\Sequence\Service\SequenceMatchManager'
 
     AppBundle\Api\Interfaces\AminoApiAdapter: '@AppBundle\Api\AminoApi'
     AppBundle\Api\Interfaces\ElementApiAdapter: '@AppBundle\Api\ElementApi'
