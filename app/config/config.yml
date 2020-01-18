@@ -22,8 +22,6 @@ framework:
     router:
         resource: '%kernel.project_dir%/app/config/routing.yml'
         strict_requirements: ~
-    form: ~
-    csrf_protection: ~
     validation: { enable_annotations: true }
     #serializer: { enable_annotations: true }
     default_locale: '%locale%'
@@ -34,7 +32,6 @@ framework:
         save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
     fragments: ~
     http_method_override: true
-    assets: ~
     php_errors:
         log: true
 

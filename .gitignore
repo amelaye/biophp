@@ -30,3 +30,12 @@ web/code-coverage/*
 /web/public/uploads
 /myreport
 composer.lock
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+###< symfony/framework-bundle ###
