@@ -5,11 +5,11 @@
  * Created 1st December 2019
  * Last modified 1st December 2019
  */
-namespace AppBundle\Api\DTO;
+namespace App\Api\DTO;
 
 /**
  * Database of elements - Amino acids
- * @package AppBundle\Api\DTO
+ * @package App\Api\DTO
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class AminoDTO

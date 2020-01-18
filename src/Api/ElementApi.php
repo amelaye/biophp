@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\ElementDTO;
-use AppBundle\Api\Interfaces\ElementApiAdapter;
+use App\Api\DTO\ElementDTO;
+use App\Api\Interfaces\ElementApiAdapter;
 
 /**
  * Database of elements
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ElementApi extends Bioapi implements ElementApiAdapter

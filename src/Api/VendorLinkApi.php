@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\VendorLinkDTO;
-use AppBundle\Api\Interfaces\VendorLinkApiAdapter;
+use App\Api\DTO\VendorLinkDTO;
+use App\Api\Interfaces\VendorLinkApiAdapter;
 
 /**
  * Class VendorLinkApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class VendorLinkApi extends Bioapi implements VendorLinkApiAdapter

@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\TmBaseStackingDTO;
-use AppBundle\Api\Interfaces\TmBaseStackingApiAdapter;
+use App\Api\DTO\TmBaseStackingDTO;
+use App\Api\Interfaces\TmBaseStackingApiAdapter;
 
 /**
  * Class TmBaseStackingApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class TmBaseStackingApi extends Bioapi implements TmBaseStackingApiAdapter

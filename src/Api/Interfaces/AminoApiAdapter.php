@@ -5,11 +5,11 @@
  * Created 20 December 2019
  * Last modified 20 December 2019
  */
-namespace AppBundle\Api\Interfaces;
+namespace App\Api\Interfaces;
 
 /**
  * Database of aminos - Amino acids
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface AminoApiAdapter

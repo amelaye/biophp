@@ -5,13 +5,13 @@
  * Created 20 December 2019
  * Last modified 20 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\Interfaces\PKApiAdapter;
+use App\Api\Interfaces\PKApiAdapter;
 
 /**
  * Database of elements - Nucleotids
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class PKApi extends Bioapi implements PKApiAdapter

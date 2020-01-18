@@ -5,13 +5,13 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Interfaces;
+namespace App\Domain\Database\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Entity\Sequence;
 
 /**
  * Interface RecordingOnLocalDb
- * @package AppBundle\Domain\Database\Interfaces
+ * @package App\Domain\Database\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface DatabaseInterface

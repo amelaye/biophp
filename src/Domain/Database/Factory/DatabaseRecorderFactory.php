@@ -5,11 +5,11 @@
  * Created 24 november 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Factory;
+namespace App\Domain\Database\Factory;
 
 /**
  * Class DatabaseRecorderFactory
- * @package AppBundle\Domain\Database\Factory
+ * @package App\Domain\Database\Factory
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class DatabaseRecorderFactory

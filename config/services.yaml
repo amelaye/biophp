@@ -16,122 +16,113 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,AppBundle}'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Legacy}'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
+    App\Infra\Controller\:
+        resource: '../src/Infra/Controller'
         tags: ['controller.service_arguments']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    # TO REMOVE
-    AppBundle\:
-        resource: '../src/AppBundle/*'
-        exclude: '../src/AppBundle/{*/Entity,Legacy}'
-    AppBundle\Infra\Controller\:
-        resource: '../src/AppBundle/Infra/Controller'
-        public: true
-        tags: ['controller.service_arguments']
-
-    AppBundle\Api\Bioapi:
+    App\Api\Bioapi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\AminoApi:
+    App\Api\AminoApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\ElementApi:
+    App\Api\ElementApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\NucleotidApi:
+    App\Api\NucleotidApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\Pam250MatrixDigitApi:
+    App\Api\Pam250MatrixDigitApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\PKApi:
+    App\Api\PKApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\ProteinReductionApi:
+    App\Api\ProteinReductionApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TmBaseStackingApi:
+    App\Api\TmBaseStackingApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TripletApi:
+    App\Api\TripletApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TripletSpecieApi:
+    App\Api\TripletSpecieApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TypeIIbEndonucleaseApi:
+    App\Api\TypeIIbEndonucleaseApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TypeIIEndonucleaseApi:
+    App\Api\TypeIIEndonucleaseApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\TypeIIsEndonucleaseApi:
+    App\Api\TypeIIsEndonucleaseApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\VendorApi:
+    App\Api\VendorApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Api\VendorLinkApi:
+    App\Api\VendorLinkApi:
         arguments:
             - '@csa_guzzle.client.bioapi'
             - '@jms_serializer'
 
-    AppBundle\Domain\Sequence\Builder\SequenceBuilder: ~
+    App\Domain\Sequence\Builder\SequenceBuilder: ~
 
-    AppBundle\Domain\Database\Interfaces\DatabaseInterface: '@AppBundle\Domain\Database\Service\DatabaseManager'
+    App\Domain\Database\Interfaces\DatabaseInterface: '@App\Domain\Database\Service\DatabaseManager'
 
-    AppBundle\Domain\Tools\Interfaces\OligosInterface: '@AppBundle\Domain\Tools\Service\OligosManager'
-    AppBundle\Domain\Sequence\Interfaces\ProteinInterface: '@AppBundle\Domain\Sequence\Service\ProteinManager'
-    AppBundle\Domain\Sequence\Interfaces\RestrictionEnzymeInterface: '@AppBundle\Domain\Sequence\Service\RestrictionEnzymeManager'
-    AppBundle\Domain\Sequence\Interfaces\SequenceAlignmentInterface: '@AppBundle\Domain\Sequence\Service\SequenceAlignmentManager'
-    AppBundle\Domain\Sequence\Interfaces\SequenceInterface: '@AppBundle\Domain\Sequence\Service\SequenceBuilder'
-    AppBundle\Domain\Sequence\Interfaces\SequenceMatchInterface: '@AppBundle\Domain\Sequence\Service\SequenceMatchManager'
+    App\Domain\Tools\Interfaces\OligosInterface: '@App\Domain\Tools\Service\OligosManager'
+    App\Domain\Sequence\Interfaces\ProteinInterface: '@App\Domain\Sequence\Service\ProteinManager'
+    App\Domain\Sequence\Interfaces\RestrictionEnzymeInterface: '@App\Domain\Sequence\Service\RestrictionEnzymeManager'
+    App\Domain\Sequence\Interfaces\SequenceAlignmentInterface: '@App\Domain\Sequence\Service\SequenceAlignmentManager'
+    App\Domain\Sequence\Interfaces\SequenceInterface: '@App\Domain\Sequence\Service\SequenceBuilder'
+    App\Domain\Sequence\Interfaces\SequenceMatchInterface: '@App\Domain\Sequence\Service\SequenceMatchManager'
 
-    AppBundle\Api\Interfaces\AminoApiAdapter: '@AppBundle\Api\AminoApi'
-    AppBundle\Api\Interfaces\ElementApiAdapter: '@AppBundle\Api\ElementApi'
-    AppBundle\Api\Interfaces\NucleotidApiAdapter: '@AppBundle\Api\NucleotidApi'
-    AppBundle\Api\Interfaces\Pam250MatrixDigitApiAdapter: '@AppBundle\Api\Pam250MatrixDigitApi'
-    AppBundle\Api\Interfaces\ProteinReductionApiAdapter: '@AppBundle\Api\ProteinReductionApi'
-    AppBundle\Api\Interfaces\TmBaseStackingApiAdapter: '@AppBundle\Api\TmBaseStackingApi'
-    AppBundle\Api\Interfaces\TripletApiAdapter: '@AppBundle\Api\TripletApi'
-    AppBundle\Api\Interfaces\TripletSpecieApiAdapter: '@AppBundle\Api\TripletSpecieApi'
-    AppBundle\Api\Interfaces\TypeIIbEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIbEndonucleaseApi'
-    AppBundle\Api\Interfaces\TypeIIEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIEndonucleaseApi'
-    AppBundle\Api\Interfaces\TypeIIsEndonucleaseApiAdapter: '@AppBundle\Api\TypeIIsEndonucleaseApi'
-    AppBundle\Api\Interfaces\VendorApiAdapter: '@AppBundle\Api\VendorApi'
-    AppBundle\Api\Interfaces\VendorLinkApiAdapter: '@AppBundle\Api\VendorLinkApi'
+    App\Api\Interfaces\AminoApiAdapter: '@App\Api\AminoApi'
+    App\Api\Interfaces\ElementApiAdapter: '@App\Api\ElementApi'
+    App\Api\Interfaces\NucleotidApiAdapter: '@App\Api\NucleotidApi'
+    App\Api\Interfaces\Pam250MatrixDigitApiAdapter: '@App\Api\Pam250MatrixDigitApi'
+    App\Api\Interfaces\ProteinReductionApiAdapter: '@App\Api\ProteinReductionApi'
+    App\Api\Interfaces\TmBaseStackingApiAdapter: '@App\Api\TmBaseStackingApi'
+    App\Api\Interfaces\TripletApiAdapter: '@App\Api\TripletApi'
+    App\Api\Interfaces\TripletSpecieApiAdapter: '@App\Api\TripletSpecieApi'
+    App\Api\Interfaces\TypeIIbEndonucleaseApiAdapter: '@App\Api\TypeIIbEndonucleaseApi'
+    App\Api\Interfaces\TypeIIEndonucleaseApiAdapter: '@App\Api\TypeIIEndonucleaseApi'
+    App\Api\Interfaces\TypeIIsEndonucleaseApiAdapter: '@App\Api\TypeIIsEndonucleaseApi'
+    App\Api\Interfaces\VendorApiAdapter: '@App\Api\VendorApi'
+    App\Api\Interfaces\VendorLinkApiAdapter: '@App\Api\VendorLinkApi'

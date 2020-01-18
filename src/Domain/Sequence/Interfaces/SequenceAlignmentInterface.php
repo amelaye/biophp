@@ -5,16 +5,16 @@
  * Created 10 january 2020
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Interfaces;
+namespace App\Domain\Sequence\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Entity\Sequence;
 
 /**
  * Represents the result of an alignment performed by various third-party
  * software such as ClustalW. The alignment is usually found in a file that uses
  * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
  */

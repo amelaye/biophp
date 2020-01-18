@@ -5,14 +5,14 @@
  * Created 1st December 2019
  * Last modified 20 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\AminoDTO;
-use AppBundle\Api\Interfaces\AminoApiAdapter;
+use App\Api\DTO\AminoDTO;
+use App\Api\Interfaces\AminoApiAdapter;
 
 /**
  * Database of aminos - Amino acids
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class AminoApi extends Bioapi implements AminoApiAdapter

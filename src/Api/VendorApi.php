@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\VendorDTO;
-use AppBundle\Api\Interfaces\VendorApiAdapter;
+use App\Api\DTO\VendorDTO;
+use App\Api\Interfaces\VendorApiAdapter;
 
 /**
  * Class VendorApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class VendorApi extends Bioapi implements VendorApiAdapter

@@ -5,14 +5,14 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Service;
+namespace App\Domain\Database\Service;
 
-use AppBundle\Domain\Database\Entity\Collection;
-use AppBundle\Domain\Database\Entity\CollectionElement;
-use AppBundle\Domain\Database\Factory\DatabaseReaderFactory;
-use AppBundle\Domain\Database\Factory\DatabaseRecorderFactory;
-use AppBundle\Domain\Database\Interfaces\DatabaseInterface;
-use AppBundle\Domain\Sequence\Traits\FormatsTrait;
+use App\Domain\Database\Entity\Collection;
+use App\Domain\Database\Entity\CollectionElement;
+use App\Domain\Database\Factory\DatabaseReaderFactory;
+use App\Domain\Database\Factory\DatabaseRecorderFactory;
+use App\Domain\Database\Interfaces\DatabaseInterface;
+use App\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
  * even if $file1, $file2, ... are not specified.
  * We provide the create() method to explicitly create a new database.
  * We provide the use() or open() method to explicitly use an existing database.
- * @package AppBundle\Domain\Database\Service
+ * @package App\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class DatabaseManager implements DatabaseInterface

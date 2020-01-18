@@ -5,13 +5,13 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api\Interfaces;
+namespace App\Api\Interfaces;
 
-use AppBundle\Api\DTO\ElementDTO;
+use App\Api\DTO\ElementDTO;
 
 /**
  * Database of elements
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface ElementApiAdapter

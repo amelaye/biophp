@@ -5,13 +5,13 @@
  * Created 10 january 2020
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Interfaces;
+namespace App\Domain\Sequence\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Entity\Sequence;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
- * @package AppBundle\Domain\Sequence\Interfaces
+ * @package App\Domain\Sequence\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface SequenceInterface

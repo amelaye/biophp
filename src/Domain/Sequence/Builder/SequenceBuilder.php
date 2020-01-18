@@ -5,11 +5,11 @@
  * Created 13 december 2019
  * Last modified 20 january 2020
  */
-namespace AppBundle\Domain\Sequence\Builder;
+namespace App\Domain\Sequence\Builder;
 
-use AppBundle\Domain\Sequence\Entity\Sequence;
-use AppBundle\Domain\Sequence\Interfaces\SequenceInterface;
-use AppBundle\Domain\Sequence\Service\SequenceManager;
+use App\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Interfaces\SequenceInterface;
+use App\Domain\Sequence\Service\SequenceManager;
 
 class SequenceBuilder implements SequenceInterface
 {

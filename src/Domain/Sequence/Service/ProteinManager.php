@@ -5,16 +5,16 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Service;
+namespace App\Domain\Sequence\Service;
 
-use AppBundle\Api\Interfaces\AminoApiAdapter;
-use AppBundle\Domain\Sequence\Entity\Protein;
-use AppBundle\Domain\Sequence\Interfaces\ProteinInterface;
+use App\Api\Interfaces\AminoApiAdapter;
+use App\Domain\Sequence\Entity\Protein;
+use App\Domain\Sequence\Interfaces\ProteinInterface;
 
 /**
  * We can have manipulation with proteins
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  */
 class ProteinManager implements ProteinInterface
 {

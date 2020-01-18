@@ -6,16 +6,16 @@
  * Created 10 january 2020
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Interfaces;
+namespace App\Domain\Sequence\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\Enzyme;
-use AppBundle\Domain\Sequence\Service\SequenceManager;
+use App\Domain\Sequence\Entity\Enzyme;
+use App\Domain\Sequence\Service\SequenceManager;
 
 /**
  * Interface RestrictionEnzymeInterface - substances that can "cut" a DNA strand
  * into two or more fragments along special sites called restriction sites. They
  * are an important tool in recombinant DNA technology.
- * @package AppBundle\Domain\Sequence\Interfaces
+ * @package App\Domain\Sequence\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface RestrictionEnzymeInterface

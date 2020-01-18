@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\Pam250MatrixDigitDTO;
-use AppBundle\Api\Interfaces\Pam250MatrixDigitApiAdapter;
+use App\Api\DTO\Pam250MatrixDigitDTO;
+use App\Api\Interfaces\Pam250MatrixDigitApiAdapter;
 
 /**
  * Class Pam250MatrixDigitApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class Pam250MatrixDigitApi extends Bioapi implements Pam250MatrixDigitApiAdapter

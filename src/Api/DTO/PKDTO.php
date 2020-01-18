@@ -5,11 +5,11 @@
  * Created 20 december 2019
  * Last modified 20 december 2019
  */
-namespace AppBundle\Api\DTO;
+namespace App\Api\DTO;
 
 /**
  * Database of elements - PK Values
- * @package AppBundle\Api\DTO
+ * @package App\Api\DTO
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class PKDTO

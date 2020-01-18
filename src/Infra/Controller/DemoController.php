@@ -5,19 +5,19 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Infra\Controller;
+namespace App\Infra\Controller;
 
-use AppBundle\Api\ProteinReductionApi;
+use App\Api\ProteinReductionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use AppBundle\Domain\Database\Interfaces\DatabaseInterface;
-use AppBundle\Domain\Database\Service\DatabaseManager;
-use AppBundle\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
+use App\Domain\Database\Interfaces\DatabaseInterface;
+use App\Domain\Database\Service\DatabaseManager;
+use App\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
 
 /**
  * Class DemoController
- * @package AppBundle\Infra\Controller
+ * @package App\Infra\Controller
  * @author Amélie DUVERNET akka Amelaye <amelieonline@gmail.com>
  */
 class DemoController extends Controller

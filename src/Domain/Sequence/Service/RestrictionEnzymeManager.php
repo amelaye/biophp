@@ -5,18 +5,18 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Service;
+namespace App\Domain\Sequence\Service;
 
-use AppBundle\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
-use AppBundle\Domain\Sequence\Entity\Enzyme;
-use AppBundle\Domain\Sequence\Entity\Sequence;
-use AppBundle\Domain\Sequence\Interfaces\RestrictionEnzymeInterface;
+use App\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
+use App\Domain\Sequence\Entity\Enzyme;
+use App\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Interfaces\RestrictionEnzymeInterface;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
  * into two or more fragments along special sites called restriction sites. They
  * are an important tool in recombinant DNA technology.
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class RestrictionEnzymeManager implements RestrictionEnzymeInterface

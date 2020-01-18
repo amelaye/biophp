@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\TypeIIbEndonucleaseDTO;
-use AppBundle\Api\Interfaces\TypeIIbEndonucleaseApiAdapter;
+use App\Api\DTO\TypeIIbEndonucleaseDTO;
+use App\Api\Interfaces\TypeIIbEndonucleaseApiAdapter;
 
 /**
  * Class TypeIIbEndonucleaseApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class TypeIIbEndonucleaseApi extends Bioapi implements TypeIIbEndonucleaseApiAdapter

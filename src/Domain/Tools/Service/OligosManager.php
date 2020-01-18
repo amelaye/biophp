@@ -6,14 +6,14 @@
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Tools\Service;
+namespace App\Domain\Tools\Service;
 
-use AppBundle\Api\Interfaces\NucleotidApiAdapter;
-use AppBundle\Domain\Tools\Interfaces\OligosInterface;
+use App\Api\Interfaces\NucleotidApiAdapter;
+use App\Domain\Tools\Interfaces\OligosInterface;
 
 /**
  * Class OligosManager
- * @package AppBundle\Domain\Tools\Service
+ * @package App\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class OligosManager implements OligosInterface

@@ -5,11 +5,11 @@
  * Created 22 july 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Traits;
+namespace App\Domain\Sequence\Traits;
 
 /**
  * Trait SequenceTrait
- * @package AppBundle\Domain\Sequence\Traits
+ * @package App\Domain\Sequence\Traits
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 trait SequenceTrait

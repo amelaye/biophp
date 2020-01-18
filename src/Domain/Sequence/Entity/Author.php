@@ -5,13 +5,13 @@
  * Created 23 march 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Entity;
+namespace App\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Authors
- * @package AppBundle\Domain\Sequence\Entity
+ * @package App\Domain\Sequence\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(name = "author")
@@ -23,7 +23,7 @@ class Author
      * @var string
      * @ORM\Id
      * @ORM\ManyToOne(
-     *     targetEntity = "AppBundle\Domain\Sequence\Entity\Reference",
+     *     targetEntity = "App\Domain\Sequence\Entity\Reference",
      *     inversedBy="primAcc"
      * )
      * @ORM\JoinColumn(

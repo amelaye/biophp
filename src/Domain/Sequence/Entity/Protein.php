@@ -5,7 +5,7 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Entity;
+namespace App\Domain\Sequence\Entity;
 
 /**
  * Class Protein -  * This class represents the end-products of genetic processes of translation and
@@ -14,7 +14,7 @@ namespace AppBundle\Domain\Sequence\Entity;
  * structures are not. This is the main rationale for creating a separate Protein
  * class.
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @package AppBundle\Domain\Sequence\Entity
+ * @package App\Domain\Sequence\Entity
  */
 class Protein
 {

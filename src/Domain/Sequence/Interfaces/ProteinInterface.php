@@ -6,9 +6,9 @@
  * Created 10 january 2020
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Interfaces;
+namespace App\Domain\Sequence\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\Protein;
+use App\Domain\Sequence\Entity\Protein;
 
 interface ProteinInterface
 {

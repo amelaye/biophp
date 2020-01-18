@@ -5,19 +5,19 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Service;
+namespace App\Domain\Sequence\Service;
 
-use AppBundle\Api\DTO\ElementDTO;
-use AppBundle\Api\Interfaces\AminoApiAdapter;
-use AppBundle\Api\Interfaces\ElementApiAdapter;
-use AppBundle\Api\Interfaces\NucleotidApiAdapter;
-use AppBundle\Domain\Sequence\Traits\FormatsTrait;
-use AppBundle\Domain\Sequence\Traits\SequenceTrait;
-use AppBundle\Domain\Tools\Service\GeneticsFunctions;
+use App\Api\DTO\ElementDTO;
+use App\Api\Interfaces\AminoApiAdapter;
+use App\Api\Interfaces\ElementApiAdapter;
+use App\Api\Interfaces\NucleotidApiAdapter;
+use App\Domain\Sequence\Traits\FormatsTrait;
+use App\Domain\Sequence\Traits\SequenceTrait;
+use App\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceManager

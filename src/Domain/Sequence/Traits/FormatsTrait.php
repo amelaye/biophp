@@ -5,11 +5,11 @@
  * Created 11 september 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Traits;
+namespace App\Domain\Sequence\Traits;
 
 /**
  * Trait FormatsTrait - Some useful functions
- * @package AppBundle\Domain\Sequence\Traits
+ * @package App\Domain\Sequence\Traits
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 trait FormatsTrait

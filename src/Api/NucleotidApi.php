@@ -5,14 +5,14 @@
  * Created 19 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\NucleotidDTO;
-use AppBundle\Api\Interfaces\NucleotidApiAdapter;
+use App\Api\DTO\NucleotidDTO;
+use App\Api\Interfaces\NucleotidApiAdapter;
 
 /**
  * Database of elements - Nucleotids
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class NucleotidApi extends Bioapi implements NucleotidApiAdapter

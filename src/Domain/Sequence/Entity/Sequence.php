@@ -5,13 +5,13 @@
  * Created 23 march 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Entity;
+namespace App\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Sequence
- * @package AppBundle\Entity\Sequencing
+ * @package App\Entity\Sequencing
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
@@ -32,12 +32,12 @@ class Sequence
      *     options = {"default":0},
      *     nullable = false
      * )
-     * @ORM\OneToOne(targetEntity = "AppBundle\Domain\Sequence\Entity\GbSequence")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Domain\Sequence\Entity\Feature")
-     * @ORM\OneToOne(targetEntity = "AppBundle\Domain\Sequence\Entity\ScForm")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Domain\Sequence\Entity\Accession")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Domain\Sequence\Entity\Keyword")
-     * @ORM\OneToMany(targetEntity = "AppBundle\Domain\Sequence\Entity\Reference")
+     * @ORM\OneToOne(targetEntity = "App\Domain\Sequence\Entity\GbSequence")
+     * @ORM\OneToMany(targetEntity = "App\Domain\Sequence\Entity\Feature")
+     * @ORM\OneToOne(targetEntity = "App\Domain\Sequence\Entity\ScForm")
+     * @ORM\OneToMany(targetEntity = "App\Domain\Sequence\Entity\Accession")
+     * @ORM\OneToMany(targetEntity = "App\Domain\Sequence\Entity\Keyword")
+     * @ORM\OneToMany(targetEntity = "App\Domain\Sequence\Entity\Reference")
      */
     private $primAcc;
 

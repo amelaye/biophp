@@ -5,17 +5,17 @@
  * Created 24 november 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Service;
+namespace App\Domain\Database\Service;
 
-use AppBundle\Domain\Sequence\Entity\Accession;
-use AppBundle\Domain\Sequence\Entity\Author;
-use AppBundle\Domain\Sequence\Entity\Feature;
-use AppBundle\Domain\Sequence\Entity\Keyword;
-use AppBundle\Domain\Sequence\Entity\Reference;
+use App\Domain\Sequence\Entity\Accession;
+use App\Domain\Sequence\Entity\Author;
+use App\Domain\Sequence\Entity\Feature;
+use App\Domain\Sequence\Entity\Keyword;
+use App\Domain\Sequence\Entity\Reference;
 
 /**
  * Class ParseGenbankManager
- * @package AppBundle\Domain\Database\Service
+ * @package App\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 

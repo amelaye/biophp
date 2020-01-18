@@ -5,14 +5,14 @@
  * Created 20 january 2020
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Interfaces;
+namespace App\Domain\Sequence\Interfaces;
 
-use AppBundle\Domain\Sequence\Entity\SubMatrix;
+use App\Domain\Sequence\Entity\SubMatrix;
 
 /**
  * Class SequenceMatchManager - This class represents the results of performing sequence analysis and matching
  * on two or more sequences.
- * @package AppBundle\Domain\Sequence\Interfaces
+ * @package App\Domain\Sequence\Interfaces
  */
 interface SequenceMatchInterface
 {

@@ -5,11 +5,11 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Service;
+namespace App\Domain\Sequence\Service;
 
-use AppBundle\Domain\Sequence\Builder\SequenceBuilder;
-use AppBundle\Domain\Sequence\Entity\Sequence;
-use AppBundle\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
+use App\Domain\Sequence\Builder\SequenceBuilder;
+use App\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * software such as ClustalW. The alignment is usually found in a file that uses
  * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
  */

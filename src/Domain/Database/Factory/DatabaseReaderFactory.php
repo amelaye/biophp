@@ -5,14 +5,14 @@
  * Created 24 november 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Factory;
+namespace App\Domain\Database\Factory;
 
-use AppBundle\Domain\Database\Service\ParseGenbankManager;
-use AppBundle\Domain\Database\Service\ParseSwissprotManager;
+use App\Domain\Database\Service\ParseGenbankManager;
+use App\Domain\Database\Service\ParseSwissprotManager;
 
 /**
  * Class DatabaseReaderFactory
- * @package AppBundle\Domain\Database\Factory
+ * @package App\Domain\Database\Factory
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class DatabaseReaderFactory

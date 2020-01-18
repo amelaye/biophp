@@ -5,16 +5,16 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Service;
+namespace App\Domain\Sequence\Service;
 
-use AppBundle\Domain\Sequence\Entity\SubMatrix;
-use AppBundle\Domain\Sequence\Interfaces\SequenceMatchInterface;
-use AppBundle\Domain\Sequence\Traits\FormatsTrait;
+use App\Domain\Sequence\Entity\SubMatrix;
+use App\Domain\Sequence\Interfaces\SequenceMatchInterface;
+use App\Domain\Sequence\Traits\FormatsTrait;
 
 /**
  * Class SequenceMatchManager - This class represents the results of performing sequence analysis and matching
  * on two or more sequences.
- * @package AppBundle\Domain\Sequence\Service
+ * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceMatchManager implements SequenceMatchInterface

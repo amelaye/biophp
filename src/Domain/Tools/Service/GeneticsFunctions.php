@@ -6,11 +6,11 @@
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Tools\Service;
+namespace App\Domain\Tools\Service;
 
 /**
  * Class NucleotidsManager
- * @package AppBundle\Domain\Tools\Service
+ * @package App\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class GeneticsFunctions

@@ -5,13 +5,13 @@
  * Created 10 april 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Entity;
+namespace App\Domain\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Database
- * @package AppBundle\Domain\Database\Entity
+ * @package App\Domain\Database\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(name = "collection")
@@ -28,7 +28,7 @@ class Collection
      *     name = "id"
      * )
      * @ORM\OneToMany(
-     *     targetEntity = "AppBundle\Domain\Database\Entity\CollectionElement",
+     *     targetEntity = "App\Domain\Database\Entity\CollectionElement",
      *     mappedBy = "id_collection",
      *     cascade = {"persist"}
      * )

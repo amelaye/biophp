@@ -4,7 +4,7 @@
  * Created 3 november 2019
  * Last modified 21 december 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
 use GuzzleHttp\Client;
 use JMS\Serializer\Serializer;
@@ -13,7 +13,7 @@ use JMS\Serializer\Serializer;
  * This class makes requests on the Bio API api.amelayes-biophp.net
  * This is the sample database
  * Class Bioapi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class Bioapi

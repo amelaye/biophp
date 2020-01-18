@@ -6,11 +6,11 @@
  * RIP Pasha, gone 27 february 2019 =^._.^=
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Tools\Interfaces;
+namespace App\Domain\Tools\Interfaces;
 
 /**
  * Interface OligosInterface
- * @package AppBundle\Domain\Tools\Interfaces
+ * @package App\Domain\Tools\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface OligosInterface

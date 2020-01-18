@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\TripletDTO;
-use AppBundle\Api\Interfaces\TripletApiAdapter;
+use App\Api\DTO\TripletDTO;
+use App\Api\Interfaces\TripletApiAdapter;
 
 /**
  * Class TripletApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class TripletApi extends Bioapi implements TripletApiAdapter

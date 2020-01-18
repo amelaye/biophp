@@ -5,13 +5,13 @@
  * Created 23 march 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Sequence\Entity;
+namespace App\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Keywords
- * @package AppBundle\Domain\Sequence\Entity
+ * @package App\Domain\Sequence\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(
@@ -29,7 +29,7 @@ class Keyword
     /**
      * @var string
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity = "AppBundle\Domain\Sequence\Entity\Sequence")
+     * @ORM\ManyToOne(targetEntity = "App\Domain\Sequence\Entity\Sequence")
      * @ORM\JoinColumn(
      *     name = "prim_acc",
      *     referencedColumnName = "prim_acc"

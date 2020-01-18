@@ -5,17 +5,17 @@
  * Created 24 november 2019
  * Last modified 18 january 2020
  */
-namespace AppBundle\Domain\Database\Service;
+namespace App\Domain\Database\Service;
 
-use AppBundle\Domain\Database\Interfaces\ParseDatabaseInterface;
-use AppBundle\Domain\Sequence\Entity\GbSequence;
-use AppBundle\Domain\Sequence\Traits\FormatsTrait;
-use AppBundle\Domain\Sequence\Entity\Sequence;
-use AppBundle\Domain\Sequence\Entity\SrcForm;
+use App\Domain\Database\Interfaces\ParseDatabaseInterface;
+use App\Domain\Sequence\Entity\GbSequence;
+use App\Domain\Sequence\Traits\FormatsTrait;
+use App\Domain\Sequence\Entity\Sequence;
+use App\Domain\Sequence\Entity\SrcForm;
 
 /**
  * Class ParseDbAbstractManager
- * @package AppBundle\Domain\Database\Service
+ * @package App\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class ParseDbAbstractManager implements ParseDatabaseInterface

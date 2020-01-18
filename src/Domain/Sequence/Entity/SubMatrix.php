@@ -5,7 +5,7 @@
  * Created 11 february 2019
  * Last modified 13 november 2019
  */
-namespace AppBundle\Domain\Sequence\Entity;
+namespace App\Domain\Sequence\Entity;
 
 /**
  * This class allows the use of customized substitution matrices. See tech doc for details.
@@ -14,7 +14,7 @@ namespace AppBundle\Domain\Sequence\Entity;
 
 /**
  * Class SubMatrix
- * @package AppBundle\Domain\Sequence\Entity
+ * @package App\Domain\Sequence\Entity
  */
 class SubMatrix
 {

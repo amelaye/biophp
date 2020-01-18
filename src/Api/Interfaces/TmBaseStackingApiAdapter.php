@@ -5,11 +5,11 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api\Interfaces;
+namespace App\Api\Interfaces;
 
 /**
  * Class TmBaseStackingApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface TmBaseStackingApiAdapter

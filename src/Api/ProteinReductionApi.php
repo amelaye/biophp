@@ -5,14 +5,14 @@
  * Created 21 December 2019
  * Last modified 21 December 2019
  */
-namespace AppBundle\Api;
+namespace App\Api;
 
-use AppBundle\Api\DTO\ProteinReductionDTO;
-use AppBundle\Api\Interfaces\ProteinReductionApiAdapter;
+use App\Api\DTO\ProteinReductionDTO;
+use App\Api\Interfaces\ProteinReductionApiAdapter;
 
 /**
  * Class ProteinReductionApi
- * @package AppBundle\Api
+ * @package App\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class ProteinReductionApi extends Bioapi implements ProteinReductionApiAdapter
