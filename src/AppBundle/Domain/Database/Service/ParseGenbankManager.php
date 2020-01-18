@@ -7,11 +7,11 @@
  */
 namespace AppBundle\Domain\Database\Service;
 
+use AppBundle\Domain\Sequence\Entity\Accession;
 use AppBundle\Domain\Sequence\Entity\Author;
 use AppBundle\Domain\Sequence\Entity\Feature;
 use AppBundle\Domain\Sequence\Entity\Keyword;
 use AppBundle\Domain\Sequence\Entity\Reference;
-use AppBundle\Domain\Sequence\Entity\Accession;
 
 /**
  * Class ParseGenbankManager

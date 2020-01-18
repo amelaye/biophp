@@ -7,13 +7,13 @@
  */
 namespace AppBundle\Domain\Sequence\Service;
 
+use AppBundle\Api\DTO\ElementDTO;
 use AppBundle\Api\Interfaces\AminoApiAdapter;
 use AppBundle\Api\Interfaces\ElementApiAdapter;
 use AppBundle\Api\Interfaces\NucleotidApiAdapter;
-use AppBundle\Domain\Tools\Service\GeneticsFunctions;
 use AppBundle\Domain\Sequence\Traits\FormatsTrait;
 use AppBundle\Domain\Sequence\Traits\SequenceTrait;
-use AppBundle\Api\DTO\ElementDTO;
+use AppBundle\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.

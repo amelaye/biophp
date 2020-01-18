@@ -7,15 +7,15 @@
  */
 namespace AppBundle\Domain\Database\Service;
 
+use AppBundle\Domain\Database\Entity\Collection;
+use AppBundle\Domain\Database\Entity\CollectionElement;
 use AppBundle\Domain\Database\Factory\DatabaseReaderFactory;
 use AppBundle\Domain\Database\Factory\DatabaseRecorderFactory;
+use AppBundle\Domain\Database\Interfaces\DatabaseInterface;
 use AppBundle\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use AppBundle\Domain\Database\Entity\Collection;
-use AppBundle\Domain\Database\Entity\CollectionElement;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use AppBundle\Domain\Database\Interfaces\DatabaseInterface;
 
 /**
  * This class does many things like create

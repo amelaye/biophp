@@ -7,9 +7,9 @@
  */
 namespace AppBundle\Domain\Sequence\Service;
 
+use AppBundle\Domain\Sequence\Builder\SequenceBuilder;
 use AppBundle\Domain\Sequence\Entity\Sequence;
 use AppBundle\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
-use AppBundle\Domain\Sequence\Builder\SequenceBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 
 /**

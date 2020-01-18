@@ -7,11 +7,11 @@
  */
 namespace AppBundle\Domain\Database\Service;
 
+use AppBundle\Domain\Database\Interfaces\ParseDatabaseInterface;
 use AppBundle\Domain\Sequence\Entity\GbSequence;
+use AppBundle\Domain\Sequence\Traits\FormatsTrait;
 use AppBundle\Domain\Sequence\Entity\Sequence;
 use AppBundle\Domain\Sequence\Entity\SrcForm;
-use AppBundle\Domain\Sequence\Traits\FormatsTrait;
-use AppBundle\Domain\Database\Factory\ParseDatabaseInterface;
 
 /**
  * Class ParseDbAbstractManager
