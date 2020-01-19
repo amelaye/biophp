@@ -3,11 +3,11 @@
  * Global database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
-use App\Domain\Database\Interfaces\ParseDatabaseInterface;
+use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
 use App\Domain\Sequence\Entity\GbSequence;
 use App\Domain\Sequence\Traits\FormatsTrait;
 use App\Domain\Sequence\Entity\Sequence;
@@ -15,7 +15,7 @@ use App\Domain\Sequence\Entity\SrcForm;
 
 /**
  * Class ParseDbAbstractManager
- * @package App\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class ParseDbAbstractManager implements ParseDatabaseInterface

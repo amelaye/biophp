@@ -13,8 +13,8 @@ doctrine:
             AppBundleDatabase:
                 is_bundle: false
                 type: annotation
-                dir: '%kernel.project_dir%/src/Domain/Database/Entity'
-                prefix: 'App\Domain\Database\Entity'
+                dir: '%kernel.project_dir%/lib/BioPHPBundle/src/Domain/Database/Entity'
+                prefix: 'Amelaye\BioPHP\Domain\Database\Entity'
                 alias: App
             AppBundleSequence:
                 is_bundle: false

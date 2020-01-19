@@ -3,15 +3,15 @@
  * Replaces the .idx file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
-namespace App\Domain\Database\Entity;
+namespace Amelaye\BioPHP\Domain\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Database
- * @package App\Domain\Database\Entity
+ * @package Amelaye\BioPHP\Domain\Database\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @ORM\Entity
  * @ORM\Table(name = "collection")
@@ -28,7 +28,7 @@ class Collection
      *     name = "id"
      * )
      * @ORM\OneToMany(
-     *     targetEntity = "App\Domain\Database\Entity\CollectionElement",
+     *     targetEntity = "Amelaye\BioPHP\Domain\Database\Entity\CollectionElement",
      *     mappedBy = "id_collection",
      *     cascade = {"persist"}
      * )

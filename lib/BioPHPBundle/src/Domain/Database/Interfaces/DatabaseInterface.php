@@ -3,15 +3,15 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
-namespace App\Domain\Database\Interfaces;
+namespace Amelaye\BioPHP\Domain\Database\Interfaces;
 
 use App\Domain\Sequence\Entity\Sequence;
 
 /**
  * Interface RecordingOnLocalDb
- * @package App\Domain\Database\Interfaces
+ * @package Amelaye\BioPHP\Domain\Database\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface DatabaseInterface

@@ -3,16 +3,16 @@
  * Factory reading different databases format
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
-namespace App\Domain\Database\Factory;
+namespace Amelaye\BioPHP\Domain\Database\Factory;
 
 use Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager;
 use Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager;
 
 /**
  * Class DatabaseReaderFactory
- * @package App\Domain\Database\Factory
+ * @package Amelaye\BioPHP\Domain\Database\Factory
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class DatabaseReaderFactory

@@ -5,11 +5,15 @@
         https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager">
+        <defaults public="false" />
+        <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="biophp.dbmanager">
             <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
         </service>
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager" />
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager" />
+
+        <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="biophp.dbmanager" />
     </services>
+
 </container>

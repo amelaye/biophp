@@ -11,7 +11,7 @@ use App\Api\ProteinReductionApi;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use App\Domain\Database\Interfaces\DatabaseInterface;
+use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
 use App\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
 

@@ -3,15 +3,15 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
-use App\Domain\Database\Entity\Collection;
-use App\Domain\Database\Entity\CollectionElement;
-use App\Domain\Database\Factory\DatabaseReaderFactory;
-use App\Domain\Database\Factory\DatabaseRecorderFactory;
-use App\Domain\Database\Interfaces\DatabaseInterface;
+use Amelaye\BioPHP\Domain\Database\Entity\Collection;
+use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
+use Amelaye\BioPHP\Domain\Database\Factory\DatabaseReaderFactory;
+use Amelaye\BioPHP\Domain\Database\Factory\DatabaseRecorderFactory;
+use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
 use App\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
  * even if $file1, $file2, ... are not specified.
  * We provide the create() method to explicitly create a new database.
  * We provide the use() or open() method to explicitly use an existing database.
- * @package App\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class DatabaseManager implements DatabaseInterface

@@ -3,7 +3,7 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 18 january 2020
+ * Last modified 19 january 2020
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
@@ -15,7 +15,7 @@ use App\Domain\Sequence\Entity\Reference;
 
 /**
  * Class ParseSwissprotManager
- * @package App\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Database\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParseSwissprotManager extends ParseDbAbstractManager
