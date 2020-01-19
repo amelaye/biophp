@@ -65,11 +65,11 @@ class DatabaseManager implements DatabaseInterface
             if (empty($collectionDB)) {
                 return false;
             }
-            if(!is_file(__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName())) {
-                throw new FileException("The file ".__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName()." doesn't exist !");
+            if(!is_file("./data/" .$collectionDB->getFileName())) {
+                throw new FileException("The file data/" .$collectionDB->getFileName()." doesn't exist !");
             }
 
-            $fpSeq = fopen(__DIR__ . "/../../../../web/data/" .$collectionDB->getFileName(), "r");
+            $fpSeq = fopen( "./data/" .$collectionDB->getFileName(), "r");
             $aFlines = $this->line2r($fpSeq);
             $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
             return $oService;
@@ -128,7 +128,7 @@ class DatabaseManager implements DatabaseInterface
 
             foreach($datafile as $fileno => $filename) {
                 // Automatically create an index file containing info across all data files.
-                $flines = file(__DIR__ . "/../../../../web/data/" .$filename);
+                $flines = file("./data/" .$filename);
 
                 foreach($flines as $lineno => $linestr) {
                     if ($this->atEntrystart($linestr, $dbformat)) {

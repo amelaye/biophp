@@ -70,8 +70,7 @@ class CollectionElement
     /**
      * @var int
      * @ORM\ManyToOne(
-     *     targetEntity = "App\Domain\Database\Entity\Collection",
-     *     inversedBy = "id"
+     *     targetEntity = "App\Domain\Database\Entity\Collection"
      * ),
      * @ORM\JoinColumn(
      *     name = "id_collection",
