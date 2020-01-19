@@ -104,7 +104,7 @@ services:
 
     App\Domain\Sequence\Builder\SequenceBuilder: ~
 
-    App\Domain\Database\Interfaces\DatabaseInterface: '@App\Domain\Database\Service\DatabaseManager'
+    App\Domain\Database\Interfaces\DatabaseInterface: '@Amelaye\BioPHP\Domain\Database\Service\DatabaseManager'
 
     App\Domain\Tools\Interfaces\OligosInterface: '@App\Domain\Tools\Service\OligosManager'
     App\Domain\Sequence\Interfaces\ProteinInterface: '@App\Domain\Sequence\Service\ProteinManager'

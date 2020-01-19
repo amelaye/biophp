@@ -5,7 +5,7 @@
  * Created 15 february 2019
  * Last modified 18 january 2020
  */
-namespace App\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use App\Domain\Sequence\Entity\Accession;
 use App\Domain\Sequence\Entity\Author;

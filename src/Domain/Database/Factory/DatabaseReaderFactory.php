@@ -7,8 +7,8 @@
  */
 namespace App\Domain\Database\Factory;
 
-use App\Domain\Database\Service\ParseGenbankManager;
-use App\Domain\Database\Service\ParseSwissprotManager;
+use Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager;
 
 /**
  * Class DatabaseReaderFactory

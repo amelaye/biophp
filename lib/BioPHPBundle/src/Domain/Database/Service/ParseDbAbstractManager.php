@@ -5,7 +5,7 @@
  * Created 24 november 2019
  * Last modified 18 january 2020
  */
-namespace App\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use App\Domain\Database\Interfaces\ParseDatabaseInterface;
 use App\Domain\Sequence\Entity\GbSequence;

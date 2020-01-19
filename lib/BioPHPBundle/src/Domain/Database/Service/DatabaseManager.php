@@ -5,7 +5,7 @@
  * Created 11 february 2019
  * Last modified 18 january 2020
  */
-namespace App\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use App\Domain\Database\Entity\Collection;
 use App\Domain\Database\Entity\CollectionElement;
