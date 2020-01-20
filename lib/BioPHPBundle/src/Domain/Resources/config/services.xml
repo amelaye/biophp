@@ -6,14 +6,14 @@
 
     <services>
         <defaults public="false" />
-        <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="biophp.dbmanager">
+        <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="amelaye_biophp.database_manager">
             <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
         </service>
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager" />
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager" />
 
-        <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="biophp.dbmanager" />
+        <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="amelaye_biophp.database_manager" />
     </services>
 
 </container>
