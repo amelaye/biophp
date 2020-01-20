@@ -12,7 +12,7 @@ use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseReaderFactory;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseRecorderFactory;
 use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
-use App\Domain\Sequence\Traits\FormatsTrait;
+use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;

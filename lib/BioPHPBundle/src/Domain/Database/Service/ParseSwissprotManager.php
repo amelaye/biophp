@@ -7,11 +7,11 @@
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
-use App\Domain\Sequence\Entity\Accession;
-use App\Domain\Sequence\Entity\Author;
-use App\Domain\Sequence\Entity\Feature;
-use App\Domain\Sequence\Entity\Keyword;
-use App\Domain\Sequence\Entity\Reference;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 
 /**
  * Class ParseSwissprotManager

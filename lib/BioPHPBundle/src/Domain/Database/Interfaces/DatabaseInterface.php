@@ -7,7 +7,7 @@
  */
 namespace Amelaye\BioPHP\Domain\Database\Interfaces;
 
-use App\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 
 /**
  * Interface RecordingOnLocalDb

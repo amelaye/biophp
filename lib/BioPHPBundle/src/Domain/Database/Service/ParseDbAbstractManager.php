@@ -8,10 +8,10 @@
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
-use App\Domain\Sequence\Entity\GbSequence;
-use App\Domain\Sequence\Traits\FormatsTrait;
-use App\Domain\Sequence\Entity\Sequence;
-use App\Domain\Sequence\Entity\SrcForm;
+use Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence;
+use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
 
 /**
  * Class ParseDbAbstractManager

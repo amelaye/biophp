@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
-use App\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
+use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceAlignmentInterface;
 
 /**
  * Class DemoController

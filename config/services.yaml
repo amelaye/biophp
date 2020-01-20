@@ -23,15 +23,3 @@ services:
     App\Infra\Controller\:
         resource: '../src/Infra/Controller'
         tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-
-    App\Domain\Sequence\Builder\SequenceBuilder: ~
-
-    App\Domain\Tools\Interfaces\OligosInterface: '@App\Domain\Tools\Service\OligosManager'
-    App\Domain\Sequence\Interfaces\ProteinInterface: '@App\Domain\Sequence\Service\ProteinManager'
-    App\Domain\Sequence\Interfaces\RestrictionEnzymeInterface: '@App\Domain\Sequence\Service\RestrictionEnzymeManager'
-    App\Domain\Sequence\Interfaces\SequenceAlignmentInterface: '@App\Domain\Sequence\Service\SequenceAlignmentManager'
-    App\Domain\Sequence\Interfaces\SequenceInterface: '@App\Domain\Sequence\Service\SequenceBuilder'
-    App\Domain\Sequence\Interfaces\SequenceMatchInterface: '@App\Domain\Sequence\Service\SequenceMatchManager'

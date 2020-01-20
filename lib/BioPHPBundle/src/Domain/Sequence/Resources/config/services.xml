@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults public="false" />
+
+        <!-- Sequence -->
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\OligosManager" id="amelaye_biophp.seq_oligos" />
+
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager" id="amelaye_biophp.seq_sequences">
+            <argument type="service" id="amelaye_biophp.api_amino"></argument>
+            <argument type="service" id="amelaye_biophp.api_nucleotid"></argument>
+            <argument type="service" id="amelaye_biophp.api_element"></argument>
+        </service>
+        <service class="Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder" id="amelaye_biophp.seq_sequences_bld">
+            <argument type="service" id="amelaye_biophp.seq_sequences"></argument>
+        </service>
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\ProteinManager" id="amelaye_biophp.seq_proteins" />
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\RestrictionEnzymeManager" id="amelaye_biophp.seq_restenzyme" />
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceAlignmentManager" id="amelaye_biophp.seq_alignment">
+            <argument type="service" id="amelaye_biophp.seq_sequences"></argument>
+        </service>
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceMatchManager" id="amelaye_biophp.seq_match" />
+
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OligosInterface" alias="amelaye_biophp.seq_oligos" />
+
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\ProteinInterface" alias="amelaye_biophp.seq_proteins" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeInterface" alias="amelaye_biophp.seq_restenzyme" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceAlignmentInterface" alias="amelaye_biophp.seq_alignment" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" alias="amelaye_biophp.seq_sequences_bld" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceMatchInterface" alias="amelaye_biophp.seq_match" />
+    </services>
+
+</container>
