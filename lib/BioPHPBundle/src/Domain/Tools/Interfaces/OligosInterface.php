@@ -6,11 +6,11 @@
  * RIP Pasha, gone 27 february 2019 =^._.^=
  * Last modified 18 january 2020
  */
-namespace App\Domain\Tools\Interfaces;
+namespace Amelaye\BioPHP\Domain\Tools\Interfaces;
 
 /**
  * Interface OligosInterface
- * @package App\Domain\Tools\Interfaces
+ * @package Amelaye\BioPHP\Domain\Tools\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface OligosInterface

@@ -13,7 +13,7 @@ use Amelaye\BioPHP\Api\Interfaces\ElementApiAdapter;
 use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
 use App\Domain\Sequence\Traits\FormatsTrait;
 use App\Domain\Sequence\Traits\SequenceTrait;
-use App\Domain\Tools\Service\GeneticsFunctions;
+use Amelaye\BioPHP\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.

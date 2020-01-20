@@ -6,7 +6,7 @@
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  * Last modified 18 january 2020
  */
-namespace App\Domain\Tools\Service;
+namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 /**
  * Class MathematicsManager

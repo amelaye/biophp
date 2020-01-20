@@ -22,7 +22,10 @@ class AmelayeBioPHPExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Database/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Api/Resources/config'));
         $loader->load('services.xml');
         //$loader->load('doctrine.xml');
     }

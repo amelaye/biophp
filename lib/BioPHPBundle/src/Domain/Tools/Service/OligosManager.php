@@ -6,14 +6,14 @@
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
  * Last modified 18 january 2020
  */
-namespace App\Domain\Tools\Service;
+namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
-use App\Domain\Tools\Interfaces\OligosInterface;
+use Amelaye\BioPHP\Domain\Tools\Interfaces\OligosInterface;
 
 /**
  * Class OligosManager
- * @package App\Domain\Tools\Service
+ * @package Amelaye\BioPHP\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class OligosManager implements OligosInterface

@@ -7,16 +7,6 @@
     <services>
         <defaults public="false" />
 
-        <!-- Database -->
-        <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="amelaye_biophp.database_manager">
-            <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
-        </service>
-        <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
-        <service id="Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager" />
-        <service id="Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager" />
-
-        <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="amelaye_biophp.database_manager" />
-
         <!-- API -->
         <service class="Amelaye\BioPHP\Api\Bioapi" id="amelaye_biophp.api_bioapi">
             <argument type="service" id="csa_guzzle.client.bioapi"></argument>
