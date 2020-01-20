@@ -7,7 +7,7 @@
  */
 namespace App\Domain\Sequence\Service;
 
-use App\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
+use Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use App\Domain\Sequence\Entity\Enzyme;
 use App\Domain\Sequence\Entity\Sequence;
 use App\Domain\Sequence\Interfaces\RestrictionEnzymeInterface;

@@ -6,6 +6,8 @@
 
     <services>
         <defaults public="false" />
+
+        <!-- Database -->
         <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="amelaye_biophp.database_manager">
             <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
         </service>
@@ -14,6 +16,97 @@
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager" />
 
         <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="amelaye_biophp.database_manager" />
+
+        <!-- API -->
+        <service class="Amelaye\BioPHP\Api\Bioapi" id="amelaye_biophp.api_bioapi">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+
+        <service class="Amelaye\BioPHP\Api\AminoApi" id="amelaye_biophp.api_amino">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter" alias="amelaye_biophp.api_amino" />
+
+        <service class="Amelaye\BioPHP\Api\ElementApi" id="amelaye_biophp.api_element">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\ElementApiAdapter" alias="amelaye_biophp.api_element" />
+
+        <service class="Amelaye\BioPHP\Api\NucleotidApi" id="amelaye_biophp.api_nucleotid">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter" alias="amelaye_biophp.api_nucleotid" />
+
+        <service class="Amelaye\BioPHP\Api\Pam250MatrixDigitApi" id="amelaye_biophp.api_matrix">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\Pam250MatrixDigitApiAdapter" alias="amelaye_biophp.api_matrix" />
+
+        <service class="Amelaye\BioPHP\Api\PKApi" id="amelaye_biophp.api_pk">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\PKApiAdapter" alias="amelaye_biophp.api_pk" />
+
+        <service class="Amelaye\BioPHP\Api\ProteinReductionApi" id="amelaye_biophp.api_protredcution">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\ProteinReductionApiAdapter" alias="amelaye_biophp.api_protredcution" />
+
+        <service class="Amelaye\BioPHP\Api\TmBaseStackingApi" id="amelaye_biophp.api_tmbasest">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter" alias="amelaye_biophp.api_tmbasest" />
+
+        <service class="Amelaye\BioPHP\Api\TripletApi" id="amelaye_biophp.api_triplet">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TripletApiAdapter" alias="amelaye_biophp.api_triplet" />
+
+        <service class="Amelaye\BioPHP\Api\TripletSpecieApi" id="amelaye_biophp.api_tripletspecies">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TripletSpecieApiAdapter" alias="amelaye_biophp.api_tripletspecies" />
+
+        <service class="Amelaye\BioPHP\Api\TypeIIbEndonucleaseApi" id="amelaye_biophp.api_t2b">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TypeIIbEndonucleaseApiAdapter" alias="amelaye_biophp.api_t2b" />
+
+        <service class="Amelaye\BioPHP\Api\TypeIIsEndonucleaseApi" id="amelaye_biophp.api_t2s">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TypeIIsEndonucleaseApiAdapter" alias="amelaye_biophp.api_t2s" />
+
+        <service class="Amelaye\BioPHP\Api\TypeIIEndonucleaseApi" id="amelaye_biophp.api_ts">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter" alias="amelaye_biophp.api_ts" />
+
+        <service class="Amelaye\BioPHP\Api\VendorApi" id="amelaye_biophp.api_vendor">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\VendorApiAdapter" alias="amelaye_biophp.api_vendor" />
+
+        <service class="Amelaye\BioPHP\Api\VendorLinkApi" id="amelaye_biophp.api_vendorlink">
+            <argument type="service" id="csa_guzzle.client.bioapi"></argument>
+            <argument type="service" id="jms_serializer"></argument>
+        </service>
+        <service id="Amelaye\BioPHP\Api\Interfaces\VendorLinkApiAdapter" alias="amelaye_biophp.api_vendorlink" />
+
     </services>
 
 </container>

@@ -7,7 +7,7 @@
  */
 namespace App\Domain\Sequence\Service;
 
-use App\Api\Interfaces\AminoApiAdapter;
+use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
 use App\Domain\Sequence\Entity\Protein;
 use App\Domain\Sequence\Interfaces\ProteinInterface;
 

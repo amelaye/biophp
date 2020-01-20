@@ -7,10 +7,10 @@
  */
 namespace App\Domain\Sequence\Service;
 
-use App\Api\DTO\ElementDTO;
-use App\Api\Interfaces\AminoApiAdapter;
-use App\Api\Interfaces\ElementApiAdapter;
-use App\Api\Interfaces\NucleotidApiAdapter;
+use Amelaye\BioPHP\Api\DTO\ElementDTO;
+use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
+use Amelaye\BioPHP\Api\Interfaces\ElementApiAdapter;
+use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
 use App\Domain\Sequence\Traits\FormatsTrait;
 use App\Domain\Sequence\Traits\SequenceTrait;
 use App\Domain\Tools\Service\GeneticsFunctions;

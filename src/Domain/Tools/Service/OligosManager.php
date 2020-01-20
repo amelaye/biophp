@@ -8,7 +8,7 @@
  */
 namespace App\Domain\Tools\Service;
 
-use App\Api\Interfaces\NucleotidApiAdapter;
+use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
 use App\Domain\Tools\Interfaces\OligosInterface;
 
 /**

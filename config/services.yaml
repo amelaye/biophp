@@ -27,81 +27,6 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Api\Bioapi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\AminoApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\ElementApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\NucleotidApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\Pam250MatrixDigitApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\PKApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\ProteinReductionApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TmBaseStackingApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TripletApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TripletSpecieApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TypeIIbEndonucleaseApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TypeIIEndonucleaseApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\TypeIIsEndonucleaseApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\VendorApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
-    App\Api\VendorLinkApi:
-        arguments:
-            - '@csa_guzzle.client.bioapi'
-            - '@jms_serializer'
-
     App\Domain\Sequence\Builder\SequenceBuilder: ~
 
     App\Domain\Tools\Interfaces\OligosInterface: '@App\Domain\Tools\Service\OligosManager'
@@ -110,17 +35,3 @@ services:
     App\Domain\Sequence\Interfaces\SequenceAlignmentInterface: '@App\Domain\Sequence\Service\SequenceAlignmentManager'
     App\Domain\Sequence\Interfaces\SequenceInterface: '@App\Domain\Sequence\Service\SequenceBuilder'
     App\Domain\Sequence\Interfaces\SequenceMatchInterface: '@App\Domain\Sequence\Service\SequenceMatchManager'
-
-    App\Api\Interfaces\AminoApiAdapter: '@App\Api\AminoApi'
-    App\Api\Interfaces\ElementApiAdapter: '@App\Api\ElementApi'
-    App\Api\Interfaces\NucleotidApiAdapter: '@App\Api\NucleotidApi'
-    App\Api\Interfaces\Pam250MatrixDigitApiAdapter: '@App\Api\Pam250MatrixDigitApi'
-    App\Api\Interfaces\ProteinReductionApiAdapter: '@App\Api\ProteinReductionApi'
-    App\Api\Interfaces\TmBaseStackingApiAdapter: '@App\Api\TmBaseStackingApi'
-    App\Api\Interfaces\TripletApiAdapter: '@App\Api\TripletApi'
-    App\Api\Interfaces\TripletSpecieApiAdapter: '@App\Api\TripletSpecieApi'
-    App\Api\Interfaces\TypeIIbEndonucleaseApiAdapter: '@App\Api\TypeIIbEndonucleaseApi'
-    App\Api\Interfaces\TypeIIEndonucleaseApiAdapter: '@App\Api\TypeIIEndonucleaseApi'
-    App\Api\Interfaces\TypeIIsEndonucleaseApiAdapter: '@App\Api\TypeIIsEndonucleaseApi'
-    App\Api\Interfaces\VendorApiAdapter: '@App\Api\VendorApi'
-    App\Api\Interfaces\VendorLinkApiAdapter: '@App\Api\VendorLinkApi'
