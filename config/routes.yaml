@@ -1,3 +1,0 @@
-app:
-  resource: '../src/Infra/Controller/'
-  type: annotation
