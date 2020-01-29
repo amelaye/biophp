@@ -71,6 +71,19 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                 ],
             ],
         ]);
+
+        $container->loadFromExtension('csa_guzzle', [
+            'profiler' => '%kernel.debug%',
+            'clients' => [
+                'bioapi' => ['config' => ['base_uri' => 'http://api.amelayes-biophp.net']]
+            ]
+        ]);
+
+        $container->loadFromExtension('jms_serializer', [
+            'visitors' => [
+                'xml' => ['format_output' => '%kernel.debug%']
+            ]
+        ]);
     }
 
     /**
