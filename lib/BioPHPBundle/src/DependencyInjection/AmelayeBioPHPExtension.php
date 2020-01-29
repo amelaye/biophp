@@ -3,10 +3,9 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 19 january 2020
+ * Last modified 25 january 2020
  */
 namespace Amelaye\BioPHP\DependencyInjection;
-
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -37,6 +36,9 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Sequence/Resources/config'));
         $loader->load('services.xml');
+
+        $configuration = $this->getConfiguration($configs, $container);
+        $config = $this->processConfiguration($configuration, $configs);
     }
 
     /**
@@ -71,4 +73,11 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
         ]);
     }
 
+    /**
+     * @return string
+     */
+    public function getAlias()
+    {
+        return 'amelaye_biophp';
+    }
 }
