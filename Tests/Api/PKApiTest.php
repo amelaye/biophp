@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\API;
 
 use GuzzleHttp;
-use AppBundle\Api\PKApi;
+use Amelaye\BioPHP\Api\PKApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PKApiTest extends WebTestCase

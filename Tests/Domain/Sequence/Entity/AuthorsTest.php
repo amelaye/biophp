@@ -2,7 +2,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\Author;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AuthorsTest extends WebTestCase

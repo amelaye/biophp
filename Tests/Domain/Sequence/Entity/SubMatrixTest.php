@@ -2,7 +2,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\SubMatrix;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SubMatrix;
 use PHPUnit\Framework\TestCase;
 
 class SubMatrixTest extends TestCase

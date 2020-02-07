@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SequenceTest extends WebTestCase

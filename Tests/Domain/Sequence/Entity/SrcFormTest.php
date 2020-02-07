@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\SrcForm;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SrcFormTest extends WebTestCase

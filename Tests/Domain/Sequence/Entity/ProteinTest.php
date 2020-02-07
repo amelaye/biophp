@@ -9,7 +9,7 @@
 namespace Tests\AppBundle\Entity;
 
 use PHPUnit\Framework\TestCase;
-use AppBundle\Entity\Protein;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;
 
 class ProteinTest extends TestCase
 {
@@ -20,7 +20,7 @@ class ProteinTest extends TestCase
     {
         $oProtein = new Protein();
         $oProtein->setId("123");
-        $oProtein->setSequence(array("test1", "test2"));
+        $oProtein->setSequence("test1");
         $oProtein->setName("Ma Proteine");
 
         $sIdProtein = $oProtein->getId();
@@ -28,7 +28,7 @@ class ProteinTest extends TestCase
         $sNameProtein = $oProtein->getName();
 
         $this->assertEquals("123", $sIdProtein);
-        $this->assertEquals(array("test1", "test2"), $aSequence);
+        $this->assertEquals("test1", $aSequence);
         $this->assertEquals("Ma Proteine", $sNameProtein);
     }
 }

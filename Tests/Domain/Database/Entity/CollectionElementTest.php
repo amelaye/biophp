@@ -2,8 +2,8 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\IO\Collection;
-use AppBundle\Entity\IO\CollectionElement;
+use Amelaye\BioPHP\Domain\Database\Entity\Collection;
+use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class CollectionElementTest extends WebTestCase

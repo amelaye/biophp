@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\Entity;
 
 
-use AppBundle\Entity\Sequencing\Accession;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AccessionTest extends WebTestCase

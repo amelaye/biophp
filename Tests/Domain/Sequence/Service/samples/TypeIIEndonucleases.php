@@ -1,6 +1,6 @@
 <?php
 
-use AppBundle\Api\DTO\TypeIIEndonucleaseDTO;
+use Amelaye\BioPHP\Api\DTO\TypeIIEndonucleaseDTO;
 
 $aTypeIIEndonucleases = [];
 

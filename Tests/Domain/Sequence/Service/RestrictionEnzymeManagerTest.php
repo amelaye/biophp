@@ -8,11 +8,12 @@
  */
 namespace Tests\AppBundle\Service;
 
-use AppBundle\Entity\Enzyme;
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Service\RestrictionEnzymeManager;
-use AppBundle\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Service\RestrictionEnzymeManager;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;
+use Amelaye\BioPHP\Api\DTO\AminoDTO;
 
 class RestrictionEnzymeManagerTest extends TestCase
 {

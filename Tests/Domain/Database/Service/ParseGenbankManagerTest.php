@@ -3,16 +3,16 @@
 
 namespace Tests\AppBundle\Service;
 
-use AppBundle\Entity\IO\Collection;
-use AppBundle\Entity\IO\CollectionElement;
-use AppBundle\Entity\Sequencing\Author;
-use AppBundle\Entity\Sequencing\Feature;
-use AppBundle\Entity\Sequencing\GbSequence;
-use AppBundle\Entity\Sequencing\Keyword;
-use AppBundle\Entity\Sequencing\Reference;
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Entity\Sequencing\SrcForm;
-use AppBundle\Service\IO\DatabaseManager;
+use Amelaye\BioPHP\Domain\Database\Entity\Collection;
+use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
+use Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
+use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

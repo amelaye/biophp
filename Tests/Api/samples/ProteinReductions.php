@@ -1,6 +1,6 @@
 <?php
 
-use AppBundle\Api\DTO\ProteinReductionDTO;
+use Amelaye\BioPHP\Api\DTO\ProteinReductionDTO;
 
 $aReductions = [];
 

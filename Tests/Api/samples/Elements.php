@@ -1,6 +1,6 @@
 <?php
 
-use AppBundle\Api\DTO\ElementDTO;
+use Amelaye\BioPHP\Api\DTO\ElementDTO;
 
 $aElementsObjects = [];
 $element = new ElementDTO();

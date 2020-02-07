@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\Reference;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ReferenceTest extends WebTestCase
