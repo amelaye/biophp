@@ -5,7 +5,7 @@ namespace Tests\AppBundle\API\DTO;
 
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use AppBundle\Api\DTO\ProteinReductionDTO;
+use Amelaye\BioPHP\Api\DTO\ProteinReductionDTO;
 
 class ProteinReductionDTOTest extends WebTestCase
 {

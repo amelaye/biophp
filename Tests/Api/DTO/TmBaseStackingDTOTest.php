@@ -5,7 +5,7 @@ namespace Tests\AppBundle\API\DTO;
 
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use AppBundle\Api\DTO\TmBaseStackingDTO;
+use Amelaye\BioPHP\Api\DTO\TmBaseStackingDTO;
 
 class TmBaseStackingDTOTest extends WebTestCase
 {

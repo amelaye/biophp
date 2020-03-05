@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\API\DTO;
 
-use AppBundle\Api\DTO\TypeIIbEndonucleaseDTO;
+use Amelaye\BioPHP\Api\DTO\TypeIIbEndonucleaseDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TypeIIbEndonucleaseDTOTest extends WebTestCase

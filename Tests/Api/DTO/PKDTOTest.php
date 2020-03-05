@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\API\DTO;
 
 
-use AppBundle\Api\DTO\PKDTO;
+use Amelaye\BioPHP\Api\DTO\PKDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PKDTOTest extends WebTestCase
