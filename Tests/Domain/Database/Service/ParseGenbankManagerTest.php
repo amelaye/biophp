@@ -46,7 +46,7 @@ class ParseGenbankManagerTest extends WebTestCase
             ->willReturn($collectionElement);
 
         $databaseManager = new DatabaseManager($mockedEm);
-        $oParseGenbankManager = $databaseManager->fetch("NM_031438");
+        $oParseGenbankManager = $databaseManager->fetch("NM_031438", './data/');
 
         // Accession
         $aExpectedAccession = [];

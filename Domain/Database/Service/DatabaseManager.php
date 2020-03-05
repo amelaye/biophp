@@ -53,11 +53,12 @@ class DatabaseManager implements DatabaseInterface
     /**
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
-     * @param       string          $sSeqId     The id of the seq obj.
+     * @param       string          $sSeqId        The id of the seq obj.
+     * @param       string          $sDataPath     The path to the data file.
      * @return      ParseSwissprotManager | ParseGenbankManager | bool
      * @throws      \Exception
      */
-    public function fetch($sSeqId)
+    public function fetch($sSeqId, $sDataPath)
     {
         try {
             $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
@@ -65,11 +66,11 @@ class DatabaseManager implements DatabaseInterface
             if (empty($collectionDB)) {
                 return false;
             }
-            if(!is_file("./data/" .$collectionDB->getFileName())) {
-                throw new FileException("The file data/" .$collectionDB->getFileName()." doesn't exist !");
+            if(!is_file($sDataPath .$collectionDB->getFileName())) {
+                throw new FileException("The file ".$sDataPath.$collectionDB->getFileName()." doesn't exist !");
             }
 
-            $fpSeq = fopen( "./data/" .$collectionDB->getFileName(), "r");
+            $fpSeq = fopen( $sDataPath.$collectionDB->getFileName(), "r");
             $aFlines = $this->line2r($fpSeq);
             $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
             return $oService;

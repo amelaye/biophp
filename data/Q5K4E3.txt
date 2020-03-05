@@ -1,0 +1,286 @@
+ID   POLS2_HUMAN             Reviewed;         855 AA.
+AC   Q5K4E3; A8K2P5; B4DW80; B7ZMK8; E7EX56; Q8NBY4;
+DT   15-MAR-2005, integrated into UniProtKB/Swiss-Prot.
+DT   14-OCT-2008, sequence version 2.
+DT   13-FEB-2019, entry version 123.
+DE   RecName: Full=Polyserase-2;
+DE            EC=3.4.21.-;
+DE   AltName: Full=Polyserine protease 2;
+DE   AltName: Full=Serine protease 36;
+DE   Flags: Precursor;
+GN   Name=PRSS36;
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+OC   Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE [MRNA] (ISOFORM 1), ENZYME ACTIVITY, ACTIVITY
+RP   REGULATION, SUBCELLULAR LOCATION, TISSUE SPECIFICITY, AND
+RP   GLYCOSYLATION.
+RC   TISSUE=Liver;
+RX   PubMed=15536082; DOI=10.1074/jbc.M409139200;
+RA   Cal S., Quesada V., Llamazares M., Diaz-Perales A., Garabaya C.,
+RA   Lopez-Otin C.;
+RT   "Human polyserase-2, a novel enzyme with three tandem serine protease
+RT   domains in a single polypeptide chain.";
+RL   J. Biol. Chem. 280:1953-1961(2005).
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA] (ISOFORMS 1 AND 2).
+RC   TISSUE=Placenta, Synovium, and Tongue;
+RX   PubMed=14702039; DOI=10.1038/ng1285;
+RA   Ota T., Suzuki Y., Nishikawa T., Otsuki T., Sugiyama T., Irie R.,
+RA   Wakamatsu A., Hayashi K., Sato H., Nagai K., Kimura K., Makita H.,
+RA   Sekine M., Obayashi M., Nishi T., Shibahara T., Tanaka T., Ishii S.,
+RA   Yamamoto J., Saito K., Kawai Y., Isono Y., Nakamura Y., Nagahari K.,
+RA   Murakami K., Yasuda T., Iwayanagi T., Wagatsuma M., Shiratori A.,
+RA   Sudo H., Hosoiri T., Kaku Y., Kodaira H., Kondo H., Sugawara M.,
+RA   Takahashi M., Kanda K., Yokoi T., Furuya T., Kikkawa E., Omura Y.,
+RA   Abe K., Kamihara K., Katsuta N., Sato K., Tanikawa M., Yamazaki M.,
+RA   Ninomiya K., Ishibashi T., Yamashita H., Murakawa K., Fujimori K.,
+RA   Tanai H., Kimata M., Watanabe M., Hiraoka S., Chiba Y., Ishida S.,
+RA   Ono Y., Takiguchi S., Watanabe S., Yosida M., Hotuta T., Kusano J.,
+RA   Kanehori K., Takahashi-Fujii A., Hara H., Tanase T.-O., Nomura Y.,
+RA   Togiya S., Komai F., Hara R., Takeuchi K., Arita M., Imose N.,
+RA   Musashino K., Yuuki H., Oshima A., Sasaki N., Aotsuka S.,
+RA   Yoshikawa Y., Matsunawa H., Ichihara T., Shiohata N., Sano S.,
+RA   Moriya S., Momiyama H., Satoh N., Takami S., Terashima Y., Suzuki O.,
+RA   Nakagawa S., Senoh A., Mizoguchi H., Goto Y., Shimizu F., Wakebe H.,
+RA   Hishigaki H., Watanabe T., Sugiyama A., Takemoto M., Kawakami B.,
+RA   Yamazaki M., Watanabe K., Kumagai A., Itakura S., Fukuzumi Y.,
+RA   Fujimori Y., Komiyama M., Tashiro H., Tanigami A., Fujiwara T.,
+RA   Ono T., Yamada K., Fujii Y., Ozaki K., Hirao M., Ohmori Y.,
+RA   Kawabata A., Hikiji T., Kobatake N., Inagaki H., Ikema Y., Okamoto S.,
+RA   Okitani R., Kawakami T., Noguchi S., Itoh T., Shigeta K., Senba T.,
+RA   Matsumura K., Nakajima Y., Mizuno T., Morinaga M., Sasaki M.,
+RA   Togashi T., Oyama M., Hata H., Watanabe M., Komatsu T.,
+RA   Mizushima-Sugano J., Satoh T., Shirai Y., Takahashi Y., Nakagawa K.,
+RA   Okumura K., Nagase T., Nomura N., Kikuchi H., Masuho Y., Yamashita R.,
+RA   Nakai K., Yada T., Nakamura Y., Ohara O., Isogai T., Sugano S.;
+RT   "Complete sequencing and characterization of 21,243 full-length human
+RT   cDNAs.";
+RL   Nat. Genet. 36:40-45(2004).
+RN   [3]
+RP   NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA].
+RX   PubMed=15616553; DOI=10.1038/nature03187;
+RA   Martin J., Han C., Gordon L.A., Terry A., Prabhakar S., She X.,
+RA   Xie G., Hellsten U., Chan Y.M., Altherr M., Couronne O., Aerts A.,
+RA   Bajorek E., Black S., Blumer H., Branscomb E., Brown N.C., Bruno W.J.,
+RA   Buckingham J.M., Callen D.F., Campbell C.S., Campbell M.L.,
+RA   Campbell E.W., Caoile C., Challacombe J.F., Chasteen L.A.,
+RA   Chertkov O., Chi H.C., Christensen M., Clark L.M., Cohn J.D.,
+RA   Denys M., Detter J.C., Dickson M., Dimitrijevic-Bussod M., Escobar J.,
+RA   Fawcett J.J., Flowers D., Fotopulos D., Glavina T., Gomez M.,
+RA   Gonzales E., Goodstein D., Goodwin L.A., Grady D.L., Grigoriev I.,
+RA   Groza M., Hammon N., Hawkins T., Haydu L., Hildebrand C.E., Huang W.,
+RA   Israni S., Jett J., Jewett P.B., Kadner K., Kimball H., Kobayashi A.,
+RA   Krawczyk M.-C., Leyba T., Longmire J.L., Lopez F., Lou Y., Lowry S.,
+RA   Ludeman T., Manohar C.F., Mark G.A., McMurray K.L., Meincke L.J.,
+RA   Morgan J., Moyzis R.K., Mundt M.O., Munk A.C., Nandkeshwar R.D.,
+RA   Pitluck S., Pollard M., Predki P., Parson-Quintana B., Ramirez L.,
+RA   Rash S., Retterer J., Ricke D.O., Robinson D.L., Rodriguez A.,
+RA   Salamov A., Saunders E.H., Scott D., Shough T., Stallings R.L.,
+RA   Stalvey M., Sutherland R.D., Tapia R., Tesmer J.G., Thayer N.,
+RA   Thompson L.S., Tice H., Torney D.C., Tran-Gyamfi M., Tsai M.,
+RA   Ulanovsky L.E., Ustaszewska A., Vo N., White P.S., Williams A.L.,
+RA   Wills P.L., Wu J.-R., Wu K., Yang J., DeJong P., Bruce D.,
+RA   Doggett N.A., Deaven L., Schmutz J., Grimwood J., Richardson P.,
+RA   Rokhsar D.S., Eichler E.E., Gilna P., Lucas S.M., Myers R.M.,
+RA   Rubin E.M., Pennacchio L.A.;
+RT   "The sequence and analysis of duplication-rich human chromosome 16.";
+RL   Nature 432:988-994(2004).
+RN   [4]
+RP   NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA] (ISOFORMS 1 AND 3).
+RX   PubMed=15489334; DOI=10.1101/gr.2596504;
+RG   The MGC Project Team;
+RT   "The status, quality, and expansion of the NIH full-length cDNA
+RT   project: the Mammalian Gene Collection (MGC).";
+RL   Genome Res. 14:2121-2127(2004).
+CC   -!- FUNCTION: Serine protease. Hydrolyzes the peptides N-t-Boc-Gln-
+CC       Ala-Arg-AMC and N-t-Boc-Gln-Gly-Arg-AMC and, to a lesser extent,
+CC       N-t-Boc-Ala-Phe-Lys-AMC and N-t-Boc-Val-Leu-Lys-AMC. Has a
+CC       preference for substrates with an Arg instead of a Lys residue in
+CC       position P1.
+CC   -!- ACTIVITY REGULATION: Inhibited by serine proteinase inhibitor 4-
+CC       (2-aminoethyl)-benzenesulfonyl fluoride, but not with EDTA or E-
+CC       64. {ECO:0000269|PubMed:15536082}.
+CC   -!- SUBCELLULAR LOCATION: Secreted, extracellular space, extracellular
+CC       matrix {ECO:0000269|PubMed:15536082}. Note=Not attached to
+CC       membranes.
+CC   -!- ALTERNATIVE PRODUCTS:
+CC       Event=Alternative splicing; Named isoforms=3;
+CC       Name=1;
+CC         IsoId=Q5K4E3-1; Sequence=Displayed;
+CC       Name=2;
+CC         IsoId=Q5K4E3-2; Sequence=VSP_044718;
+CC         Note=No experimental confirmation available.;
+CC       Name=3;
+CC         IsoId=Q5K4E3-3; Sequence=VSP_046639;
+CC         Note=No experimental confirmation available.;
+CC   -!- TISSUE SPECIFICITY: Expressed in fetal kidney, skeletal muscle,
+CC       liver, placenta and heart. Also expressed in tumor cell lines
+CC       derived from lung and colon adenocarcinomas.
+CC       {ECO:0000269|PubMed:15536082}.
+CC   -!- DOMAIN: The first serine protease domain is catalytically active,
+CC       whereas the second domain lacks the essential His residue of the
+CC       catalytic triad at position 363, and the third domain lacks the
+CC       essential Asp residue of the catalytic triad at position 679. The
+CC       second and third domains are therefore predicted to be inactive
+CC       (By similarity). {ECO:0000250}.
+CC   -!- PTM: The 3 protease domains are not proteolytically cleaved.
+CC   -!- PTM: N-glycosylated. {ECO:0000269|PubMed:15536082}.
+CC   -!- SIMILARITY: Belongs to the peptidase S1 family.
+CC       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see https://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution (CC BY 4.0) License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AJ627034; CAF25303.1; -; mRNA.
+DR   EMBL; AK075142; -; NOT_ANNOTATED_CDS; mRNA.
+DR   EMBL; AK290310; BAF82999.1; -; mRNA.
+DR   EMBL; AK301409; BAG62942.1; -; mRNA.
+DR   EMBL; AC009088; -; NOT_ANNOTATED_CDS; Genomic_DNA.
+DR   EMBL; BC137396; AAI37397.1; -; mRNA.
+DR   EMBL; BC144615; AAI44616.1; -; mRNA.
+DR   CCDS; CCDS32436.1; -. [Q5K4E3-1]
+DR   CCDS; CCDS58452.1; -. [Q5K4E3-2]
+DR   CCDS; CCDS58453.1; -. [Q5K4E3-3]
+DR   RefSeq; NP_001245219.1; NM_001258290.1. [Q5K4E3-3]
+DR   RefSeq; NP_001245220.1; NM_001258291.1. [Q5K4E3-2]
+DR   RefSeq; NP_775773.2; NM_173502.4. [Q5K4E3-1]
+DR   UniGene; Hs.256632; -.
+DR   ProteinModelPortal; Q5K4E3; -.
+DR   SMR; Q5K4E3; -.
+DR   STRING; 9606.ENSP00000268281; -.
+DR   MEROPS; S01.414; -.
+DR   BioMuta; PRSS36; -.
+DR   DMDM; 209572670; -.
+DR   PaxDb; Q5K4E3; -.
+DR   PeptideAtlas; Q5K4E3; -.
+DR   PRIDE; Q5K4E3; -.
+DR   ProteomicsDB; 63543; -.
+DR   Ensembl; ENST00000268281; ENSP00000268281; ENSG00000178226. [Q5K4E3-1]
+DR   Ensembl; ENST00000418068; ENSP00000407160; ENSG00000178226. [Q5K4E3-2]
+DR   Ensembl; ENST00000569305; ENSP00000454768; ENSG00000178226. [Q5K4E3-3]
+DR   GeneID; 146547; -.
+DR   KEGG; hsa:146547; -.
+DR   UCSC; uc002ebd.5; human. [Q5K4E3-1]
+DR   CTD; 146547; -.
+DR   EuPathDB; HostDB:ENSG00000178226.10; -.
+DR   GeneCards; PRSS36; -.
+DR   H-InvDB; HIX0038569; -.
+DR   HGNC; HGNC:26906; PRSS36.
+DR   HPA; HPA036079; -.
+DR   MIM; 610560; gene.
+DR   neXtProt; NX_Q5K4E3; -.
+DR   OpenTargets; ENSG00000178226; -.
+DR   PharmGKB; PA142671123; -.
+DR   eggNOG; KOG3627; Eukaryota.
+DR   eggNOG; COG5640; LUCA.
+DR   GeneTree; ENSGT00940000161761; -.
+DR   HOGENOM; HOG000115606; -.
+DR   HOVERGEN; HBG053635; -.
+DR   InParanoid; Q5K4E3; -.
+DR   KO; K09630; -.
+DR   OMA; QENRCEM; -.
+DR   OrthoDB; 1314811at2759; -.
+DR   PhylomeDB; Q5K4E3; -.
+DR   TreeFam; TF351678; -.
+DR   GenomeRNAi; 146547; -.
+DR   PRO; PR:Q5K4E3; -.
+DR   Proteomes; UP000005640; Chromosome 16.
+DR   Bgee; ENSG00000178226; Expressed in 91 organ(s), highest expression level in blood.
+DR   ExpressionAtlas; Q5K4E3; baseline and differential.
+DR   Genevisible; Q5K4E3; HS.
+DR   GO; GO:0005737; C:cytoplasm; IDA:MGI.
+DR   GO; GO:0005576; C:extracellular region; IEA:UniProtKB-KW.
+DR   GO; GO:0004252; F:serine-type endopeptidase activity; IDA:MGI.
+DR   CDD; cd00190; Tryp_SPc; 1.
+DR   InterPro; IPR017326; Pept_S1A_polyserase-2.
+DR   InterPro; IPR009003; Peptidase_S1_PA.
+DR   InterPro; IPR001314; Peptidase_S1A.
+DR   InterPro; IPR001254; Trypsin_dom.
+DR   InterPro; IPR018114; TRYPSIN_HIS.
+DR   InterPro; IPR033116; TRYPSIN_SER.
+DR   Pfam; PF00089; Trypsin; 3.
+DR   PIRSF; PIRSF037933; Polyserase-2; 1.
+DR   PRINTS; PR00722; CHYMOTRYPSIN.
+DR   SMART; SM00020; Tryp_SPc; 3.
+DR   SUPFAM; SSF50494; SSF50494; 3.
+DR   PROSITE; PS50240; TRYPSIN_DOM; 3.
+DR   PROSITE; PS00134; TRYPSIN_HIS; 1.
+DR   PROSITE; PS00135; TRYPSIN_SER; 1.
+PE   1: Evidence at protein level;
+KW   Alternative splicing; Complete proteome; Disulfide bond;
+KW   Extracellular matrix; Glycoprotein; Hydrolase; Protease;
+KW   Reference proteome; Repeat; Secreted; Serine protease; Signal;
+KW   Zymogen.
+FT   SIGNAL        1     22       {ECO:0000255}.
+FT   PROPEP       23     46       {ECO:0000255}.
+FT                                /FTId=PRO_0000027879.
+FT   CHAIN        47    855       Polyserase-2.
+FT                                /FTId=PRO_0000027880.
+FT   DOMAIN       47    291       Peptidase S1 1. {ECO:0000255|PROSITE-
+FT                                ProRule:PRU00274}.
+FT   DOMAIN      323    555       Peptidase S1 2. {ECO:0000255|PROSITE-
+FT                                ProRule:PRU00274}.
+FT   DOMAIN      590    808       Peptidase S1 3. {ECO:0000255|PROSITE-
+FT                                ProRule:PRU00274}.
+FT   ACT_SITE     87     87       Charge relay system. {ECO:0000250}.
+FT   ACT_SITE    139    139       Charge relay system. {ECO:0000250}.
+FT   ACT_SITE    243    243       Charge relay system. {ECO:0000250}.
+FT   CARBOHYD     92     92       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    130    130       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    217    217       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    317    317       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    369    369       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    402    402       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    407    407       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    421    421       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   CARBOHYD    508    508       N-linked (GlcNAc...) asparagine.
+FT                                {ECO:0000255}.
+FT   DISULFID     72     88       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    173    249       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    206    228       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    239    267       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    348    364       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    444    516       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    506    534       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    615    631       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    711    772       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   DISULFID    739    751       {ECO:0000255|PROSITE-ProRule:PRU00274}.
+FT   VAR_SEQ     503    507       Missing (in isoform 3).
+FT                                {ECO:0000303|PubMed:15489334}.
+FT                                /FTId=VSP_046639.
+FT   VAR_SEQ     661    763       Missing (in isoform 2).
+FT                                {ECO:0000303|PubMed:14702039}.
+FT                                /FTId=VSP_044718.
+FT   CONFLICT    135    135       E -> K (in Ref. 2; BAG62942).
+FT                                {ECO:0000305}.
+FT   CONFLICT    812    812       F -> L (in Ref. 1; CAF25303).
+FT                                {ECO:0000305}.
+SQ   SEQUENCE   855 AA;  91955 MW;  D1AF7888311FB871 CRC64;
+     MARHLLLPLV MLVISPIPGA FQDSALSPTQ EEPEDLDCGR PEPSARIVGG SNAQPGTWPW
+     QVSLHHGGGH ICGGSLIAPS WVLSAAHCFM TNGTLEPAAE WSVLLGVHSQ DGPLDGAHTR
+     AVAAIVVPAN YSQVELGADL ALLRLASPAS LGPAVWPVCL PRASHRFVHG TACWATGWGD
+     VQEADPLPLP WVLQEVELRL LGEATCQCLY SQPGPFNLTL QILPGMLCAG YPEGRRDTCQ
+     GDSGGPLVCE EGGRWFQAGI TSFGFGCGRR NRPGVFTAVA TYEAWIREQV MGSEPGPAFP
+     TQPQKTQSDP QEPREENCTI ALPECGKAPR PGAWPWEAQV MVPGSRPCHG ALVSESWVLA
+     PASCFLDPNS SDSPPRDLDA WRVLLPSRPR AERVARLVQH ENASWDNASD LALLQLRTPV
+     NLSAASRPVC LPHPEHYFLP GSRCRLARWG RGEPALGPGA LLEAELLGGW WCHCLYGRQG
+     AAVPLPGDPP HALCPAYQEK EEVGSCWNDS RWSLLCQEEG TWFLAGIRDF PSGCLRPRAF
+     FPLQTHGPWI SHVTRGAYLE DQLAWDWGPD GEETETQTCP PHTEHGACGL RLEAAPVGVL
+     WPWLAEVHVA GDRVCTGILL APGWVLAATH CVLRPGSTTV PYIEVYLGRA GASSLPQGHQ
+     VSRLVISIRL PQHLGLRPPL ALLELSSRVE PSPSALPICL HPAGIPPGAS CWVLGWKEPQ
+     DRVPVAAAVS ILTQRICDCL YQGILPPGTL CVLYAEGQEN RCEMTSAPPL LCQMTEGSWI
+     LVGMAVQGSR ELFAAIGPEE AWISQTVGEA NFLPPSGSPH WPTGGSNLCP PELAKASGSP
+     HAVYFLLLLT LLIQS
+//
