@@ -12,6 +12,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SpDatabank;
 
 /**
  * Class ParseSwissprotManager
