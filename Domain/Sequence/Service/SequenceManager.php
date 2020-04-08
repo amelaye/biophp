@@ -87,7 +87,7 @@ class SequenceManager
         $this->aminos           = $aminoApi->getAminos();
         $this->nucleotidApi     = $nucleotidApi;
         $this->nucleotids       = $nucleotidApi->getNucleotids();
-        $this->water            = $elementApi->getElement(7);
+        $this->water            = $elementApi->getElement(6);
     }
 
     /**

@@ -78,12 +78,6 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                 'bioapi' => ['config' => ['base_uri' => 'http://api.amelayes-biophp.net']]
             ]
         ]);
-
-        $container->loadFromExtension('jms_serializer', [
-            'visitors' => [
-                'xml' => ['format_output' => '%kernel.debug%']
-            ]
-        ]);
     }
 
     /**

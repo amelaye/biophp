@@ -48,6 +48,7 @@ class ElementApi extends Bioapi implements ElementApiAdapter
         $response = $this->bioapiClient->get($uri);
 
         $oElement = $this->serializer->deserialize($response->getBody()->getContents(), ElementDTO::class, 'json');
+
         return $oElement;
     }
 
