@@ -18,7 +18,9 @@
         <service class="Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder" id="amelaye_biophp.seq_sequences_bld">
             <argument type="service" id="amelaye_biophp.seq_sequences"></argument>
         </service>
-        <service class="Amelaye\BioPHP\Domain\Sequence\Service\ProteinManager" id="amelaye_biophp.seq_proteins" />
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\ProteinManager" id="amelaye_biophp.seq_proteins">
+            <argument type="service" id="amelaye_biophp.api_amino"></argument>
+        </service>
         <service class="Amelaye\BioPHP\Domain\Sequence\Service\RestrictionEnzymeManager" id="amelaye_biophp.seq_restenzyme" />
         <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceAlignmentManager" id="amelaye_biophp.seq_alignment">
             <argument type="service" id="amelaye_biophp.seq_sequences_bld"></argument>
