@@ -289,7 +289,7 @@ class SequenceManager
     {
         try {
             $aOuter = [];
-            $aPatFreq = $this->patFreq($sPattern, $sOptions);
+            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
 
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
@@ -338,7 +338,7 @@ class SequenceManager
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
             }
-            $aPatFreq = $this->patFreq($sPattern, $sOptions);
+            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
             $iLastPos = -1 * $iCutPos;
             $iCtr = 0;
             $iRunSumStart = 0;
@@ -382,15 +382,17 @@ class SequenceManager
      * given pattern, and  each value is the frequency count of the substring within the larger string.
      * Return value example: ( "GAATTC" => 3, "ATAT" => 4, ... )
      * @param   string      $sPattern     The pattern to search for and tally.
+     * @param   string      $sSequence    Sequence
      * @param   string      $sOptions     If set to "I", pattern-matching and tallying will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
      * @return  array                     The function returns an array of the form:
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sOptions = "I")
+    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I")
     {
-        $sMatch = $this->findpattern($sPattern, $sOptions);
+        dump($sSequence);
+        $sMatch = $this->findpattern($sPattern, $sSequence, $sOptions);
         return array_count_values($sMatch[0]);
     }
 
@@ -406,7 +408,7 @@ class SequenceManager
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sSequence, string $sOptions = "I") : array
+    public function findPattern(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
     {
         try {
             if (strtoupper($sOptions) == "I") {

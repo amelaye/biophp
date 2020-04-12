@@ -162,7 +162,6 @@ class SequenceManagerTest extends TestCase
             3 => 348,
             4 => 459,
             5 => 464,
-            5 => 464,
             6 => 682,
             7 => 911,
             8 => 1042,

@@ -136,13 +136,14 @@ interface SequenceInterface
      * given pattern, and  each value is the frequency count of the substring within the larger string.
      * Return value example: ( "GAATTC" => 3, "ATAT" => 4, ... )
      * @param   string      $sPattern     The pattern to search for and tally.
+     * @param   string      $sSequence    Sequence
      * @param   string      $sOptions     If set to "I", pattern-matching and tallying will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
      * @return  array                     The function returns an array of the form:
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sOptions = "I") : array;
+    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I") : array;
 
     /**
      * Returns a one-dimensional array enumerating each occurrence or instance of a given
