@@ -391,7 +391,6 @@ class SequenceManager
      */
     public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I")
     {
-        dump($sSequence);
         $sMatch = $this->findpattern($sPattern, $sSequence, $sOptions);
         return array_count_values($sMatch[0]);
     }
@@ -569,7 +568,7 @@ class SequenceManager
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);
             if ($sAminoLetter != "") {
-                if(isset($this->aChemicalGroups[$sAminoLetter])) {
+                if(isset(self::CHEMICAL_GROUPS[$sAminoLetter])) {
                     $sChemgrpSeq .= self::CHEMICAL_GROUPS[$sAminoLetter];
                 } elseif (substr_count("GAVLI", $sAminoLetter) == 1) {
                     $sChemgrpSeq .= "L";

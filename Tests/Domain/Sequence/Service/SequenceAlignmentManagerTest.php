@@ -36,19 +36,19 @@ class SequenceAlignmentManagerTest extends TestCase
             ->getMock();
 
         $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+            //->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
         $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+            //->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
         $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+            //->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
         $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));

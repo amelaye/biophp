@@ -534,7 +534,7 @@ class SequenceBuilder implements SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null)
+    public function findPalindrome(string $sSequence = null, int $iSeqLen = null, int $iPalLen = null)
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();

@@ -6,7 +6,6 @@ namespace Tests\AppBundle\Service;
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\DTO\AminoDTO;
-use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;
 use Amelaye\BioPHP\Domain\Sequence\Service\ProteinManager;
 use PHPUnit\Framework\TestCase;
