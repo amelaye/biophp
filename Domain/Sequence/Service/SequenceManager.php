@@ -103,9 +103,9 @@ class SequenceManager
             $sComplement = "";
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = NucleotidApiAdapter::GetDNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = NucleotidApiAdapter::GetRNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
             }
 
             $iSeqLength = strlen($sSequence);
@@ -214,7 +214,6 @@ class SequenceManager
 
             $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
             $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
-
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
 
@@ -256,7 +255,7 @@ class SequenceManager
     }
 
     /**
-     * Creates a new sequence object with a sequence that is a substring of another.
+     * Creates a new sequence with a sequence that is a substring of another.
      * @param   int         $iStart         The position in the original sequence from which we will begin extracting
      * the subsequence; the position is expressed as a zero-based index.
      * @param   int         $iCount         The number of "letters" to include in the subsequence, starting from the
@@ -722,7 +721,7 @@ class SequenceManager
         $sHalf2 = halfstr($sSequence, 1);
         if ($sHalf1 == GeneticsFunctions::createInversion(
             $sHalf2,
-            NucleotidApiAdapter::GetDNAComplement($this->nucleotids))
+            $this->nucleotidApi::GetDNAComplement($this->nucleotids))
         ) {
             return true;
         } else {

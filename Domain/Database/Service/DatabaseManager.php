@@ -54,7 +54,6 @@ class DatabaseManager implements DatabaseInterface
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
      * @param       string          $sSeqId        The id of the seq obj.
-     * @param       string          $sDataPath     The path to the data file.
      * @return      ParseSwissprotManager | ParseGenbankManager | bool
      * @throws      \Exception
      */

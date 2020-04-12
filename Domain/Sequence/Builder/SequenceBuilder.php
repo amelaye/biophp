@@ -314,7 +314,7 @@ class SequenceBuilder implements SequenceInterface
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
-        if($sSequence == null) {
+        if($sSequence === null) {
             throw new \InvalidArgumentException("Cannot load symFreq() method, needs all the arguments.");
         }
 
