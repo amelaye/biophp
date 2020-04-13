@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\API\DTO;
 
-use AppBundle\Api\DTO\NucleotidDTO;
+use Amelaye\BioPHP\Api\DTO\NucleotidDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class NucleotidDTOTest extends WebTestCase

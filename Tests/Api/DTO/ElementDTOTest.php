@@ -2,7 +2,7 @@
 
 
 namespace Tests\AppBundle\API\DTO;
-use AppBundle\Api\DTO\ElementDTO;
+use Amelaye\BioPHP\Api\DTO\ElementDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 

@@ -56,14 +56,14 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                 'mappings' => [
                     'Amelaye\BioPHP\Domain\Database\Entity' => [
                         'type'      => 'annotation',
-                        'dir'       => '%kernel.project_dir%/lib/BioPHPBundle/src/Domain/Database/Entity',
+                        'dir'       => '%kernel.project_dir%/vendor/amelaye/biophp/Domain/Database/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Database\Entity',
                         'alias'     => 'BioPHPDb',
                     ],
                     'Amelaye\BioPHP\Domain\Sequence\Entity' => [
                         'type'      => 'annotation',
-                        'dir'       => '%kernel.project_dir%/lib/BioPHPBundle/src/Domain/Sequence/Entity',
+                        'dir'       => '%kernel.project_dir%/vendor/amelaye/biophp/Domain/Sequence/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Sequence\Entity',
                         'alias'     => 'BioPHPSeq',
@@ -76,12 +76,6 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
             'profiler' => '%kernel.debug%',
             'clients' => [
                 'bioapi' => ['config' => ['base_uri' => 'http://api.amelayes-biophp.net']]
-            ]
-        ]);
-
-        $container->loadFromExtension('jms_serializer', [
-            'visitors' => [
-                'xml' => ['format_output' => '%kernel.debug%']
             ]
         ]);
     }

@@ -4,9 +4,10 @@
 namespace Tests\AppBundle\Service;
 
 
-use AppBundle\Api\DTO\AminoDTO;
-use AppBundle\Entity\Protein;
-use AppBundle\Service\ProteinManager;
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\DTO\AminoDTO;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;
+use Amelaye\BioPHP\Domain\Sequence\Service\ProteinManager;
 use PHPUnit\Framework\TestCase;
 
 class ProteinManagerTest extends TestCase
@@ -387,12 +388,15 @@ class ProteinManagerTest extends TestCase
         $amino->setWeight2(0);
         $aAminosObjects[] = $amino;
 
+        $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->getMock();
 
-        $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
+       /* $this->apiAminoMock = $this->getMock('AppBundle\Api\AminoApi')
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getAminos'])
-            ->getMock();
-        $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
+            ->getMock();*/
+       // $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
     }
 
     public function testSeqlen()

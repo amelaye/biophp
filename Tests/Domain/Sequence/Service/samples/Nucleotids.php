@@ -1,7 +1,7 @@
 <?php
 namespace Tests\AppBundle\Service;
 
-use AppBundle\Api\DTO\NucleotidDTO;
+use Amelaye\BioPHP\Api\DTO\NucleotidDTO;
 
 $aNucleoObjects = [];
 $nucleotid = new NucleotidDTO();

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Tests\AppBundle\API;
+namespace Tests\API;
 
 
-use AppBundle\Api\AminoApi;
+use Amelaye\BioPHP\Api\AminoApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use GuzzleHttp;
 

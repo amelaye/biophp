@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\API\DTO;
 
-use AppBundle\Api\DTO\VendorLinkDTO;
+use Amelaye\BioPHP\Api\DTO\VendorLinkDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class VendorLinkDTOTest extends WebTestCase

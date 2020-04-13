@@ -1,6 +1,6 @@
 <?php
 
-use AppBundle\Api\DTO\PKDTO;
+use Amelaye\BioPHP\Api\DTO\PKDTO;
 
 $aPKObjects = [];
 $pkValue = new PKDTO();

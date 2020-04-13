@@ -4,8 +4,8 @@
 namespace Tests\AppBundle\Service;
 
 
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;
 
 class SequenceManagerTest extends TestCase
@@ -34,20 +34,20 @@ class SequenceManagerTest extends TestCase
 
         require 'samples/Elements.php';
 
-        $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+        $this->apiAminoMock = $this->getMockBuilder('Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter')
+            ->disableOriginalConstructor()
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
         $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->disableOriginalConstructor()
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
         $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
-            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->disableOriginalConstructor()
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
         $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));
@@ -161,7 +161,6 @@ class SequenceManagerTest extends TestCase
             2 => 312,
             3 => 348,
             4 => 459,
-            5 => 464,
             5 => 464,
             6 => 682,
             7 => 911,

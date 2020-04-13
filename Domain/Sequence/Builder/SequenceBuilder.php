@@ -265,15 +265,24 @@ class SequenceBuilder implements SequenceInterface
      * given pattern, and  each value is the frequency count of the substring within the larger string.
      * Return value example: ( "GAATTC" => 3, "ATAT" => 4, ... )
      * @param   string      $sPattern     The pattern to search for and tally.
+     * @param   string      $sSequence    Sequence
      * @param   string      $sOptions     If set to "I", pattern-matching and tallying will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
      * @return  array                     The function returns an array of the form:
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sOptions = "I") : array
+    public function patFreq(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
     {
-        return $this->sequenceManager->patFreq($sPattern, $sOptions);
+        if($sSequence == null) {
+            $sSequence = $this->sequence->getSequence();
+        }
+
+        if($sSequence == null) {
+            throw new \InvalidArgumentException("Cannot load patFreq() method, needs all the arguments.");
+        }
+
+        return $this->sequenceManager->patFreq($sPattern, $sSequence, $sOptions);
     }
 
     /**
@@ -314,7 +323,7 @@ class SequenceBuilder implements SequenceInterface
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
-        if($sSequence == null) {
+        if($sSequence === null) {
             throw new \InvalidArgumentException("Cannot load symFreq() method, needs all the arguments.");
         }
 
@@ -525,7 +534,7 @@ class SequenceBuilder implements SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null)
+    public function findPalindrome(string $sSequence = null, int $iSeqLen = null, int $iPalLen = null)
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();

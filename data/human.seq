@@ -1,0 +1,265 @@
+LOCUS       NM_031438               3488 bp    mRNA    linear   PRI 29-DEC-2018
+DEFINITION  Homo sapiens nudix hydrolase 12 (NUDT12), transcript variant 1,
+            mRNA.
+ACCESSION   NM_031438
+VERSION     NM_031438.4
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 3488)
+  AUTHORS   Sahni N, Yi S, Taipale M, Fuxman Bass JI, Coulombe-Huntington J.
+  TITLE     Widespread macromolecular interaction perturbations in human
+            genetic disorders
+  JOURNAL   Cell 161 (3), 647-660 (2015)
+   PUBMED   25910212
+REFERENCE   2  (bases 1 to 3488)
+  AUTHORS   Lopez S, Buil A, Souto JC, Casademont J, Martinez-Perez A, Almasy L
+            and Soria JM.
+  TITLE     A genome-wide association study in the genetic analysis of
+            idiopathic thrombophilia project suggests sex-specific regulation
+            of mitochondrial DNA levels
+  JOURNAL   Mitochondrion 18, 34-40 (2014)
+   PUBMED   25240745
+REFERENCE   3  (bases 1 to 3488)
+  AUTHORS   Xie T, Deng L, Mei P, Zhou Y, Wang B, Wei Y, Zhang
+            X and Xu R.
+  TITLE     Genome-wide association study combining pathway analysis for
+            typical sporadic amyotrophic lateral sclerosis in Chinese Han
+            populations
+  JOURNAL   Neurobiol. Aging 35 (7), 1778 (2014)
+   PUBMED   24529757
+REFERENCE   4  (bases 1 to 3488)
+  AUTHORS   Del-Aguila JL, Beitelshees AL, Cooper-Dehoff RM.
+  TITLE     Genome-wide association analyses suggest NELL1 influences adverse
+            metabolic response to HCTZ in African Americans
+  JOURNAL   Pharmacogenomics J. 14 (1), 35-40 (2014)
+   PUBMED   23400010
+REFERENCE   5  (bases 1 to 3488)
+  AUTHORS   Hek K, Demirkan A, Teumer A, Cornelis MC,
+            Amin N.
+  TITLE     A genome-wide association study of depressive symptoms
+  JOURNAL   Biol. Psychiatry 73 (7), 667-678 (2013)
+   PUBMED   23290196
+REFERENCE   6  (bases 1 to 3488)
+  AUTHORS   Siedlinski M,Crapo JD and Silverman EK.
+  CONSRTM   COPDGene Investigators; ECLIPSE Investigators
+  TITLE     Genome-wide association study of smoking behaviours in patients
+            with COPD
+  JOURNAL   Thorax 66 (10), 894-902 (2011)
+   PUBMED   21685187
+REFERENCE   7  (bases 1 to 3488)
+  AUTHORS   Wang AG, Yoon SY, Oh JH, Jeon YJ, Kim M.
+  TITLE     Identification of intrahepatic cholangiocarcinoma related genes by
+            comparison with normal liver tissues using expressed sequence tags
+  JOURNAL   Biochem. Biophys. Res. Commun. 345 (3), 1022-1032 (2006)
+   PUBMED   16712791
+REFERENCE   8  (bases 1 to 3488)
+  AUTHORS   Abdelraheim SR, Spiller DG and McLennan AG.
+  TITLE     Mammalian NADH diphosphatases of the Nudix family: cloning and
+            characterization of the human peroxisomal NUDT12 protein
+  JOURNAL   Biochem. J. 374 (Pt 2), 329-335 (2003)
+   PUBMED   12790796
+  REMARK    GeneRIF: NUDT12 may act to regulate the concentration of
+            peroxisomal nicotinamide nucleotide cofactors required for
+            oxidative metabolism in this organelle.
+REFERENCE   9  (bases 1 to 3488)
+  AUTHORS   Simpson JC, Wellenreuther R, Poustka A, Pepperkok R and Wiemann S.
+  TITLE     Systematic subcellular localization of novel proteins identified by
+            large-scale cDNA sequencing
+  JOURNAL   EMBO Rep. 1 (3), 287-292 (2000)
+   PUBMED   11256614
+COMMENT     VALIDATED REFSEQ: This record has undergone validation or
+            preliminary review. The reference sequence was derived from
+            DB029218.1, BC041099.1, AK304010.1 and BC026748.1.
+            On Nov 24, 2018 this sequence version replaced NM_031438.3.
+
+            Summary: Nucleotides are involved in numerous biochemical reactions
+            and pathways within the cell as substrates, cofactors, and
+            effectors. Nudix hydrolases, such as NUDT12, regulate the
+            concentrations of individual nucleotides and of nucleotide ratios
+            in response to changing circumstances (Abdelraheim et al., 2003
+            [PubMed 12790796]).[supplied by OMIM, Mar 2008].
+
+            Transcript Variant: This variant (1) represents the longer
+            transcript and encodes the longer isoform (1).
+
+            ##Evidence-Data-START##
+            Transcript exon combination :: BC041099.1, SRR1660803.19681.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA2145245, SAMEA2150585
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+            COMPLETENESS: full length.
+PRIMARY     REFSEQ_SPAN         PRIMARY_IDENTIFIER PRIMARY_SPAN        COMP
+            1-4                 DB029218.1         14-17
+            5-344               BC041099.1         1-340
+            345-993             AK304010.1         291-939
+            994-3488            BC026748.1         28-2522
+FEATURES             Location/Qualifiers
+     source          1..3488
+                     /organism="Homo sapiens"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9606"
+                     /chromosome="5"
+                     /map="5q21.2"
+     gene            1..3488
+                     /gene="NUDT12"
+                     /note="nudix hydrolase 12"
+                     /db_xref="GeneID:83594"
+                     /db_xref="HGNC:HGNC:18826"
+                     /db_xref="MIM:609232"
+     exon            1..87
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     exon            88..299
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     CDS             94..1482
+                     /gene="NUDT12"
+                     /EC_number="3.6.1.22"
+                     /note="isoform 1 is encoded by transcript variant 1;
+                     nucleoside diphosphate linked moiety X-type motif 12;
+                     peroxisomal NADH pyrophosphatase NUDT12; nudix motif 12;
+                     nucleoside diphosphate-linked moiety X motif 12; nudix
+                     (nucleoside diphosphate linked moiety X)-type motif 12"
+                     /codon_start=1
+                     /product="peroxisomal NADH pyrophosphatase NUDT12 isoform
+                     1"
+                     /protein_id="NP_113626.1"
+                     /db_xref="CCDS:CCDS4096.1"
+                     /db_xref="GeneID:83594"
+                     /db_xref="HGNC:HGNC:18826"
+                     /db_xref="MIM:609232"
+                     /translation="MSSVKRSLKQEIVTQFHCSAAEGDIAKLTGILSHSPSLLNETSE
+                     NGWTALMYAARNGHPEIVQFLLEKGCDRSIVNKSRQTALDIAVFWGYKHIANLLATAK
+                     GGKKPWFLTNEVEECENYFSKTLLDRKSEKRNNSDWLLAKESHPATVFILFSDLNPLV
+                     TLGGNKESFQQPEVRLCQLNYTDIKDYLAQPEKITLIFLGVELEIKDKLLNYAGEVPR
+                     EEEDGLVAWFALGIDPIAAEEFKQRHENCYFLHPPMPALLQLKEKEAGVVAQARSVLA
+                     WHSRYKFCPTCGNATKIEEGGYKRLCLKEDCPSLNGVHNTSYPRVDPVVIMQVIHPDG
+                     TKCLLGRQKRFPPGMFTCLAGFIEPGETIEDAVRREVEEESGVKVGHVQYVACQPWPM
+                     PSSLMIGCLALAVSTEIKVDKNEIEDARWFTREQVLDVLTKGKQQAFFVPPSRAIAHQ
+                     LIKHWIRINPNL"
+     misc_feature    124..213
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q9BQG2.1);
+                     Region: ANK 1"
+     misc_feature    226..315
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q9BQG2.1);
+                     Region: ANK 2"
+     misc_feature    325..387
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q9BQG2.1);
+                     Region: ANK 3"
+     misc_feature    646..648
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1};
+                     propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); modified
+                     site"
+     misc_feature    967..969
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1};
+                     propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); modified
+                     site"
+     misc_feature    1156..1221
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q9BQG2.1);
+                     Region: Nudix box"
+     misc_feature    1471..1479
+                     /gene="NUDT12"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="propagated from UniProtKB/Swiss-Prot (Q9BQG2.1);
+                     Region: Microbody targeting signal. {ECO:0000305}"
+     exon            300..889
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     exon            890..1057
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     exon            1058..1171
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     exon            1172..1371
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+     exon            1372..3488
+                     /gene="NUDT12"
+                     /inference="alignment:Splign:2.1.0"
+ORIGIN
+        1 aagactgcat ccggctccag gaaaagcgag tgggatatcc caatctttgg actgcatcct
+       61 ggttgcctct actgtggtca cctttgggaa gaaatgtctt ctgtaaaaag aagtctgaag
+      121 caagaaatag ttactcagtt tcactgttca gctgctgaag gagatattgc caagttaaca
+      181 ggaatactca gtcattctcc atctcttctc aatgaaactt ctgaaaatgg ctggactgct
+      241 ttaatgtatg cggcaaggaa tgggcaccca gagatagtcc aatttctgct tgagaaaggg
+      301 tgtgacagat caattgtcaa taaatcaagg cagactgcac tggacattgc tgtattttgg
+      361 ggttataagc atatagctaa tttactagct actgctaaag gtgggaagaa gccttggttc
+      421 ctaacgaatg aagtggaaga atgtgaaaat tattttagca aaacactact ggaccggaaa
+      481 agtgaaaaga gaaataattc tgactggctg ctagctaaag aaagccatcc agccacagtt
+      541 tttattcttt tctcagattt aaatcccttg gttactctag gtggcaataa agaaagtttc
+      601 caacagccag aagttaggct ttgtcagctg aactacacag atataaagga ttatttggcc
+      661 cagcctgaga agatcacctt gatttttctt ggagtagaac ttgaaataaa agacaaacta
+      721 cttaattatg ctggtgaagt cccgagagag gaggaagatg gattggttgc ctggtttgct
+      781 ctaggtatag atcctattgc tgctgaagaa ttcaagcaaa gacatgaaaa ttgttacttt
+      841 cttcatcctc ctatgccagc ccttctgcaa ttgaaagaaa aagaagctgg ggttgtagct
+      901 caagcaagat ctgttcttgc ctggcacagt cgatacaagt tttgcccaac ctgtggaaat
+      961 gcaactaaaa ttgaagaagg tggctataag agattatgtt taaaagaaga ctgtcctagt
+     1021 ctcaatggcg tccataatac ctcataccca agagttgatc cagtagtaat catgcaagtt
+     1081 attcatccag atgggaccaa atgcctttta ggcaggcaga aaagatttcc cccaggcatg
+     1141 tttacttgcc ttgctggatt tattgagcct ggagagacaa tagaagatgc tgttaggaga
+     1201 gaagtagaag aggaaagtgg agtcaaagtt ggccatgttc agtatgttgc ttgtcaacca
+     1261 tggccaatgc cttcctcctt aatgattggt tgcttagctc tagcagtgtc tacagaaatt
+     1321 aaagttgaca agaatgaaat agaggatgcc cgctggttca ctagagaaca ggtcctggat
+     1381 gttctgacca aagggaagca gcaggcattc tttgtgccac caagccgagc tattgcacat
+     1441 caattaatca aacactggat tagaataaat cctaatctct aaatctaaga actaagcttt
+     1501 gagtattatt taataatttc taataacact cattcctcaa gtgatattag agattattca
+     1561 gtactcttga gagtgtcaca acacaaaata cgatgttggg ttttcgaaat attttcaaag
+     1621 tgttctgtct taatcacaaa ttcatatttt tacacatttt tacaatattg cctcagatta
+     1681 tgttaaattt gggtcagtct tctctgaact ttttctctct tggtttcttt tcttccttca
+     1741 cagttttatc tcacaaaacc atttttctaa taagagacat catgttggaa agatgttcta
+     1801 gaaatgtgca taaatttcag tgcctcttgt aagcattaaa ctgatgatga agaaagttcc
+     1861 tgatttgaga aatgaatcaa agtaatttta atgaattttt agcttgtatt agcttgagtt
+     1921 agctggcatt gattttttag tccttttgtt acctttaagt tgtcaatata tggtttttgt
+     1981 tcatctcccc attgtagtcc cacttgctct ttcctggggg ttccattgtt ctagcagtgg
+     2041 aggtgttata gtgtcgccac tcgtctaatt tgaccagtgt taagaatttt ctaatttaat
+     2101 aatttaatag tgatctcaat accacaccct catggaagga gaaaagcata ctattatatc
+     2161 tgggacctct cttttagacc taaaattaat taacatatct acttatatgt tacttatacc
+     2221 taaagctgtt attaagacaa accaagattc tctgcttttg cactgaaatt aaacttgaaa
+     2281 ggaattctcc tcaaaggtcg gatattaaat aagtcccagg cagatttaca tatttaattt
+     2341 aaaacattgg ctttatttca ttttgtgatg agtgatgtat ctgtgttaac aaaaaattgt
+     2401 ataatcatta ccaatactat ttattatgct caaatatatc ttggctttga ccttatttca
+     2461 acacattcta agaagccttg acaaagtaag tatattttag agctgaatca gtaagattct
+     2521 agagaaagca aaacatagta gttcacaatt ttgcaacata gaaagtcaca ttttgaaagg
+     2581 ctattttgaa attgatttaa tagctattat agtttatgaa tatcaaaatt tgtataattt
+     2641 gcatctttac taatgtatgc tagagctaca agagacctta aggataatat atgaaattag
+     2701 ctttccttat tttatagata aggaaaaaga aattgtgaaa ggtgaattta cctaattagt
+     2761 gaaagttaca taactaatta caacagtctg tactatataa tgcagaggac gattctccct
+     2821 gtaaaaggaa ctagaagcta ttactaaaaa tatatataga caaaattaaa agaaggaatg
+     2881 ataagaataa atttaattta ccaaatattg ttaattaaaa ttttagatac ttaacattta
+     2941 tttaacttaa ataaaagata actgtcagat aaaactttat tttactaatg agcagtgatt
+     3001 ttcttaggaa ttgatgaagg cttattggta tcaagaattt aaaccaaatt aaaactgaca
+     3061 gaggacattt agatacataa taaaattcga gctacataag tatatggaaa ataatgtacc
+     3121 ttgattatta tgaaatagag catcttgaaa ttcagtttta ctctaaatgt acttttaata
+     3181 cttgcagatt ctaagattac attgtaaaat tccaggtttt cataatgtta aaataggaaa
+     3241 gtagaatata aagtatcaac aagtgtagtt atacattttg ttttggatat ttaatcctta
+     3301 cttgggaaaa aatcagcatc taggtaaatt attattttaa taacaactct taaattgcca
+     3361 acctctgaga ggtgaaaagc tatgtaaata gaaggaatgg ccagttcaaa agaatagtag
+     3421 atgtgatagt gccgtgaatg tattctactg gaaatgaatg taataataca ttaaattttt
+     3481 aaaatcta
+//

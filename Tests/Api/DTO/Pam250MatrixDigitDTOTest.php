@@ -2,7 +2,7 @@
 
 namespace Tests\AppBundle\API\DTO;
 
-use AppBundle\Api\DTO\Pam250MatrixDigitDTO;
+use Amelaye\BioPHP\Api\DTO\Pam250MatrixDigitDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class Pam250MatrixDigitDTOTest extends WebTestCase

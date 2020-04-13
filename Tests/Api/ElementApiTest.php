@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle;
 
-use AppBundle\Api\ElementApi;
+use Amelaye\BioPHP\Api\ElementApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use GuzzleHttp;
 

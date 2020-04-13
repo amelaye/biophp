@@ -120,7 +120,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     public function parseClustal()
     {
         try {
-            $fLines        = file(__DIR__ . "/../../../web/" . $this->sFilename);
+            $fLines        = file($this->sFilename);
             $iLineCount    = $iLastLength = $iLength = $iGapCount = 0;
             $aNameList     = $aSequences = [];
             $aLines        = new \ArrayIterator($fLines);
@@ -183,7 +183,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     public function parseFasta()
     {
         try {
-            $fLines      = file(__DIR__ . "/../../../web/" .$this->sFilename);
+            $fLines      = file($this->sFilename);
             $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
             $bSameLength = true;
             $sSequence   = "";

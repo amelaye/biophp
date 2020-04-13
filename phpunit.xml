@@ -10,8 +10,7 @@
 
     <php>
         <ini name="error_reporting" value="-1" />
-        <server name="KERNEL_CLASS" value="AppKernel" />
-        <includePath>web</includePath>
+        <includePath>.</includePath>
 
         <!-- ###+ symfony/framework-bundle ### -->
         <env name="APP_ENV" value="dev"/>
@@ -31,7 +30,7 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+            <directory>Tests</directory>
         </testsuite>
     </testsuites>
 
@@ -45,10 +44,7 @@
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/*Bundle/Resources</directory>
-                <directory>src/*Bundle/Legacy</directory>
-                <directory>src/*/*Bundle/Resources</directory>
-                <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>Legacy</directory>
             </exclude>
         </whitelist>
     </filter>

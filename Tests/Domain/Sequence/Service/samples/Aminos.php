@@ -1,6 +1,6 @@
 <?php
 namespace Tests\AppBundle\Service;
-use AppBundle\Api\DTO\AminoDTO;
+use Amelaye\BioPHP\Api\DTO\AminoDTO;
 
 $aAminosObjects = [];
 $amino = new AminoDTO();

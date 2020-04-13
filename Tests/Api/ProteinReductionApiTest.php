@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\API;
 
 use GuzzleHttp;
-use AppBundle\Api\ProteinReductionApi;
+use Amelaye\BioPHP\Api\ProteinReductionApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ProteinReductionApiTest extends WebTestCase

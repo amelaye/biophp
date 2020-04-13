@@ -87,7 +87,7 @@ class SequenceManager
         $this->aminos           = $aminoApi->getAminos();
         $this->nucleotidApi     = $nucleotidApi;
         $this->nucleotids       = $nucleotidApi->getNucleotids();
-        $this->water            = $elementApi->getElement(7);
+        $this->water            = $elementApi->getElement(6);
     }
 
     /**
@@ -103,9 +103,9 @@ class SequenceManager
             $sComplement = "";
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = NucleotidApiAdapter::GetDNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
             } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = NucleotidApiAdapter::GetRNAComplement($this->nucleotids);
+                $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
             }
 
             $iSeqLength = strlen($sSequence);
@@ -214,7 +214,6 @@ class SequenceManager
 
             $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
             $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
-
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
             $na_wts = $aAllNaWts[$sMolType];
 
@@ -256,7 +255,7 @@ class SequenceManager
     }
 
     /**
-     * Creates a new sequence object with a sequence that is a substring of another.
+     * Creates a new sequence with a sequence that is a substring of another.
      * @param   int         $iStart         The position in the original sequence from which we will begin extracting
      * the subsequence; the position is expressed as a zero-based index.
      * @param   int         $iCount         The number of "letters" to include in the subsequence, starting from the
@@ -290,7 +289,7 @@ class SequenceManager
     {
         try {
             $aOuter = [];
-            $aPatFreq = $this->patFreq($sPattern, $sOptions);
+            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
 
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
@@ -339,7 +338,7 @@ class SequenceManager
             if (strtoupper($sOptions) == "I") {
                 $sSequence = strtoupper($sSequence);
             }
-            $aPatFreq = $this->patFreq($sPattern, $sOptions);
+            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
             $iLastPos = -1 * $iCutPos;
             $iCtr = 0;
             $iRunSumStart = 0;
@@ -383,15 +382,16 @@ class SequenceManager
      * given pattern, and  each value is the frequency count of the substring within the larger string.
      * Return value example: ( "GAATTC" => 3, "ATAT" => 4, ... )
      * @param   string      $sPattern     The pattern to search for and tally.
+     * @param   string      $sSequence    Sequence
      * @param   string      $sOptions     If set to "I", pattern-matching and tallying will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
      * @return  array                     The function returns an array of the form:
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sOptions = "I")
+    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I")
     {
-        $sMatch = $this->findpattern($sPattern, $sOptions);
+        $sMatch = $this->findpattern($sPattern, $sSequence, $sOptions);
         return array_count_values($sMatch[0]);
     }
 
@@ -407,7 +407,7 @@ class SequenceManager
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sSequence, string $sOptions = "I") : array
+    public function findPattern(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
     {
         try {
             if (strtoupper($sOptions) == "I") {
@@ -568,7 +568,7 @@ class SequenceManager
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);
             if ($sAminoLetter != "") {
-                if(isset($this->aChemicalGroups[$sAminoLetter])) {
+                if(isset(self::CHEMICAL_GROUPS[$sAminoLetter])) {
                     $sChemgrpSeq .= self::CHEMICAL_GROUPS[$sAminoLetter];
                 } elseif (substr_count("GAVLI", $sAminoLetter) == 1) {
                     $sChemgrpSeq .= "L";
@@ -722,7 +722,7 @@ class SequenceManager
         $sHalf2 = halfstr($sSequence, 1);
         if ($sHalf1 == GeneticsFunctions::createInversion(
             $sHalf2,
-            NucleotidApiAdapter::GetDNAComplement($this->nucleotids))
+            $this->nucleotidApi::GetDNAComplement($this->nucleotids))
         ) {
             return true;
         } else {

@@ -3,7 +3,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Enzyme;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EnzymeTest extends WebTestCase

@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\Entity;
 
 
-use AppBundle\Entity\Sequencing\GbSequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GbSequenceTest extends WebTestCase

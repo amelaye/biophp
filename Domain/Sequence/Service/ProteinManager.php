@@ -26,7 +26,12 @@ class ProteinManager implements ProteinInterface
     /**
      * @var array
      */
-    private $wts;
+    private $aminos;
+
+    /**
+     * @var AminoApiAdapter
+     */
+    private $aminoApi;
 
     /**
      * Constructor
@@ -34,7 +39,8 @@ class ProteinManager implements ProteinInterface
      */
     public function __construct(AminoApiAdapter $aminoApi)
     {
-        $this->wts      = $aminoApi::GetAminoweights($aminoApi->getAminos());
+        $this->aminoApi = $aminoApi;
+        $this->aminos   = $aminoApi->getAminos();
     }
 
     /**
@@ -78,8 +84,9 @@ class ProteinManager implements ProteinInterface
 
         for($i = 0; $i < $iAminoLength; $i++) {
             $amino = substr($this->protein->getSequence(), $i, 1);
-            $aMolecularWeight[$iLowerLimit] += $this->wts[$amino][$iLowerLimit];
-            $aMolecularWeight[$iUpperLimit] += $this->wts[$amino][$iUpperLimit];
+            $wts = $this->aminoApi::GetAminoweights($this->aminos);
+            $aMolecularWeight[$iLowerLimit] += $wts[$amino][$iLowerLimit];
+            $aMolecularWeight[$iLowerLimit] += $wts[$amino][$iUpperLimit];
         }
         $fMwtWater = 18.015;
         $aMolecularWeight[$iLowerLimit] = $aMolecularWeight[$iLowerLimit] - (($this->seqlen() - 1) * $fMwtWater);

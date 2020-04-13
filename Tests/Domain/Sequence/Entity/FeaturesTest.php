@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\Entity;
 
 
-use AppBundle\Entity\Sequencing\Feature;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FeaturesTest extends WebTestCase

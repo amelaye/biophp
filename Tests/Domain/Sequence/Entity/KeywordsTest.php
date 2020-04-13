@@ -2,7 +2,7 @@
 
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Entity\Sequencing\Keyword;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class KeywordsTest extends WebTestCase

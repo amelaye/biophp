@@ -4,7 +4,7 @@
 namespace Tests\AppBundle\Entity;
 
 
-use AppBundle\Entity\Sequencing\SpDatabank;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SpDatabank;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SpDataBankTest extends WebTestCase

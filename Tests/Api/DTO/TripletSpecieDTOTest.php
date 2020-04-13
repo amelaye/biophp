@@ -2,7 +2,7 @@
 
 
 namespace Tests\AppBundle\API\DTO;
-use AppBundle\Api\DTO\TripletSpecieDTO;
+use Amelaye\BioPHP\Api\DTO\TripletSpecieDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 
