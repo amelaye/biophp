@@ -42,7 +42,7 @@
 
     <filter>
         <whitelist>
-            <directory>src</directory>
+            <directory>.</directory>
             <exclude>
                 <directory>Legacy</directory>
             </exclude>

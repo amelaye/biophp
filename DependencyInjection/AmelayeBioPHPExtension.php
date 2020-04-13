@@ -56,14 +56,14 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                 'mappings' => [
                     'Amelaye\BioPHP\Domain\Database\Entity' => [
                         'type'      => 'annotation',
-                        'dir'       => '%kernel.project_dir%/vendor/amelaye/biophp/Domain/Database/Entity',
+                        'dir'       => '__DIR__/Domain/Database/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Database\Entity',
                         'alias'     => 'BioPHPDb',
                     ],
                     'Amelaye\BioPHP\Domain\Sequence\Entity' => [
                         'type'      => 'annotation',
-                        'dir'       => '%kernel.project_dir%/vendor/amelaye/biophp/Domain/Sequence/Entity',
+                        'dir'       => '__DIR__/Domain/Sequence/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Sequence\Entity',
                         'alias'     => 'BioPHPSeq',

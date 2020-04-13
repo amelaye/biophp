@@ -7,7 +7,7 @@
         <target>public/docs/api</target>
     </transformer>
     <files>
-        <directory>./src</directory>
+        <directory>./</directory>
         <ignore>*/Legacy/*</ignore>
     </files>
 </phpdoc>
