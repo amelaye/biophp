@@ -11,6 +11,7 @@ use Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeInterface;
+use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
@@ -45,6 +46,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     {
         $aEnzymes           = $typeIIEndonucleaseApi->getTypeIIEndonucleases();
         $this->aRestEnzimDB = $typeIIEndonucleaseApi::GetTypeIIbEndonucleasesCleavagePosUpper($aEnzymes);
+        $this->enzyme       = $oEnzyme;
 
     }
 
@@ -66,9 +68,9 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
 
     /**
      * Sets a sequence object
-     * @param SequenceManager $sequenceManager
+     * @param SequenceInterface $sequenceManager
      */
-    public function setSequenceManager(SequenceManager $sequenceManager) {
+    public function setSequenceManager(SequenceInterface $sequenceManager) {
         $this->sequenceManager = $sequenceManager;
     }
 
@@ -82,9 +84,8 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   string      $sCutpos
      * @param   string      $sMake
      * @throws  \Exception
-     * @todo : penser à faire une factory
      */
-    public function parseEnzyme(string $sName, string $sPattern, string $sCutpos, string $sMake = "custom")
+    public function parseEnzyme(string $sName, string $sPattern = null, string $sCutpos = null, string $sMake = "custom")
     {
         if ($sMake == "custom") {
             $this->enzyme->setName($sName);
@@ -232,7 +233,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
         // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
+        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), null, "I");
         foreach($aPatPos as $aPos) {
             $this->posTraitment($aFragment, $aPos, $oSequence);
         }

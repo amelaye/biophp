@@ -32,9 +32,9 @@ interface RestrictionEnzymeInterface
 
     /**
      * Sets a sequence object
-     * @param SequenceManager $sequenceManager
+     * @param SequenceInterface $sequenceManager
      */
-    public function setSequenceManager(SequenceManager $sequenceManager);
+    public function setSequenceManager(SequenceInterface $sequenceManager);
 
     /**
      * It creates a new Enzyme object and initializes its properties accordingly.
@@ -48,7 +48,7 @@ interface RestrictionEnzymeInterface
      * @throws  \Exception
      * @todo : penser à faire une factory
      */
-    public function parseEnzyme(string $sName, string $sPattern, string $sCutpos, string $sMake = "custom");
+    public function parseEnzyme(string $sName, string $sPattern = null, string $sCutpos = null, string $sMake = "custom");
 
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
