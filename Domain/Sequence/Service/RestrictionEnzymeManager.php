@@ -218,7 +218,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     {
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
-        $aPos = $this->sequenceManager->patposo($this->enzyme->getPattern(),null,"I", $this->enzyme->getCutpos());
+        $aPos = $this->sequenceManager->patposo($this->enzyme->getPattern(),"I", $this->enzyme->getCutpos());
         $this->posTraitment($aFragment, $aPos, $oSequence);
         return $aFragment;
     }
@@ -233,7 +233,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
         // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), null, "I");
+        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
         foreach($aPatPos as $aPos) {
             $this->posTraitment($aFragment, $aPos, $oSequence);
         }

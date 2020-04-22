@@ -217,7 +217,7 @@ class SequenceBuilder implements SequenceInterface
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
+    public function patPos(string $sPattern, string $sOptions = "I", string $sSequence = null) : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -227,7 +227,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("Cannot load patPos() method, needs all the arguments.");
         }
 
-        return $this->sequenceManager->patPos($sPattern, $sSequence, $sOptions);
+        return $this->sequenceManager->patPos($sPattern, $sOptions, $sSequence);
     }
 
     /**
@@ -247,7 +247,7 @@ class SequenceBuilder implements SequenceInterface
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sSequence = null, string $sOptions = "I", int $iCutPos = 1) : array
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, string $sSequence = null) : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -257,7 +257,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("Cannot load patPoso() method, needs all the arguments.");
         }
 
-        return $this->sequenceManager->patPoso($sPattern, $sSequence, $sOptions, $iCutPos);
+        return $this->sequenceManager->patPoso($sPattern, $sOptions, $iCutPos, $sSequence);
     }
 
     /**

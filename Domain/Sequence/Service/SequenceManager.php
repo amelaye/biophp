@@ -285,7 +285,7 @@ class SequenceManager
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos($sPattern, $sSequence = null, $sOptions = "I") : array
+    public function patPos($sPattern, $sOptions = "I", $sSequence = null) : array
     {
         try {
             $aOuter = [];
@@ -331,7 +331,7 @@ class SequenceManager
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sSequence = null, string $sOptions = "I", int $iCutPos = 1)
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, string $sSequence = null)
     {
         try {
             $aAbsPos = [];
@@ -1081,7 +1081,7 @@ class SequenceManager
             $sHeadSeq = substr($sSeqToAnalyse, 0, $iPalLength);
             $sTailSeq = substr($sSeqToAnalyse, $iPalLength);
             $sNeedle = $this->complement("DNA", strrev($sHeadSeq));
-            $aPos = $this->patPoso($sNeedle, $sTailSeq, "I");
+            $aPos = $this->patPoso($sTailSeq, "I", 1, $sNeedle);
             if (count($aPos) == 0) {
                 continue;
             }
