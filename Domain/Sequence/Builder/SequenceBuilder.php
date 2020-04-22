@@ -135,7 +135,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt(string $sSequence = null, string $sMolType = null, int $iNALen = null, $sLimit = "upperlimit") : float
+    public function molwt($sLimit = "upperlimit", string $sSequence = null, string $sMolType = null, int $iNALen = null) : float
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -156,7 +156,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("The sequence needs to be string format !");
         }
 
-        return $this->sequenceManager->molwt($sSequence, $sMolType, $iNALen, $sLimit);
+        return $this->sequenceManager->molwt($sMolType, $sSequence, $sMolType, $iNALen);
     }
 
     /**
@@ -534,7 +534,7 @@ class SequenceBuilder implements SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence = null, int $iSeqLen = null, int $iPalLen = null)
+    public function findPalindrome(string $sSequence = null, int $iSeqLen = 0, int $iPalLen = 0)
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();

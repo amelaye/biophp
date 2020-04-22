@@ -202,7 +202,7 @@ class SequenceManager
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt(string $sSequence, string $sMolType, int $iNALen, string $sLimit) : float
+    public function molwt(string $sLimit, string $sSequence, string $sMolType, int $iNALen) : float
     {
         try {
             $this->cleanSequence($sSequence, $sMolType);
@@ -752,19 +752,19 @@ class SequenceManager
     {
         $aOuter = [];
         // CASE 1) seqlen is not set, pallen is not set. - return FALSE (function error)
-        if ($iPalLen == null && $iSeqLen == null) {
+        if ($iPalLen == 0 && $iSeqLen == 0) {
             return FALSE;
         }
         // CASE 2) seqlen is set, pallen is set.
-        if ($iSeqLen != null && $iPalLen != null) {
+        if ($iSeqLen != 0 && $iPalLen != 0) {
             $aOuter = $this->palindrSeqSetAndPallenSet($sSequence, $iSeqLen, $iPalLen);
         }
         // CASE 3) seqlen is set, pallen is not set.
-        elseif ($iSeqLen != null && $iPalLen == null) {
+        elseif ($iSeqLen != 0 && $iPalLen == 0) {
             $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqLen);
         }
         // CASE 4) seqlen is not set, pallen is set.
-        elseif ($iSeqLen == null && $iPalLen != null) {
+        elseif ($iSeqLen == 0 && $iPalLen != 0) {
             $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLen);
         }
         return $aOuter;
@@ -1049,7 +1049,7 @@ class SequenceManager
             for($k = 0; $k < $iHalfSeq; $k++) {
                 $sLetter1 = substr($sSubSeq, $k, 1);
                 $sLetter2 = substr($sSubSeq, strlen($sSubSeq)-1-$k, 1);
-                if ($sLetter1 == $this->complement("DNA", $sLetter2)) {
+                if ($sLetter1 == $this->complement($sLetter2, "DNA")) {
                     $sPalindrome .= $sLetter1;
                 } else {
                     break;
@@ -1080,8 +1080,8 @@ class SequenceManager
             $sSeqToAnalyse = substr($sSequence, $j);
             $sHeadSeq = substr($sSeqToAnalyse, 0, $iPalLength);
             $sTailSeq = substr($sSeqToAnalyse, $iPalLength);
-            $sNeedle = $this->complement("DNA", strrev($sHeadSeq));
-            $aPos = $this->patPoso($sTailSeq, "I", 1, $sNeedle);
+            $sNeedle = $this->complement(strrev($sHeadSeq), "DNA");
+            $aPos = $this->patPoso($sNeedle, "I", 1, $sTailSeq);
             if (count($aPos) == 0) {
                 continue;
             }

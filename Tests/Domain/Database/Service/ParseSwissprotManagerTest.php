@@ -58,7 +58,7 @@ class ParseSwissprotManagerTest extends TestCase
             ->willReturn($collectionElement);
 
         $databaseManager = new DatabaseManager($mockedEm);
-        $oParseSwisprotManager = $databaseManager->fetch("1375", "./data/");
+        $oParseSwisprotManager = $databaseManager->fetch("1375", "data/");
 
         // Accession
         $aExpectedAccession = [];

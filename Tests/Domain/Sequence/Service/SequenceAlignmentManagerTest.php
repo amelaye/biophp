@@ -1,12 +1,16 @@
 <?php
 
 
-namespace Tests\AppBundle\Service;
+namespace Tests\Domain\Sequence\Service;
 
 
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Service\SequenceAlignmentManager;
-use AppBundle\Service\SequenceManager;
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\ElementApi;
+use Amelaye\BioPHP\Api\NucleotidApi;
+use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceAlignmentManager;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;
 
 class SequenceAlignmentManagerTest extends TestCase
@@ -31,54 +35,31 @@ class SequenceAlignmentManagerTest extends TestCase
          * Mock API
          */
         $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
-        $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $serializerMock = \JMS\Serializer\SerializerBuilder::create()
+            ->build();
 
-        $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
-            //->setConstructorArgs([$clientMock, $serializerMock])
+        $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
-        $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
-            //->setConstructorArgs([$clientMock, $serializerMock])
+        $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
-        $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
-            //->setConstructorArgs([$clientMock, $serializerMock])
+        $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
         $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));
         $this->apiElementsMock->method("getElement")->will($this->returnValue($aElementsObjects[5]));
 
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $this->sequenceManager = $sequenceManager;
-/*
-        $sSequence = "GGCAGATTCCCCCTAGACCCGCCCGCACCATGGTCAGGCATGCCCCTCCTCATCGCTGGGCACAGCCCAGAGGGTATAAACAGTGCTGGAGGCT";
-        $sSequence.= "GGCGGGGCAGGCCAGCTGAGTCCTGAGCAGCAGCCCAGCGCAGCCACCGAGACACCATGAGAGCCCTCACACTCCTCGCCCTATTGGCCCTGGC";
-        $sSequence.= "CGCACTTTGCATCGCTGGCCAGGCAGGTGAGTGCCCCCACCTCCCCTCAGGCCGCATTGCAGTGGGGGCTGAGAGGAGGAAGCACCATGGCCCA";
-        $sSequence.= "CCTCTTCTCACCCCTTTGGCTGGCAGTCCCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAATCCATTTGCCCCAGCTCTGCCCTTGCAGAGGG";
-        $sSequence.= "AGAGGAGGGAAGAGCAAGCTGCCCGAGACGCAGGGGAAGGAGGATGAGGGCCCTGGGGATGAGCTGGGGTGAACCAGGCTCCCTTTCCTTTGCA";
-        $sSequence.= "GGTGCGAAGCCCAGCGGTGCAGAGTCCAGCAAAGGTGCAGGTATGAGGATGGACCTGATGGGTTCCTGGACCCTCCCCTCTCACCCTGGTCCCT";
-        $sSequence.= "CAGTCTCATTCCCCCACTCCTGCCACCTCCTGTCTGGCCATCAGGAAGGCCAGCCTGCTCCCCACCTGATCCTCCCAAACCCAGAGCCACCTGA";
-        $sSequence.= "TGCCTGCCCCTCTGCTCCACAGCCTTTGTGTCCAAGCAGGAGGGCAGCGAGGTAGTGAAGAGACCCAGGCGCTACCTGTATCAATGGCTGGGGT";
-        $sSequence.= "GAGAGAAAAGGCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGG";
-        $sSequence.= "GGTACAGGCAGCCTGCCCTGGTGGGCACCCTGGAGCCCCATGTGTAGGGAGAGGAGGGATGGGCATTTTGCACGGGGGCTGATGCCACCACGTC";
-        $sSequence.= "GGGTGTCTCAGAGCCCCAGTCCCCTACCCGGATCCCCTGGAGCCCAGGAGGGAGGTGTGTGAGCTCAATCCGGACTGTGACGAGTTGGCTGACC";
-        $sSequence.= "ACATCGGCTTTCAGGAGGCCTATCGGCGCTTCTACGGCCCGGTCTAGGGTGTCGCTCTGCTGGCCTGGCCGGCAACCCCAGTTCTGCTCCTCTC";
-        $sSequence.= "CAGGCACCCTTCTTTCCTCTTCCCCTTGCCCTTGCCCTGACCTCCCAGCCCTATGGATGTGGGGTCCCCATCATCCCAGCTGCTCCCAAATAAA";
-        $sSequence.= "CTCCAGAAG";
-
-        $oSequence = new Sequence();
-        $oSequence->setMoltype("DNA");
-        $oSequence->setSequence($sSequence);
-        $oSequence->setSeqlength(1231);
-
-        $this->sequence = $oSequence;
-*/
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $this->sequenceManager = $sequenceBuilder;
     }
 
     public function testSortAlpha()
@@ -131,7 +112,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testFetchClustal()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -151,7 +132,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testFetchFasta()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFilename("./data/fasta-2.txt");
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
 
@@ -214,7 +195,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testMaxiLength()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $iMyLength = $sequenceAlignmentManager->getMaxiLength();
@@ -226,7 +207,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testGapCount()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $iNumberGaps = $sequenceAlignmentManager->getGapCount();
@@ -238,7 +219,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testGetIsFlush()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
 
@@ -249,7 +230,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testChatAtRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -263,7 +244,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSubstrBwRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -280,7 +261,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testColToRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -294,7 +275,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testResToCol()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -308,7 +289,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSubalign()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -331,7 +312,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSelect()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -355,7 +336,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testResVar()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");

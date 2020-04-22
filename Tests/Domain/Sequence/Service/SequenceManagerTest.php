@@ -4,8 +4,12 @@
 namespace Tests\AppBundle\Service;
 
 
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\ElementApi;
+use Amelaye\BioPHP\Api\NucleotidApi;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
 use PHPUnit\Framework\TestCase;
 
 class SequenceManagerTest extends TestCase
@@ -24,9 +28,8 @@ class SequenceManagerTest extends TestCase
          * Mock API
          */
         $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
-        $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $serializerMock = \JMS\Serializer\SerializerBuilder::create()
+            ->build();
 
         require 'samples/Aminos.php';
 
@@ -34,19 +37,19 @@ class SequenceManagerTest extends TestCase
 
         require 'samples/Elements.php';
 
-        $this->apiAminoMock = $this->getMockBuilder('Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter')
+        $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
-        $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
+        $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
-        $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
+        $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
@@ -79,9 +82,10 @@ class SequenceManagerTest extends TestCase
     public function testComplement()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $aComplement = $sequenceManager->complement("DNA");
+        $aComplement = $sequenceBuilder->complement("DNA");
         $aExpected = "CCGTCTAAGGGGGATCTGGGCGGGCGTGGTACCAGTCCGTACGGGGAGGAGTAGCGACCCGTGTCGGGTCTCCCATATTTGTCACGACCTCCGA";
         $aExpected.= "CCGCCCCGTCCGGTCGACTCAGGACTCGTCGTCGGGTCGCGTCGGTGGCTCTGTGGTACTCTCGGGAGTGTGAGGAGCGGGATAACCGGGACCG";
         $aExpected.= "GCGTGAAACGTAGCGACCGGTCCGTCCACTCACGGGGGTGGAGGGGAGTCCGGCGTAACGTCACCCCCGACTCTCCTCCTTCGTGGTACCGGGT";
@@ -103,9 +107,10 @@ class SequenceManagerTest extends TestCase
     public function testHalfSequence()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $sHalf = $sequenceManager->halfSequence(0);
+        $sHalf = $sequenceBuilder->halfSequence(0);
         $sExpected = "GGCAGATTCCCCCTAGACCCGCCCGCACCATGGTCAGGCATGCCCCTCCTCATCGCTGGGCACAGCCCAGAGGGTATAAACAGTGCTGGAGGCT";
         $sExpected.= "GGCGGGGCAGGCCAGCTGAGTCCTGAGCAGCAGCCCAGCGCAGCCACCGAGACACCATGAGAGCCCTCACACTCCTCGCCCTATTGGCCCTGGC";
         $sExpected.= "CGCACTTTGCATCGCTGGCCAGGCAGGTGAGTGCCCCCACCTCCCCTCAGGCCGCATTGCAGTGGGGGCTGAGAGGAGGAAGCACCATGGCCCA";
@@ -120,7 +125,8 @@ class SequenceManagerTest extends TestCase
     public function testExpandNA()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sExpandNa = $sequenceManager->expandNa("GATTAGSW");
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sExpandNa = $sequenceBuilder->expandNa("GATTAGSW");
 
         $sExpected = "GATTAG[GC][AT]";
 
@@ -130,8 +136,9 @@ class SequenceManagerTest extends TestCase
     public function testMolWT()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
-        $fMolWt = round($sequenceManager->molwt("upperlimit"),1);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+        $fMolWt = round($sequenceBuilder->molwt("upperlimit"),1);
 
         $fExpected = 379669.7;
         $this->assertEquals($fExpected, $fMolWt);
@@ -140,20 +147,22 @@ class SequenceManagerTest extends TestCase
     public function testSubseq()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $sExpected = "CAGATTCCCCCTAGACCCGCCCGCACCATGGTCAGGCATGCCCCTCCTCATCGCTGGGCACAGCCCAGAGGGTATAAACAGTGCTGGAGGCTGGCGGGGC";
 
-        $sCoupe = $sequenceManager->subSeq(2,100);
+        $sCoupe = $sequenceBuilder->subSeq(2,100);
         $this->assertEquals($sCoupe, $sExpected);
     }
 
     public function testPatpos()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $test = $sequenceManager->patPos("TTT");
+        $test = $sequenceBuilder->patPos("TTT");
         $aExpected = [
           "TTT" =>  [
             0 => 193,
@@ -175,9 +184,10 @@ class SequenceManagerTest extends TestCase
     public function testPatposo()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $test = $sequenceManager->patPoso("TTT");
+        $test = $sequenceBuilder->patPoso("TTT");
         $aExpected = [
               0 => 193,
               1 => 296,
@@ -198,9 +208,10 @@ class SequenceManagerTest extends TestCase
     public function testSymfreq()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $test = $sequenceManager->symFreq("A");
+        $test = $sequenceBuilder->symFreq("A");
         $iExpected = 217;
 
         $this->assertEquals($test, $iExpected);
@@ -209,9 +220,10 @@ class SequenceManagerTest extends TestCase
     public function testGetCodon()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $codon = $sequenceManager->getCodon(3);
+        $codon = $sequenceBuilder->getCodon(3);
         $sExpected = "CCC";
 
         $this->assertEquals($codon, $sExpected);
@@ -220,7 +232,8 @@ class SequenceManagerTest extends TestCase
     public function testTranslate()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $sExpected = "GRFPLDPPAPWSGMPLLIAGHSPEGINSAGGWRGRPAES*AAAQRSHRDTMRALTLLALLALAALCIAGQAGECPHLPSGRIAVGAERRKH";
         $sExpected.= "HGPPLLTPLAGSPFAV*PPCCRLNPFAPALPLQRERREEQAARDAGEGG*GPWG*AGVNQAPFPLQVRSPAVQSPAKVQV*GWT*WVPGPS";
@@ -228,7 +241,7 @@ class SequenceManagerTest extends TestCase
         $sExpected.= "GVASLGCGGGTGSLPWWAPWSPMCRERRDGHFARGLMPPRRVSQSPSPLPGSPGAQEGGV*AQSGL*RVG*PHRLSGGLSALLRPGLGCRS";
         $sExpected.= "AGLAGNPSSAPLQAPFFPLPLALALTSQPYGCGVPIIPAAPK*TPEX";
 
-        $translate = $sequenceManager->translate();
+        $translate = $sequenceBuilder->translate();
 
         $this->assertEquals($translate, $sExpected);
     }
@@ -236,7 +249,9 @@ class SequenceManagerTest extends TestCase
     public function testCharge()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $charge = $sequenceManager->charge("GAVLIFYWKRH");
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $charge = $sequenceBuilder->charge("GAVLIFYWKRH");
         $sExpected = "NNNNNNNNCCC";
 
         $this->assertEquals($charge, $sExpected);
@@ -245,10 +260,12 @@ class SequenceManagerTest extends TestCase
     public function testFindPalindrome()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
-        $sCoupe = $sequenceManager->subSeq(2,100);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $testPalindrome = $sequenceManager->findPalindrome($sCoupe, null,3);
+        $sCoupe = $sequenceBuilder->subSeq(2,100);
+
+        $testPalindrome = $sequenceBuilder->findPalindrome($sCoupe, 0,3);
 
         $aExpected = [
           0 => [

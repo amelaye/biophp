@@ -76,7 +76,7 @@ interface SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt(string $sSequence = null, string $sMolType = null, int $iNALen = null, $sLimit = "upperlimit") : float;
+    public function molwt($sLimit = "upperlimit", string $sSequence = null, string $sMolType = null, int $iNALen = null) : float;
 
     /**
      * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
@@ -301,5 +301,5 @@ interface SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence, int $iSeqLen = null, int $iPalLen = null);
+    public function findPalindrome(string $sSequence, int $iSeqLen = 0, int $iPalLen = 0);
 }
