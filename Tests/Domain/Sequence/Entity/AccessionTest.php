@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\Entity;
-
+namespace Tests\Domain\Sequence\Entity;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

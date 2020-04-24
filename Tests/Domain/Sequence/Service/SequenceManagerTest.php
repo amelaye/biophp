@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\Service;
-
+namespace Tests\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;

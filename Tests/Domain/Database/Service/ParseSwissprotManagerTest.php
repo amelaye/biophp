@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\Service;
-
+namespace Tests\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
@@ -37,15 +34,6 @@ class ParseSwissprotManagerTest extends TestCase
         $collectionElement->setCollection($collection);
 
         $mockedEm = $this->createMock(EntityManager::class);
-        // Mock Collection
-        /*$repo = $this->createMock(EntityRepository::class);
-        $mockedEm->expects($this->once())
-            ->method('getRepository')
-            ->with(Collection::class)
-            ->willReturn($repo);
-        $repo->expects($this->once())->method('findOneBy')
-            ->with(['nomCollection' => "humandbSwiss"])
-            ->willReturn($collection);*/
 
         // Mock CollectionElement
         $repo = $this->createMock(EntityRepository::class);

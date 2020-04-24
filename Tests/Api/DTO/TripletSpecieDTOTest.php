@@ -1,10 +1,8 @@
 <?php
+namespace Tests\Api\DTO;
 
-
-namespace Tests\AppBundle\API\DTO;
 use Amelaye\BioPHP\Api\DTO\TripletSpecieDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
 
 class TripletSpecieDTOTest extends WebTestCase
 {

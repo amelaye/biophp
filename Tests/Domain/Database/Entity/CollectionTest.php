@@ -1,6 +1,5 @@
 <?php
-
-namespace Tests\AppBundle\Entity;
+namespace Tests\Domain\Database\Entity;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

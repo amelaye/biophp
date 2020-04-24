@@ -16,22 +16,25 @@ The application is connected with a **REST API**, for the Biology Data, availabl
 If you want to use your own API, it must implments my schema API (cf. code documentation), and then you can have fun !
 
 ## Content
-At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and do :
+At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and run :
 
-```bash
+```console
 composer require amelaye/biophp
 ```
 If you want to use the predefined data schema, please run after :
 
-```bash
+```console
 bin/console doctrine:schema:create
 ```
+## Using a Symfony 4 application
 
-You can have some examples for a Symfony 4 application here : http://demo.amelaye-biophp.net
+You can have some examples for a Symfony 4 application here : http://demo.amelayes-biophp.net
+
+## Using you own code (sandalone)
 
 If you have your standalone version, you can use it like this :
 
-```php
+```{r, engine='php', count_lines}
 <?php
 ini_set('display_errors','on');
 error_reporting(E_ALL);

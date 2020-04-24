@@ -6,7 +6,7 @@
  * Created 14 november 2019
  * Last modified 14 november 2019
  */
-namespace Tests\AppBundle\Entity;
+namespace Tests\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;

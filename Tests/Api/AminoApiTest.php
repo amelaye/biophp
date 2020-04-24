@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\API;
-
+namespace Tests\Api;
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

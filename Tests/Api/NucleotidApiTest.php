@@ -1,7 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\API\DTO;
+namespace Tests\Api;
 
 use Amelaye\BioPHP\Api\NucleotidApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

@@ -1,7 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\API;
+namespace Tests\Api;
 
 use GuzzleHttp;
 use Amelaye\BioPHP\Api\PKApi;

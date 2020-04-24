@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\API\DTO;
-
+namespace Tests\Api\DTO;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Amelaye\BioPHP\Api\DTO\ProteinReductionDTO;

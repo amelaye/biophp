@@ -1,8 +1,5 @@
 <?php
-
-
 namespace Tests\Domain\Sequence\Service;
-
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;

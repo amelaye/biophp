@@ -1,7 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle;
+namespace Tests\Api;
 
 use Amelaye\BioPHP\Api\ElementApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

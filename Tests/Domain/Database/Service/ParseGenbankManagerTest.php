@@ -1,7 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\Service;
+namespace Tests\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;

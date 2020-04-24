@@ -1,8 +1,5 @@
 <?php
-
-
-namespace Tests\AppBundle\API\DTO;
-
+namespace Tests\Api\DTO;
 
 use Amelaye\BioPHP\Api\DTO\PKDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
