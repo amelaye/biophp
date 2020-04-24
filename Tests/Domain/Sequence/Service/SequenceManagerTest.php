@@ -723,9 +723,10 @@ class SequenceManagerTest extends TestCase
         $oSequence->setSequence("AGGGAATTAAGTAAATGGTAGTGG");
 
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($oSequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $aMirrors = $sequenceManager->findMirror($oSequence->getSequence(), 6, 8, "E");
+        $aMirrors = $sequenceBuilder->findMirror($oSequence->getSequence(), 6, 8, "E");
 
         $aExpected = [
           6 => [

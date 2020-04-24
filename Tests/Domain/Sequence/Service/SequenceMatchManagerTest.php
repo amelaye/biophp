@@ -8,11 +8,14 @@
  */
 namespace Tests\AppBundle\Entity;
 
-use AppBundle\Api\DTO\AminoDTO;
-use AppBundle\Entity\Sequencing\Sequence;
-use AppBundle\Entity\SubMatrix;
-use AppBundle\Service\SequenceManager;
-use AppBundle\Service\SequenceMatchManager;
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\ElementApi;
+use Amelaye\BioPHP\Api\NucleotidApi;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Entity\SubMatrix;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceMatchManager;
+use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
 use PHPUnit\Framework\TestCase;
 
 class SequenceMatchManagerTest extends TestCase
@@ -61,9 +64,8 @@ class SequenceMatchManagerTest extends TestCase
          * Mock API
          */
         $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
-        $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $serializerMock = \JMS\Serializer\SerializerBuilder::create()
+            ->build();
 
         require 'samples/Aminos.php';
 
@@ -72,19 +74,19 @@ class SequenceMatchManagerTest extends TestCase
         require 'samples/Elements.php';
 
 
-        $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
+        $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
-        $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
+        $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
-        $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
+        $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
@@ -95,10 +97,11 @@ class SequenceMatchManagerTest extends TestCase
     public function testCompareLetter()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
-        $sSeq1 = $sequenceManager->subSeq(2,100);
-        $sSeq2 = $sequenceManager->subSeq(100,100);
+        $sSeq1 = $sequenceBuilder->subSeq(2,100);
+        $sSeq2 = $sequenceBuilder->subSeq(100,100);
 
         $sequenceMatchManager = new SequenceMatchManager();
         $sequenceMatchManager->setSubMatrix($this->subMatrix);
@@ -134,9 +137,11 @@ class SequenceMatchManagerTest extends TestCase
     public function testLevdist()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
-        $sSeq1 = $sequenceManager->subSeq(2,100);
-        $sSeq2 = $sequenceManager->subSeq(100,100);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $sSeq1 = $sequenceBuilder->subSeq(2,100);
+        $sSeq2 = $sequenceBuilder->subSeq(100,100);
 
         $sequenceMatchManager = new SequenceMatchManager();
         $sequenceMatchManager->setSubMatrix($this->subMatrix);
@@ -150,9 +155,11 @@ class SequenceMatchManagerTest extends TestCase
     public function testXlevdist()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
-        $sSeq1 = $sequenceManager->subSeq(2,100);
-        $sSeq2 = $sequenceManager->subSeq(100,100);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $sSeq1 = $sequenceBuilder->subSeq(2,100);
+        $sSeq2 = $sequenceBuilder->subSeq(100,100);
 
         $sequenceMatchManager = new SequenceMatchManager();
         $sequenceMatchManager->setSubMatrix($this->subMatrix);
@@ -166,9 +173,11 @@ class SequenceMatchManagerTest extends TestCase
     public function testMatch()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
-        $sSeq1 = $sequenceManager->subSeq(2,100);
-        $sSeq2 = $sequenceManager->subSeq(100,100);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $sSeq1 = $sequenceBuilder->subSeq(2,100);
+        $sSeq2 = $sequenceBuilder->subSeq(100,100);
 
         $sequenceMatchManager = new SequenceMatchManager();
         $sequenceMatchManager->setSubMatrix($this->subMatrix);

@@ -112,7 +112,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testFetchClustal()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -132,7 +132,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testFetchFasta()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/fasta-2.txt");
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
 
@@ -195,7 +195,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testMaxiLength()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $iMyLength = $sequenceAlignmentManager->getMaxiLength();
@@ -207,7 +207,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testGapCount()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $iNumberGaps = $sequenceAlignmentManager->getGapCount();
@@ -219,7 +219,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testGetIsFlush()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
 
@@ -230,7 +230,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testChatAtRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -244,7 +244,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSubstrBwRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -261,7 +261,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testColToRes()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -275,7 +275,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testResToCol()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -289,7 +289,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSubalign()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -312,7 +312,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testSelect()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
@@ -336,7 +336,7 @@ class SequenceAlignmentManagerTest extends TestCase
     public function testResVar()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
-        $sequenceAlignmentManager->setFilename("./data/clustal.txt");
+        $sequenceAlignmentManager->setFilename("data/clustal.txt");
         $sequenceAlignmentManager->setFormat("CLUSTAL");
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");

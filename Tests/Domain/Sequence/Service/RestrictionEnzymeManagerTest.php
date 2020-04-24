@@ -8,12 +8,16 @@
  */
 namespace Tests\AppBundle\Service;
 
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\ElementApi;
+use Amelaye\BioPHP\Api\NucleotidApi;
+use Amelaye\BioPHP\Api\TypeIIEndonucleaseApi;
+use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\RestrictionEnzymeManager;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use PHPUnit\Framework\TestCase;
-use Amelaye\BioPHP\Api\DTO\AminoDTO;
 
 class RestrictionEnzymeManagerTest extends TestCase
 {
@@ -33,9 +37,8 @@ class RestrictionEnzymeManagerTest extends TestCase
          * Mock API
          */
         $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
-        $serializerMock = $this->getMockBuilder('JMS\Serializer\Serializer')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $serializerMock = \JMS\Serializer\SerializerBuilder::create()
+            ->build();
 
         require 'samples/Aminos.php';
 
@@ -46,26 +49,26 @@ class RestrictionEnzymeManagerTest extends TestCase
         require 'samples/TypeIIEndonucleases.php';
 
 
-        $this->apiAminoMock = $this->getMockBuilder('AppBundle\Api\AminoApi')
+        $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getAminos'])
             ->getMock();
         $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
 
-        $this->apiNucleoMock = $this->getMockBuilder('AppBundle\Api\NucleotidApi')
+        $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getNucleotids'])
             ->getMock();
         $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
 
-        $this->apiElementsMock = $this->getMockBuilder('AppBundle\Api\ElementApi')
+        $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getElements', 'getElement'])
             ->getMock();
         $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));
         $this->apiElementsMock->method("getElement")->will($this->returnValue($aElementsObjects[5]));
 
-        $this->apiNucleolMock = $this->getMockBuilder('AppBundle\Api\TypeIIEndonucleaseApi')
+        $this->apiNucleolMock = $this->getMockBuilder(TypeIIEndonucleaseApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
             ->setMethods(['getTypeIIEndonucleases'])
             ->getMock();
@@ -130,12 +133,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testCutSeqPatposo()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
 
         $cutseq = $restrictionEnzymeManager->cutSeq();
@@ -163,12 +167,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testCutSeqPatpos()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
 
         $cutseq = $restrictionEnzymeManager->cutSeq("O");
@@ -196,12 +201,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEn()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $restrictionEnzymeManager->parseEnzyme('AatI', 'AGGCCT', 0, "inner");
 
         $list = $restrictionEnzymeManager->findRestEn("AGGCCT");
@@ -213,12 +219,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEnFetchCutposAndPlen()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list5 = $restrictionEnzymeManager->findRestEn(null,3, 6);
 
         $aExpected = [];
@@ -228,12 +235,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEnFetchLength()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list4 = $restrictionEnzymeManager->findRestEn(null,null, 6); // fetchLength
 
         $aExpected = [
@@ -346,12 +354,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEnFetchCutpos()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list3 = $restrictionEnzymeManager->findRestEn(null,3); // fetchCutpos
 
         $aExpected = [
@@ -395,12 +404,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEnFetchPatternAndCutpos()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list2 = $restrictionEnzymeManager->findRestEn("AGGCCT",3);
 
         $aExpected = [
@@ -412,12 +422,13 @@ class RestrictionEnzymeManagerTest extends TestCase
     public function testFindRestEnFetchPatternOnly()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
-        $sequenceManager->setSequence($this->sequence);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
 
         $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
         $restrictionEnzymeManager->setEnzyme();
 
-        $restrictionEnzymeManager->setSequenceManager($sequenceManager);
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list = $restrictionEnzymeManager->findRestEn("AGGCCT");
 
         $aExpected = [
