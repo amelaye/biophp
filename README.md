@@ -19,12 +19,12 @@ If you want to use your own API, it must implments my schema API (cf. code docum
 At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and run :
 
 ```shell
-composer require amelaye/biophp
+$ composer require amelaye/biophp
 ```
 If you want to use the predefined data schema, please run after :
 
 ```bash
-bin/console doctrine:schema:create
+$ bin/console doctrine:schema:create
 ```
 ## Using a Symfony 4 application
 
