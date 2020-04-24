@@ -18,12 +18,12 @@ If you want to use your own API, it must implments my schema API (cf. code docum
 ## Content
 At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and run :
 
-```console
+```shell
 composer require amelaye/biophp
 ```
 If you want to use the predefined data schema, please run after :
 
-```console
+```bash
 bin/console doctrine:schema:create
 ```
 ## Using a Symfony 4 application
@@ -34,7 +34,7 @@ You can have some examples for a Symfony 4 application here : http://demo.amelay
 
 If you have your standalone version, you can use it like this :
 
-```{r, engine='php', count_lines}
+```php
 <?php
 ini_set('display_errors','on');
 error_reporting(E_ALL);
