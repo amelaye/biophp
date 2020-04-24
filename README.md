@@ -15,6 +15,9 @@ It works very simply :
 The application is connected with a **REST API**, for the Biology Data, available at : http://api.amelayes-biophp.net.
 If you want to use your own API, it must implments my schema API (cf. code documentation), and then you can have fun !
 
+The **BioTools** (amelaye/biotools) package is actually in working progress, please be patient, and you'll can have more features soon !
+Instead of it, you can use your own application.
+
 ## Content
 At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and run :
 
@@ -68,4 +71,4 @@ echo "<pre>";
 
 ## Please wait :)
 This version is an ALPHA version. That means it could be quite unstable, and modifications in the system could be done. 
-Please read often the documentation, I try to update it as regulary as possible :)
+Please read often the documentation, I try to update it as regularly as possible :)
