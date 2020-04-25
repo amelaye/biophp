@@ -3,7 +3,7 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 18 january 2020
+ * Last modified 26 april 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
