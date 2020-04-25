@@ -58,7 +58,7 @@ class Author
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -66,7 +66,7 @@ class Author
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -74,7 +74,7 @@ class Author
     /**
      * @return int
      */
-    public function getRefno()
+    public function getRefno() : int
     {
         return $this->refno;
     }
@@ -82,7 +82,7 @@ class Author
     /**
      * @param int $refno
      */
-    public function setRefno($refno)
+    public function setRefno(int $refno) : void
     {
         $this->refno = $refno;
     }
@@ -90,7 +90,7 @@ class Author
     /**
      * @return string
      */
-    public function getAuthor()
+    public function getAuthor() : string
     {
         return $this->author;
     }
@@ -98,7 +98,7 @@ class Author
     /**
      * @param string $author
      */
-    public function setAuthor($author)
+    public function setAuthor(string $author) : void
     {
         $this->author = $author;
     }

@@ -44,9 +44,9 @@ class Protein
     }
 
     /**
-     * @param $id
+     * @param string $id
      */
-    public function setId($id)
+    public function setId(string $id) : void
     {
         $this->id = $id;
     }
@@ -60,9 +60,9 @@ class Protein
     }
 
     /**
-     * @param $name
+     * @param string $name
      */
-    public function setName($name)
+    public function setName(string $name) : void
     {
         $this->name = $name;
     }
@@ -76,9 +76,9 @@ class Protein
     }
 
     /**
-     * @param $sequence
+     * @param string $sequence
      */
-    public function setSequence($sequence)
+    public function setSequence(string $sequence) : void
     {
         $this->sequence = $sequence;
     }

@@ -109,7 +109,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -117,7 +117,7 @@ class GbSequence
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -125,7 +125,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getStrands()
+    public function getStrands() : string
     {
         return $this->strands;
     }
@@ -133,7 +133,7 @@ class GbSequence
     /**
      * @param string $strands
      */
-    public function setStrands($strands)
+    public function setStrands(string $strands) : void
     {
         $this->strands = $strands;
     }
@@ -141,7 +141,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getTopology()
+    public function getTopology() : string
     {
         return $this->topology;
     }
@@ -149,7 +149,7 @@ class GbSequence
     /**
      * @param string $topology
      */
-    public function setTopology($topology)
+    public function setTopology(string $topology) : void
     {
         $this->topology = $topology;
     }
@@ -157,7 +157,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getDivision()
+    public function getDivision() : string
     {
         return $this->division;
     }
@@ -165,7 +165,7 @@ class GbSequence
     /**
      * @param string $division
      */
-    public function setDivision($division)
+    public function setDivision(string $division) : void
     {
         $this->division = $division;
     }
@@ -173,7 +173,7 @@ class GbSequence
     /**
      * @return int
      */
-    public function getSegmentNo()
+    public function getSegmentNo() : int
     {
         return $this->segmentNo;
     }
@@ -181,7 +181,7 @@ class GbSequence
     /**
      * @param int $segmentNo
      */
-    public function setSegmentNo($segmentNo)
+    public function setSegmentNo(int $segmentNo) : void
     {
         $this->segmentNo = $segmentNo;
     }
@@ -189,7 +189,7 @@ class GbSequence
     /**
      * @return int
      */
-    public function getSegmentCount()
+    public function getSegmentCount() : int
     {
         return $this->segmentCount;
     }
@@ -197,7 +197,7 @@ class GbSequence
     /**
      * @param int $segmentCount
      */
-    public function setSegmentCount($segmentCount)
+    public function setSegmentCount(int $segmentCount) : void
     {
         $this->segmentCount = $segmentCount;
     }
@@ -205,7 +205,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getVersion()
+    public function getVersion() : string
     {
         return $this->version;
     }
@@ -213,7 +213,7 @@ class GbSequence
     /**
      * @param string $version
      */
-    public function setVersion($version)
+    public function setVersion(string $version) : void
     {
         $this->version = $version;
     }
@@ -221,7 +221,7 @@ class GbSequence
     /**
      * @return string
      */
-    public function getNcbiGiId()
+    public function getNcbiGiId() : string
     {
         return $this->ncbiGiId;
     }
@@ -229,7 +229,7 @@ class GbSequence
     /**
      * @param string $ncbiGiId
      */
-    public function setNcbiGiId($ncbiGiId)
+    public function setNcbiGiId(string $ncbiGiId) : void
     {
         $this->ncbiGiId = $ncbiGiId;
     }

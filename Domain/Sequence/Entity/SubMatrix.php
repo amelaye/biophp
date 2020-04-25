@@ -36,7 +36,7 @@ class SubMatrix
      * Gets the rules of the matrix
      * @return array
      */
-    public function getRules()
+    public function getRules() : array
     {
         return $this->rules;
     }

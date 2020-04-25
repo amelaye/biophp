@@ -98,7 +98,7 @@ class Feature
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -106,7 +106,7 @@ class Feature
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -114,7 +114,7 @@ class Feature
     /**
      * @return string
      */
-    public function getFtKey()
+    public function getFtKey() : string
     {
         return $this->ftKey;
     }
@@ -122,7 +122,7 @@ class Feature
     /**
      * @param string $ftKey
      */
-    public function setFtKey($ftKey)
+    public function setFtKey(string $ftKey) : void
     {
         $this->ftKey = $ftKey;
     }
@@ -130,7 +130,7 @@ class Feature
     /**
      * @return string
      */
-    public function getFtQual()
+    public function getFtQual() : string
     {
         return $this->ftQual;
     }
@@ -138,7 +138,7 @@ class Feature
     /**
      * @param string $ftQual
      */
-    public function setFtQual($ftQual)
+    public function setFtQual(string $ftQual) : void
     {
         $this->ftQual = $ftQual;
     }
@@ -146,7 +146,7 @@ class Feature
     /**
      * @return string
      */
-    public function getFtValue()
+    public function getFtValue() : string
     {
         return $this->ftValue;
     }
@@ -154,7 +154,7 @@ class Feature
     /**
      * @param string $ftValue
      */
-    public function setFtValue($ftValue)
+    public function setFtValue(string $ftValue) : void
     {
         $this->ftValue = $ftValue;
     }
@@ -162,7 +162,7 @@ class Feature
     /**
      * @return int
      */
-    public function getFtFrom(): int
+    public function getFtFrom() : int
     {
         return $this->ftFrom;
     }
@@ -170,7 +170,7 @@ class Feature
     /**
      * @param int $ftFrom
      */
-    public function setFtFrom(int $ftFrom): void
+    public function setFtFrom(int $ftFrom) : void
     {
         $this->ftFrom = $ftFrom;
     }
@@ -186,7 +186,7 @@ class Feature
     /**
      * @param int $ftTo
      */
-    public function setFtTo(int $ftTo): void
+    public function setFtTo(int $ftTo) : void
     {
         $this->ftTo = $ftTo;
     }
@@ -194,7 +194,7 @@ class Feature
     /**
      * @return string
      */
-    public function getFtDesc(): string
+    public function getFtDesc() : string
     {
         return $this->ftDesc;
     }
@@ -202,7 +202,7 @@ class Feature
     /**
      * @param string $ftDesc
      */
-    public function setFtDesc(string $ftDesc): void
+    public function setFtDesc(string $ftDesc) : void
     {
         $this->ftDesc = $ftDesc;
     }

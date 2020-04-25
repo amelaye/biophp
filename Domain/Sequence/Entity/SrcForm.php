@@ -48,7 +48,7 @@ class SrcForm
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -56,7 +56,7 @@ class SrcForm
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -64,7 +64,7 @@ class SrcForm
     /**
      * @return string
      */
-    public function getEntry()
+    public function getEntry() : string
     {
         return $this->entry;
     }
@@ -72,7 +72,7 @@ class SrcForm
     /**
      * @param string $entry
      */
-    public function setEntry($entry)
+    public function setEntry(string $entry) : void
     {
         $this->entry = $entry;
     }

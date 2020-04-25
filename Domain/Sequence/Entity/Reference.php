@@ -122,7 +122,7 @@ class Reference
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -130,7 +130,7 @@ class Reference
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -138,7 +138,7 @@ class Reference
     /**
      * @return int
      */
-    public function getRefno()
+    public function getRefno() : int
     {
         return $this->refno;
     }
@@ -146,7 +146,7 @@ class Reference
     /**
      * @param int $refno
      */
-    public function setRefno($refno)
+    public function setRefno(int $refno) : void
     {
         $this->refno = $refno;
     }
@@ -154,7 +154,7 @@ class Reference
     /**
      * @return string
      */
-    public function getBaseRange()
+    public function getBaseRange() : string
     {
         return $this->baseRange;
     }
@@ -162,7 +162,7 @@ class Reference
     /**
      * @param string $baseRange
      */
-    public function setBaseRange($baseRange)
+    public function setBaseRange(string $baseRange) : void
     {
         $this->baseRange = $baseRange;
     }
@@ -170,7 +170,7 @@ class Reference
     /**
      * @return string
      */
-    public function getTitle()
+    public function getTitle() : string
     {
         return $this->title;
     }
@@ -178,7 +178,7 @@ class Reference
     /**
      * @param string $title
      */
-    public function setTitle($title)
+    public function setTitle(string $title) : void
     {
         $this->title = $title;
     }
@@ -186,7 +186,7 @@ class Reference
     /**
      * @return string
      */
-    public function getJournal()
+    public function getJournal() : string
     {
         return $this->journal;
     }
@@ -194,7 +194,7 @@ class Reference
     /**
      * @param string $journal
      */
-    public function setJournal($journal)
+    public function setJournal(string $journal) : void
     {
         $this->journal = $journal;
     }
@@ -202,7 +202,7 @@ class Reference
     /**
      * @return string
      */
-    public function getMedline()
+    public function getMedline() : string
     {
         return $this->medline;
     }
@@ -210,7 +210,7 @@ class Reference
     /**
      * @param string $medline
      */
-    public function setMedline($medline)
+    public function setMedline(string $medline) : void
     {
         $this->medline = $medline;
     }
@@ -218,7 +218,7 @@ class Reference
     /**
      * @return string
      */
-    public function getPubmed()
+    public function getPubmed() : string
     {
         return $this->pubmed;
     }
@@ -226,7 +226,7 @@ class Reference
     /**
      * @param string $pubmed
      */
-    public function setPubmed($pubmed)
+    public function setPubmed(string $pubmed) : void
     {
         $this->pubmed = $pubmed;
     }
@@ -234,7 +234,7 @@ class Reference
     /**
      * @return string
      */
-    public function getRemark()
+    public function getRemark() : string
     {
         return $this->remark;
     }
@@ -242,7 +242,7 @@ class Reference
     /**
      * @param string $remark
      */
-    public function setRemark($remark)
+    public function setRemark(string $remark) : void
     {
         $this->remark = $remark;
     }
