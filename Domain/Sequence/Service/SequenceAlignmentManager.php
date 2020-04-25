@@ -88,11 +88,11 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
 
     /**
      * The sequences array ... then you can rewind(), next(), prev() on it
-     * @return \ArrayIterator
+     * @return array
      */
-    public function getSeqSet() : \ArrayIterator
+    public function getSeqSet() : array
     {
-        return $this->aSeqSet;
+        return $this->aSeqSet->getArrayCopy();
     }
 
     /**
