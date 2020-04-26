@@ -8,7 +8,7 @@ as Symfony 4.
 
 The original legacy code is included inside, and the licence is still GPL2.
 
-It works very simply :
+It works very easily :
 
 ![alt text](http://www.amelayes-biophp.net/img/biophp2.png "BioPHP schema")
 
@@ -19,7 +19,7 @@ The **BioTools** (amelaye/biotools) package is actually in working progress, ple
 Instead of it, you can use your own application.
 
 ## Content
-At this moment, this is a Symfony 4 application. Create your own Symfony 4 application and run :
+BioPHP is actually a Symfony 4 bundle. Create your own PHP application and run :
 
 ```shell
 $ composer require amelaye/biophp
@@ -37,7 +37,7 @@ You can have some examples for a Symfony 4 application here : http://demo.amelay
 
 ## Using you own code (standalone)
 
-If you have your standalone version, you can use it like this :
+If you have your standalone version, you can use it like this (after installing composer and creating a composer.json file) :
 
 ```php
 <?php

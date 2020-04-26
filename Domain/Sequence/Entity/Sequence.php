@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 18 january 2020
+ * Last modified 26 april 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -149,7 +149,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -157,7 +157,7 @@ class Sequence
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -165,7 +165,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getEntryName()
+    public function getEntryName() : string
     {
         return $this->entryName;
     }
@@ -173,7 +173,7 @@ class Sequence
     /**
      * @param string $entryName
      */
-    public function setEntryName($entryName)
+    public function setEntryName(string $entryName) : void
     {
         $this->entryName = $entryName;
     }
@@ -181,7 +181,7 @@ class Sequence
     /**
      * @return int
      */
-    public function getSeqLength()
+    public function getSeqLength() : int
     {
         return $this->seqLength;
     }
@@ -189,7 +189,7 @@ class Sequence
     /**
      * @param int $seqLength
      */
-    public function setSeqLength($seqLength)
+    public function setSeqLength(int $seqLength) : void
     {
         $this->seqLength = $seqLength;
     }
@@ -229,7 +229,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getMolType()
+    public function getMolType() : string
     {
         return $this->molType;
     }
@@ -237,7 +237,7 @@ class Sequence
     /**
      * @param string $molType
      */
-    public function setMolType($molType)
+    public function setMolType(string $molType) : void
     {
         $this->molType = $molType;
     }
@@ -245,7 +245,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getDate()
+    public function getDate() : string
     {
         return $this->date;
     }
@@ -253,7 +253,7 @@ class Sequence
     /**
      * @param string $date
      */
-    public function setDate($date)
+    public function setDate(string $date) : void
     {
         $this->date = $date;
     }
@@ -261,7 +261,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getSource()
+    public function getSource() : string
     {
         return $this->source;
     }
@@ -269,7 +269,7 @@ class Sequence
     /**
      * @param string $source
      */
-    public function setSource($source)
+    public function setSource(string $source) : void
     {
         $this->source = $source;
     }
@@ -277,7 +277,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getSequence()
+    public function getSequence() : string
     {
         return $this->sequence;
     }
@@ -285,7 +285,7 @@ class Sequence
     /**
      * @param string $sequence
      */
-    public function setSequence($sequence)
+    public function setSequence(string $sequence) : void
     {
         $this->sequence = $sequence;
     }
@@ -293,7 +293,7 @@ class Sequence
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription() : string
     {
         return $this->description;
     }
@@ -301,7 +301,7 @@ class Sequence
     /**
      * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(string $description) : void
     {
         $this->description = $description;
     }
@@ -309,7 +309,7 @@ class Sequence
     /**
      * @return array
      */
-    public function getOrganism()
+    public function getOrganism() : array
     {
         return $this->organism;
     }
@@ -317,7 +317,7 @@ class Sequence
     /**
      * @param array $organism
      */
-    public function setOrganism($organism)
+    public function setOrganism(array $organism) : void
     {
         $this->organism = $organism;
     }

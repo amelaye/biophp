@@ -3,7 +3,7 @@
  * SubMatrix Entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 13 november 2019
+ * Last modified 26 april 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -36,7 +36,7 @@ class SubMatrix
      * Gets the rules of the matrix
      * @return array
      */
-    public function getRules()
+    public function getRules() : array
     {
         return $this->rules;
     }

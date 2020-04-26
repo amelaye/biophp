@@ -3,7 +3,7 @@
  * Enzymes entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 26 april 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -48,9 +48,9 @@ class Enzyme
     }
 
     /**
-     * @param $name
+     * @param string $name
      */
-    public function setName($name)
+    public function setName(string $name) : void
     {
         $this->name = $name;
     }
@@ -64,9 +64,9 @@ class Enzyme
     }
 
     /**
-     * @param $pattern
+     * @param string $pattern
      */
-    public function setPattern($pattern)
+    public function setPattern(string $pattern) : void
     {
         $this->pattern = $pattern;
     }
@@ -80,9 +80,9 @@ class Enzyme
     }
 
     /**
-     * @param $cutpos
+     * @param int $cutpos
      */
-    public function setCutpos($cutpos)
+    public function setCutpos(int $cutpos) : void
     {
         $this->cutpos = $cutpos;
     }
@@ -96,9 +96,9 @@ class Enzyme
     }
 
     /**
-     * @param $length
+     * @param int $length
      */
-    public function setLength($length)
+    public function setLength(int $length) : void
     {
         $this->length = $length;
     }

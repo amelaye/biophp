@@ -78,15 +78,16 @@ class ProteinManager implements ProteinInterface
             return false;
         }
 
+        $wts = $this->aminoApi::GetAminoweights($this->aminos);
+
         // Otherwise, continue and calculate molecular weight of amino acid chain.
         $aMolecularWeight = [0, 0];
         $iAminoLength = $this->seqlen();
 
         for($i = 0; $i < $iAminoLength; $i++) {
             $amino = substr($this->protein->getSequence(), $i, 1);
-            $wts = $this->aminoApi::GetAminoweights($this->aminos);
             $aMolecularWeight[$iLowerLimit] += $wts[$amino][$iLowerLimit];
-            $aMolecularWeight[$iLowerLimit] += $wts[$amino][$iUpperLimit];
+            $aMolecularWeight[$iUpperLimit] += $wts[$amino][$iUpperLimit];
         }
         $fMwtWater = 18.015;
         $aMolecularWeight[$iLowerLimit] = $aMolecularWeight[$iLowerLimit] - (($this->seqlen() - 1) * $fMwtWater);

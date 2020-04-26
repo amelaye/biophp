@@ -3,7 +3,7 @@
  * Doctrine Entity Keywords
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 18 january 2020
+ * Last modified 26 april 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -51,7 +51,7 @@ class Keyword
     /**
      * @return string
      */
-    public function getPrimAcc()
+    public function getPrimAcc() : string
     {
         return $this->primAcc;
     }
@@ -59,7 +59,7 @@ class Keyword
     /**
      * @param string $primAcc
      */
-    public function setPrimAcc($primAcc)
+    public function setPrimAcc(string $primAcc) : void
     {
         $this->primAcc = $primAcc;
     }
@@ -67,7 +67,7 @@ class Keyword
     /**
      * @return string
      */
-    public function getKeywords()
+    public function getKeywords() : string
     {
         return $this->keywords;
     }
@@ -75,7 +75,7 @@ class Keyword
     /**
      * @param string $keywords
      */
-    public function setKeywords($keywords)
+    public function setKeywords(string $keywords) : void
     {
         $this->keywords = $keywords;
     }
