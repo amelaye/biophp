@@ -236,8 +236,8 @@ $amino->setId('Z');
 $amino->setName("Glutamate or glutamine");
 $amino->setName1Letter('Z');
 $amino->setName3Letters('N/A');
-$amino->setWeight1(75.07);
-$amino->setWeight2(204.22);
+$amino->setWeight1(146.15);
+$amino->setWeight2(146.15);
 $aAminosObjects[] = $amino;
 
 $amino = new AminoDTO();
@@ -245,8 +245,8 @@ $amino->setId('X');
 $amino->setName("Any");
 $amino->setName1Letter('X');
 $amino->setName3Letters('XXX');
-$amino->setWeight1(146.15);
-$amino->setWeight2(146.15);
+$amino->setWeight1(75.07);
+$amino->setWeight2(204.22);
 $amino->setResidueMolWeight(114.822);
 $aAminosObjects[] = $amino;
 

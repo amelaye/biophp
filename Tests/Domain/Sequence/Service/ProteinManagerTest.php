@@ -62,8 +62,8 @@ class ProteinManagerTest extends TestCase
 
         $molwt = $proteinManager->molwt();
         $aExpected = [
-            0 => 60160.715000000084,
-            1 => -4233.525000000001
+            0 => 27394.954999999976,
+            1 => 28428.15499999998
         ];
 
         $this->assertEquals($aExpected, $molwt);

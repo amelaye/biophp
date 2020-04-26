@@ -9,7 +9,6 @@
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
-use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 
 /**
  * Interface RestrictionEnzymeInterface - substances that can "cut" a DNA strand
