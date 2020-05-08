@@ -87,22 +87,22 @@ class DatabaseManager implements DatabaseInterface
      *     N            N        create
      * @throws \Exception
      */
-    public function recording()
+    public function recording($dbname, $dbformat="GENBANK", ...$datafile)
     {
         try {
-            $args = func_get_args();
+            //$args = func_get_args();
 
-            $dbname = $args[0];
-            $dbformat = strtoupper($args[1]);
+            //$dbname = $args[0];
+            //$dbformat = strtoupper($args[1]);
 
-            if (strlen($dbformat) == 0) {
-                $dbformat = "GENBANK";
-            }
+            //if (strlen($dbformat) == 0) {
+            //    $dbformat = "GENBANK";
+            //}
 
-            $datafile = array();
+            /*$datafile = array();
             for ($i = 2; $i < count($args); $i++) {
                 $datafile[] = $args[$i];
-            }
+            }*/
 
             $collection = new Collection();
             $collection->setNomCollection($dbname);

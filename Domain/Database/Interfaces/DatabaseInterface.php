@@ -31,5 +31,5 @@ interface DatabaseInterface
      * Records the new elements of a collection, reads a collection
      * @throws \Exception
      */
-    public function recording();
+    public function recording($dbname, $dbformat="GENBANK", ...$args);
 }
