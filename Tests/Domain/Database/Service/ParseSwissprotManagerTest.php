@@ -45,8 +45,8 @@ class ParseSwissprotManagerTest extends TestCase
             ->with(['idElement' => "1375"])
             ->willReturn($collectionElement);
 
-        $databaseManager = new DatabaseManager($mockedEm);
-        $oParseSwisprotManager = $databaseManager->fetch("1375", "data/");
+        $databaseManager = new DatabaseManager($mockedEm, './data/');
+        $oParseSwisprotManager = $databaseManager->fetch("1375");
 
         // Accession
         $aExpectedAccession = [];

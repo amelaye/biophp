@@ -4,12 +4,16 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services
         https://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="files.path">./data/</parameter>
+    </parameters>
     <services>
         <defaults public="false" />
 
         <!-- Database -->
         <service class="Amelaye\BioPHP\Domain\Database\Service\DatabaseManager" id="amelaye_biophp.database_manager">
             <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
+            <argument>%files.path%</argument>
         </service>
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager" />

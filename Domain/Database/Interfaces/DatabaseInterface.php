@@ -3,7 +3,7 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 19 january 2020
+ * Last modified 8 may 2020
  */
 namespace Amelaye\BioPHP\Domain\Database\Interfaces;
 
@@ -20,11 +20,10 @@ interface DatabaseInterface
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
      * @param       string          $sSeqId        The id of the seq obj.
-     * @param       string          $sDataPath     The path to the data file.
      * @return      Sequence|bool
      * @throws      \Exception
      */
-    public function fetch($sSeqId, $sDataPath);
+    public function fetch($sSeqId);
 
 
     /**

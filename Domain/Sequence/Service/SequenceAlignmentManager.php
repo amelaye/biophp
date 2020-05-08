@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 8 may 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -19,7 +19,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
  * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @todo : length doit représenter la totalité des séquences
  */
 class SequenceAlignmentManager implements SequenceAlignmentInterface
 {
@@ -178,7 +177,6 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     /**
      * Parses Fasta Files and create Sequence object
      * @throws  \Exception
-     * @Todo : setting start and stop
      */
     public function parseFasta()
     {
