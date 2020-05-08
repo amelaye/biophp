@@ -183,21 +183,30 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     public function parseFasta()
     {
         try {
-            $fLines      = file($this->sFilename);
-            $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
-            $bSameLength = true;
-            $sSequence   = "";
-            $aLines      = new \ArrayIterator($fLines);
+            $fLines       = file($this->sFilename);
+            $iSeqCount    = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
+            $bSameLength  = true;
+            $sSequence    = "";
+            $aLines       = new \ArrayIterator($fLines);
+            $sDescription = $sPrevDesc = "";
 
             foreach($aLines as $sLine) {
                 if (substr($sLine, 0, 1) == ">") {
                     $iSeqCount++;
                     $iSeqLength = strlen($sSequence);
+                    $sDescription = str_replace(">", "", trim($sLine));
 
                     $oSequence = new Sequence();
                     $oSequence->setPrimAcc($iPrevId);
                     $oSequence->setSeqlength($iSeqLength);
                     $oSequence->setSequence($sSequence);
+                    $oSequence->setDescription($sPrevDesc);
+                    if($sPrevDesc != "") {
+                        $aDescription = explode(" ", $sPrevDesc);
+                        $oSequence->setOrganism(array($aDescription[1]));
+                        $oSequence->setEntryName($sPrevDesc);
+                        $oSequence->setPrimAcc($aDescription[0]);
+                    }
 
                     $this->sequenceManager->setSequence($oSequence);
                     $iGapCount += $this->sequenceManager->symfreq("-");
@@ -218,6 +227,8 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                     }
 
                     $iPrevLength = $iSeqLength;
+                    $sPrevDesc = $sDescription;
+                    $sSequence = "";
                     continue;
                 } else {
                     $sSequence = $sSequence . trim($sLine);
@@ -230,6 +241,11 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
             $oSequence->setPrimAcc($iPrevId);
             $oSequence->setSeqlength($iSeqLength);
             $oSequence->setSequence($sSequence);
+            $oSequence->setDescription($sDescription);
+            $aDescription = explode(" ", $sPrevDesc);
+            $oSequence->setOrganism(array($aDescription[1]));
+            $oSequence->setEntryName($sDescription);
+            $oSequence->setPrimAcc($aDescription[0]);
 
             $this->sequenceManager->setSequence($oSequence);
             $iGapCount += $this->sequenceManager->symfreq("-");
