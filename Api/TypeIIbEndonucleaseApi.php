@@ -3,7 +3,7 @@
  * Database of elements - Triplets species
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
- * Last modified 21 December 2019
+ * Last modified 15 september 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -55,11 +55,11 @@ class TypeIIbEndonucleaseApi extends Bioapi implements TypeIIbEndonucleaseApiAda
             $newData[$elem->getId()] = [
                 $elem->getSamePattern()[0],
                 $elem->getRecognitionPattern(),
-                $elem->setComputingPattern(),
-                $elem->setLengthRecognitionPattern(),
-                $elem->setCleavagePosUpper(),
-                $elem->setCleavagePosLower(),
-                $elem->setNbNonNBases(),
+                $elem->getComputingPattern(),
+                $elem->getLengthRecognitionPattern(),
+                $elem->getCleavagePosUpper(),
+                $elem->getCleavagePosLower(),
+                $elem->getNbNonNBases(),
             ];
         }
         return $newData;

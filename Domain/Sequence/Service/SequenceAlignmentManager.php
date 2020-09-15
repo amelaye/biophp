@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 8 may 2020
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -19,7 +19,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
  * @package App\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @todo : length doit représenter la totalité des séquences
  */
 class SequenceAlignmentManager implements SequenceAlignmentInterface
 {
@@ -178,26 +177,34 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     /**
      * Parses Fasta Files and create Sequence object
      * @throws  \Exception
-     * @Todo : setting start and stop
      */
     public function parseFasta()
     {
         try {
-            $fLines      = file($this->sFilename);
-            $iSeqCount   = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
-            $bSameLength = true;
-            $sSequence   = "";
-            $aLines      = new \ArrayIterator($fLines);
+            $fLines       = file($this->sFilename);
+            $iSeqCount    = $iMaxLength = $iGapCount = $iPrevId = $iPrevLength = 0;
+            $bSameLength  = true;
+            $sSequence    = "";
+            $aLines       = new \ArrayIterator($fLines);
+            $sDescription = $sPrevDesc = "";
 
             foreach($aLines as $sLine) {
                 if (substr($sLine, 0, 1) == ">") {
                     $iSeqCount++;
                     $iSeqLength = strlen($sSequence);
+                    $sDescription = str_replace(">", "", trim($sLine));
 
                     $oSequence = new Sequence();
                     $oSequence->setPrimAcc($iPrevId);
                     $oSequence->setSeqlength($iSeqLength);
                     $oSequence->setSequence($sSequence);
+                    $oSequence->setDescription($sPrevDesc);
+                    if($sPrevDesc != "") {
+                        $aDescription = explode(" ", $sPrevDesc);
+                        $oSequence->setOrganism(array($aDescription[1]));
+                        $oSequence->setEntryName($sPrevDesc);
+                        $oSequence->setPrimAcc($aDescription[0]);
+                    }
 
                     $this->sequenceManager->setSequence($oSequence);
                     $iGapCount += $this->sequenceManager->symfreq("-");
@@ -218,6 +225,8 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                     }
 
                     $iPrevLength = $iSeqLength;
+                    $sPrevDesc = $sDescription;
+                    $sSequence = "";
                     continue;
                 } else {
                     $sSequence = $sSequence . trim($sLine);
@@ -230,6 +239,11 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
             $oSequence->setPrimAcc($iPrevId);
             $oSequence->setSeqlength($iSeqLength);
             $oSequence->setSequence($sSequence);
+            $oSequence->setDescription($sDescription);
+            $aDescription = explode(" ", $sPrevDesc);
+            $oSequence->setOrganism(array($aDescription[1]));
+            $oSequence->setEntryName($sDescription);
+            $oSequence->setPrimAcc($aDescription[0]);
 
             $this->sequenceManager->setSequence($oSequence);
             $iGapCount += $this->sequenceManager->symfreq("-");

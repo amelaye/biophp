@@ -3,7 +3,7 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 19 january 2020
+ * Last modified 8 may 2020
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
@@ -15,6 +15,7 @@ use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
 use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 /**
@@ -42,12 +43,19 @@ class DatabaseManager implements DatabaseInterface
     protected $em;
 
     /**
-     * DatabaseManager constructor.
-     * @param EntityManagerInterface     $em                         Entity Manager, for Doctrine
+     * @var string
      */
-    public function __construct(EntityManagerInterface $em)
+    protected $sPath;
+
+    /**
+     * DatabaseManager constructor.
+     * @param EntityManagerInterface     $em       Entity Manager, for Doctrine
+     * @param string                     $sPath    Path to the data
+     */
+    public function __construct(EntityManagerInterface $em, string $sPath)
     {
-        $this->em = $em;
+        $this->em    = $em;
+        $this->sPath = $sPath;
     }
 
     /**
@@ -57,7 +65,7 @@ class DatabaseManager implements DatabaseInterface
      * @return      ParseSwissprotManager | ParseGenbankManager | bool
      * @throws      \Exception
      */
-    public function fetch($sSeqId, $sDataPath)
+    public function fetch($sSeqId)
     {
         try {
             $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
@@ -65,11 +73,11 @@ class DatabaseManager implements DatabaseInterface
             if (empty($collectionDB)) {
                 return false;
             }
-            if(!is_file($sDataPath .$collectionDB->getFileName())) {
-                throw new FileException("The file ".$sDataPath.$collectionDB->getFileName()." doesn't exist !");
+            if(!is_file($this->sPath . $collectionDB->getFileName())) {
+                throw new FileException("The file " . $this->sPath . $collectionDB->getFileName()." doesn't exist !");
             }
 
-            $fpSeq = fopen( $sDataPath.$collectionDB->getFileName(), "r");
+            $fpSeq = fopen( $this->sPath . $collectionDB->getFileName(), "r");
             $aFlines = $this->line2r($fpSeq);
             $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
             return $oService;
@@ -85,64 +93,52 @@ class DatabaseManager implements DatabaseInterface
      *     Y            N        use
      *     N            Y        create
      *     N            N        create
-     * @throws \Exception
+     * @param       string      $sDbName        Name of the database
+     * @param       string      $sDbFormat      Format of the database
+     * @param       mixed       ...$sDataFile   Files to parse
+     * @throws      \Exception
      */
-    public function recording()
+    public function recording($sDbName, $sDbFormat = "GENBANK", ...$sDataFile)
     {
         try {
-            $args = func_get_args();
+            $oCollection = new Collection();
+            $oCollection->setNomCollection($sDbName);
 
-            $dbname = $args[0];
-            $dbformat = strtoupper($args[1]);
-
-            if (strlen($dbformat) == 0) {
-                $dbformat = "GENBANK";
-            }
-
-            $datafile = array();
-            for ($i = 2; $i < count($args); $i++) {
-                $datafile[] = $args[$i];
-            }
-
-            $collection = new Collection();
-            $collection->setNomCollection($dbname);
-
-            $collectionExists = $this->em->getRepository(Collection::class)
-                ->findOneBy(['nomCollection' => $dbname]);
+            $oCollectionExists = $this->em->getRepository(Collection::class)
+                ->findOneBy(['nomCollection' => $sDbName]);
 
             // if user provided specific values for $file1, $file2, ... parameters.
-            if ((empty($collectionExists)) and (count($datafile) > 0)) {
+            if ((empty($oCollectionExists)) and (count($sDataFile) > 0)) {
                 // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
-                $this->em->persist($collection);
+                $this->em->persist($oCollection);
                 $this->em->flush();
             } else {
-                $collection = $collectionExists;
+                $oCollection = $oCollectionExists;
             }
 
             // if user did not provide any datafile name.
-            if (count($datafile) == 0) {
+            if (count($sDataFile) == 0) {
                 throw new \Exception("No files provided !");
             }
 
             $temp_r = array();
 
-            foreach($datafile as $fileno => $filename) {
+            foreach($sDataFile as $fileno => $filename) {
                 // Automatically create an index file containing info across all data files.
-                $flines = file("./data/" .$filename);
+                $flines = file($this->sPath .$filename);
 
                 foreach($flines as $lineno => $linestr) {
-                    if ($this->atEntrystart($linestr, $dbformat)) {
-                        $current_id =  $this->getEntryid($flines, $linestr, $dbformat);
-                        $temp_r[$current_id] = array(
-                            "id_element" => $current_id,
+                    if ($this->atEntrystart($linestr, $sDbFormat)) {
+                        $currentId =  $this->getEntryid($flines, $linestr, $sDbFormat);
+                        $temp_r[$currentId] = array(
+                            "id_element" => $currentId,
                             "filename" => $filename,
-                            "dbformat" => $dbformat,
+                            "dbformat" => $sDbFormat,
                             "line_no" => $lineno
                         );
                     }
                 }
             }
-            $this->seqcount = count($temp_r);
 
             foreach($temp_r as $seqid => $line_r) {
                 // Check if the file already exists
@@ -152,7 +148,7 @@ class DatabaseManager implements DatabaseInterface
                 if(empty($collectionElementExists)) {
                     $collectionElement = new CollectionElement();
                     $collectionElement->setIdElement($line_r["id_element"]);
-                    $collectionElement->setCollection($collection);
+                    $collectionElement->setCollection($oCollection);
                     $collectionElement->setFileName($line_r["filename"]);
                     $collectionElement->setSeqCount(count($temp_r));
                     $collectionElement->setLineNo($line_r["line_no"]);

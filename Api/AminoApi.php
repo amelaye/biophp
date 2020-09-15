@@ -3,7 +3,7 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 1st December 2019
- * Last modified 20 December 2019
+ * Last modified 15 September 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -61,6 +61,22 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     }
 
     /**
+     * Creates the simpliest array of aminos
+     * @example $aFormattedAminos["name1Letter"] = "name3Letters"
+     * @param   array $aAminos
+     * @return  array
+     */
+    public static function GetAminosOneToThreeLetters(array $aAminos) : array
+    {
+        $aFormattedAminos = array();
+        foreach($aAminos as $key => $elem) {
+            $aFormattedAminos[$elem->getName1Letter()] = $elem->getName3Letters();
+        }
+
+        return $aFormattedAminos;
+    }
+
+    /**
      * Creates a simple array juste with aminos weights
      * @param   array     $aAminos    Array of objects
      * @return  array
@@ -70,6 +86,21 @@ class AminoApi extends Bioapi implements AminoApiAdapter
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
             $aFormattedAminos[$elem->getId()] = [$elem->getWeight1(), $elem->getWeight2()];
+        }
+
+        return $aFormattedAminos;
+    }
+
+    /**
+     * Creates a simple array juste with aminos residues molweights
+     * @param   array     $aAminos    Array of objects
+     * @return  array
+     */
+    public static function GetAminoResidueWeights(array $aAminos) : array
+    {
+        $aFormattedAminos = array();
+        foreach($aAminos as $key => $elem) {
+            $aFormattedAminos[$elem->getId()] = $elem->getResidueMolWeight();
         }
 
         return $aFormattedAminos;

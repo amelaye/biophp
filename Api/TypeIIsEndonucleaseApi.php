@@ -3,7 +3,7 @@
  * Database of elements - Type IIs endonucleases
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
- * Last modified 21 December 2019
+ * Last modified 15 September 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -56,11 +56,11 @@ class TypeIIsEndonucleaseApi extends Bioapi implements TypeIIsEndonucleaseApiAda
             $newData[$elem->getId()] = [
                 $elem->getSamePattern()[0],
                 $elem->getRecognitionPattern(),
-                $elem->setComputingPattern(),
-                $elem->setLengthRecognitionPattern(),
-                $elem->setCleavagePosUpper(),
-                $elem->setCleavagePosLower(),
-                $elem->setNbNonNBases(),
+                $elem->getComputingPattern(),
+                $elem->getLengthRecognitionPattern(),
+                $elem->getCleavagePosUpper(),
+                $elem->getCleavagePosLower(),
+                $elem->getNbNonNBases(),
             ];
         }
         return $newData;

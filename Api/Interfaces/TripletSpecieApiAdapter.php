@@ -3,7 +3,7 @@
  * Database of elements - Triplets species
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
- * Last modified 21 December 2019
+ * Last modified 15 September 2020
  */
 namespace Amelaye\BioPHP\Api\Interfaces;
 
@@ -46,5 +46,5 @@ interface TripletSpecieApiAdapter
      * @param   array   $aTriplets
      * @return  array
      */
-    public function GetSpeciesNames(array $aTriplets) : array;
+    public static function GetSpeciesNames(array $aTriplets) : array;
 }
