@@ -3,7 +3,7 @@
  * Database of elements - PK
  * Inspired by BioPHP's project biophp.org
  * Created 20 December 2019
- * Last modified 20 December 2019
+ * Last modified 15 September 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -26,7 +26,6 @@ class PKApi extends Bioapi implements PKApiAdapter
         $response = $this->bioapiClient->get($uri);
 
         $data = $this->serializer->deserialize($response->getBody()->getContents(), 'array', 'json');
-        dump($data);
 
         return array_change_key_case($data, CASE_UPPER);
     }

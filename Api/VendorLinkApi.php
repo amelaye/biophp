@@ -3,7 +3,7 @@
  * Database of elements - Vendors
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
- * Last modified 21 December 2019
+ * Last modified 15 September 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -48,7 +48,7 @@ class VendorLinkApi extends Bioapi implements VendorLinkApiAdapter
     {
         $newData = array();
         foreach($aVendorLinks as $key => $elem) {
-            $newData[$elem->getId()] = ["name" => $elem->getName(), "url" => $elem->getUrl()];
+            $newData[$elem->getId()] = ["name" => $elem->getName(), "url" => $elem->getLink()];
         }
         return($newData);
     }
