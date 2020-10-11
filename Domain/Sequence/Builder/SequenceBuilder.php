@@ -128,10 +128,10 @@ class SequenceBuilder implements SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
-     * @param   string        $sSequence    The sequence
-     * @param   string        $sMolType     DNA or RNA
-     * @param   int           $iNALen       Length of the sequence
      * @param   string        $sLimit       Upper or Lowerlimit
+     * @param   string|null   $sSequence    The sequence
+     * @param   string|null   $sMolType     DNA or RNA
+     * @param   int|null      $iNALen       Length of the sequence
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */

@@ -34,5 +34,5 @@ interface TmBaseStackingApiAdapter
      * @param   array   $aTmBaseStackings
      * @return  array
      */
-    public static function getEnthalpyValues(array $aTmBaseStackings) : array;
+    public static function GetEnthalpyValues(array $aTmBaseStackings) : array;
 }
