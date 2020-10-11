@@ -68,7 +68,7 @@ class ProteinReductionApi extends Bioapi implements ProteinReductionApiAdapter
     {
         $newData = array();
         foreach($aReductions as $key => $elem) {
-            if($elem["alphabet"] == $type) {
+            if($elem->getAlphabet() == $type) {
                 $newData["Description"] = $elem->getDescription();
                 $newData["Elements"][str_replace("|","",$elem->getPattern())] = $elem->getNature();
             }
