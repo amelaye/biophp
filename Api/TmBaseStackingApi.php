@@ -31,8 +31,8 @@ class TmBaseStackingApi extends Bioapi implements TmBaseStackingApiAdapter
         foreach($data["hydra:member"] as $key => $elem) {
             $oTmBaseStacking = new TmBaseStackingDTO();
             $oTmBaseStacking->setId($elem["id"]);
-            $oTmBaseStacking->setTemperatureEnthalpy($elem["temperature_enthalpy"]);
-            $oTmBaseStacking->setTemperatureEnthropy($elem["temperature_enthropy"]);
+            $oTmBaseStacking->setTemperatureEnthalpy($elem["temperatureEnthalpy"]);
+            $oTmBaseStacking->setTemperatureEnthropy($elem["temperatureEnthropy"]);
             $aTmBaseStackings[] = $oTmBaseStacking;
         }
         return $aTmBaseStackings;
