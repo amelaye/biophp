@@ -101,6 +101,7 @@ class SequenceManager
     {
         try {
             $sComplement = "";
+            $aComplements = [];
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
                 $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);

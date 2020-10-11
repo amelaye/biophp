@@ -9,7 +9,9 @@
 
         <!-- Sequence -->
         <service class="Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme" id="amelaye_biophp.seq_enzyme" />
-        <service class="Amelaye\BioPHP\Domain\Tools\Service\OligosManager" id="amelaye_biophp.seq_oligos" />
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\OligosManager" id="amelaye_biophp.seq_oligos">
+            <argument type="service" id="amelaye_biophp.api_nucleotid"></argument>
+        </service>
 
         <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager" id="amelaye_biophp.seq_sequences">
             <argument type="service" id="amelaye_biophp.api_amino"></argument>
