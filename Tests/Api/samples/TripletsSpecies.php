@@ -441,6 +441,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects = [];
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(1);
         $triplet->setNature("standard");
         $triplet->setTripletsGroups($triplets_standard);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRR",
@@ -448,6 +449,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(2);
         $triplet->setNature("vertebrate mitochondrial");
         $triplet->setTripletsGroups($triplets_vertebrate_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","WRR",
@@ -455,6 +457,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(3);
         $triplet->setNature("yeast mitochondrial");
         $triplet->setTripletsGroups($triplets_yeast_mitochondrial);
         $triplet->setTriplets(["TTY","TTR","ATY","ATR","GTN","WSN","CCN","MYN","GCN","TAY","TAR","CAY",
@@ -462,6 +465,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(4);
         $triplet->setNature("mold protozoan coelenterate mitochondrial");
         $triplet->setTripletsGroups($triplets_mold_protozoan_coelenterate_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN",
@@ -470,6 +474,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(5);
         $triplet->setNature("invertebrate mitochondrial");
         $triplet->setTripletsGroups($triplets_invertebrate_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","WSN","GCN","TAY","TAR",
@@ -477,6 +482,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(6);
         $triplet->setNature("ciliate dasycladacean hexamita nuclear");
         $triplet->setTripletsGroups($triplets_ciliate_dasycladacean_hexamita_nuclear);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN",
@@ -485,6 +491,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(7);
         $triplet->setNature("echinoderm mitochondrial");
         $triplet->setTripletsGroups($triplets_echinoderm_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","WCN","GCN","TAY","TAR",
@@ -492,6 +499,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(8);
         $triplet->setNature("euplotid nuclear");
         $triplet->setTripletsGroups($triplets_euplotid_nuclear);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY","CAR",
@@ -499,6 +507,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(9);
         $triplet->setNature("bacterial plant plastid");
         $triplet->setTripletsGroups($triplets_bacterial_plant_plastid);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRR",
@@ -506,6 +515,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(10);
         $triplet->setNature("alternative yeast nuclear");
         $triplet->setTripletsGroups($triplets_alternative_yeast_nuclear);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","HBN","CCN","ACN","GCN","TAY","TRR",
@@ -513,6 +523,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(11);
         $triplet->setNature("ascidian mitochondria");
         $triplet->setTripletsGroups($triplets_ascidian_mitochondria);
         $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY",
@@ -520,6 +531,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(12);
         $triplet->setNature("flatworm mitochondrial");
         $triplet->setTripletsGroups($triplets_flatworm_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAH","TAG","CAY",
@@ -527,6 +539,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(13);
         $triplet->setNature("blepharisma macronuclear");
         $triplet->setTripletsGroups($triplets_blepharisma_macronuclear);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRA","CAY",
@@ -534,6 +547,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(14);
         $triplet->setNature("chlorophycean mitochondrial");
         $triplet->setTripletsGroups($triplets_chlorophycean_mitochondrial);
         $triplet->setTriplets(["TTY","YWN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TRA",
@@ -541,6 +555,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(15);
         $triplet->setNature("trematode mitochondrial");
         $triplet->setTripletsGroups($triplets_trematode_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","TAR","CAY",
@@ -548,6 +563,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(16);
         $triplet->setNature("scenedesmus obliquus mitochondrial");
         $triplet->setTripletsGroups($triplets_scenedesmus_obliquus_mitochondrial);
         $triplet->setTriplets(["TTY","YWN","ATH","ATG","GTN","WSB","CCN","ACN","GCN","TAY",
@@ -556,6 +572,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
+        $triplet->setId(17);
         $triplet->setNature("thraustochytrium mitochondrial code");
         $triplet->setTripletsGroups($triplets_thraustochytrium_mitochondrial_code);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY",
