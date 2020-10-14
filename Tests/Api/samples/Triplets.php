@@ -6,257 +6,321 @@ use Amelaye\BioPHP\Api\DTO\TripletDTO;
 $aTripletObjects = [];
 
 $triplet = new TripletDTO();
+$triplet->setId(1);
 $triplet->setTriplet("TTT");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(2);
 $triplet->setTriplet("TTC");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(3);
 $triplet->setTriplet("TTA");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(4);
 $triplet->setTriplet("TTG");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(5);
 $triplet->setTriplet("TCT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TCC");
+$triplet = new TripletDTO();
+$triplet->setId(6);
+$triplet->setTriplet("TCC");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(7);
 $triplet->setTriplet("TCA");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(8);
 $triplet->setTriplet("TCG");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
+$triplet->setId(9);
 $triplet->setTriplet("TAT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TAC");
+$triplet = new TripletDTO();
+$triplet->setId(10);
+$triplet->setTriplet("TAC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TAA");
+$triplet = new TripletDTO();
+$triplet->setId(11);
+$triplet->setTriplet("TAA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TAG");
+$triplet = new TripletDTO();
+$triplet->setId(12);
+$triplet->setTriplet("TAG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TGT");
+$triplet = new TripletDTO();
+$triplet->setId(13);
+$triplet->setTriplet("TGT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TGC");
+$triplet = new TripletDTO();
+$triplet->setId(14);
+$triplet->setTriplet("TGC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TGA");
+$triplet = new TripletDTO();
+$triplet->setId(15);
+$triplet->setTriplet("TGA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("TGG");
+$triplet = new TripletDTO();
+$triplet->setId(16);
+$triplet->setTriplet("TGG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CTT");
+$triplet = new TripletDTO();
+$triplet->setId(17);
+$triplet->setTriplet("CTT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CTC");
+$triplet = new TripletDTO();
+$triplet->setId(18);
+$triplet->setTriplet("CTC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CTA");
+$triplet = new TripletDTO();
+$triplet->setId(19);
+$triplet->setTriplet("CTA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CTG");
+$triplet = new TripletDTO();
+$triplet->setId(20);
+$triplet->setTriplet("CTG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CCT");
+$triplet = new TripletDTO();
+$triplet->setId(21);
+$triplet->setTriplet("CCT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CCC");
+$triplet = new TripletDTO();
+$triplet->setId(22);
+$triplet->setTriplet("CCC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CCA");
+$triplet = new TripletDTO();
+$triplet->setId(23);
+$triplet->setTriplet("CCA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CCG");
+$triplet = new TripletDTO();
+$triplet->setId(24);
+$triplet->setTriplet("CCG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CAT");
+$triplet = new TripletDTO();
+$triplet->setId(25);
+$triplet->setTriplet("CAT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CAC");
+$triplet = new TripletDTO();
+$triplet->setId(26);
+$triplet->setTriplet("CAC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CAA");
+$triplet = new TripletDTO();
+$triplet->setId(27);
+$triplet->setTriplet("CAA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CAG");
+$triplet = new TripletDTO();
+$triplet->setId(28);
+$triplet->setTriplet("CAG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CGT");
+$triplet = new TripletDTO();
+$triplet->setId(29);
+$triplet->setTriplet("CGT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CGC");
+$triplet = new TripletDTO();
+$triplet->setId(30);
+$triplet->setTriplet("CGC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CGA");
+$triplet = new TripletDTO();
+$triplet->setId(31);
+$triplet->setTriplet("CGA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("CGG");
+$triplet = new TripletDTO();
+$triplet->setId(32);
+$triplet->setTriplet("CGG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ATT");
+$triplet = new TripletDTO();
+$triplet->setId(33);
+$triplet->setTriplet("ATT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ATC");
+$triplet = new TripletDTO();
+$triplet->setId(34);
+$triplet->setTriplet("ATC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ATA");
+$triplet = new TripletDTO();
+$triplet->setId(35);
+$triplet->setTriplet("ATA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ATG");
+$triplet = new TripletDTO();
+$triplet->setId(36);
+$triplet->setTriplet("ATG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ACT");
+$triplet = new TripletDTO();
+$triplet->setId(37);
+$triplet->setTriplet("ACT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ACC");
+$triplet = new TripletDTO();
+$triplet->setId(38);
+$triplet->setTriplet("ACC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ACA");
+$triplet = new TripletDTO();
+$triplet->setId(39);
+$triplet->setTriplet("ACA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("ACG");
+$triplet = new TripletDTO();
+$triplet->setId(40);
+$triplet->setTriplet("ACG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AAT");
+$triplet = new TripletDTO();
+$triplet->setId(41);
+$triplet->setTriplet("AAT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AAC");
+$triplet = new TripletDTO();
+$triplet->setId(42);
+$triplet->setTriplet("AAC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AAA");
+$triplet = new TripletDTO();
+$triplet->setId(43);
+$triplet->setTriplet("AAA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AAG");
+$triplet = new TripletDTO();
+$triplet->setId(44);
+$triplet->setTriplet("AAG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AGT");
+$triplet = new TripletDTO();
+$triplet->setId(45);
+$triplet->setTriplet("AGT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AGC");
+$triplet = new TripletDTO();
+$triplet->setId(46);
+$triplet->setTriplet("AGC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AGA");
+$triplet = new TripletDTO();
+$triplet->setId(47);
+$triplet->setTriplet("AGA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("AGG");
+$triplet = new TripletDTO();
+$triplet->setId(48);
+$triplet->setTriplet("AGG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GTT");
+$triplet = new TripletDTO();
+$triplet->setId(49);
+$triplet->setTriplet("GTT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GTC");
+$triplet = new TripletDTO();
+$triplet->setId(50);
+$triplet->setTriplet("GTC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GTA");
+$triplet = new TripletDTO();
+$triplet->setId(51);
+$triplet->setTriplet("GTA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GTG");
+$triplet = new TripletDTO();
+$triplet->setId(52);
+$triplet->setTriplet("GTG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GCT");
+$triplet = new TripletDTO();
+$triplet->setId(53);
+$triplet->setTriplet("GCT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GCC");
+$triplet = new TripletDTO();
+$triplet->setId(54);
+$triplet->setTriplet("GCC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GCA");
+$triplet = new TripletDTO();
+$triplet->setId(55);
+$triplet->setTriplet("GCA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GCG");
+$triplet = new TripletDTO();
+$triplet->setId(56);
+$triplet->setTriplet("GCG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GAT");
+$triplet = new TripletDTO();
+$triplet->setId(57);
+$triplet->setTriplet("GAT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GAC");
+$triplet = new TripletDTO();
+$triplet->setId(58);
+$triplet->setTriplet("GAC");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GAA");
+$triplet = new TripletDTO();
+$triplet->setId(59);
+$triplet->setTriplet("GAA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GAG");
+$triplet = new TripletDTO();
+$triplet->setId(60);
+$triplet->setTriplet("GAG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GGT");
+$triplet = new TripletDTO();
+$triplet->setId(61);
+$triplet->setTriplet("GGT");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GCG");
+$triplet = new TripletDTO();
+$triplet->setId(62);
+$triplet->setTriplet("GCG");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GGA");
+$triplet = new TripletDTO();
+$triplet->setId(63);
+$triplet->setTriplet("GGA");
 $aTripletObjects[] = $triplet;
 
-        $triplet = new TripletDTO();
-        $triplet->setTriplet("GGG");
+$triplet = new TripletDTO();
+$triplet->setId(64);
+$triplet->setTriplet("GGG");
 $aTripletObjects[] = $triplet;
