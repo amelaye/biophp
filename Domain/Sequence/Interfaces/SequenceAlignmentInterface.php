@@ -22,9 +22,9 @@ interface SequenceAlignmentInterface
 {
     /**
      * The sequences array ... then you can rewind(), next(), prev() on it
-     * @return \ArrayIterator
+     * @return array
      */
-    public function getSeqSet() : \ArrayIterator;
+    public function getSeqSet() : array;
 
     /**
      * Sets a specific filename : the file to parse

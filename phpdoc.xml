@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <phpdoc>
     <parser>
-        <target>public/docs/api</target>
+        <target>docs</target>
     </parser>
     <transformer>
-        <target>public/docs/api</target>
+        <target>docs</target>
     </transformer>
     <files>
-        <directory>./</directory>
+        <directory>./Api/</directory>
+        <directory>./Domain/</directory>
+        <directory>./DependencyInjection/</directory>
         <ignore>*/Legacy/*</ignore>
     </files>
 </phpdoc>

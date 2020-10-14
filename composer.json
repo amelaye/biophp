@@ -30,6 +30,13 @@
         "php": "^7.2",
         "csa/guzzle-bundle": "^3.1",
         "jms/serializer-bundle": "^3.5",
-        "doctrine/orm": "^2.7"
+        "doctrine/orm": "^2.7",
+        "phpdocumentor/graphviz": "^2.0@dev"
+    },
+    "require-dev": {
+        "twig/twig": "^2.5",
+        "doctrine/rst-parser": "dev-master@dev",
+        "symfony/cache-contracts": "^2.0",
+        "phpdocumentor/phpdocumentor": "dev-master"
     }
 }

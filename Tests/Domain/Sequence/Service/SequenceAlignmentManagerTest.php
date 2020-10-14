@@ -67,7 +67,7 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
 
-        $sequences = $sequenceAlignmentManager->getSeqSet()->getArrayCopy();
+        $sequences = $sequenceAlignmentManager->getSeqSet();
 
         // 0
         $oExpected1 = new Sequence();
@@ -114,7 +114,7 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
 
-        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(13);
+        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()[13];
 
         $oExpected = new Sequence();
         $oExpected->setPrimAcc("sp|P51664|P53_SHEEP");
@@ -133,8 +133,8 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->setFormat("FASTA");
         $sequenceAlignmentManager->parseFile();
 
-        $oMySuperSeq1 = $sequenceAlignmentManager->getSeqSet()->offsetGet(0);
-        $oMySuperSeq2 = $sequenceAlignmentManager->getSeqSet()->offsetGet(1);
+        $oMySuperSeq1 = $sequenceAlignmentManager->getSeqSet()[0];
+        $oMySuperSeq2 = $sequenceAlignmentManager->getSeqSet()[1];
 
         $sSeq1 = "GGCAGATTCCCCCTAGACCCGCCCGCACCATGGTCAGGCATGCCCCTCCTCATCGCTGGGCACAGCCCAGAGGGTATAAACAGTGCTGGAGGCTGGCGG";
         $sSeq1.= "GGCAGGCCAGCTGAGTCCTGAGCAGCAGCCCAGCGCAGCCACCGAGACACCATGAGAGCCCTCACACTCCTCGCCCTATTGGCCCTGGCCGCACTTTGC";
@@ -286,10 +286,10 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->sortAlpha("ASC");
         $sequenceAlignmentManager->subalign(5, 10);
 
-        $iSequencesSize = $sequenceAlignmentManager->getSeqSet()->count();
+        $iSequencesSize = count($sequenceAlignmentManager->getSeqSet());
         $this->assertEquals(6, $iSequencesSize);
 
-        $oLastSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(5);
+        $oLastSeq = $sequenceAlignmentManager->getSeqSet()[5];
         $oExpected = new Sequence();
         $oExpected->setPrimAcc("sp|P13481|P53_CHLAE");
         $oExpected->setSequence("MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTEDPGPDEAP---RMSEAAPHMAPTPAA-------PTPAAPAPAPSWPLSSSVPSQKTYHGSYGFRLGFLHSGTAKSVTCTYSPDLNKMFCQLAKTCPVQLWVDSTPPPGSRVRAMAIYKQSQHMTEVVRRCPHHERCSD-SDGLAPPQHLIRVEGNLRVEYSDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENFRKKGEPCHELP---PGSTKRALPN--NTS--SSPQ-PK-----KKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPAGSRAHSSHL-----KSKKGQSTSRHKKFMFKTEGPDSD-");
@@ -309,10 +309,10 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->sortAlpha("ASC");
         $sequenceAlignmentManager->select(1,2,3);
 
-        $iSequencesSize = $sequenceAlignmentManager->getSeqSet()->count();
+        $iSequencesSize = count($sequenceAlignmentManager->getSeqSet());
         $this->assertEquals(3, $iSequencesSize);
 
-        $oLastSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(2);
+        $oLastSeq = $sequenceAlignmentManager->getSeqSet()[2];
 
         $oExpected = new Sequence();
         $oExpected->setPrimAcc("sp|O57538|P53_XIPHE");
@@ -795,9 +795,9 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->parseFile();
         $sequenceAlignmentManager->sortAlpha("ASC");
 
-        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()->offsetGet(13);
+        $oMySuperSeq = $sequenceAlignmentManager->getSeqSet()[13];
         $sequenceAlignmentManager->addSequence($oMySuperSeq);
-        $iCount = $sequenceAlignmentManager->getSeqSet()->count();
+        $iCount = count($sequenceAlignmentManager->getSeqSet());
 
         $this->assertEquals(35, $iCount);
     }
@@ -811,7 +811,7 @@ class SequenceAlignmentManagerTest extends TestCase
         $sequenceAlignmentManager->sortAlpha("ASC");
 
         $sequenceAlignmentManager->deleteSequence("sp|O09185|P53_CRIGR");
-        $iCount = $sequenceAlignmentManager->getSeqSet()->count();
+        $iCount = count($sequenceAlignmentManager->getSeqSet());
 
         $this->assertEquals(33, $iCount);
     }
