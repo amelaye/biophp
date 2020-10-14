@@ -45,6 +45,7 @@
             <directory>.</directory>
             <exclude>
                 <directory>Legacy</directory>
+                <directory>Tests</directory>
             </exclude>
         </whitelist>
     </filter>
