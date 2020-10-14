@@ -46,6 +46,7 @@
             <exclude>
                 <directory>Legacy</directory>
                 <directory>Tests</directory>
+                <directory>DependencyInjection</directory>
             </exclude>
         </whitelist>
     </filter>
