@@ -3,7 +3,7 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 1st December 2019
- * Last modified 15 September 2020
+ * Last modified 15 October 2020
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -18,8 +18,7 @@ use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
 class AminoApi extends Bioapi implements AminoApiAdapter
 {
     /**
-     * Retrives Aminos informations : gets a full array of objects
-     * @return array
+     * @inheritDoc
      */
     public function getAminos() : array
     {
@@ -45,10 +44,7 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     }
 
     /**
-     * Creates a simple array of aminos
-     * @example $aFormattedAminos["name"] = [$aFormattedAminos["name1Letter"], $aFormattedAminos["name3Letters"]]
-     * @param   array   $aAminos    Array of objects
-     * @return  array
+     * @inheritDoc
      */
     public static function GetAminosOnlyLetters(array $aAminos) : array
     {
@@ -61,10 +57,7 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     }
 
     /**
-     * Creates the simpliest array of aminos
-     * @example $aFormattedAminos["name1Letter"] = "name3Letters"
-     * @param   array $aAminos
-     * @return  array
+     * @inheritDoc
      */
     public static function GetAminosOneToThreeLetters(array $aAminos) : array
     {
@@ -77,9 +70,20 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     }
 
     /**
-     * Creates a simple array juste with aminos weights
-     * @param   array     $aAminos    Array of objects
-     * @return  array
+     * @inheritDoc
+     */
+    public static function GetAminosOneLetterBasic(array $aAminos) : array
+    {
+        $aFormattedAminos = array();
+        foreach($aAminos as $key => $elem) {
+            $aFormattedAminos[] = $elem->getName1Letter();
+        }
+
+        return $aFormattedAminos;
+    }
+
+    /**
+     * @inheritDoc
      */
     public static function GetAminoweights(array $aAminos) : array
     {
@@ -92,9 +96,7 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     }
 
     /**
-     * Creates a simple array juste with aminos residues molweights
-     * @param   array     $aAminos    Array of objects
-     * @return  array
+     * @inheritDoc
      */
     public static function GetAminoResidueWeights(array $aAminos) : array
     {

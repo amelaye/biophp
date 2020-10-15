@@ -3,7 +3,7 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 20 December 2019
- * Last modified 15 September 2020
+ * Last modified 15 October 2020
  */
 namespace Amelaye\BioPHP\Api\Interfaces;
 
@@ -35,6 +35,14 @@ interface AminoApiAdapter
      * @return  array
      */
     public static function GetAminosOneToThreeLetters(array $aAminos) : array;
+
+    /**
+     * Creates a basic array of aminos represented by 1 letter
+     * @example $aFormattedAminos[] = "name1Letter"
+     * @param   array $aAminos
+     * @return  array
+     */
+    public static function GetAminosOneLetterBasic(array $aAminos) : array;
 
     /**
      * Creates a simple array juste with aminos weights
