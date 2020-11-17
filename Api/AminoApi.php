@@ -76,7 +76,9 @@ class AminoApi extends Bioapi implements AminoApiAdapter
     {
         $aFormattedAminos = array();
         foreach($aAminos as $key => $elem) {
-            $aFormattedAminos[] = $elem->getName1Letter();
+            if($elem->getName1Letter() != "X" && $elem->getName1Letter() != "*") {
+                $aFormattedAminos[] = $elem->getName1Letter();
+            }
         }
 
         return $aFormattedAminos;
