@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Amélie DUVERNET akka Amelaye
+ * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
  * Last modified 1st 2021 - Goodbye sh**ty year !!!

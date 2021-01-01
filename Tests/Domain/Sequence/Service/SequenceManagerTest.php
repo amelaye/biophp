@@ -119,6 +119,17 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($sExpected, $sHalf);
     }
 
+    public function testHalfSequence2()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $sHalf = $sequenceBuilder->halfSequence(0, "AGGGAATTAAGTAAATGGTAGT");
+        $sExpected = "AGGGAATTAAG";
+
+        $this->assertEquals($sExpected, $sHalf);
+    }
+
     public function testExpandNA()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
