@@ -306,7 +306,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("Cannot load findPattern() method, needs all the arguments.");
         }
 
-        return $this->sequenceManager->findPattern($sPattern, $sSequence, $sOptions = "I");
+        return $this->sequenceManager->findPattern($sPattern, $sSequence, $sOptions);
     }
 
     /**
