@@ -178,6 +178,28 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($test, $aExpected);
     }
 
+    public function testFindPattern()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $aPattern = $sequenceBuilder->findPattern("AAA", null,"O");
+
+        $aExpected = [
+          0 => [
+            0 => "AAA",
+            1 => "AAA",
+            2 => "AAA",
+            3 => "AAA",
+            4 => "AAA",
+            5 => "AAA"
+          ]
+        ];
+
+        $this->assertEquals($aExpected, $aPattern);
+    }
+
     public function testPatposo()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
