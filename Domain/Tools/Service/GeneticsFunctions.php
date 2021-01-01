@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 19 march  2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 18 january 2020
+ * Last modified 1st january 2021 (goodbye sh**ty year !)
  */
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
@@ -40,7 +40,7 @@ class GeneticsFunctions
      * @return  int
      * @throws \Exception
      */
-    public function countYRWSKMDVHB($c)
+    public function CountYRWSKMDVHB($c)
     {
         try {
             $cg = substr_count($c,"Y")
@@ -79,8 +79,9 @@ class GeneticsFunctions
      * Place sequence and reverse complement of sequence in one line
      * @param $sSequence
      * @param $dnaComplements
+     * @return string
      */
-    public static function createInversion($sSequence, $dnaComplements)
+    public static function CreateInversion($sSequence, $dnaComplements): string
     {
         $seqRevert = strrev($sSequence);
         $sNewSequence = "";
@@ -97,7 +98,7 @@ class GeneticsFunctions
      * @return      string
      * @throws      \Exception
      */
-    public static function removeNonCodingProt($sSequence)
+    public static function RemoveNonCodingProt($sSequence)
     {
         try {
             $sSequence = strtoupper($sSequence);

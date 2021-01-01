@@ -723,7 +723,7 @@ class SequenceManager
         $sHalf2 = $this->halfstr($sSequence, 1);
 
         $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
-        $sInverted = GeneticsFunctions::createInversion($sHalf2, $aComplements);
+        $sInverted = GeneticsFunctions::CreateInversion($sHalf2, $aComplements);
 
         if ($sHalf1 == $sInverted) {
             return true;
