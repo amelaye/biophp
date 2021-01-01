@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 1st 2021 - Goodbye sh**ty year !!!
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -808,7 +808,6 @@ class SequenceManager
         }
     }
 
-
     /**
      * Codons beginning with A
      * @param   string  $letter2
@@ -949,63 +948,6 @@ class SequenceManager
                 }
                 break;
         }
-    }
-
-    /**
-     * Finds the weigth of aminos
-     * @param   array   $aDnaWeightsTemp
-     * @return  array
-     */
-    private function dnaWts(array $aDnaWeightsTemp) : array
-    {
-        $aDnaWeights = [
-            'A' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["A"]],  // Adenine
-            'C' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["C"]],  // Cytosine
-            'G' => [$aDnaWeightsTemp["G"], $aDnaWeightsTemp["G"]],  // Guanine
-            'T' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["T"]],  // Thymine
-            'M' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C
-            'R' => [$aDnaWeightsTemp["A"], $aDnaWeightsTemp["G"]],  // A or G
-            'W' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["A"]],  // A or T
-            'S' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G
-            'Y' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["T"]],  // C or T
-            'K' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // G or T
-            'V' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // A or C or G
-            'H' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["A"]],  // A or C or T
-            'D' => [$aDnaWeightsTemp["T"], $aDnaWeightsTemp["G"]],  // A or G or T
-            'B' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // C or G or T
-            'X' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]],  // G, A, T or C
-            'N' => [$aDnaWeightsTemp["C"], $aDnaWeightsTemp["G"]]   // G, A, T or C
-        ];
-        return $aDnaWeights;
-    }
-
-    /**
-     * Finds the weigth of aminos
-     * @param   array   $aRnaWeightsTemp
-     * @return  array
-     */
-    private function rnaWts(array $aRnaWeightsTemp) : array
-    {
-        $aRnaWeights = [
-            'A' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["A"]],  // Adenine
-            'C' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["C"]],  // Cytosine
-            'G' => [$aRnaWeightsTemp["G"], $aRnaWeightsTemp["G"]],  // Guanine
-            'U' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["U"]],  // Uracil
-            'M' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C
-            'R' => [$aRnaWeightsTemp["A"], $aRnaWeightsTemp["G"]],  // A or G
-            'W' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["A"]],  // A or U
-            'S' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G
-            'Y' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["U"]],  // C or U
-            'K' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // G or U
-            'V' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // A or C or G
-            'H' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["A"]],  // A or C or U
-            'D' => [$aRnaWeightsTemp["U"], $aRnaWeightsTemp["G"]],  // A or G or U
-            'B' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // C or G or U
-            'X' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]],  // G, A, U or C
-            'N' => [$aRnaWeightsTemp["C"], $aRnaWeightsTemp["G"]]   // G, A, U or C
-        ];
-        
-        return $aRnaWeights;
     }
 
     /**
