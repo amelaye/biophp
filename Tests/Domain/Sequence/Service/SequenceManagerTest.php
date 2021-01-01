@@ -178,6 +178,17 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($test, $aExpected);
     }
 
+    public function testChemicalGroup()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $group = $sequenceBuilder->chemicalGroup("GAVLIFYWKRH");
+        $sExpected = "LLLLLRRRCCC";
+
+        $this->assertEquals($sExpected, $group);
+    }
+
     public function testFindPattern()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -1696,6 +1707,15 @@ class SequenceManagerTest extends TestCase
         ];
 
         $this->assertEquals($testPalindrome, $aExpected);
+    }
+
+    public function testIsMirror()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $isPalindrome = $sequenceBuilder->isPalindrome("TTTAAAGCTTTAAA");
+        $this->assertTrue($isPalindrome);
     }
 
     public function testFindMirror()

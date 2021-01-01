@@ -716,15 +716,16 @@ class SequenceManager
     public function isPalindrome(string $sSequence) : bool
     {
         // By definition, odd-lengthed strings cannot be a palindrome.
-        if (is_odd(strlen($sSequence))) {
+        if (strlen($sSequence) % 2 != 0) {
             return false;
         }
-        $sHalf1 = halfstr($sSequence, 0);
-        $sHalf2 = halfstr($sSequence, 1);
-        if ($sHalf1 == GeneticsFunctions::createInversion(
-            $sHalf2,
-            $this->nucleotidApi::GetDNAComplement($this->nucleotids))
-        ) {
+        $sHalf1 = $this->halfstr($sSequence, 0);
+        $sHalf2 = $this->halfstr($sSequence, 1);
+
+        $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
+        $sInverted = GeneticsFunctions::createInversion($sHalf2, $aComplements);
+
+        if ($sHalf1 == $sInverted) {
             return true;
         } else {
             return false;

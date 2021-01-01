@@ -313,10 +313,10 @@ class SequenceBuilder implements SequenceInterface
      * Returns the frequency of a given symbol in the sequence property string. Note that you
      * can pass this a symbol argument which may be not be part of the sequence's alphabet.
      * In this case, the method will simply return zero (0) value.
-     * @param   string  $sSymbol    The symbol whose frequency in a sequence we wish to determine.
-     * @param   string  $sSequence  The sequence
-     * @return  int                 The frequency (number of occurrences) of a particular symbol in a sequence string.
-     * @throws  \Exception
+     * @param   string        $sSymbol   The symbol whose frequency in a sequence we wish to determine.
+     * @param   string|null   $sSequence The sequence
+     * @return  int                      The frequency (number of occurrences) of a particular symbol in a sequence string.
+     * @throws \Exception
      */
     public function symFreq(string $sSymbol, string $sSequence = null) : int
     {

@@ -80,13 +80,15 @@ class GeneticsFunctions
      * @param $sSequence
      * @param $dnaComplements
      */
-    public static function createInversion(&$sSequence, $dnaComplements)
+    public static function createInversion($sSequence, $dnaComplements)
     {
         $seqRevert = strrev($sSequence);
+        $sNewSequence = "";
         foreach ($dnaComplements as $nucleotide => $complement) {
             $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
         }
-        $sSequence .= " ".strtoupper($seqRevert);
+        $sNewSequence .= strtoupper($seqRevert);
+        return $sNewSequence;
     }
 
     /**
