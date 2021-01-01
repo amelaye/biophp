@@ -7,6 +7,8 @@
  */
 namespace Amelaye\BioPHP\Api\DTO;
 
+use JMS\Serializer\Annotation\Type;
+
 /**
  * Database of elements - weights included
  * @package Amelaye\BioPHP\Api\DTO
@@ -15,16 +17,19 @@ namespace Amelaye\BioPHP\Api\DTO;
 class ElementDTO
 {
     /**
+     * @Type("integer")
      * @var     int     The id (auto-increment)
      */
     private $id;
 
     /**
+     * @Type("string")
      * @var     string  Water, carbone, for example
      */
     private $name;
 
     /**
+     * @Type("float")
      * @var     float   The weight of the nucleotid
      */
     private $weight;

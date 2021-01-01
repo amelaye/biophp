@@ -714,6 +714,968 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($testPalindrome, $aExpected);
     }
 
+    public function testFindPalindromeWithLen()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $testPalindrome = $sequenceBuilder->findPalindrome(null, 100,0);
+
+        $aExpected = [
+            0 =>  [
+                0 => "CTCCTCATCGCTGGGCACAGCCCAGAGGGTATAAACAGTGCTGGAGGCTGGCGGGGCAGGCCAGCTGAGTCCTGAGCAGCAGCCCAGCGCAGCCACCGAG",
+                1 => 45
+            ],
+            1 =>  [
+                0 => "AGGGTATAAACAGTGCTGGAGGCTGGCGGGGCAGGCCAGCTGAGTCCTGAGCAGCAGCCCAGCGCAGCCACCGAGACACCATGAGAGCCCTCACACTCCT",
+                1 => 70
+            ],
+            2 =>  [
+                0 => "CCTGAGCAGCAGCCCAGCGCAGCCACCGAGACACCATGAGAGCCCTCACACTCCTCGCCCTATTGGCCCTGGCCGCACTTTGCATCGCTGGCCAGGCAGG",
+                1 => 115
+            ],
+            3 =>  [
+                0 => "TCACACTCCTCGCCCTATTGGCCCTGGCCGCACTTTGCATCGCTGGCCAGGCAGGTGAGTGCCCCCACCTCCCCTCAGGCCGCATTGCAGTGGGGGCTGA",
+                1 => 160
+            ],
+            4 =>  [
+                0 => "CCTCGCCCTATTGGCCCTGGCCGCACTTTGCATCGCTGGCCAGGCAGGTGAGTGCCCCCACCTCCCCTCAGGCCGCATTGCAGTGGGGGCTGAGAGGAGG",
+                1 => 167
+            ],
+            5 =>  [
+                0 => "TTGCAGTGGGGGCTGAGAGGAGGAAGCACCATGGCCCACCTCTTCTCACCCCTTTGGCTGGCAGTCCCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAA",
+                1 => 244
+            ],
+            6 =>  [
+                0 => "GGCTGAGAGGAGGAAGCACCATGGCCCACCTCTTCTCACCCCTTTGGCTGGCAGTCCCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAATCCATTTGCC",
+                1 => 254
+            ],
+            7 =>  [
+                0 => "CTCTTCTCACCCCTTTGGCTGGCAGTCCCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAATCCATTTGCCCCAGCTCTGCCCTTGCAGAGGGAGAGGAG",
+                1 => 283
+            ],
+            8 =>  [
+                0 => "GGCTGGCAGTCCCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAATCCATTTGCCCCAGCTCTGCCCTTGCAGAGGGAGAGGAGGGAAGAGCAAGCTGCC",
+                1 => 299
+            ],
+            9 =>  [
+                0 => "CCTTTGCAGTCTAACCACCTTGTTGCAGGCTCAATCCATTTGCCCCAGCTCTGCCCTTGCAGAGGGAGAGGAGGGAAGAGCAAGCTGCCCGAGACGCAGG",
+                1 => 310
+            ],
+            10 =>  [
+                0 => "CTCAATCCATTTGCCCCAGCTCTGCCCTTGCAGAGGGAGAGGAGGGAAGAGCAAGCTGCCCGAGACGCAGGGGAAGGAGGATGAGGGCCCTGGGGATGAG",
+                1 => 339
+            ],
+            11 =>  [
+                0 => "AGCTCTGCCCTTGCAGAGGGAGAGGAGGGAAGAGCAAGCTGCCCGAGACGCAGGGGAAGGAGGATGAGGGCCCTGGGGATGAGCTGGGGTGAACCAGGCT",
+                1 => 356
+            ],
+            12 =>  [
+                0 => "GGGAAGAGCAAGCTGCCCGAGACGCAGGGGAAGGAGGATGAGGGCCCTGGGGATGAGCTGGGGTGAACCAGGCTCCCTTTCCTTTGCAGGTGCGAAGCCC",
+                1 => 382
+            ],
+            13 =>  [
+                0 => "GAAGCCCAGCGGTGCAGAGTCCAGCAAAGGTGCAGGTATGAGGATGGACCTGATGGGTTCCTGGACCCTCCCCTCTCACCCTGGTCCCTCAGTCTCATTC",
+                1 => 475
+            ],
+            14 =>  [
+                0 => "CAGCAAAGGTGCAGGTATGAGGATGGACCTGATGGGTTCCTGGACCCTCCCCTCTCACCCTGGTCCCTCAGTCTCATTCCCCCACTCCTGCCACCTCCTG",
+                1 => 496
+            ],
+            15 =>  [
+                0 => "TGGGTTCCTGGACCCTCCCCTCTCACCCTGGTCCCTCAGTCTCATTCCCCCACTCCTGCCACCTCCTGTCTGGCCATCAGGAAGGCCAGCCTGCTCCCCA",
+                1 => 528
+            ],
+            16 =>  [
+                0 => "GGTTCCTGGACCCTCCCCTCTCACCCTGGTCCCTCAGTCTCATTCCCCCACTCCTGCCACCTCCTGTCTGGCCATCAGGAAGGCCAGCCTGCTCCCCACC",
+                1 => 530
+            ],
+            17 =>  [
+                0 => "CAGTCTCATTCCCCCACTCCTGCCACCTCCTGTCTGGCCATCAGGAAGGCCAGCCTGCTCCCCACCTGATCCTCCCAAACCCAGAGCCACCTGATGCCTG",
+                1 => 564
+            ],
+            18 =>  [
+                0 => "CTGGCCATCAGGAAGGCCAGCCTGCTCCCCACCTGATCCTCCCAAACCCAGAGCCACCTGATGCCTGCCCCTCTGCTCCACAGCCTTTGTGTCCAAGCAG",
+                1 => 597
+            ],
+            19 =>  [
+                0 => "ACCTGATGCCTGCCCCTCTGCTCCACAGCCTTTGTGTCCAAGCAGGAGGGCAGCGAGGTAGTGAAGAGACCCAGGCGCTACCTGTATCAATGGCTGGGGT",
+                1 => 652
+            ],
+            20 =>  [
+                0 => "CAGCGAGGTAGTGAAGAGACCCAGGCGCTACCTGTATCAATGGCTGGGGTGAGAGAAAAGGCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTG",
+                1 => 702
+            ],
+            21 =>  [
+                0 => "CCCAGGCGCTACCTGTATCAATGGCTGGGGTGAGAGAAAAGGCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGG",
+                1 => 721
+            ],
+            22 =>  [
+                0 => "CAATGGCTGGGGTGAGAGAAAAGGCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTG",
+                1 => 739
+            ],
+            23 =>  [
+                0 => "AGGCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCT",
+                1 => 760
+            ],
+            24 =>  [
+                0 => "GCAGAGCTGGGCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCTGC",
+                1 => 762
+            ],
+            25 =>  [
+                0 => "GCCAAGGCCCTGCCTCTCCGGGATGGTCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCTGCCCTGGTGGGC",
+                1 => 772
+            ],
+            26 =>  [
+                0 => "TCTGTGGGGGAGCTGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCTGCCCTGGTGGGCACCCTGGAGCCCCATGTGTAGGGAGA",
+                1 => 798
+            ],
+            27 =>  [
+                0 => "TGCAGCAGGGAGTGGCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCTGCCCTGGTGGGCACCCTGGAGCCCCATGTGTAGGGAGAGGAGGGATGGGCA",
+                1 => 811
+            ],
+            28 =>  [
+                0 => "GCCTCTCTGGGTTGTGGTGGGGGTACAGGCAGCCTGCCCTGGTGGGCACCCTGGAGCCCCATGTGTAGGGAGAGGAGGGATGGGCATTTTGCACGGGGGC",
+                1 => 825
+            ],
+            29 =>  [
+                0 => "GCCACCACGTCGGGTGTCTCAGAGCCCCAGTCCCCTACCCGGATCCCCTGGAGCCCAGGAGGGAGGTGTGTGAGCTCAATCCGGACTGTGACGAGTTGGC",
+                1 => 929
+            ],
+            30 =>  [
+                0 => "GAGGTGTGTGAGCTCAATCCGGACTGTGACGAGTTGGCTGACCACATCGGCTTTCAGGAGGCCTATCGGCGCTTCTACGGCCCGGTCTAGGGTGTCGCTC",
+                1 => 991
+            ],
+            31 =>  [
+                0 => "AGGAGGCCTATCGGCGCTTCTACGGCCCGGTCTAGGGTGTCGCTCTGCTGGCCTGGCCGGCAACCCCAGTTCTGCTCCTCTCCAGGCACCCTTCTTTCCT",
+                1 => 1046
+            ],
+            32 =>  [
+                0 => "GGCGCTTCTACGGCCCGGTCTAGGGTGTCGCTCTGCTGGCCTGGCCGGCAACCCCAGTTCTGCTCCTCTCCAGGCACCCTTCTTTCCTCTTCCCCTTGCC",
+                1 => 1058
+            ],
+        ];
+
+        $this->assertEquals($aExpected, $testPalindrome);
+    }
+
+    public function testFindPalindromeWithNoPalenAndNoLen()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $testPalindrome = $sequenceBuilder->findPalindrome(null, 0, 0);
+        $this->assertFalse($testPalindrome);
+    }
+
+    public function testFindPalindromeWitPalenAndLen()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($this->sequence);
+
+        $testPalindrome = $sequenceBuilder->findPalindrome(null, 2,2);
+
+        $aExpected = [
+            0 =>  [
+                0 => "GC",
+                1 => 1,
+            ],
+            1 =>  [
+                0 => "AT",
+                1 => 5,
+            ],
+            2 =>  [
+                0 => "TA",
+                1 => 13,
+            ],
+            3 =>  [
+                0 => "CG",
+                1 => 19,
+            ],
+            4 =>  [
+                0 => "GC",
+                1 => 20,
+            ],
+            5 =>  [
+                0 => "CG",
+                1 => 23,
+            ],
+            6 =>  [
+                0 => "GC",
+                1 => 24,
+            ],
+            7 =>  [
+                0 => "AT",
+                1 => 29,
+            ],
+            8 =>  [
+                0 => "GC",
+                1 => 37,
+            ],
+            9 =>  [
+                0 => "AT",
+                1 => 39,
+            ],
+            10 =>  [
+                0 => "GC",
+                1 => 41,
+            ],
+            11 =>  [
+                0 => "AT",
+                1 => 51,
+            ],
+            12 =>  [
+                0 => "CG",
+                1 => 53,
+            ],
+            13 =>  [
+                0 => "GC",
+                1 => 54,
+            ],
+            14 =>  [
+                0 => "GC",
+                1 => 59,
+            ],
+            15 =>  [
+                0 => "GC",
+                1 => 64,
+            ],
+            16 =>  [
+                0 => "TA",
+                1 => 74,
+            ],
+            17 =>  [
+                0 => "AT",
+                1 => 75,
+            ],
+            18 =>  [
+                0 => "TA",
+                1 => 76,
+            ],
+            19 =>  [
+                0 => "GC",
+                1 => 84,
+            ],
+            20 =>  [
+                0 => "GC",
+                1 => 91,
+            ],
+            21 =>  [
+                0 => "GC",
+                1 => 95,
+            ],
+            22 =>  [
+                0 => "CG",
+                1 => 96,
+            ],
+            23 =>  [
+                0 => "GC",
+                1 => 100,
+            ],
+            24 =>  [
+                0 => "GC",
+                1 => 104,
+            ],
+            25 =>  [
+                0 => "GC",
+                1 => 108,
+            ],
+            26 =>  [
+                0 => "GC",
+                1 => 120,
+            ],
+            27 =>  [
+                0 => "GC",
+                1 => 123,
+            ],
+            28 =>  [
+                0 => "GC",
+                1 => 126,
+            ],
+            29 =>  [
+                0 => "GC",
+                1 => 131,
+            ],
+            30 =>  [
+                0 => "CG",
+                1 => 132,
+            ],
+            31 =>  [
+                0 => "GC",
+                1 => 133,
+            ],
+            32 =>  [
+                0 => "GC",
+                1 => 136,
+            ],
+            33 =>  [
+                0 => "CG",
+                1 => 141,
+            ],
+            34 =>  [
+                0 => "AT",
+                1 => 150,
+            ],
+            35 =>  [
+                0 => "GC",
+                1 => 156
+            ],
+            36 =>  [
+                0 => "CG",
+                1 => 170
+            ],
+            37 =>  [
+                0 => "GC",
+                1 => 171
+            ],
+            38 =>  [
+                0 => "TA",
+                1 => 175
+            ],
+            39 =>  [
+                0 => "AT",
+                1 => 176
+            ],
+            40 =>  [
+                0 => "GC",
+                1 => 180
+            ],
+            41 =>  [
+                0 => "GC",
+                1 => 186
+            ],
+            42 =>  [
+                0 => "CG",
+                1 => 188
+            ],
+            43 =>  [
+                0 => "GC",
+                1 => 189
+            ],
+            44 =>  [
+                0 => "GC",
+                1 => 196
+            ],
+            45 =>  [
+                0 => "AT",
+                1 => 198
+            ],
+            46 =>  [
+                0 => "CG",
+                1 => 200
+            ],
+            47 =>  [
+                0 => "GC",
+                1 => 201
+            ],
+            48 =>  [
+                0 => "GC",
+                1 => 205
+            ],
+            49 =>  [
+                0 => "GC",
+                1 => 210
+            ],
+            50 =>  [
+                0 => "GC",
+                1 => 220
+            ],
+            51 =>  [
+                0 => "GC",
+                1 => 238
+            ],
+            52 =>  [
+                0 => "CG",
+                1 => 240
+            ],
+            53 =>  [
+                0 => "GC",
+                1 => 241
+            ],
+            54 =>  [
+                0 => "AT",
+                1 => 243
+            ],
+            55 =>  [
+                0 => "GC",
+                1 => 246
+            ],
+            56 =>  [
+                0 => "GC",
+                1 => 255
+            ],
+            57 =>  [
+                0 => "GC",
+                1 => 269
+            ],
+            58 =>  [
+                0 => "AT",
+                1 => 274
+            ],
+            59 =>  [
+                0 => "GC",
+                1 => 277
+            ],
+            60 =>  [
+                0 => "GC",
+                1 => 300
+            ],
+            61 =>  [
+                0 => "GC",
+                1 => 304
+            ],
+            62 =>  [
+                0 => "GC",
+                1 => 315
+            ],
+            63 =>  [
+                0 => "TA",
+                1 => 321
+            ],
+            64 =>  [
+                0 => "GC",
+                1 => 334
+            ],
+            65 =>  [
+                0 => "GC",
+                1 => 338
+            ],
+            66 =>  [
+                0 => "AT",
+                1 => 343
+            ],
+            67 =>  [
+                0 => "AT",
+                1 => 347
+            ],
+            68 =>  [
+                0 => "GC",
+                1 => 351
+            ],
+            69 =>  [
+                0 => "GC",
+                1 => 357
+            ],
+            70 =>  [
+                0 => "GC",
+                1 => 362
+            ],
+            71 =>  [
+                0 => "GC",
+                1 => 368
+            ],
+            72 =>  [
+                0 => "GC",
+                1 => 389
+            ],
+            73 =>  [
+                0 => "GC",
+                1 => 393
+            ],
+            74 =>  [
+                0 => "GC",
+                1 => 396
+            ],
+            75 =>  [
+                0 => "CG",
+                1 => 399
+            ],
+            76 =>  [
+                0 => "CG",
+                1 => 404
+            ],
+            77 =>  [
+                0 => "GC",
+                1 => 405
+            ],
+            78 =>  [
+                0 => "AT",
+                1 => 419
+            ],
+            79 =>  [
+                0 => "GC",
+                1 => 425
+            ],
+            80 =>  [
+                0 => "AT",
+                1 => 434
+            ],
+            81 =>  [
+                0 => "GC",
+                1 => 438
+            ],
+            82 =>  [
+                0 => "GC",
+                1 => 453
+            ],
+            83 =>  [
+                0 => "GC",
+                1 => 467
+            ],
+            84 =>  [
+                0 => "GC",
+                1 => 473
+            ],
+            85 =>  [
+                0 => "CG",
+                1 => 474
+            ],
+            86 =>  [
+                0 => "GC",
+                1 => 478
+            ],
+            87 =>  [
+                0 => "GC",
+                1 => 483
+            ],
+            88 =>  [
+                0 => "CG",
+                1 => 484
+            ],
+            89 =>  [
+                0 => "GC",
+                1 => 488
+            ],
+            90 =>  [
+                0 => "GC",
+                1 => 498
+            ],
+            91 =>  [
+                0 => "GC",
+                1 => 506
+            ],
+            92 =>  [
+                0 => "TA",
+                1 => 511
+            ],
+            93 =>  [
+                0 => "AT",
+                1 => 512
+            ],
+            94 =>  [
+                0 => "AT",
+                1 => 518
+            ],
+            95 =>  [
+                0 => "AT",
+                1 => 527
+            ],
+            96 =>  [
+                0 => "AT",
+                1 => 571
+            ],
+            97 =>  [
+                0 => "GC",
+                1 => 585
+            ],
+            98 =>  [
+                0 => "GC",
+                1 => 600
+            ],
+            99 =>  [
+                0 => "AT",
+                1 => 603
+            ],
+            100 =>  [
+                0 => "GC",
+                1 => 612
+            ],
+            101 =>  [
+                0 => "GC",
+                1 => 616
+            ],
+            102 =>  [
+                0 => "GC",
+                1 => 620
+            ],
+            103 =>  [
+                0 => "AT",
+                1 => 632
+            ],
+            104 =>  [
+                0 => "GC",
+                1 => 649
+            ],
+            105 =>  [
+                0 => "AT",
+                1 => 657
+            ],
+            106 =>  [
+                0 => "GC",
+                1 => 659
+            ],
+            107 =>  [
+                0 => "GC",
+                1 => 663
+            ],
+            108 =>  [
+                0 => "GC",
+                1 => 671
+            ],
+            109 =>  [
+                0 => "GC",
+                1 => 679
+            ],
+            110 =>  [
+                0 => "GC",
+                1 => 693
+            ],
+            111 =>  [
+                0 => "GC",
+                1 => 701
+            ],
+            112 =>  [
+                0 => "GC",
+                1 => 704
+            ],
+            113 =>  [
+                0 => "CG",
+                1 => 705
+            ],
+            114 =>  [
+                0 => "TA",
+                1 => 710
+            ],
+            115 =>  [
+                0 => "GC",
+                1 => 726
+            ],
+            116 =>  [
+                0 => "CG",
+                1 => 727
+            ],
+            117 =>  [
+                0 => "GC",
+                1 => 728
+            ],
+            118 =>  [
+                0 => "TA",
+                1 => 730
+            ],
+            119 =>  [
+                0 => "TA",
+                1 => 736
+            ],
+            120 =>  [
+                0 => "AT",
+                1 => 737
+            ],
+            121 =>  [
+                0 => "AT",
+                1 => 741
+            ],
+            122 =>  [
+                0 => "GC",
+                1 => 744
+            ],
+            123 =>  [
+                0 => "GC",
+                1 => 762
+            ],
+            124 =>  [
+                0 => "GC",
+                1 => 767
+            ],
+            125 =>  [
+                0 => "GC",
+                1 => 772
+            ],
+            126 =>  [
+                0 => "GC",
+                1 => 778
+            ],
+            127 =>  [
+                0 => "GC",
+                1 => 783
+            ],
+            128 =>  [
+                0 => "CG",
+                1 => 790
+            ],
+            129 =>  [
+                0 => "AT",
+                1 => 794
+            ],
+            130 =>  [
+                0 => "GC",
+                1 => 809
+            ],
+            131 =>  [
+                0 => "GC",
+                1 => 812
+            ],
+            132 =>  [
+                0 => "GC",
+                1 => 815
+            ],
+            133 =>  [
+                0 => "GC",
+                1 => 825
+            ],
+            134 =>  [
+                0 => "TA",
+                1 => 848
+            ],
+            135 =>  [
+                0 => "GC",
+                1 => 853
+            ],
+            136 =>  [
+                0 => "GC",
+                1 => 856
+            ],
+            137 =>  [
+                0 => "GC",
+                1 => 860
+            ],
+            138 =>  [
+                0 => "GC",
+                1 => 870
+            ],
+            139 =>  [
+                0 => "GC",
+                1 => 880
+            ],
+            140 =>  [
+                0 => "AT",
+                1 => 885
+            ],
+            141 =>  [
+                0 => "TA",
+                1 => 890
+            ],
+            142 =>  [
+                0 => "AT",
+                1 => 904
+            ],
+            143 =>  [
+                0 => "GC",
+                1 => 908
+            ],
+            144 =>  [
+                0 => "AT",
+                1 => 910
+            ],
+            145 =>  [
+                0 => "GC",
+                1 => 915
+            ],
+            146 =>  [
+                0 => "CG",
+                1 => 918
+            ],
+            147 =>  [
+                0 => "GC",
+                1 => 923
+            ],
+            148 =>  [
+                0 => "AT",
+                1 => 927
+            ],
+            149 =>  [
+                0 => "GC",
+                1 => 929
+            ],
+            150 =>  [
+                0 => "CG",
+                1 => 936
+            ],
+            151 =>  [
+                0 => "CG",
+                1 => 939
+            ],
+            152 =>  [
+                0 => "GC",
+                1 => 952
+            ],
+            153 =>  [
+                0 => "TA",
+                1 => 964
+            ],
+            154 =>  [
+                0 => "CG",
+                1 => 968
+            ],
+            155 =>  [
+                0 => "AT",
+                1 => 971
+            ],
+            156 =>  [
+                0 => "GC",
+                1 => 981
+            ],
+            157 =>  [
+                0 => "GC",
+                1 => 1002
+            ],
+            158 =>  [
+                0 => "AT",
+                1 => 1007
+            ],
+            159 =>  [
+                0 => "CG",
+                1 => 1010
+            ],
+            160 =>  [
+                0 => "CG",
+                1 => 1020
+            ],
+            161 =>  [
+                0 => "GC",
+                1 => 1027
+            ],
+            162 =>  [
+                0 => "AT",
+                1 => 1036
+            ],
+            163 =>  [
+                0 => "CG",
+                1 => 1038
+            ],
+            164 =>  [
+                0 => "GC",
+                1 => 1040
+            ],
+            165 =>  [
+                0 => "GC",
+                1 => 1051
+            ],
+            166 =>  [
+                0 => "TA",
+                1 => 1054
+            ],
+            167 =>  [
+                0 => "AT",
+                1 => 1055
+            ],
+            168 =>  [
+                0 => "CG",
+                1 => 1057
+            ],
+            169 =>  [
+                0 => "GC",
+                1 => 1059
+            ],
+            170 =>  [
+                0 => "CG",
+                1 => 1060
+            ],
+            171 =>  [
+                0 => "GC",
+                1 => 1061
+            ],
+            172 =>  [
+                0 => "TA",
+                1 => 1066
+            ],
+            173 =>  [
+                0 => "CG",
+                1 => 1068
+            ],
+            174 =>  [
+                0 => "GC",
+                1 => 1070
+            ],
+            175 =>  [
+                0 => "CG",
+                1 => 1073
+            ],
+            176 =>  [
+                0 => "TA",
+                1 => 1078
+            ],
+            177 =>  [
+                0 => "CG",
+                1 => 1086
+            ],
+            178 =>  [
+                0 => "GC",
+                1 => 1087
+            ],
+            179 =>  [
+                0 => "GC",
+                1 => 1092
+            ],
+            180 =>  [
+                0 => "GC",
+                1 => 1096
+            ],
+            181 =>  [
+                0 => "GC",
+                1 => 1101
+            ],
+            182 =>  [
+                0 => "CG",
+                1 => 1103
+            ],
+            183 =>  [
+                0 => "GC",
+                1 => 1105
+            ],
+            184 =>  [
+                0 => "GC",
+                1 => 1119
+            ],
+            185 =>  [
+                0 => "GC",
+                1 => 1131
+            ],
+            186 =>  [
+                0 => "GC",
+                1 => 1155
+            ],
+            187 =>  [
+                0 => "GC",
+                1 => 1161
+            ],
+            188 =>  [
+                0 => "GC",
+                1 => 1175
+            ],
+            189 =>  [
+                0 => "TA",
+                1 => 1179
+            ],
+            190 =>  [
+                0 => "AT",
+                1 => 1180
+            ],
+            191 =>  [
+                0 => "AT",
+                1 => 1184
+            ],
+            192 =>  [
+                0 => "AT",
+                1 => 1197
+            ],
+            193 =>  [
+                0 => "AT",
+                1 => 1200
+            ],
+            194 =>  [
+                0 => "GC",
+                1 => 1206
+            ],
+            195 =>  [
+                0 => "GC",
+                1 => 1209
+            ],
+            196 =>  [
+                0 => "AT",
+                1 => 1217
+            ],
+            197 =>  [
+                0 => "TA",
+                1 => 1218
+            ]
+        ];
+
+        $this->assertEquals($testPalindrome, $aExpected);
+    }
+
     public function testFindMirror()
     {
         $oSequence = new Sequence();
