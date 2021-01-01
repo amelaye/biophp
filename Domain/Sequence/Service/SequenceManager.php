@@ -710,8 +710,9 @@ class SequenceManager
      * palindrome"). A "genetic palindrome" is one where the ends of a sequence are
      * reverse complements of each other.
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
-     * @param   string      $sSequence   A sequence which we want to test if it is a genetic palindrome or not.
-     * @return  bool                     TRUE if the given string is a genetic palindrome, FALSE otherwise.
+     * @param   string      $sSequence    A sequence which we want to test if it is a genetic palindrome or not.
+     * @return  bool                      TRUE if the given string is a genetic palindrome, FALSE otherwise.
+     * @throws  \Exception
      */
     public function isPalindrome(string $sSequence) : bool
     {
@@ -719,8 +720,8 @@ class SequenceManager
         if (strlen($sSequence) % 2 != 0) {
             return false;
         }
-        $sHalf1 = $this->halfstr($sSequence, 0);
-        $sHalf2 = $this->halfstr($sSequence, 1);
+        $sHalf1 = $this->halfSequence($sSequence, 0);
+        $sHalf2 = $this->halfSequence($sSequence, 1);
 
         $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
         $sInverted = GeneticsFunctions::CreateInversion($sHalf2, $aComplements);

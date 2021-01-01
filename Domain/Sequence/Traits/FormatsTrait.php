@@ -85,30 +85,4 @@ trait FormatsTrait
     {
         $value = trim($value);
     }
-
-    /**
-     * Gets the half of a given string
-     * @param $string
-     * @param $no
-     * @return false|string
-     */
-    function halfstr($string, $no)
-    {
-        // for now, this holds for mirror repeats.
-        if (strlen($string) %2 != 0)
-        {
-            $comp_len = (int)(strlen($string)/2);
-            if ($no == 0) {
-                return substr($string, 0, $comp_len);
-            } else {
-                return substr($string, $comp_len + 1);
-            }
-        }
-        else
-        {
-            $comp_len = (int) strlen($string)/2;
-            if ($no == 0) return substr($string, 0, $comp_len);
-            else return substr($string, $comp_len);
-        }
-    }
 }
