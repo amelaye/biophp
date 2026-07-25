@@ -82,4 +82,27 @@ class SequenceTest extends WebTestCase
         $this->assertEquals($organism, $oExpectedSequence->getOrganism());
         $this->assertEquals(1, $oExpectedSequence->getFragment());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     * seqLength/start/end/molType/date/source/description/organism/fragment are nullable
+     * in the database, so they must stay null; the other fields fall back to a default value.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oSequence = new Sequence();
+
+        $this->assertSame("", $oSequence->getPrimAcc());
+        $this->assertSame("", $oSequence->getEntryName());
+        $this->assertSame("", $oSequence->getSequence());
+        $this->assertNull($oSequence->getSeqLength());
+        $this->assertNull($oSequence->getStart());
+        $this->assertNull($oSequence->getEnd());
+        $this->assertNull($oSequence->getMolType());
+        $this->assertNull($oSequence->getDate());
+        $this->assertNull($oSequence->getSource());
+        $this->assertNull($oSequence->getDescription());
+        $this->assertNull($oSequence->getOrganism());
+        $this->assertNull($oSequence->getFragment());
+    }
 }

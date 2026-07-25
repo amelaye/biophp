@@ -23,4 +23,17 @@ class EnzymeTest extends WebTestCase
         $this->assertEquals(2, $oEnzyme->getCutpos());
         $this->assertEquals("I", $oEnzyme->getPattern());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oEnzyme = new Enzyme();
+
+        $this->assertSame("", $oEnzyme->getName());
+        $this->assertSame("", $oEnzyme->getPattern());
+        $this->assertSame(0, $oEnzyme->getCutpos());
+        $this->assertSame(0, $oEnzyme->getLength());
+    }
 }

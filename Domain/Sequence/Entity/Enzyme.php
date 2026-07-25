@@ -3,7 +3,7 @@
  * Enzymes entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -18,26 +18,26 @@ class Enzyme
      * The short name of the restriction endonuclease following the accepted naming convention
      * @var string
      */
-    private $name;
+    private $name = "";
 
     /**
      * A string representing the restriction pattern recognized by the enzyme.
      * @var string
      */
-    private $pattern;
+    private $pattern = "";
 
     /**
      * An integer representing the position within the restriction pattern where the enzyme
      * actually cuts the DNA strand. This could range from 0 to 1 less than the length of the restriction pattern.
      * @var int
      */
-    private $cutpos;
+    private $cutpos = 0;
 
     /**
      * The number of symbols (or base pairs) in the restriction pattern.
      * @var int
      */
-    private $length;
+    private $length = 0;
 
     /**
      * @return string

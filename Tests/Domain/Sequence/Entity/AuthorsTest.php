@@ -17,4 +17,16 @@ class AuthorsTest extends WebTestCase
         $this->assertEquals("1", $oAuthor->getRefno());
         $this->assertEquals("Sahni N", $oAuthor->getAuthor());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oAuthor = new Author();
+
+        $this->assertSame("", $oAuthor->getPrimAcc());
+        $this->assertSame(0, $oAuthor->getRefno());
+        $this->assertSame("", $oAuthor->getAuthor());
+    }
 }

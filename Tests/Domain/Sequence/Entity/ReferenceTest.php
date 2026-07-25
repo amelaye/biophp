@@ -29,4 +29,24 @@ class ReferenceTest extends WebTestCase
         $this->assertEquals("MYRISTOYLATION.", $oReference->getRemark());
         $this->assertEquals("This is a test for references class.", $oReference->getComments());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     * baseRange/title/medline/pubmed/remark/comments are nullable in the database,
+     * so they must stay null; the other fields fall back to a default value.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oReference = new Reference();
+
+        $this->assertSame("", $oReference->getPrimAcc());
+        $this->assertSame(0, $oReference->getRefno());
+        $this->assertSame("", $oReference->getJournal());
+        $this->assertNull($oReference->getBaseRange());
+        $this->assertNull($oReference->getTitle());
+        $this->assertNull($oReference->getMedline());
+        $this->assertNull($oReference->getPubmed());
+        $this->assertNull($oReference->getRemark());
+        $this->assertNull($oReference->getComments());
+    }
 }

@@ -31,4 +31,16 @@ class ProteinTest extends TestCase
         $this->assertEquals("test1", $aSequence);
         $this->assertEquals("Ma Proteine", $sNameProtein);
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oProtein = new Protein();
+
+        $this->assertSame("", $oProtein->getId());
+        $this->assertSame("", $oProtein->getName());
+        $this->assertSame("", $oProtein->getSequence());
+    }
 }

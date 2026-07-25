@@ -25,4 +25,22 @@ class FeaturesTest extends WebTestCase
         $this->assertEquals("NUDT12", $oFeature->getFtValue());
         $this->assertEquals("description of my feature.", $oFeature->getFtDesc());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     * ftFrom/ftTo are nullable in the database, so they must stay null; the other
+     * fields fall back to an empty string.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oFeature = new Feature();
+
+        $this->assertSame("", $oFeature->getPrimAcc());
+        $this->assertSame("", $oFeature->getFtKey());
+        $this->assertSame("", $oFeature->getFtQual());
+        $this->assertSame("", $oFeature->getFtValue());
+        $this->assertSame("", $oFeature->getFtDesc());
+        $this->assertNull($oFeature->getFtFrom());
+        $this->assertNull($oFeature->getFtTo());
+    }
 }

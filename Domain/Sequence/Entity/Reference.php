@@ -3,7 +3,7 @@
  * Doctrine Entity Reference
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -37,7 +37,7 @@ class Reference
      *     mappedBy = "primAcc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var int
@@ -49,7 +49,7 @@ class Reference
      *     options = {"default":0}
      * )
      */
-    private $refno;
+    private $refno = 0;
 
     /**
      * @var string
@@ -107,7 +107,7 @@ class Reference
      *     type = "text"
      * )
      */
-    private $journal;
+    private $journal = "";
 
     /**
      * @var string
@@ -152,33 +152,33 @@ class Reference
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBaseRange() : string
+    public function getBaseRange() : ?string
     {
         return $this->baseRange;
     }
 
     /**
-     * @param string $baseRange
+     * @param string|null $baseRange
      */
-    public function setBaseRange(string $baseRange) : void
+    public function setBaseRange(?string $baseRange) : void
     {
         $this->baseRange = $baseRange;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTitle() : string
+    public function getTitle() : ?string
     {
         return $this->title;
     }
 
     /**
-     * @param string $title
+     * @param string|null $title
      */
-    public function setTitle(string $title) : void
+    public function setTitle(?string $title) : void
     {
         $this->title = $title;
     }
@@ -200,65 +200,65 @@ class Reference
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMedline() : string
+    public function getMedline() : ?string
     {
         return $this->medline;
     }
 
     /**
-     * @param string $medline
+     * @param string|null $medline
      */
-    public function setMedline(string $medline) : void
+    public function setMedline(?string $medline) : void
     {
         $this->medline = $medline;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPubmed() : string
+    public function getPubmed() : ?string
     {
         return $this->pubmed;
     }
 
     /**
-     * @param string $pubmed
+     * @param string|null $pubmed
      */
-    public function setPubmed(string $pubmed) : void
+    public function setPubmed(?string $pubmed) : void
     {
         $this->pubmed = $pubmed;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRemark() : string
+    public function getRemark() : ?string
     {
         return $this->remark;
     }
 
     /**
-     * @param string $remark
+     * @param string|null $remark
      */
-    public function setRemark(string $remark) : void
+    public function setRemark(?string $remark) : void
     {
         $this->remark = $remark;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getComments(): string
+    public function getComments(): ?string
     {
         return $this->comments;
     }
 
     /**
-     * @param string $comments
+     * @param string|null $comments
      */
-    public function setComments(string $comments): void
+    public function setComments(?string $comments): void
     {
         $this->comments = $comments;
     }

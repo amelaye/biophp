@@ -27,4 +27,22 @@ class GbSequenceTest extends WebTestCase
         $this->assertEquals(10, $oGbSequence->getSegmentCount());
         $this->assertEquals("123", $oGbSequence->getNcbiGiId());
     }
+
+    /**
+     * Getters must not throw a TypeError when the corresponding setter was never called.
+     * All fields except primAcc are nullable in the database, so they must stay null.
+     */
+    public function testGettersDoNotThrowWhenFieldsAreNotSet()
+    {
+        $oGbSequence = new GbSequence();
+
+        $this->assertSame("", $oGbSequence->getPrimAcc());
+        $this->assertNull($oGbSequence->getStrands());
+        $this->assertNull($oGbSequence->getTopology());
+        $this->assertNull($oGbSequence->getDivision());
+        $this->assertNull($oGbSequence->getSegmentNo());
+        $this->assertNull($oGbSequence->getSegmentCount());
+        $this->assertNull($oGbSequence->getVersion());
+        $this->assertNull($oGbSequence->getNcbiGiId());
+    }
 }

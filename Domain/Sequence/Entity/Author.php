@@ -3,7 +3,7 @@
  * Doctrine Entity Authors
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -31,7 +31,7 @@ class Author
      *     referencedColumnName = "prim_acc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var int
@@ -43,7 +43,7 @@ class Author
      *     options = {"default":0}
      * )
      */
-    private $refno;
+    private $refno = 0;
 
     /**
      * @var string
@@ -53,7 +53,7 @@ class Author
      *     nullable = false
      * )
      */
-    private $author;
+    private $author = "";
 
     /**
      * @return string

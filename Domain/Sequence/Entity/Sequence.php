@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -39,7 +39,7 @@ class Sequence
      * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Keyword")
      * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Reference")
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var string
@@ -49,7 +49,7 @@ class Sequence
      *     nullable = false
      * )
      */
-    private $entryName;
+    private $entryName = "";
 
     /**
      * @var int
@@ -116,7 +116,7 @@ class Sequence
      *     nullable = false
      * )
      */
-    private $sequence;
+    private $sequence = "";
 
     /**
      * @var string
@@ -179,97 +179,97 @@ class Sequence
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSeqLength() : int
+    public function getSeqLength() : ?int
     {
         return $this->seqLength;
     }
 
     /**
-     * @param int $seqLength
+     * @param int|null $seqLength
      */
-    public function setSeqLength(int $seqLength) : void
+    public function setSeqLength(?int $seqLength) : void
     {
         $this->seqLength = $seqLength;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getStart(): int
+    public function getStart(): ?int
     {
         return $this->start;
     }
 
     /**
-     * @param int $start
+     * @param int|null $start
      */
-    public function setStart(int $start): void
+    public function setStart(?int $start): void
     {
         $this->start = $start;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getEnd(): int
+    public function getEnd(): ?int
     {
         return $this->end;
     }
 
     /**
-     * @param int $end
+     * @param int|null $end
      */
-    public function setEnd(int $end): void
+    public function setEnd(?int $end): void
     {
         $this->end = $end;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMolType() : string
+    public function getMolType() : ?string
     {
         return $this->molType;
     }
 
     /**
-     * @param string $molType
+     * @param string|null $molType
      */
-    public function setMolType(string $molType) : void
+    public function setMolType(?string $molType) : void
     {
         $this->molType = $molType;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDate() : string
+    public function getDate() : ?string
     {
         return $this->date;
     }
 
     /**
-     * @param string $date
+     * @param string|null $date
      */
-    public function setDate(string $date) : void
+    public function setDate(?string $date) : void
     {
         $this->date = $date;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSource() : string
+    public function getSource() : ?string
     {
         return $this->source;
     }
 
     /**
-     * @param string $source
+     * @param string|null $source
      */
-    public function setSource(string $source) : void
+    public function setSource(?string $source) : void
     {
         $this->source = $source;
     }
@@ -291,49 +291,49 @@ class Sequence
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDescription() : string
+    public function getDescription() : ?string
     {
         return $this->description;
     }
 
     /**
-     * @param string $description
+     * @param string|null $description
      */
-    public function setDescription(string $description) : void
+    public function setDescription(?string $description) : void
     {
         $this->description = $description;
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getOrganism() : array
+    public function getOrganism() : ?array
     {
         return $this->organism;
     }
 
     /**
-     * @param array $organism
+     * @param array|null $organism
      */
-    public function setOrganism(array $organism) : void
+    public function setOrganism(?array $organism) : void
     {
         $this->organism = $organism;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getFragment(): int
+    public function getFragment(): ?int
     {
         return $this->fragment;
     }
 
     /**
-     * @param int $fragment
+     * @param int|null $fragment
      */
-    public function setFragment(int $fragment): void
+    public function setFragment(?int $fragment): void
     {
         $this->fragment = $fragment;
     }

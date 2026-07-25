@@ -3,7 +3,7 @@
  * Doctrine Entity GbSequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -34,7 +34,7 @@ class GbSequence
      *     referencedColumnName = "prim_acc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var string
@@ -123,113 +123,113 @@ class GbSequence
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getStrands() : string
+    public function getStrands() : ?string
     {
         return $this->strands;
     }
 
     /**
-     * @param string $strands
+     * @param string|null $strands
      */
-    public function setStrands(string $strands) : void
+    public function setStrands(?string $strands) : void
     {
         $this->strands = $strands;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTopology() : string
+    public function getTopology() : ?string
     {
         return $this->topology;
     }
 
     /**
-     * @param string $topology
+     * @param string|null $topology
      */
-    public function setTopology(string $topology) : void
+    public function setTopology(?string $topology) : void
     {
         $this->topology = $topology;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDivision() : string
+    public function getDivision() : ?string
     {
         return $this->division;
     }
 
     /**
-     * @param string $division
+     * @param string|null $division
      */
-    public function setDivision(string $division) : void
+    public function setDivision(?string $division) : void
     {
         $this->division = $division;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSegmentNo() : int
+    public function getSegmentNo() : ?int
     {
         return $this->segmentNo;
     }
 
     /**
-     * @param int $segmentNo
+     * @param int|null $segmentNo
      */
-    public function setSegmentNo(int $segmentNo) : void
+    public function setSegmentNo(?int $segmentNo) : void
     {
         $this->segmentNo = $segmentNo;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSegmentCount() : int
+    public function getSegmentCount() : ?int
     {
         return $this->segmentCount;
     }
 
     /**
-     * @param int $segmentCount
+     * @param int|null $segmentCount
      */
-    public function setSegmentCount(int $segmentCount) : void
+    public function setSegmentCount(?int $segmentCount) : void
     {
         $this->segmentCount = $segmentCount;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getVersion() : string
+    public function getVersion() : ?string
     {
         return $this->version;
     }
 
     /**
-     * @param string $version
+     * @param string|null $version
      */
-    public function setVersion(string $version) : void
+    public function setVersion(?string $version) : void
     {
         $this->version = $version;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getNcbiGiId() : string
+    public function getNcbiGiId() : ?string
     {
         return $this->ncbiGiId;
     }
 
     /**
-     * @param string $ncbiGiId
+     * @param string|null $ncbiGiId
      */
-    public function setNcbiGiId(string $ncbiGiId) : void
+    public function setNcbiGiId(?string $ncbiGiId) : void
     {
         $this->ncbiGiId = $ncbiGiId;
     }

@@ -3,7 +3,7 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -35,7 +35,7 @@ class Feature
      *     referencedColumnName="prim_acc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var string
@@ -46,7 +46,7 @@ class Feature
      *     nullable = false
      * )
      */
-    private $ftKey;
+    private $ftKey = "";
 
     /**
      * @var int
@@ -77,7 +77,7 @@ class Feature
      *     nullable = false
      * )
      */
-    private $ftQual;
+    private $ftQual = "";
 
     /**
      * @var string
@@ -85,7 +85,7 @@ class Feature
      *     type="text"
      * )
      */
-    private $ftValue;
+    private $ftValue = "";
 
     /**
      * @var string
@@ -93,7 +93,7 @@ class Feature
      *     type="text"
      * )
      */
-    private $ftDesc;
+    private $ftDesc = "";
 
     /**
      * @return string
@@ -160,33 +160,33 @@ class Feature
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getFtFrom() : int
+    public function getFtFrom() : ?int
     {
         return $this->ftFrom;
     }
 
     /**
-     * @param int $ftFrom
+     * @param int|null $ftFrom
      */
-    public function setFtFrom(int $ftFrom) : void
+    public function setFtFrom(?int $ftFrom) : void
     {
         $this->ftFrom = $ftFrom;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getFtTo(): int
+    public function getFtTo(): ?int
     {
         return $this->ftTo;
     }
 
     /**
-     * @param int $ftTo
+     * @param int|null $ftTo
      */
-    public function setFtTo(int $ftTo) : void
+    public function setFtTo(?int $ftTo) : void
     {
         $this->ftTo = $ftTo;
     }

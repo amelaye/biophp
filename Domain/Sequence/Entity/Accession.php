@@ -3,7 +3,7 @@
  * Doctrine Entity Accession
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -35,7 +35,7 @@ class Accession
      *     referencedColumnName = "prim_acc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var string
@@ -46,7 +46,7 @@ class Accession
      *     nullable = false
      *     )
      */
-    private $accession;
+    private $accession = "";
 
     /**
      * @return string

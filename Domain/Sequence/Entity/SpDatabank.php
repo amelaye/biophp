@@ -3,7 +3,7 @@
  * Doctrine Entity Swissprot databank
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 november 2019
- * Last modified 26 april 2020
+ * Last modified 25 july 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -35,7 +35,7 @@ class SpDatabank
      *     referencedColumnName = "prim_acc"
      * )
      */
-    private $primAcc;
+    private $primAcc = "";
 
     /**
      * @var string
@@ -84,49 +84,49 @@ class SpDatabank
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDbName(): string
+    public function getDbName(): ?string
     {
         return $this->dbName;
     }
 
     /**
-     * @param string $dbName
+     * @param string|null $dbName
      */
-    public function setDbName(string $dbName): void
+    public function setDbName(?string $dbName): void
     {
         $this->dbName = $dbName;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPid1(): string
+    public function getPid1(): ?string
     {
         return $this->pid1;
     }
 
     /**
-     * @param string $pid1
+     * @param string|null $pid1
      */
-    public function setPid1(string $pid1): void
+    public function setPid1(?string $pid1): void
     {
         $this->pid1 = $pid1;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPid2(): string
+    public function getPid2(): ?string
     {
         return $this->pid2;
     }
 
     /**
-     * @param string $pid2
+     * @param string|null $pid2
      */
-    public function setPid2(string $pid2): void
+    public function setPid2(?string $pid2): void
     {
         $this->pid2 = $pid2;
     }

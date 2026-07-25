@@ -350,6 +350,9 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * Tests if all the sequences in an alignment set have the same length.
      * @return  boolean
      * @throws  \Exception
+     * @todo    Sequence::getSeqLength() can now return null (nullable typing). No guard is
+     *          applied here yet: a business decision is pending (throw an explicit exception
+     *          when the value is missing, vs treat the absence as a valid business case).
      */
     public function getIsFlush() : bool
     {
@@ -400,6 +403,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @param   int            $iResEnd     End of the subsequence
      * @return  string | boolean            A substring within the specified sequence.
      * @throws  \Exception
+     * @todo    Sequence::getStart()/getEnd()/getSeqLength() can now return null (nullable
+     *          typing). No guard is applied here yet: a business decision is pending (throw
+     *          an explicit exception when the value is missing, vs treat the absence as a
+     *          valid business case).
      */
     public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0)
     {
@@ -450,6 +457,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @param   int     $iCol       The column number which we want to convert to a residue number.
      * @return  boolean|string      An integer representing the residue number corresponding to the given column number.
      * @throws  \Exception
+     * @todo    Sequence::getSeqLength()/getStart() can now return null (nullable typing). No
+     *          guard is applied here yet: a business decision is pending (throw an explicit
+     *          exception when the value is missing, vs treat the absence as a valid business
+     *          case).
      */
     public function colToRes(int $iSeqIdx, int $iCol)
     {
@@ -646,6 +657,9 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @param   Sequence     $oSequence     The object to be added to the alignment set.
      * @return  int                         The number of sequences in the alignment set after the call.
      * @throws  \Exception
+     * @todo    Sequence::getSeqLength() can now return null (nullable typing). No guard is
+     *          applied here yet: a business decision is pending (throw an explicit exception
+     *          when the value is missing, vs treat the absence as a valid business case).
      */
     public function addSequence(Sequence $oSequence) : int
     {
@@ -687,6 +701,9 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @param   string      $iSequenceId    The id of the sequence to be deleted from the alignment set.
      * @return  int                         The number of sequences in the alignment set after the call.
      * @throws  \Exception
+     * @todo    Sequence::getSeqLength() can now return null (nullable typing). No guard is
+     *          applied here yet: a business decision is pending (throw an explicit exception
+     *          when the value is missing, vs treat the absence as a valid business case).
      */
     public function deleteSequence(string $iSequenceId) : int
     {
@@ -760,6 +777,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @param   string      $sContext       The original function calling
      * @throws  \Exception
      * @return  bool|int|string
+     * @todo    Sequence::getStart()/getEnd()/getSeqLength() can now return null (nullable
+     *          typing). No guard is applied here yet: a business decision is pending (throw
+     *          an explicit exception when the value is missing, vs treat the absence as a
+     *          valid business case).
      */
     private function validationRes(int $iSeqIdx, int $iRes, int &$iNonGapCount, int &$iLength, string $sContext)
     {
