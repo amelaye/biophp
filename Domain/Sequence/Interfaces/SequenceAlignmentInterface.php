@@ -21,10 +21,10 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 interface SequenceAlignmentInterface
 {
     /**
-     * The sequences array ... then you can rewind(), next(), prev() on it
-     * @return array
+     * The ArrayIterator of sequences ... then you can rewind(), next(), prev(), offsetGet(), count() on it
+     * @return \ArrayIterator
      */
-    public function getSeqSet() : array;
+    public function getSeqSet() : \ArrayIterator;
 
     /**
      * Sets a specific filename : the file to parse
