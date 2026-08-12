@@ -20,7 +20,7 @@ class AmelayeBioPHPBundle extends Bundle
     /**
      * @return ExtensionInterface
      */
-    public function getContainerExtension()
+    public function getContainerExtension(): ?ExtensionInterface
     {
         if (null == $this->extension) {
            $this->extension = new AmelayeBioPHPExtension();
