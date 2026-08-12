@@ -11,6 +11,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TripletApiTest extends WebTestCase
 {
+    private $aTriplets;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aTripletObjects = [];

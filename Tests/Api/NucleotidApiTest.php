@@ -10,6 +10,12 @@ use GuzzleHttp\Psr7\Response;
 
 class NucleotidApiTest extends WebTestCase
 {
+    private $aNucleoObjects;
+    private $aDNAExpected;
+    private $aRNAExpected;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aNucleoObjects = [];

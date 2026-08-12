@@ -3,7 +3,7 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 20 january 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
@@ -62,7 +62,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  string                          A string which is the genetic complement of the input string.
      * @throws \Exception
      */
-    public function complement(string $sMoltypeUnfrmtd, string $sSequence = null) : string
+    public function complement(string $sMoltypeUnfrmtd, ?string $sSequence = null) : string
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -83,7 +83,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  string              A string representing either the first or the second palindromic half of the string.
      * @throws  \Exception
      */
-    public function halfSequence(int $iIndex, string $sSequence = null) : string
+    public function halfSequence(int $iIndex, ?string $sSequence = null) : string
     {
         try {
             if($sSequence == null) {
@@ -117,7 +117,7 @@ class SequenceBuilder implements SequenceInterface
      * replaced by [AG], etc.
      * @throws  \Exception
      */
-    public function expandNa(string $sSequence = null) : string
+    public function expandNa(?string $sSequence = null) : string
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -135,7 +135,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit", string $sSequence = null, string $sMolType = null, int $iNALen = null) : float
+    public function molwt($sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -166,7 +166,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  int       The number of codons within a sequence, expressed as an non-negative integer.
      * @todo : test after
      */
-    public function countCodons(array $aFeatures = null, int $iSeqLength = null) : int
+    public function countCodons(?array $aFeatures = null, ?int $iSeqLength = null) : int
     {
         if($aFeatures == null) {
             $aFeatures = $this->sequence->getFeatures();
@@ -217,7 +217,7 @@ class SequenceBuilder implements SequenceInterface
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos(string $sPattern, string $sOptions = "I", string $sSequence = null) : array
+    public function patPos(string $sPattern, string $sOptions = "I", ?string $sSequence = null) : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -247,7 +247,7 @@ class SequenceBuilder implements SequenceInterface
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, string $sSequence = null) : array
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null) : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -272,7 +272,7 @@ class SequenceBuilder implements SequenceInterface
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
+    public function patFreq(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -297,7 +297,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sSequence = null, $sOptions = "I") : array
+    public function findPattern(string $sPattern, ?string $sSequence = null, $sOptions = "I") : array
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -318,7 +318,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  int                      The frequency (number of occurrences) of a particular symbol in a sequence string.
      * @throws \Exception
      */
-    public function symFreq(string $sSymbol, string $sSequence = null) : int
+    public function symFreq(string $sSymbol, ?string $sSequence = null) : int
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -338,7 +338,7 @@ class SequenceBuilder implements SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, string $sSequence = null, $iReadFrame = 0) : string
+    public function getCodon(int $iIndex, ?string $sSequence = null, $iReadFrame = 0) : string
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -371,7 +371,7 @@ class SequenceBuilder implements SequenceInterface
      * where each of Phe, Leu, and the other 3-letter "words" represent a single amino acid residue.
      * @throws \Exception
      */
-    public function translate(string $sSequence = null, int $iReadFrame = 0, int $iFormat = 1) : string
+    public function translate(?string $sSequence = null, int $iReadFrame = 0, int $iFormat = 1) : string
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -445,7 +445,7 @@ class SequenceBuilder implements SequenceInterface
      * @param   string      $sSequence      A sequence which we want to test if it is a mirror or not.
      * @return  bool
      */
-    public function isMirror(string $sSequence = null) : bool
+    public function isMirror(?string $sSequence = null) : bool
     {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -469,7 +469,7 @@ class SequenceBuilder implements SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(string $sSequence = null, int $iPallen1 = null, int $iPallen2 = null, string $sOptions = "E")
+    public function findMirror(?string $sSequence = null, ?int $iPallen1 = null, ?int $iPallen2 = null, string $sOptions = "E")
     {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -505,7 +505,7 @@ class SequenceBuilder implements SequenceInterface
      * @param   string      $sSequence   A sequence which we want to test if it is a genetic palindrome or not.
      * @return  bool                     TRUE if the given string is a genetic palindrome, FALSE otherwise.
      */
-    public function isPalindrome(string $sSequence = null) : bool
+    public function isPalindrome(?string $sSequence = null) : bool
     {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
@@ -534,7 +534,7 @@ class SequenceBuilder implements SequenceInterface
      * ((palindrome1, position1), (palindrome2, position2), ...)
      * @throws  \Exception
      */
-    public function findPalindrome(string $sSequence = null, int $iSeqLen = 0, int $iPalLen = 0)
+    public function findPalindrome(?string $sSequence = null, int $iSeqLen = 0, int $iPalLen = 0)
     {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();

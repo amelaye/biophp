@@ -10,6 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PKApiTest extends WebTestCase
 {
+    private $aPKObjects;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aPKObjects = [];
@@ -18,7 +22,10 @@ class PKApiTest extends WebTestCase
 
         $this->aPKObjects = $aPKObjects;
 
-        $oPk = $aPKObjects[0];
+        // getPkValueById() only ever fetches one entry per call; the mock
+        // returns the "Solomon" entry (index 2), the one testGetPkValueById()
+        // requests.
+        $oPk = $aPKObjects[2];
         $aMember = [
             'id' => $oPk->getId(),
             'nTerminus' => $oPk->getNTerminus(),
@@ -43,10 +50,24 @@ class PKApiTest extends WebTestCase
             ->build();
     }
 
-    /*public function testGetElements()
+    public function testGetPkValueById()
     {
         $pkElements = new PKApi($this->clientMock, $this->serializerMock);
 
-        $this->assertEquals((array)$this->aPKObjects[2], $pkElements->getPkValueById("Solomon"));
-    }*/
+        $oSolomon = $this->aPKObjects[2];
+        $aExpected = [
+            'ID' => $oSolomon->getId(),
+            'NTERMINUS' => $oSolomon->getNTerminus(),
+            'K' => $oSolomon->getK(),
+            'R' => $oSolomon->getR(),
+            'H' => $oSolomon->getH(),
+            'CTERMINUS' => $oSolomon->getCTerminus(),
+            'D' => $oSolomon->getD(),
+            'E' => $oSolomon->getE(),
+            'C' => $oSolomon->getC(),
+            'Y' => $oSolomon->getY(),
+        ];
+
+        $this->assertEquals($aExpected, $pkElements->getPkValueById("Solomon"));
+    }
 }

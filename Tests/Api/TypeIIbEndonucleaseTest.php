@@ -11,6 +11,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TypeIIbEndonucleaseTest extends WebTestCase
 {
+    private $aEnzymes;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aTypeIIbEndonucleases = [];

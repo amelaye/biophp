@@ -3,7 +3,7 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -85,7 +85,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   string      $sMake
      * @throws  \Exception
      */
-    public function parseEnzyme(string $sName, string $sPattern = null, string $sCutpos = null, string $sMake = "custom")
+    public function parseEnzyme(string $sName, ?string $sPattern = null, ?string $sCutpos = null, string $sMake = "custom")
     {
         if ($sMake == "custom") {
             $this->enzyme->setName($sName);
@@ -174,7 +174,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * and $plen parameters.
      * @throws  \Exception
      */
-    public function findRestEn(string $sPattern = null, int $iCutpos = null, int $iPlen = null) : array
+    public function findRestEn(?string $sPattern = null, ?int $iCutpos = null, ?int $iPlen = null) : array
     {
         // Case 1: Pattern only
         if (!is_null($sPattern) && is_null($iCutpos) && is_null($iPlen)) {

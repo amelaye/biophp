@@ -11,6 +11,10 @@ use GuzzleHttp\Psr7\Response;
 
 class ElementApiTest extends WebTestCase
 {
+    private $aElementsObjects;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aElementsObjects = [];

@@ -3,7 +3,7 @@
  * SeqMatch managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -48,7 +48,7 @@ class SequenceMatchManager implements SequenceMatchInterface
      * @throws      \Exception
      */
     public function compareLetter(
-        string $sLetter1, string $sLetter2, array $aMatrix = null, string $sEqual = null,
+        string $sLetter1, string $sLetter2, ?array $aMatrix = null, ?string $sEqual = null,
         string $sPartial = "+", string $sNomatch = ".") : string
     {
         try {
@@ -220,7 +220,7 @@ class SequenceMatchManager implements SequenceMatchInterface
      * @throws  \Exception
      */
     public function match(string $sSequence1, string $sSequence2,
-                          array $aMatrix = null, string $sEqual = null,
+                          ?array $aMatrix = null, ?string $sEqual = null,
                           string $sPartial = "+", string $sNonmatch = ".") : string
     {
         // if the user chose not to use a custom submatrix, use the default one.

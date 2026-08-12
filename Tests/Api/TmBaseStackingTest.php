@@ -10,6 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TmBaseStackingTest extends WebTestCase
 {
+    private $aTemperatures;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aTemperatureObjects = [];

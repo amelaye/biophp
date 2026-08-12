@@ -10,6 +10,11 @@ use GuzzleHttp\Psr7\Response;
 
 class Pam250MatrixDigitTest extends WebTestCase
 {
+    private $aPam250Matrix;
+    private $aPam250MatrixArray;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aPam250Matrix = [];

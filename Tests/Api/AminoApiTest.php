@@ -11,6 +11,10 @@ use GuzzleHttp\Psr7\Response;
 
 class AminoApiTest extends WebTestCase
 {
+    private $aAminosObjects;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aAminosObjects = [];

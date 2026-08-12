@@ -332,7 +332,7 @@ class SequenceManager
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, string $sSequence = null)
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null)
     {
         try {
             $aAbsPos = [];
@@ -408,7 +408,7 @@ class SequenceManager
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
+    public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array
     {
         try {
             if (strtoupper($sOptions) == "I") {

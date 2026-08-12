@@ -10,6 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ProteinReductionApiTest extends WebTestCase
 {
+    private $aReductions;
+    private $clientMock;
+    private $serializerMock;
+
     public function setUp(): void
     {
         $aReductions = [];
