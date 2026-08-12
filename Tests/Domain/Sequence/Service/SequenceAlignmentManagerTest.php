@@ -37,22 +37,22 @@ class SequenceAlignmentManagerTest extends TestCase
 
         $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getAminos'])
+            ->onlyMethods(['getAminos'])
             ->getMock();
-        $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
+        $this->apiAminoMock->method("getAminos")->willReturn($aAminosObjects);
 
         $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getNucleotids'])
+            ->onlyMethods(['getNucleotids'])
             ->getMock();
-        $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
+        $this->apiNucleoMock->method("getNucleotids")->willReturn($aNucleoObjects);
 
         $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getElements', 'getElement'])
+            ->onlyMethods(['getElements', 'getElement'])
             ->getMock();
-        $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));
-        $this->apiElementsMock->method("getElement")->will($this->returnValue($aElementsObjects[5]));
+        $this->apiElementsMock->method("getElements")->willReturn($aElementsObjects);
+        $this->apiElementsMock->method("getElement")->willReturn($aElementsObjects[5]);
 
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
         $sequenceBuilder = new SequenceBuilder($sequenceManager);

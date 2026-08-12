@@ -23,9 +23,9 @@ class ProteinManagerTest extends TestCase
 
         $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getAminos'])
+            ->onlyMethods(['getAminos'])
             ->getMock();
-        $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
+        $this->apiAminoMock->method("getAminos")->willReturn($aAminosObjects);
     }
 
     public function testSeqlen()

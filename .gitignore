@@ -24,6 +24,7 @@
 /myreport
 composer.lock
 .phpunit.result.cache
+.phpunit.cache/
 
 ###> symfony/framework-bundle ###
 /.env.local
