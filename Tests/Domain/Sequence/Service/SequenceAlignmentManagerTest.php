@@ -20,7 +20,7 @@ class SequenceAlignmentManagerTest extends TestCase
 
     private $sequenceManager;
 
-    public function setUp()
+    public function setUp(): void
     {
         require 'samples/Aminos.php';
 

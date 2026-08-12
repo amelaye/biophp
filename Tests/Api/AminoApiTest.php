@@ -5,17 +5,43 @@ use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\DTO\ElementDTO;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 
 class AminoApiTest extends WebTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $aAminosObjects = [];
 
         require 'samples/Aminos.php';
 
         $this->aAminosObjects = $aAminosObjects;
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+
+        $aMembers = [];
+        foreach ($aAminosObjects as $amino) {
+            $aMember = [
+                'id' => $amino->getId(),
+                'name' => $amino->getName(),
+                'name1Letter' => $amino->getName1Letter(),
+                'name3Letters' => $amino->getName3Letters(),
+                'weight1' => $amino->getWeight1(),
+                'weight2' => $amino->getWeight2(),
+            ];
+            if ($amino->getResidueMolWeight() !== null) {
+                $aMember['residueMolWeight'] = $amino->getResidueMolWeight();
+            }
+            $aMembers[] = $aMember;
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }
@@ -187,7 +213,7 @@ class AminoApiTest extends WebTestCase
         $aAminosResidueMolWeightsExpected = [
           "*" => 0.0,
           "A" => 71.07,
-          "B" => 0.0,
+          "B" => 114.10,
           "C" => 103.1,
           "D" => 115.08,
           "E" => 129.11,
@@ -199,18 +225,18 @@ class AminoApiTest extends WebTestCase
           "L" => 113.15,
           "M" => 131.19,
           "N" => 114.08,
-          "O" => 0.0,
+          "O" => 237.29,
           "P" => 97.11,
           "Q" => 128.13,
           "R" => 156.18,
           "S" => 87.07,
           "T" => 101.1,
-          "U" => 0.0,
+          "U" => 150.03,
           "V" => 99.13,
           "W" => 186.2,
           "X" => 114.82,
           "Y" => 163.17,
-          "Z" => 0.0
+          "Z" => 128.13
         ];
 
         static::assertEquals($aAminosResidueMolWeightsExpected, $aAminosResidueMolWeights);

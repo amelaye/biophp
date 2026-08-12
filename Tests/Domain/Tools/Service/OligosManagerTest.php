@@ -17,7 +17,7 @@ class OligosManagerTest extends TestCase
     public $apiNucleoMock;
     public $sequence;
 
-    public function setUp()
+    public function setUp(): void
     {
         /**
          * Mock API

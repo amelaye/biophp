@@ -25,18 +25,31 @@
         }
     },
     "require": {
-        "phpunit/phpunit": "^7.5",
-        "sensio/framework-extra-bundle": "^5.5",
-        "php": "^7.2",
-        "csa/guzzle-bundle": "^3.1",
-        "jms/serializer-bundle": "^3.5",
+        "php": "^8.1",
+        "phpunit/phpunit": "^8.5",
+        "guzzlehttp/guzzle": "^7.15",
+        "jms/serializer-bundle": "^5.5",
         "doctrine/orm": "^2.7",
-        "phpdocumentor/graphviz": "^2.0@dev"
+        "symfony/framework-bundle": "^6.4",
+        "symfony/console": "^6.4",
+        "symfony/string": "^6.4",
+        "symfony/cache": "^6.4",
+        "symfony/config": "^6.4",
+        "symfony/dependency-injection": "^6.4",
+        "symfony/error-handler": "^6.4",
+        "symfony/event-dispatcher": "^6.4",
+        "symfony/filesystem": "^6.4",
+        "symfony/finder": "^6.4",
+        "symfony/http-foundation": "^6.4",
+        "symfony/http-kernel": "^6.4",
+        "symfony/routing": "^6.4",
+        "symfony/stopwatch": "^6.4",
+        "symfony/var-dumper": "^6.4",
+        "symfony/var-exporter": "^6.4"
     },
     "require-dev": {
-        "twig/twig": "^2.5",
-        "doctrine/rst-parser": "dev-master@dev",
-        "symfony/cache-contracts": "^2.0",
-        "phpdocumentor/phpdocumentor": "dev-master"
+        "twig/twig": "^3.17",
+        "doctrine/rst-parser": "^0.5.7",
+        "symfony/cache-contracts": "^3.0"
     }
 }

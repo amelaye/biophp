@@ -4,10 +4,13 @@ namespace Tests\Api;
 use Amelaye\BioPHP\Api\NucleotidApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 
 class NucleotidApiTest extends WebTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $aNucleoObjects = [];
 
@@ -16,7 +19,24 @@ class NucleotidApiTest extends WebTestCase
         $this->aNucleoObjects = $aNucleoObjects;
         $this->aDNAExpected = $aDNA;
         $this->aRNAExpected = $aRNA;
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+
+        $aMembers = [];
+        foreach ($aNucleoObjects as $nucleotid) {
+            $aMembers[] = [
+                'letter' => $nucleotid->getLetter(),
+                'complement' => $nucleotid->getComplement(),
+                'nature' => $nucleotid->getNature(),
+                'weight' => $nucleotid->getWeight(),
+            ];
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }

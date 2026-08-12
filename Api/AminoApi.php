@@ -3,7 +3,7 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 1st December 2019
- * Last modified 15 October 2020
+ * Last modified 11 August 2026
  */
 namespace Amelaye\BioPHP\Api;
 
@@ -36,7 +36,9 @@ class AminoApi extends Bioapi implements AminoApiAdapter
             $oAminoDTO->setName3Letters($elem["name3Letters"]);
             $oAminoDTO->setWeight1($elem["weight1"]);
             $oAminoDTO->setWeight2($elem["weight2"]);
-            $oAminoDTO->setResidueMolWeight(floatval($elem["residueMolWeight"]));
+            if (isset($elem["residueMolWeight"])) {
+                $oAminoDTO->setResidueMolWeight(floatval($elem["residueMolWeight"]));
+            }
             $aAminos[] = $oAminoDTO;
         }
 

@@ -10,7 +10,7 @@ class ProteinManagerTest extends TestCase
 {
     private $apiAminoMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         require 'samples/Aminos.php';
 

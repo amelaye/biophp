@@ -3,7 +3,7 @@
  * Replaces the .dir file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 19 january 2020
+ * Last modified 11 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Entity;
 
@@ -13,70 +13,48 @@ use Doctrine\ORM\Mapping as ORM;
  * Class Database
  * @package Amelaye\BioPHP\Domain\Database\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @ORM\Entity
- * @ORM\Table(name = "collection_element")
  */
+#[ORM\Entity]
+#[ORM\Table(name: "collection_element")]
 class CollectionElement
 {
     /**
      * @var string
-     * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 20
-     * )
      */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 20)]
     private $idElement;
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 50,
-     *     nullable = false
-     * )
      */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private $fileName;
 
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 50,
-     *     nullable = false
-     * )
      */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private $dbFormat;
 
     /**
      * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 5
-     * )
      */
+    #[ORM\Column(type: "integer", length: 5)]
     private $lineNo;
 
     /**
      * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 5
-     * )
      */
+    #[ORM\Column(type: "integer", length: 5)]
     private $seqCount;
 
     /**
      * @var int
-     * @ORM\ManyToOne(
-     *     targetEntity = "Amelaye\BioPHP\Domain\Database\Entity\Collection"
-     * ),
-     * @ORM\JoinColumn(
-     *     name = "id_collection",
-     *     referencedColumnName = "id"
-     * )
      */
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\JoinColumn(name: "id_collection", referencedColumnName: "id")]
     private $collection;
 
     /**

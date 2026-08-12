@@ -31,7 +31,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     private $apiNucleolMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         /**
          * Mock API

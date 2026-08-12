@@ -3,7 +3,7 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 25 january 2020
+ * Last modified 11 August 2026
  */
 namespace Amelaye\BioPHP\DependencyInjection;
 
@@ -55,14 +55,14 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                 'auto_generate_proxy_classes' => true,
                 'mappings' => [
                     'Amelaye\BioPHP\Domain\Database\Entity' => [
-                        'type'      => 'annotation',
+                        'type'      => 'attribute',
                         'dir'       => __DIR__.'/../Domain/Database/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Database\Entity',
                         'alias'     => 'BioPHPDb',
                     ],
                     'Amelaye\BioPHP\Domain\Sequence\Entity' => [
-                        'type'      => 'annotation',
+                        'type'      => 'attribute',
                         'dir'       => __DIR__.'/../Domain/Sequence/Entity',
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Sequence\Entity',
@@ -70,13 +70,6 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                     ],
                 ],
             ],
-        ]);
-
-        $container->loadFromExtension('csa_guzzle', [
-            'profiler' => '%kernel.debug%',
-            'clients' => [
-                'bioapi' => ['config' => ['base_uri' => 'http://api.amelayes-biophp.net']]
-            ]
         ]);
     }
 

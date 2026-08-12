@@ -23,6 +23,7 @@
 /public/docs/*
 /myreport
 composer.lock
+.phpunit.result.cache
 
 ###> symfony/framework-bundle ###
 /.env.local

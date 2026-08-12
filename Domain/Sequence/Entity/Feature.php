@@ -3,7 +3,7 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 26 april 2020
+ * Last modified 11 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -13,86 +13,56 @@ use Doctrine\ORM\Mapping as ORM;
  * Class GbFeatures
  * @package Amelaye\BioPHP\Domain\Sequence\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @ORM\Entity
- * @ORM\Table(
- *     name = "feature",
- *     uniqueConstraints = {
- *        @ORM\UniqueConstraint(
- *            name = "prim_acc",
- *            columns = {"prim_acc", "ft_key", "ft_qual"}
- *        )
- *     }
- * )
  */
+#[ORM\Entity]
+#[ORM\Table(name: "feature")]
+#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc", "ft_key", "ft_qual"])]
 class Feature
 {
     /**
      * @var string
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Reference")
-     * @ORM\JoinColumn(
-     *     name = "prim_acc",
-     *     referencedColumnName="prim_acc"
-     * )
      */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Reference::class)]
+    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
     private $primAcc;
 
     /**
      * @var string
-     * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 15,
-     *     nullable = false
-     * )
      */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 15, nullable: false)]
     private $ftKey;
 
     /**
      * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 11,
-     *     nullable = true
-     * )
      */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
     private $ftFrom;
 
     /**
      * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 11,
-     *     nullable = true
-     * )
      */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
     private $ftTo;
 
     /**
      * @var string
-     * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 60,
-     *     nullable = false
-     * )
      */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 60, nullable: false)]
     private $ftQual;
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type="text"
-     * )
      */
+    #[ORM\Column(type: "text")]
     private $ftValue;
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type="text"
-     * )
      */
+    #[ORM\Column(type: "text")]
     private $ftDesc;
 
     /**

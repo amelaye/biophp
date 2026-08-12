@@ -30,7 +30,7 @@ class SequenceMatchManagerTest extends TestCase
 
     private $subMatrix;
 
-    public function setUp()
+    public function setUp(): void
     {
         $oSubMatrix = new SubMatrix();
         $oSubMatrix->addrule('D', 'E');
