@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 28 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 18 january 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
@@ -32,6 +32,9 @@ class MathematicsFunctions
                     $sum += $val;
                     $numValidElements += 1;
                 }
+            }
+            if ($numValidElements === 0) {
+                throw new \Exception("Cannot calculate the mean of an empty data set !");
             }
             $mean = $sum / $numValidElements;
             $mean = round ($mean,3);
@@ -84,6 +87,9 @@ class MathematicsFunctions
                 }
             }
 
+            if ($numValidElements <= 1) {
+                throw new \Exception("Cannot calculate the variance with fewer than 2 valid elements !");
+            }
             $variance = $sum / ( $numValidElements - 1 );
             $variance = round($variance,3);
             return $variance;
