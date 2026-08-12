@@ -25,6 +25,18 @@ class MathematicsFunctionsTest extends TestCase
         MathematicsFunctions::Mean([]);
     }
 
+    public function testMeanThrowsWhenAllValuesAreNull()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessageMatches('/Cannot calculate the mean of an empty data set !/');
+        MathematicsFunctions::Mean([null, null]);
+    }
+
+    public function testMeanWithSingleElement()
+    {
+        $this->assertEquals(5, MathematicsFunctions::Mean([5]));
+    }
+
     public function testMedianOddCount()
     {
         $this->assertEquals(2, MathematicsFunctions::Median([3, 1, 2]));
@@ -51,5 +63,17 @@ class MathematicsFunctionsTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageMatches('/Cannot calculate the variance with fewer than 2 valid elements !/');
         MathematicsFunctions::Variance([5]);
+    }
+
+    public function testVarianceThrowsOnEmptyArray()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessageMatches('/Cannot calculate the mean of an empty data set !/');
+        MathematicsFunctions::Variance([]);
+    }
+
+    public function testVarianceWithTwoElements()
+    {
+        $this->assertEquals(2, MathematicsFunctions::Variance([1, 3]));
     }
 }
