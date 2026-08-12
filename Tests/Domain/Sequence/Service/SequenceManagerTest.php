@@ -101,6 +101,35 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($aExpected, $aComplement);
     }
 
+    public function testComplementWithIupacAmbiguityCodes()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // The nucleotide database only carries the 4 canonical DNA bases; degenerate
+        // IUPAC codes (N, Y, R, W, S, K, M, D, V, H, B) must fall back to the standard
+        // ambiguity-code complement table instead of being silently dropped.
+        $aComplement = $sequenceManager->complement("ACGTNYRWSKMDVHB", "DNA");
+
+        $this->assertEquals("TGCANRYWSMKHBDV", $aComplement);
+    }
+
+    public function testComplementRnaWithIupacAmbiguityCodes()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $aComplement = $sequenceManager->complement("ACGUN", "RNA");
+
+        $this->assertEquals("UGCAN", $aComplement);
+    }
+
+    public function testComplementThrowsOnUnrecognizedSymbol()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\Exception::class);
+        $sequenceManager->complement("ACGZ", "DNA");
+    }
+
     public function testHalfSequence()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -128,6 +157,32 @@ class SequenceManagerTest extends TestCase
         $sExpected = "AGGGAATTAAG";
 
         $this->assertEquals($sExpected, $sHalf);
+    }
+
+    public function testGetBridgeOddLength()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // "GATAG" is a mirror (reads the same forwards and backwards) of odd
+        // length 5: halves "GA" and "AG" bridged by the middle base "T".
+        $this->assertEquals("T", $sequenceManager->getBridge("GATAG"));
+    }
+
+    public function testGetBridgeEvenLength()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // Even-length mirrors have no bridge base by definition: "GATTAG"
+        // splits cleanly into "GAT" and "TAG".
+        $this->assertEquals("", $sequenceManager->getBridge("GATTAG"));
+    }
+
+    public function testGetBridgeSingleCharacter()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // A single-character string is entirely bridge, with no halves.
+        $this->assertEquals("A", $sequenceManager->getBridge("A"));
     }
 
     public function testExpandNA()

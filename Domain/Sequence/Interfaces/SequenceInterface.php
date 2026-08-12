@@ -52,7 +52,6 @@ interface SequenceInterface
      * Take note that the "bridge" as I call it, is not necessarily a genetic mirror or a palindrome.
      * @param   string    $string     A palindromic or mirror sequence containing the bridge.
      * @return  string
-     * @todo : Correct it - does not seems to work :/
      */
     public function getBridge(string $string) : string;
 

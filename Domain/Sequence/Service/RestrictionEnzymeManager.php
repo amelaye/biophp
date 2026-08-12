@@ -377,7 +377,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
             if (($aEnzyme[1] == $iCutpos) && (strlen($aEnzyme[0]) == $iPlen)) {
-                $RestEn_List[] = $sName;
+                $aEnzymes[] = $sName;
             }
         }
         return $aEnzymes;
