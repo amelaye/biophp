@@ -1,4 +1,4 @@
-# amelayes-biophp [![Build Status](https://travis-ci.com/amelaye/biophp.svg?branch=develop)](https://travis-ci.com/amelaye/biophp) [![codecov](https://codecov.io/gh/amelaye/biophp/branch/develop/graph/badge.svg)](https://codecov.io/gh/amelaye/biophp)
+# amelayes-biophp [![Tests](https://github.com/amelaye/biophp/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/amelaye/biophp/actions/workflows/tests.yml) [![codecov](https://codecov.io/gh/amelaye/biophp/branch/develop/graph/badge.svg)](https://codecov.io/gh/amelaye/biophp)
 
 ## Introduction
 You can read the website of the application, with docs and informations about the project : http://www.amelayes-biophp.net.

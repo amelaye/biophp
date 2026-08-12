@@ -4,18 +4,40 @@ namespace Tests\Api;
 use Amelaye\BioPHP\Api\TmBaseStackingApi;
 use Amelaye\BioPHP\Api\TripletApi;
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TripletApiTest extends WebTestCase
 {
-    public function setUp()
+    private $aTriplets;
+    private $clientMock;
+    private $serializerMock;
+
+    public function setUp(): void
     {
         $aTripletObjects = [];
 
         require 'samples/Triplets.php';
 
         $this->aTriplets = $aTripletObjects;
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+
+        $aMembers = [];
+        foreach ($aTripletObjects as $triplet) {
+            $aMembers[] = [
+                'id' => $triplet->getId(),
+                'triplet' => $triplet->getTriplet(),
+            ];
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }

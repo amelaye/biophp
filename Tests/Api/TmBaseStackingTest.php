@@ -3,18 +3,41 @@ namespace Tests\Api;
 
 use Amelaye\BioPHP\Api\TmBaseStackingApi;
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class TmBaseStackingTest extends WebTestCase
 {
-    public function setUp()
+    private $aTemperatures;
+    private $clientMock;
+    private $serializerMock;
+
+    public function setUp(): void
     {
         $aTemperatureObjects = [];
 
         require 'samples/TmBaseStacking.php';
 
         $this->aTemperatures = $aTemperatureObjects;
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+
+        $aMembers = [];
+        foreach ($aTemperatureObjects as $temperature) {
+            $aMembers[] = [
+                'id' => $temperature->getId(),
+                'temperatureEnthalpy' => $temperature->getTemperatureEnthalpy(),
+                'temperatureEnthropy' => $temperature->getTemperatureEnthropy(),
+            ];
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }

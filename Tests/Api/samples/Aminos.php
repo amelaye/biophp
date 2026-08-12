@@ -10,6 +10,7 @@ $amino->setName1Letter('*');
 $amino->setName3Letters('STP');
 $amino->setWeight1(0);
 $amino->setWeight2(0);
+$amino->setResidueMolWeight(0);
 $aAminosObjects[] = $amino;
 
 $amino = new AminoDTO();
@@ -29,6 +30,7 @@ $amino->setName1Letter('B');
 $amino->setName3Letters('N/A');
 $amino->setWeight1(132.12);
 $amino->setWeight2(132.1);
+$amino->setResidueMolWeight(114.10);
 $aAminosObjects[] = $amino;
 
 $amino = new AminoDTO();
@@ -148,6 +150,7 @@ $amino->setName1Letter('O');
 $amino->setName3Letters('Pyr');
 $amino->setWeight1(255.31);
 $amino->setWeight2(255.31);
+$amino->setResidueMolWeight(237.29);
 $aAminosObjects[] = $amino;
 
 $amino = new AminoDTO();
@@ -207,6 +210,7 @@ $amino->setName1Letter('U');
 $amino->setName3Letters('Sec');
 $amino->setWeight1(168.05);
 $amino->setWeight2(168.05);
+$amino->setResidueMolWeight(150.03);
 $aAminosObjects[] = $amino;
 
 $amino = new AminoDTO();
@@ -256,4 +260,5 @@ $amino->setName1Letter('Z');
 $amino->setName3Letters('N/A');
 $amino->setWeight1(146.15);
 $amino->setWeight2(147.13);
+$amino->setResidueMolWeight(128.13);
 $aAminosObjects[] = $amino;

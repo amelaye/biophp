@@ -4,10 +4,18 @@ namespace Tests\Api;
 use Amelaye\BioPHP\Api\Pam250MatrixDigitApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 
 class Pam250MatrixDigitTest extends WebTestCase
 {
-    public function setUp()
+    private $aPam250Matrix;
+    private $aPam250MatrixArray;
+    private $clientMock;
+    private $serializerMock;
+
+    public function setUp(): void
     {
         $aPam250Matrix = [];
 
@@ -20,7 +28,21 @@ class Pam250MatrixDigitTest extends WebTestCase
             $this->aPam250MatrixArray[] = get_object_vars($matrix);
         }
 
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+        $aMembers = [];
+        foreach ($this->aPam250Matrix as $matrix) {
+            $aMembers[] = [
+                'id' => $matrix->getId(),
+                'value' => $matrix->getValue(),
+            ];
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }

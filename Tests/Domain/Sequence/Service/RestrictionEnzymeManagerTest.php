@@ -31,7 +31,7 @@ class RestrictionEnzymeManagerTest extends TestCase
 
     private $apiNucleolMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         /**
          * Mock API
@@ -51,28 +51,28 @@ class RestrictionEnzymeManagerTest extends TestCase
 
         $this->apiAminoMock = $this->getMockBuilder(AminoApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getAminos'])
+            ->onlyMethods(['getAminos'])
             ->getMock();
-        $this->apiAminoMock->method("getAminos")->will($this->returnValue($aAminosObjects));
+        $this->apiAminoMock->method("getAminos")->willReturn($aAminosObjects);
 
         $this->apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getNucleotids'])
+            ->onlyMethods(['getNucleotids'])
             ->getMock();
-        $this->apiNucleoMock->method("getNucleotids")->will($this->returnValue($aNucleoObjects));
+        $this->apiNucleoMock->method("getNucleotids")->willReturn($aNucleoObjects);
 
         $this->apiElementsMock = $this->getMockBuilder(ElementApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getElements', 'getElement'])
+            ->onlyMethods(['getElements', 'getElement'])
             ->getMock();
-        $this->apiElementsMock->method("getElements")->will($this->returnValue($aElementsObjects));
-        $this->apiElementsMock->method("getElement")->will($this->returnValue($aElementsObjects[5]));
+        $this->apiElementsMock->method("getElements")->willReturn($aElementsObjects);
+        $this->apiElementsMock->method("getElement")->willReturn($aElementsObjects[5]);
 
         $this->apiNucleolMock = $this->getMockBuilder(TypeIIEndonucleaseApi::class)
             ->setConstructorArgs([$clientMock, $serializerMock])
-            ->setMethods(['getTypeIIEndonucleases'])
+            ->onlyMethods(['getTypeIIEndonucleases'])
             ->getMock();
-        $this->apiNucleolMock->method("getTypeIIEndonucleases")->will($this->returnValue($aTypeIIEndonucleases));
+        $this->apiNucleolMock->method("getTypeIIEndonucleases")->willReturn($aTypeIIEndonucleases);
 
         $oSequence = new Sequence();
         $oSequence->setMoltype("DNA");
@@ -228,7 +228,36 @@ class RestrictionEnzymeManagerTest extends TestCase
         $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
         $list5 = $restrictionEnzymeManager->findRestEn(null,3, 6);
 
-        $aExpected = [];
+        $aExpected = [
+          0 => "AatI",
+          1 => "Acc16I",
+          2 => "AccBSI",
+          3 => "AcvI",
+          4 => "AfeI",
+          5 => "AjiI",
+          6 => "AssI",
+          7 => "BalI",
+          8 => "BmiI",
+          9 => "BsaAI",
+          10 => "Bsp68I",
+          11 => "BssNAI",
+          12 => "BstC8I",
+          13 => "BstSNI",
+          14 => "DraI",
+          15 => "Ecl136II",
+          16 => "Eco32I",
+          17 => "EgeI",
+          18 => "HincII",
+          19 => "HpaI",
+          20 => "Hpy166II",
+          21 => "MspA1I",
+          22 => "NaeI",
+          23 => "PsiI",
+          24 => "PvuII",
+          25 => "SmaI",
+          26 => "SspI",
+          27 => "ZraI",
+        ];
         $this->assertEquals($aExpected, $list5);
     }
 

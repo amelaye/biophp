@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 25 july 2026
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -13,137 +13,83 @@ use Doctrine\ORM\Mapping as ORM;
  * Class Sequence
  * @package Amelaye\BioPHP\Entity\Sequencing
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @ORM\Entity
- * @ORM\Table(
- *     name = "sequence",
- *     indexes = {
- *         @ORM\Index(name = "locus_name", columns = {"entry_name", "mol_type"})
- *     }
- * )
  */
+#[ORM\Entity]
+#[ORM\Table(name: "sequence")]
+#[ORM\Index(name: "locus_name", columns: ["entry_name", "mol_type"])]
 class Sequence
 {
     /**
      * @var string
-     * @ORM\Id
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     options = {"default":0},
-     *     nullable = false
-     * )
-     * @ORM\OneToOne(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence")
-     * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Feature")
-     * @ORM\OneToOne(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\ScForm")
-     * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Accession")
-     * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Keyword")
-     * @ORM\OneToMany(targetEntity = "Amelaye\BioPHP\Domain\Sequence\Entity\Reference")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 8, options: ["default" => 0], nullable: false)]
     private $primAcc = "";
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 8,
-     *     nullable = false
-     * )
      */
+    #[ORM\Column(type: "string", length: 8, nullable: false)]
     private $entryName = "";
 
     /**
-     * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 11,
-     *     nullable = true
-     * )
+     * @var int|null
      */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
     private $seqLength;
 
     /**
-     * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 11,
-     *     nullable = true
-     * )
+     * @var int|null
      */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
     private $start;
 
     /**
-     * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 11,
-     *     nullable = true
-     * )
+     * @var int|null
      */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
     private $end;
 
     /**
-     * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     length = 6,
-     *     nullable = true
-     * )
+     * @var string|null
      */
+    #[ORM\Column(type: "string", length: 6, nullable: true)]
     private $molType;
 
     /**
-     * @var string
-     * @ORM\Column(
-     *     type = "date",
-     *     nullable = true
-     * )
+     * @var string|null
      */
+    #[ORM\Column(type: "date", nullable: true)]
     private $date;
 
     /**
-     * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     nullable = true
-     * )
+     * @var string|null
      */
+    #[ORM\Column(type: "string", nullable: true)]
     private $source;
 
     /**
      * @var string
-     * @ORM\Column(
-     *     type = "text",
-     *     nullable = false
-     * )
      */
+    #[ORM\Column(type: "text", nullable: false)]
     private $sequence = "";
 
     /**
-     * @var string
-     * @ORM\Column(
-     *     type = "string",
-     *     nullable = true
-     * )
+     * @var string|null
      */
+    #[ORM\Column(type: "string", nullable: true)]
     private $description;
 
     /**
-     * @var array
-     * @ORM\Column(
-     *     type = "array",
-     *     nullable = true
-     * )
+     * @var array|null
      */
+    #[ORM\Column(type: "array", nullable: true)]
     private $organism;
 
     /**
-     * @var int
-     * @ORM\Column(
-     *     type = "integer",
-     *     length = 1,
-     *     nullable = true
-     * )
+     * @var int|null
      */
+    #[ORM\Column(type: "integer", length: 1, nullable: true)]
     private $fragment;
 
     /**

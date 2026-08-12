@@ -109,10 +109,25 @@ class SequenceManager
                 $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
             }
 
+            // The nucleotide database only carries the canonical bases (A/T/G/C or A/U/G/C).
+            // Fall back to the standard IUPAC ambiguity codes so degenerate sequences don't
+            // silently lose characters (each missing lookup used to append nothing).
+            $aIupacComplements = [
+                "Y" => "R", "R" => "Y", "W" => "W", "S" => "S",
+                "K" => "M", "M" => "K", "D" => "H", "V" => "B",
+                "H" => "D", "B" => "V", "N" => "N",
+            ];
+
             $iSeqLength = strlen($sSequence);
             for($i = 0; $i < $iSeqLength; $i++) {
                 $sAmino = substr($sSequence, $i, 1);
-                $sComplement .= $aComplements[$sAmino];
+                if (isset($aComplements[$sAmino])) {
+                    $sComplement .= $aComplements[$sAmino];
+                } elseif (isset($aIupacComplements[strtoupper($sAmino)])) {
+                    $sComplement .= $aIupacComplements[strtoupper($sAmino)];
+                } else {
+                    throw new \Exception("Unrecognized nucleotide symbol \"$sAmino\" at position $i.");
+                }
             }
             return $sComplement;
         } catch (\Exception $ex) {
@@ -156,7 +171,6 @@ class SequenceManager
      * Take note that the "bridge" as I call it, is not necessarily a genetic mirror or a palindrome.
      * @param   string    $string     A palindromic or mirror sequence containing the bridge.
      * @return  string
-     * @todo : Correct it - does not seems to work :/
      */
     public function getBridge(string $string)
     {
@@ -332,7 +346,7 @@ class SequenceManager
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, string $sSequence = null)
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null)
     {
         try {
             $aAbsPos = [];
@@ -408,7 +422,7 @@ class SequenceManager
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, string $sSequence = null, string $sOptions = "I") : array
+    public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array
     {
         try {
             if (strtoupper($sOptions) == "I") {

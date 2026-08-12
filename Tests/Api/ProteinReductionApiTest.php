@@ -2,19 +2,45 @@
 namespace Tests\Api;
 
 use GuzzleHttp;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Amelaye\BioPHP\Api\ProteinReductionApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ProteinReductionApiTest extends WebTestCase
 {
-    public function setUp()
+    private $aReductions;
+    private $clientMock;
+    private $serializerMock;
+
+    public function setUp(): void
     {
         $aReductions = [];
 
         require 'samples/ProteinReductions.php';
 
         $this->aReductions = $aReductions;
-        $this->clientMock = new GuzzleHttp\Client(['base_uri' => 'http://api.amelayes-biophp.net']);
+
+        $aMembers = [];
+        foreach ($aReductions as $reduction) {
+            $aMembers[] = [
+                'alphabet' => $reduction->getAlphabet(),
+                'letters' => $reduction->getLetters(),
+                'pattern' => $reduction->getPattern(),
+                'nature' => $reduction->getNature(),
+                'reduction' => $reduction->getReduction(),
+                'description' => $reduction->getDescription(),
+            ];
+        }
+
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['hydra:member' => $aMembers])),
+        ]);
+        $this->clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
             ->build();
     }

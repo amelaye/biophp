@@ -3,7 +3,7 @@
  * SeqMatch managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 january 2020
- * Last modified 18 january 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
@@ -35,8 +35,8 @@ interface SequenceMatchInterface
      * @throws      \Exception
      */
     public function compareLetter(
-        string $sLetter1, string $sLetter2, array $aMatrix = null,
-        string $sEqual = null, string $sPartial = "+", string $sNomatch = ".") : string;
+        string $sLetter1, string $sLetter2, ?array $aMatrix = null,
+        ?string $sEqual = null, string $sPartial = "+", string $sNomatch = ".") : string;
 
     /**
      * Computes the Hamming Distance between two strings or Seq objects
@@ -99,8 +99,8 @@ interface SequenceMatchInterface
      * @throws  \Exception
      */
     public function match(
-        string $sSequence1, string $sSequence2, array $aMatrix = null,
-        string $sEqual = null, string $sPartial = "+", string $sNonmatch = ".") : string;
+        string $sSequence1, string $sSequence2, ?array $aMatrix = null,
+        ?string $sEqual = null, string $sPartial = "+", string $sNonmatch = ".") : string;
 
     /**
      * We abbreviate substitution matrix to "submatrix".  Each element in a submatrix is an array of

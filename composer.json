@@ -1,5 +1,6 @@
 {
     "name": "amelaye/biophp",
+    "version": "v0.2.0",
     "authors": [
         {
             "name": "Amelie DUVERNET",
@@ -24,18 +25,33 @@
         }
     },
     "require": {
-        "phpunit/phpunit": "^7.5",
-        "sensio/framework-extra-bundle": "^5.5",
-        "php": "^7.2",
-        "csa/guzzle-bundle": "^3.1",
-        "jms/serializer-bundle": "^3.5",
-        "doctrine/orm": "^2.7",
-        "phpdocumentor/graphviz": "^2.0@dev"
+        "php": "^8.2",
+        "phpunit/phpunit": "^11.5",
+        "guzzlehttp/guzzle": "^7.15",
+        "jms/serializer-bundle": "^5.5",
+        "doctrine/orm": "^3.6",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/console": "^7.4",
+        "symfony/string": "^7.4",
+        "symfony/cache": "^7.4",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/error-handler": "^7.4",
+        "symfony/event-dispatcher": "^7.4",
+        "symfony/filesystem": "^7.4",
+        "symfony/finder": "^7.4",
+        "symfony/http-foundation": "^7.4",
+        "symfony/http-kernel": "^7.4",
+        "symfony/routing": "^7.4",
+        "symfony/stopwatch": "^7.4",
+        "symfony/var-dumper": "^7.4",
+        "symfony/var-exporter": "^7.4"
     },
     "require-dev": {
-        "twig/twig": "^2.5",
-        "doctrine/rst-parser": "dev-master@dev",
-        "symfony/cache-contracts": "^2.0",
-        "phpdocumentor/phpdocumentor": "dev-master"
+        "twig/twig": "^3.17",
+        "doctrine/rst-parser": "^0.5.7",
+        "doctrine/doctrine-bundle": "^2.19",
+        "symfony/cache-contracts": "^3.0",
+        "symfony/doctrine-bridge": "^7.4"
     }
 }
