@@ -54,11 +54,22 @@ Après le merge, tentative de consultation de `app.codecov.io/gh/amelaye/biophp`
 | Correctif transmis : reconfigurer l'accès de l'app dans `github.com/settings/installations` → **Codecov** → **Configure** → vérifier que `amelaye/biophp` est bien dans les repos autorisés et approuver toute demande de permission en attente. |
 | **Confirmé résolu par l'utilisatrice** : le repo apparaît maintenant comme actif côté Codecov. |
 
+## 4. Faux signal « tests OK en 8.2, KO en 8.5 »
+
+Après le premier run GitHub Actions, le job PHP 8.2 (avec coverage) passait mais les jobs 8.3/8.4/8.5 échouaient (`Error: Process completed with exit code 1`) alors que leur sortie affichait bien **140/140 tests, 0 échec**.
+
+| Étape |
+|---|
+| Diagnostic : rien à voir avec une incompatibilité PHP 8.5 — le PHP local est lui-même en 8.5.9 et exécute la suite sans erreur. Le run local de `vendor/bin/phpunit -c phpunit.xml`, une fois son code de sortie vérifié (`echo $?`), retournait aussi **1**, malgré « 0 échec ». |
+| Cause identifiée : PHPUnit 11 fixe `failOnPhpunitWarning` à **`true` par défaut** quand l'attribut n'est pas explicité dans `phpunit.xml`. Le seul « PHPUnit Warning » émis est *"No code coverage driver available"* — normal puisque seul le job 8.2 installe `xdebug` dans le workflow. Ce warning suffisait à faire échouer le process sur tous les jobs sans driver de coverage (8.3, 8.4, 8.5, et en local). |
+| Correctif : ajout de `failOnPhpunitWarning="false"` sur l'élément racine de [`phpunit.xml`](../phpunit.xml) — ne change rien au traitement des vrais échecs/erreurs de tests, désactive uniquement l'échec du process sur ce warning bénin d'absence de driver de coverage. |
+| Vérification locale : `vendor/bin/phpunit -c phpunit.xml` → **exit code 0**, toujours 140/140 tests, 0 échec, warning toujours affiché mais non bloquant. |
+
 ## État final
 
-- **Suite de tests** : 140 tests / 324 assertions, **0 échec, 0 erreur**, `master` et `develop` alignées.
+- **Suite de tests** : 140 tests / 324 assertions, **0 échec, 0 erreur**, `master` et `develop` alignées, exit code 0 sur toutes les versions PHP de la matrice (8.2 → 8.5).
 - **Intégration continue** : GitHub Actions opérationnel (`tests.yml`, matrice PHP 8.2 → 8.5), Codecov activé côté plateforme.
-- **Git** : merge conclu sur `master` (commit `1054fca`), **8 commits en avance sur `origin/master`**, rien poussé à ce stade.
+- **Git** : merge conclu sur `master` (commit `1054fca`), poussé sur `origin/master`.
 
 ## Ce qui reste ouvert
 
