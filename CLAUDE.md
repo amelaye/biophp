@@ -2,11 +2,16 @@
 
 ## Project overview
 
-BioPHP is a PHP 7.2 library and Symfony 4 bundle for bioinformatics. It exposes
+BioPHP is a PHP 8.2+ library and Symfony 7 bundle for bioinformatics. It exposes
 biological reference data through API adapters, provides sequence and database
 services, and contains Doctrine entities for parsed biological records.
 
-It must be progressively updated to work in a PHP 8.5 environment.
+The migration off PHP 7.2/Symfony 4 is complete: `composer.json` requires
+`php: ^8.2`, `symfony/*: ^7.4`, `doctrine/orm: ^3.6`, and `phpunit/phpunit:
+^11.5`. CI (`.github/workflows/tests.yml`) runs the suite on PHP 8.2, 8.3, 8.4,
+and 8.5 for both the `master` and `develop` branches, with coverage collected
+only on the 8.2 job. `master` and `develop` currently track the same history;
+treat these conventions as applying to both.
 
 ## Repository map
 
@@ -25,6 +30,8 @@ It must be progressively updated to work in a PHP 8.5 environment.
 - `data/`: local GenBank, Swiss-Prot, FASTA, and alignment samples used by tests.
 - `Legacy/`: original BioPHP source kept for reference and licence continuity.
   Do not modify or modernize it unless the task explicitly targets legacy code.
+- `docs/`: dated progress notes from the PHP 8 migration (not authoritative
+  reference material; read `git log` and the code itself for current state).
 
 The root namespace is `Amelaye\BioPHP\`; tests use `Tests\`.
 
@@ -68,11 +75,13 @@ do not add it.
 
 ## Implementation conventions
 
-- Preserve PHP 7.2 compatibility. Do not use typed properties, arrow functions,
-  union types, attributes, `match`, constructor property promotion, or other
-  syntax introduced after PHP 7.2.
-- Follow the style of the file being edited. Existing code uses four spaces,
-  one class per file, explicit visibility, PHPDoc, and scalar parameter/return
+- The minimum supported version is PHP 8.2 (CI also runs 8.3, 8.4, 8.5), so
+  PHP 8.2+ syntax is allowed. That said, outside of Doctrine attribute mapping
+  the codebase has not adopted newer constructs (constructor property
+  promotion, `readonly` properties, enums, `match`, union/intersection types).
+  Follow the style of the file being edited rather than introducing these
+  unless the task calls for it: four spaces, one class per file, explicit
+  visibility, PHPDoc `@var`/`@param`/`@return`, and scalar parameter/return
   types where practical.
 - Keep the existing public API stable unless a breaking change is explicitly
   requested. This includes method signatures, DTO accessors, adapter interfaces,
@@ -83,8 +92,10 @@ do not add it.
 - API classes extend `Bioapi`, receive Guzzle and JMS Serializer dependencies,
   and convert remote payloads into DTOs. Do not make live HTTP calls in tests;
   mock adapters or clients and use `Tests/**/samples` fixtures.
-- Doctrine mapping is annotation-based. When changing an entity, keep its
-  annotations, PHP types, accessors, and related parser behavior consistent.
+- Doctrine mapping uses PHP 8 attributes (e.g. `#[ORM\Entity]`,
+  `#[ORM\Column(...)]`), not docblock annotations. When changing an entity,
+  keep its attributes, PHP types, accessors, and related parser behavior
+  consistent.
 - Service wiring is XML. When adding or changing a constructor dependency,
   update the appropriate `Resources/config/services.xml` definition. When a
   service implements a public domain interface, preserve or add its interface
@@ -113,7 +124,8 @@ do not add it.
 
 Before completing a change:
 
-1. Confirm the change remains compatible with PHP 7.2 and current dependencies.
+1. Confirm the change remains compatible with PHP 8.2 (the minimum supported
+   version) and current dependencies.
 2. Check whether an interface, service XML file, DTO, entity mapping, fixture, or
    parser must change with the implementation.
 3. Run `php -l` on changed PHP files.

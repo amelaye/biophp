@@ -3,8 +3,8 @@
 ## Introduction
 You can read the website of the application, with docs and informations about the project : http://www.amelayes-biophp.net.
 
-This is my own version of BioPHP available here : http://biophp.org. It requires at least PHP 7.2 and every framework which can work on PHP 7.2, 
-as Symfony 4.
+This is my own version of BioPHP available here : http://biophp.org. It requires at least PHP 8.2 (tested up to PHP 8.5) and every framework which can work on it,
+as Symfony 7.
 
 The original legacy code is included inside, and the licence is still GPL2.
 
@@ -19,7 +19,7 @@ The **BioTools** (amelaye/biotools) package is actually in working progress, ple
 Instead of it, you can use your own application.
 
 ## Content
-BioPHP is actually a Symfony 4 bundle. Create your own PHP application and run :
+BioPHP is actually a Symfony bundle. Create your own PHP application and run :
 
 ```shell
 $ composer require amelaye/biophp
@@ -31,9 +31,9 @@ $ bin/console doctrine:schema:create
 ```
 And then it creates the tables structure.
 
-## Using a Symfony 4 application
+## Using a Symfony application
 
-You can have some examples for a Symfony 4 application here : http://demo.amelayes-biophp.net
+You can have some examples for a Symfony application here : http://demo.amelayes-biophp.net
 
 ## Using you own code (standalone)
 
@@ -44,8 +44,6 @@ If you have your standalone version, you can use it like this (after installing 
 require_once 'vendor/autoload.php';
 
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-AnnotationRegistry::registerLoader('class_exists');
 
 $client = new GuzzleHttp\Client([
     'base_uri' => 'http://api.amelayes-biophp.net'
