@@ -6,9 +6,7 @@ BioPHP is a PHP 7.2 library and Symfony 4 bundle for bioinformatics. It exposes
 biological reference data through API adapters, provides sequence and database
 services, and contains Doctrine entities for parsed biological records.
 
-Keep every change compatible with the versions declared in `composer.json`, in
-particular PHP 7.2, Symfony 4-era components, PHPUnit 7.5, Doctrine ORM 2.7, and
-JMS Serializer 3.x.
+It must be progressively updated to work in a PHP 8.5 environment.
 
 ## Repository map
 

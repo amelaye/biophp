@@ -76,7 +76,7 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
     /**
      * @return string
      */
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'amelaye_biophp';
     }

@@ -50,6 +50,8 @@
     "require-dev": {
         "twig/twig": "^3.17",
         "doctrine/rst-parser": "^0.5.7",
-        "symfony/cache-contracts": "^3.0"
+        "doctrine/doctrine-bundle": "^2.19",
+        "symfony/cache-contracts": "^3.0",
+        "symfony/doctrine-bridge": "^6.4"
     }
 }
