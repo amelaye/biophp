@@ -3,7 +3,7 @@
  * One ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 13 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Model;
 
@@ -17,62 +17,62 @@ class PdbAtom
     /**
      * @var int
      */
-    private $serial;
+    private $serial = 0;
 
     /**
      * @var string
      */
-    private $name;
+    private $name = "";
 
     /**
      * @var string
      */
-    private $altLoc;
+    private $altLoc = "";
 
     /**
      * @var string
      */
-    private $resName;
+    private $resName = "";
 
     /**
      * @var string
      */
-    private $chainId;
+    private $chainId = "";
 
     /**
      * @var int
      */
-    private $resSeq;
+    private $resSeq = 0;
 
     /**
      * @var float
      */
-    private $x;
+    private $x = 0.0;
 
     /**
      * @var float
      */
-    private $y;
+    private $y = 0.0;
 
     /**
      * @var float
      */
-    private $z;
+    private $z = 0.0;
 
     /**
      * @var float
      */
-    private $occupancy;
+    private $occupancy = 0.0;
 
     /**
      * @var float
      */
-    private $tempFactor;
+    private $tempFactor = 0.0;
 
     /**
      * @var string
      */
-    private $element;
+    private $element = "";
 
     /**
      * @return int

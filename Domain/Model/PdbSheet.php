@@ -3,7 +3,7 @@
  * One SHEET secondary-structure strand record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 13 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Model;
 
@@ -17,42 +17,42 @@ class PdbSheet
     /**
      * @var string
      */
-    private $sheetId;
+    private $sheetId = "";
 
     /**
      * @var int
      */
-    private $strand;
+    private $strand = 0;
 
     /**
      * @var string
      */
-    private $initResName;
+    private $initResName = "";
 
     /**
      * @var string
      */
-    private $initChainId;
+    private $initChainId = "";
 
     /**
      * @var int
      */
-    private $initSeqNum;
+    private $initSeqNum = 0;
 
     /**
      * @var string
      */
-    private $endResName;
+    private $endResName = "";
 
     /**
      * @var string
      */
-    private $endChainId;
+    private $endChainId = "";
 
     /**
      * @var int
      */
-    private $endSeqNum;
+    private $endSeqNum = 0;
 
     /**
      * @return string

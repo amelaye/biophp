@@ -42,3 +42,6 @@ composer.lock
 .DS_Store
 .idea/
 myreport/
+/docs/
+/output/
+/.claude/

@@ -3,7 +3,7 @@
  * One HELIX secondary-structure record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 13 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Model;
 
@@ -17,47 +17,47 @@ class PdbHelix
     /**
      * @var string
      */
-    private $helixId;
+    private $helixId = "";
 
     /**
      * @var string
      */
-    private $initResName;
+    private $initResName = "";
 
     /**
      * @var string
      */
-    private $initChainId;
+    private $initChainId = "";
 
     /**
      * @var int
      */
-    private $initSeqNum;
+    private $initSeqNum = 0;
 
     /**
      * @var string
      */
-    private $endResName;
+    private $endResName = "";
 
     /**
      * @var string
      */
-    private $endChainId;
+    private $endChainId = "";
 
     /**
      * @var int
      */
-    private $endSeqNum;
+    private $endSeqNum = 0;
 
     /**
      * @var int
      */
-    private $helixClass;
+    private $helixClass = 0;
 
     /**
      * @var int
      */
-    private $length;
+    private $length = 0;
 
     /**
      * @return string

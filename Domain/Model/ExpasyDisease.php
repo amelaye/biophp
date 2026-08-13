@@ -3,7 +3,7 @@
  * One disease association (DI field) from an ExPASy ENZYME entry
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 13 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Model;
 
@@ -17,12 +17,12 @@ class ExpasyDisease
     /**
      * @var string
      */
-    private $disease;
+    private $disease = "";
 
     /**
      * @var string
      */
-    private $reference;
+    private $reference = "";
 
     /**
      * @return string

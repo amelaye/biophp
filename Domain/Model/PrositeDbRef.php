@@ -3,7 +3,7 @@
  * One SWISS-PROT cross-reference (DR field) from a PROSITE motif entry
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 13 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Model;
 
@@ -17,17 +17,17 @@ class PrositeDbRef
     /**
      * @var string
      */
-    private $accession;
+    private $accession = "";
 
     /**
      * @var string
      */
-    private $entryName;
+    private $entryName = "";
 
     /**
      * @var bool
      */
-    private $truePositive;
+    private $truePositive = false;
 
     /**
      * @return string
