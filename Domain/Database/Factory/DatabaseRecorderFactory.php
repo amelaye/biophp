@@ -30,6 +30,18 @@ abstract class DatabaseRecorderFactory
             case "SWISSPROT":
                 return (substr($sLinestr,0,2) == "ID");
                 break;
+            case "EMBL":
+                return (substr($sLinestr,0,2) == "ID");
+                break;
+            case "PDB":
+                return (substr($sLinestr,0,6) == "HEADER");
+                break;
+            case "PROSITE":
+                return (substr($sLinestr,0,2) == "ID");
+                break;
+            case "EXPASY_ENZYME":
+                return (substr($sLinestr,0,2) == "ID");
+                break;
             default:
                 throw new \Exception("Unknown database format ! ");
         }
@@ -60,6 +72,26 @@ abstract class DatabaseRecorderFactory
                         return $words[0];
                     }
                 }
+                break;
+            case "EMBL":
+                $words = preg_split("/;/", trim(substr($linestr, 5)));
+                return trim($words[0]);
+                break;
+            case "PDB":
+                return trim(substr($linestr, 62, 4));
+                break;
+            case "PROSITE":
+                foreach ($flines as $lineno => $linestr) {
+                    if (substr($linestr,0,2) == "AC") {
+                        $linestr = str_replace(' ', '', substr($linestr,5));
+                        $words = preg_split("/;/", $linestr);
+                        prev($flines);
+                        return $words[0];
+                    }
+                }
+                break;
+            case "EXPASY_ENZYME":
+                return trim(substr($linestr, 5));
                 break;
             default:
                 throw new \Exception("Unknown database format ! ");

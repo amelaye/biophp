@@ -1,7 +1,13 @@
 # BioPHP — Analyse complète du dossier Legacy et état de la refonte
 
-Date de synthèse : 2026-08-12
+Date de synthèse : 2026-08-12 — **mis à jour le 2026-08-13**
 Fait suite à : [legacy_refacto_memo.md](legacy_refacto_memo.md) (2026-08-11), dont ce document corrige et approfondit plusieurs affirmations trop optimistes.
+
+> **Mise à jour du 13 août 2026** : quatre des parseurs listés ci-dessous comme ABSENTS ont été
+> portés (EMBL, PDB, PROSITE, ExPASy ENZYME) — voir
+> [compte_rendu_maj_2026-08-13.md](compte_rendu_maj_2026-08-13.md) pour le détail de cette session.
+> Les sections suivantes ont été corrigées en conséquence ; le texte narratif d'origine (rédigé le
+> 12) est conservé tel quel là où il reste exact.
 
 ## Contexte
 
@@ -27,6 +33,8 @@ refonte concerné, pas seulement son nom.
 
 ## Bilan chiffré
 
+*(Chiffres du 12 août ; voir l'encart de mise à jour ci-dessus pour l'évolution au 13 août.)*
+
 Sur 11 223 lignes de code Legacy, environ **4 386 lignes** ont un équivalent réel et vérifié dans
 la refonte (`seq.php`, `seqalign.php`, `seqdb.php`, `resten.php`, une partie d'`etc.php`), soit
 **≈ 39 % du volume** — concentré exclusivement sur le noyau séquence / alignement /
@@ -44,12 +52,22 @@ refonte à ce jour.
 | ABSENT | 19 parseurs de bases externes + entrez.inc.php (doublon interne) | ≈ 6 554 |
 | OBSOLÈTE (superséde par `Tests/`) | test.php | 11 |
 
+**Au 13 août 2026** : embl.inc.php, pdb.inc.php, motif.inc.php et expasy.inc.php (211 + 1845 + 288
++ 215 = 2 559 lignes) sortent de la catégorie ABSENT. Il reste **15** parseurs de bases externes
+non portés (au lieu de 19), pour ≈ 3 995 lignes Legacy restantes dans cette catégorie. Le statut de
+ces 4 fichiers est nuancé : la refonte cible les champs réellement utiles (voir la table de
+correspondance ci-dessous et le détail par fichier plus bas), pas une reproduction ligne à ligne du
+Legacy — qui, pour PDB et PROSITE notamment, était lui-même inachevé sur une bonne partie de son
+contenu.
+
 ## Forces générales du Legacy
 
 - **Couverture fonctionnelle très large à l'origine** : 20 formats de bases biologiques
   différents étaient parsés (GenBank, Swissprot, EMBL, PDB, KEGG, TRANSFAC, PIR, PRF, PMD,
   PROSITE, PRINTS, ProDom, BLOCKS, AAINDEX, EPD, ExPASy ENZYME, HGBase, UniGene, "DOGS" genome,
-  littérature NCBI). La refonte n'en couvre aujourd'hui que 2 (GenBank, Swissprot).
+  littérature NCBI). Au 12 août, la refonte n'en couvrait que 2 (GenBank, Swissprot) ; au
+  13 août, 6 (+ EMBL, PDB, PROSITE, ExPASy ENZYME — voir l'encart de mise à jour en tête de
+  document).
 - **Logique métier de séquence robuste et éprouvée** (`seq.php`, `seqalign.php`, `etc.php`,
   `resten.php`) : ce noyau, utilisé pendant des années sur des données réelles, est justement
   celui qui a été le mieux et le plus fidèlement porté.
@@ -79,17 +97,17 @@ refonte à ce jour.
 |---|---|---|---|
 | aaindex.inc.php | 83 | ABSENT | — |
 | blocks.inc.php | 84 | ABSENT | — |
-| embl.inc.php | 211 | ABSENT | — |
+| embl.inc.php | 211 | **COMPLET** *(dépasse le stub Legacy, resté inachevé)* | ParseEmblManager.php |
 | entrez.inc.php | 373 | ABSENT *(doublon interne de seqdb.php)* | couvert par ricochet via ParseGenbankManager.php |
 | epd.inc.php | 232 | ABSENT | — |
 | etc.php | 335 | **PARTIEL** | SequenceMatchManager.php, FormatsTrait.php |
-| expasy.inc.php | 215 | ABSENT | — |
+| expasy.inc.php | 215 | **COMPLET** | ParseExpasyEnzymeManager.php |
 | genome.inc.php | 294 | ABSENT | — |
 | hgbase.inc.php | 159 | ABSENT | — |
 | kegg.inc.php | 1672 | ABSENT | — |
 | lit.inc.php | 138 | ABSENT | — |
-| motif.inc.php | 288 | ABSENT | — |
-| pdb.inc.php | 1845 | ABSENT | — |
+| motif.inc.php | 288 | **PARTIEL** *(champ MA/matrice gardé en texte brut)* | ParsePrositeManager.php |
+| pdb.inc.php | 1845 | **PARTIEL** *(champs structurels et atomiques courants seulement)* | ParsePdbManager.php |
 | pdbstr.inc.php | 56 | ABSENT | — |
 | pir.inc.php | 320 | ABSENT | — |
 | pmd.inc.php | 150 | ABSENT | — |
@@ -163,21 +181,20 @@ partagent un vocabulaire proche, source de confusion à lever dans toute future 
 
 ### Parseurs de bases externes — ABSENTS de la refonte
 
-Dix-neuf fichiers, tous des parseurs de formats plats propres à une base de données biologique
+*(Liste d'origine au 12 août ; embl.inc.php, pdb.inc.php, motif.inc.php et expasy.inc.php en ont
+été retirés le 13 août, portés depuis — voir « Parseurs portés le 13 août 2026 » plus bas.)*
+
+Quinze fichiers, tous des parseurs de formats plats propres à une base de données biologique
 externe, n'ont **aucun équivalent** dans `Domain/` ni `Api/` :
 
 | Fichier | Lignes | Base ciblée | Point notable |
 |---|---|---|---|
-| pdb.inc.php | 1845 | Protein Data Bank (structures 3D) | Plus gros fichier du dépôt ; classe monolithique `Protein_PDB`, une seule fonction géante, aucune décomposition |
 | kegg.inc.php | 1672 | KEGG (voies métaboliques) | Fichier le plus riche fonctionnellement (6 classes) ; `parse_mol_kegg`/`parse_ligand_kegg` restées vides même dans le Legacy |
 | transfac.inc.php | 732 | TRANSFAC (facteurs de transcription) | 5 sous-parseurs homogènes, dupliquant le même bloc de gestion des dates |
 | pir.inc.php | 320 | PIR (Protein Information Resource) | Pattern `#clé valeur` bien factorisé sur 4 champs |
-| motif.inc.php | 288 | PROSITE (motifs protéiques) | Parsing à 3 niveaux d'imbrication du champ `MA` ; variable `$linedata` utilisée avant définition |
 | genome.inc.php | 294 | « DOGS » (statistiques de séquençage) | Bug ligne 161 : `$in_ref_flag == TRUE;` (comparaison au lieu d'affectation) |
 | prf.inc.php | 229 | PRF/NBRF | Champs SOURCE/KEYWORD/CROSSREF/SEQUENCE jamais implémentés |
 | epd.inc.php | 232 | EPD (promoteurs eucaryotes) | Copié-collé de la structure d'embl.inc.php, variables mortes |
-| expasy.inc.php | 215 | ExPASy ENZYME (nomenclature EC) | À ne pas confondre avec les enzymes de restriction déjà couvertes |
-| embl.inc.php | 211 | EMBL (nucléique) | Format proche GenBank — portage le plus facile à mécaniser en priorité |
 | pmd.inc.php | 150 | PMD (Protein Mutant Database) | Moitié de la classe jamais renseignée, même dans le Legacy d'origine |
 | hgbase.inc.php | 159 | HGBase (mutations humaines) | Champs ALLELE/ISINBLOCK avec blocs `if` vides |
 | lit.inc.php | 138 | Revues biomédicales NCBI | Format le plus simple ; seconde moitié du fichier commentée (code mort) |
@@ -187,6 +204,53 @@ externe, n'ont **aucun équivalent** dans `Domain/` ni `Api/` :
 | prints.inc.php | 77 | PRINTS (motifs protéiques) | Seul parseur incapable de traiter plusieurs entrées dans un même flux |
 | unigene.inc.php | 78 | UniGene (clusters d'ESTs) | En-tête de commentaire encore `//pdbstr.inc.php` — jamais relu depuis sa création |
 | pdbstr.inc.php | 56 | Familles structurales PDB dérivées | Plus court et plus simple de tous |
+
+### Parseurs portés le 13 août 2026
+
+**embl.inc.php (211 l.)** — Le stub Legacy ne parsait en réalité que ID/AC/DT/SV/DE puis s'arrêtait
+au premier `//`, sans jamais implémenter OS/OC/RN/FT/SQ malgré les variables déclarées pour ça.
+Porté vers `ParseEmblManager.php` en suivant l'architecture de `ParseGenbankManager.php`
+(`\ArrayIterator` + une méthode privée par champ) appliquée aux tags EMBL réels. La table des
+features (`FT`) est directement analogue à celle de GenBank (même standard INSDC clé/position/
+qualifiers), la partie où la réutilisation est la plus directe. **Résultat : plus complet que le
+Legacy dont il est issu.**
+
+**pdb.inc.php (1845 l.)** — Classe `Protein_PDB` monolithique, une fonction géante de plus de 600
+lignes. Un portage 1:1 aurait été disproportionné (nombreux champs jamais renseignés même côté
+Legacy — `SIGATM`/`MODEL` explicitement marqués « skip for now »). `ParsePdbManager.php` couvre les
+enregistrements réellement utiles en bioinformatique structurale (identification, séquence par
+chaîne via `SEQRES`, structure secondaire `HELIX`/`SHEET`, maille cristalline `CRYST1`, coordonnées
+atomiques `ATOM`/`HETATM`). N'étend pas `ParseDbAbstractManager` : les coordonnées 3D ne
+correspondent à aucun des champs Sequence/Feature partagés par GenBank/EMBL/Swissprot. Nouveaux
+objets `PdbAtom`/`PdbHelix`/`PdbSheet` dans `Domain/Model/` (voir encart architecture ci-dessous).
+**Bug de régression trouvé en l'intégrant** : `DatabaseManager::line2r()` ne savait reconnaître que
+le terminateur `//` (convention GenBank/EMBL/Swissprot) ; un fichier PDB, qui se termine par `END`,
+provoquait une boucle infinie jusqu'à épuisement mémoire — corrigé, avec ajout d'une garde de fin de
+fichier qui manquait entièrement (protège désormais tous les formats contre un fichier tronqué).
+
+**motif.inc.php (288 l., PROSITE)** — Le Legacy contient un vrai bug (`$lascar = right($linedata,
+1);` où `$linedata` n'est jamais défini — variable typo pour `$data`, heureusement du code mort
+puisque `$lascar` n'est ensuite jamais utilisé) et une gestion du champ `MA` (matrice/profil) à 3
+niveaux d'imbrication, elle-même fragile. `ParsePrositeManager.php` porte fidèlement tous les autres
+champs (ID, AC, DT, DE, PA — le motif lui-même —, NR, CC, RU, 3D, DR, DO) et garde `MA` en texte
+brut plutôt que de reproduire la logique fragile du Legacy. Nouveau `PrositeDbRef.php` dans
+`Domain/Model/` pour le champ `DR`.
+
+**expasy.inc.php (215 l., nomenclature EC)** — Port fidèle complet (ID, DE, AN, CA, CF, CC, DI, PR,
+DR) vers `ParseExpasyEnzymeManager.php`. À ne pas confondre avec `RestrictionEnzymeManager.php`,
+qui couvre un tout autre Legacy (`resten.php`, enzymes de restriction). Nouveau `ExpasyDisease.php`
+dans `Domain/Model/` pour le champ `DI`. **Bug trouvé en portant le champ `CC`** (commentaires
+multi-lignes) : `file()` conserve déjà le `\n` de fin de ligne de chaque élément du tableau ; le
+premier jet du code en ajoutait un second par-dessus, doublant les sauts de ligne dans le résultat —
+corrigé et vérifié empiriquement avant de figer le test.
+
+**Nouvelle convention architecturale — `Domain/Model/`** : les objets structurés retournés par
+`ParsePdbManager`, `ParsePrositeManager` et `ParseExpasyEnzymeManager` (atomes PDB, hélices,
+feuillets, références croisées, maladies associées) n'ont pas leur place parmi les entités Doctrine
+de `Domain/*/Entity/` (aucune n'est persistée, aucune ne se rattache à une `Sequence` existante), et
+le terme « DTO » est réservé à la frontière HTTP (`Api/DTO/`). Un premier jet les avait nommées
+`*DTO` dans `Domain/Database/DTO/` ; après revue, elles ont été renommées et déplacées vers un
+dossier neutre `Domain/Model/`, sans attribut ORM (donc sans table ni migration associée).
 
 ## Bugs à corriger en priorité dans la refonte existante
 
@@ -209,13 +273,16 @@ introduites lors de la refonte du noyau pourtant marqué COMPLET :
 3. Clarifier/fusionner les deux implémentations de complément/reverse-complement.
 
 **Priorité 2 — combler les parseurs externes les plus utiles (effort modéré, indépendants)**
-4. `ParseEmblManager.php` + ajout de `"EMBL"` dans `DatabaseReaderFactory`/`DatabaseRecorderFactory`
-   — format proche GenBank, portage facilité par réutilisation de `ParseGenbankManager`.
-5. Parseur PDB (`Api/PdbApi.php` ou `Domain/Database/Service/ParsePdbManager.php` + DTO) — format
-   externe le plus demandé en bioinformatique structurale, et plus gros trou de couverture.
-6. Parseur PROSITE (`motif.inc.php`) — complément naturel des outils de recherche de motifs.
-7. Parseur ExPASy ENZYME (`expasy.inc.php`) — nomenclature EC, complémentaire des enzymes de
-   restriction déjà couvertes.
+4. ✅ **Fait le 13/08** — `ParseEmblManager.php` + ajout de `"EMBL"` dans
+   `DatabaseReaderFactory`/`DatabaseRecorderFactory` — format proche GenBank, portage facilité par
+   réutilisation de `ParseGenbankManager`.
+5. ✅ **Fait le 13/08** — Parseur PDB (`Domain/Database/Service/ParsePdbManager.php` + objets
+   `Domain/Model/Pdb*`) — format externe le plus demandé en bioinformatique structurale, et plus
+   gros trou de couverture.
+6. ✅ **Fait le 13/08** — Parseur PROSITE (`motif.inc.php` → `ParsePrositeManager.php`) —
+   complément naturel des outils de recherche de motifs.
+7. ✅ **Fait le 13/08** — Parseur ExPASy ENZYME (`expasy.inc.php` → `ParseExpasyEnzymeManager.php`)
+   — nomenclature EC, complémentaire des enzymes de restriction déjà couvertes.
 
 **Priorité 3 — bases plus spécialisées, à traiter à la demande**
 8. KEGG (1672 l.) — à décomposer en services distincts (Compound, Enzyme KEGG, Reaction,
@@ -226,10 +293,14 @@ introduites lors de la refonte du noyau pourtant marqué COMPLET :
     genome — formats plus petits ou moins utilisés, à traiter au cas par cas.
 
 **Priorité 4 — dette de tests indépendante du périmètre**
-11. Tests unitaires pour `DatabaseManager.php` (aucun test direct trouvé, seuls
-    `ParseGenbankManagerTest`/`ParseSwissprotManagerTest` existent).
-12. Tests pour `GeneticsFunctions.php` et `MathematicsFunctions.php` (aucun trouvé, contrairement
-    à leur voisin `OligosManager` qui a `OligosManagerTest.php`).
+11. ✅ **Fait le 12/08** — Tests unitaires pour `DatabaseManager.php` (`DatabaseManagerTest.php`,
+    5 tests : `fetch()` introuvable/fichier manquant, `recording()` création/réutilisation/
+    doublon).
+12. ✅ **Fait le 12/08** — Tests pour `GeneticsFunctions.php` et `MathematicsFunctions.php`. En les
+    écrivant, deux cas limites réels ont été mis au jour : `Mean([])` et `Variance()` sur un
+    tableau à un seul élément levaient un `DivisionByZeroError` non intercepté (le
+    `catch(\Exception $e)` du code ne l'attrape pas, `DivisionByZeroError` héritant de `Error`,
+    pas `Exception`) — corrigé par une garde explicite avec message clair.
 13. `GeneticsFunctions`, `OligosManager`, `MathematicsFunctions` sont des **ajouts neufs** de la
     refonte, sans équivalent Legacy — à documenter comme gain net, pas comme dette de portage.
 
@@ -239,5 +310,5 @@ Rappel des points laissés ouverts par la modernisation des dépendances (non tr
 analyse fonctionnelle, mais toujours d'actualité) :
 - `doctrine/cache` reste un paquet abandonné, non contournable sans passer à `doctrine/orm` 3.x.
 - `OligosManagerTest::testFindZScore` et `PKApiTest` : deux problèmes préexistants non corrigés.
-- `CLAUDE.md` décrit encore le projet comme PHP 7.2 / Symfony 4 alors que `composer.json` cible
-  désormais PHP 8.1 / Symfony 6.4 — à mettre à jour pour éviter toute confusion future.
+- ~~`CLAUDE.md` décrit encore le projet comme PHP 7.2 / Symfony 4~~ — mis à jour depuis (le projet
+  cible désormais PHP 8.2+ / Symfony 7, `CLAUDE.md` et `README.md` reflètent cet état).

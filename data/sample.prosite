@@ -1,0 +1,14 @@
+ID   TEST_MOTIF; PATTERN.
+AC   PS90001;
+DT   JAN-2020 (CREATED); JAN-2020 (DATA UPDATE); FEB-2021 (INFO UPDATE).
+DE   Test motif signature.
+PA   [AG]-x-[ST]-x(2)-[DE].
+NR   /RELEASE=1,100;
+NR   /TOTAL=10(10); /POSITIVE=10(10); /UNKNOWN=0(0); /FALSE_POS=0(0);
+NR   /FALSE_NEG=0; /PARTIAL=0;
+CC   /TAXO-RANGE=??EPV; /MAX-REPEAT=1; /SITE=1,test_site;
+DR   P00001, TEST1_HUMAN, T; P00002, TEST2_HUMAN, T; P00003, TEST3_HUMAN, N;
+3D   1ABC; 2XYZ;
+RU   This is a test rule describing the motif in free text.
+DO   PDOC90001;
+//

@@ -3,7 +3,7 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 8 may 2020
+ * Last modified 12 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
@@ -62,7 +62,7 @@ class DatabaseManager implements DatabaseInterface
      * Retrieves all data from the specified sequence record and returns them in the
      * form of a Seq object.  This method invokes one of several parser methods.
      * @param       string          $sSeqId        The id of the seq obj.
-     * @return      ParseSwissprotManager | ParseGenbankManager | bool
+     * @return      ParseSwissprotManager | ParseGenbankManager | ParseEmblManager | bool
      * @throws      \Exception
      */
     public function fetch($sSeqId)
@@ -210,12 +210,14 @@ class DatabaseManager implements DatabaseInterface
             $flines = array();
             while(1) {
                 $linestr = fgets($fpseq, 101);
+                if ($linestr === false) {
+                    return $flines;
+                }
                 $flines[] = $linestr;
-                if (substr($linestr, 0, 2) == '//') {
+                if (substr($linestr, 0, 2) == '//' || rtrim($linestr) == 'END') {
                     return $flines;
                 }
             }
-            return false;
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

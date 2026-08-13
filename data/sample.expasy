@@ -1,0 +1,13 @@
+ID   1.1.1.2
+DE   Alcohol dehydrogenase (NADP+).
+AN   Aldehyde reductase (NADPH).
+CA   An alcohol + NADP(+) = an aldehyde + NADPH.
+CF   Zinc.
+CC   -!- Some members of this group oxidize only primary alcohols; others act
+CC       also on secondary alcohols.
+CC   -!- May be identical with EC 1.1.1.19, EC 1.1.1.33 and EC 1.1.1.55.
+CC   -!- A-specific with respect to NADPH.
+DI   6-phosphogluconate dehydrogenase deficiency; MIM: 172200.
+PR   PROSITE; PDOC00061;
+DR   P35630, ADH1_ENTHI;  Q24857, ADH3_ENTHI;  O57380, ADH4_RANPE;
+//

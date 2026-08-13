@@ -7,7 +7,11 @@
  */
 namespace Amelaye\BioPHP\Domain\Database\Factory;
 
+use Amelaye\BioPHP\Domain\Database\Service\ParseEmblManager;
+use Amelaye\BioPHP\Domain\Database\Service\ParseExpasyEnzymeManager;
 use Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Database\Service\ParsePdbManager;
+use Amelaye\BioPHP\Domain\Database\Service\ParsePrositeManager;
 use Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager;
 
 /**
@@ -20,7 +24,7 @@ abstract class DatabaseReaderFactory
     /**
      * @param   string      $sType          Database format
      * @param   array       $aFlines        Parsed database
-     * @return  ParseGenbankManager|ParseSwissprotManager
+     * @return  ParseGenbankManager|ParseSwissprotManager|ParseEmblManager|ParsePdbManager|ParsePrositeManager|ParseExpasyEnzymeManager
      * @throws  \Exception
      */
     public static function readDatabase($sType, $aFlines)
@@ -32,6 +36,22 @@ abstract class DatabaseReaderFactory
                 break;
             case "SWISSPROT":
                 $oService = new ParseSwissprotManager();
+                $oService->parseDataFile($aFlines);
+                break;
+            case "EMBL":
+                $oService = new ParseEmblManager();
+                $oService->parseDataFile($aFlines);
+                break;
+            case "PDB":
+                $oService = new ParsePdbManager();
+                $oService->parseDataFile($aFlines);
+                break;
+            case "PROSITE":
+                $oService = new ParsePrositeManager();
+                $oService->parseDataFile($aFlines);
+                break;
+            case "EXPASY_ENZYME":
+                $oService = new ParseExpasyEnzymeManager();
                 $oService->parseDataFile($aFlines);
                 break;
             default:
