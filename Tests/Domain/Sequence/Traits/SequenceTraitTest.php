@@ -40,6 +40,53 @@ class SequenceTraitTest extends TestCase
         $this->assertEquals("CCTT", $object->revCompDNA("AAGG"));
     }
 
+    public function testCompDNAUppercasesLowercaseInput()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertEquals("TGCA", $object->compDNA("acgt"));
+    }
+
+    public function testCompDNALeavesNonBaseCharactersInPlace()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertEquals("TG CA", $object->compDNA("AC GT"));
+    }
+
+    public function testCompDNAThrowsTypeErrorOnNonStringInput()
+    {
+        $object = $this->makeTraitObject();
+        $this->expectException(\TypeError::class);
+        $object->compDNA([]);
+    }
+
+    public function testRevCompDNAThrowsTypeErrorOnNonStringInput()
+    {
+        $object = $this->makeTraitObject();
+        $this->expectException(\TypeError::class);
+        $object->revCompDNA([]);
+    }
+
+    /**
+     * biotools' FindPalindromeManager::dnaIsPalindrome() considers a sequence palindromic
+     * when it equals its own reverse complement - this is the exact input pair it tests.
+     */
+    public function testRevCompDNAMatchesItselfForAPalindromicSequence()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertEquals("AAATTT", $object->revCompDNA("AAATTT"));
+    }
+
+    /**
+     * Same biotools scenario, non-palindromic input: revCompDNA() must NOT return the
+     * original sequence back.
+     */
+    public function testRevCompDNADoesNotMatchItselfForANonPalindromicSequence()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertEquals("AAACTT", $object->revCompDNA("AAGTTT"));
+        $this->assertNotEquals("AAGTTT", $object->revCompDNA("AAGTTT"));
+    }
+
     public function testCleanSequenceValidDna()
     {
         $object = $this->makeTraitObject();

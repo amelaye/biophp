@@ -59,4 +59,21 @@ class VendorLinkApiTest extends WebTestCase
         );
         $this->assertCount(count($this->vendorLinksObjects), $aResult);
     }
+
+    /**
+     * biotools' RestrictionDigestManager::showVendors() walks this array in order,
+     * matching each key as a substring of a vendor-code string - it relies on
+     * GetVendorLinksArray() preserving the input list's order, keyed by getId().
+     */
+    public function testGetVendorLinksArrayPreservesInputOrder()
+    {
+        $apiVendorLinks = new VendorLinkApi($this->clientMock, $this->serializerMock);
+        $aResult = $apiVendorLinks::GetVendorLinksArray($apiVendorLinks->getVendorLinks());
+
+        $aExpectedOrder = array_map(function ($vendorLink) {
+            return $vendorLink->getId();
+        }, $this->vendorLinksObjects);
+
+        $this->assertEquals($aExpectedOrder, array_keys($aResult));
+    }
 }
