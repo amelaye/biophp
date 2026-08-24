@@ -3,7 +3,7 @@
  * Database of elements - weigths included
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 24 august 2026
  */
 namespace Amelaye\BioPHP\Api\DTO;
 
@@ -17,21 +17,21 @@ use JMS\Serializer\Annotation\Type;
 class ElementDTO
 {
     /**
-     * @Type("integer")
      * @var     int     The id (auto-increment)
      */
+    #[Type('integer')]
     private $id;
 
     /**
-     * @Type("string")
      * @var     string  Water, carbone, for example
      */
+    #[Type('string')]
     private $name;
 
     /**
-     * @Type("float")
      * @var     float   The weight of the nucleotid
      */
+    #[Type('float')]
     private $weight;
 
     /**

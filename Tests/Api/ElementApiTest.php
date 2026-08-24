@@ -49,18 +49,29 @@ class ElementApiTest extends WebTestCase
 
         static::assertEquals($this->aElementsObjects, $apiElements->getElements());
     }
-/*
-    public function testgetElement()
+    /**
+     * Unlike getElements(), which deserializes to a plain array and hydrates the DTO
+     * by hand, getElement() deserializes straight into ElementDTO and therefore needs
+     * JMS property metadata. This test exercises that path with a real serializer, so
+     * it fails if the #[Type] attributes on ElementDTO ever go missing again.
+     */
+    public function testGetElement()
     {
+        $oMockHandler = new MockHandler([
+            new Response(200, [], json_encode(['id' => 6, 'name' => 'water', 'weight' => 18.015])),
+        ]);
+        $clientMock = new GuzzleHttp\Client([
+            'base_uri' => 'http://api.amelayes-biophp.net',
+            'handler' => HandlerStack::create($oMockHandler),
+        ]);
+
         $elementExpected = new ElementDTO();
         $elementExpected->setId(6);
         $elementExpected->setName("water");
         $elementExpected->setWeight(18.015);
 
-        $elementApi = new ElementApi($this->clientMock, $this->serializerMock);
-        $element = $elementApi->getElement(6);
+        $elementApi = new ElementApi($clientMock, $this->serializerMock);
 
-        static::assertEquals($elementExpected, $element);
+        static::assertEquals($elementExpected, $elementApi->getElement(6));
     }
-*/
 }
