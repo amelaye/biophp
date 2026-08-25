@@ -3,13 +3,16 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 12 August 2026
+ * Last modified 25 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\MolecularSequenceFactory;
 
 /**
  * This initialises whether the is a sequences object or not
@@ -52,6 +55,17 @@ class SequenceBuilder implements SequenceInterface
     public function getSequence() : Sequence
     {
         return $this->sequence;
+    }
+
+    /**
+     * Wraps the injected sequence into the value object matching its molecule type, so the symbols
+     * can be handled as a validated DNA, RNA or amino acid chain instead of a raw string.
+     * @return  AbstractMolecularSequence
+     * @throws  InvalidSequenceException    When the molecule type is unknown or a symbol is invalid
+     */
+    public function getMolecularSequence() : AbstractMolecularSequence
+    {
+        return MolecularSequenceFactory::fromEntity($this->sequence);
     }
 
     /**
@@ -127,7 +141,7 @@ class SequenceBuilder implements SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
-     * @param   string        $sLimit       Upper or Lowerlimit
+     * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string|null   $sSequence    The sequence
      * @param   string|null   $sMolType     DNA or RNA
      * @param   int|null      $iNALen       Length of the sequence
@@ -155,7 +169,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("The sequence needs to be string format !");
         }
 
-        return $this->sequenceManager->molwt($sMolType, $sSequence, $sMolType, $iNALen);
+        return $this->sequenceManager->molwt($sLimit, $sSequence, $sMolType, $iNALen);
     }
 
     /**

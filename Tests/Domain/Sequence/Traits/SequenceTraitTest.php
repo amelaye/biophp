@@ -90,7 +90,7 @@ class SequenceTraitTest extends TestCase
     public function testCleanSequenceValidDna()
     {
         $object = $this->makeTraitObject();
-        $this->assertNull($object->cleanSequence("ACGTN", "DNA"));
+        $this->assertTrue($object->cleanSequence("ACGTN", "DNA"));
     }
 
     public function testCleanSequenceInvalidDna()
@@ -102,7 +102,7 @@ class SequenceTraitTest extends TestCase
     public function testCleanSequenceValidRna()
     {
         $object = $this->makeTraitObject();
-        $this->assertNull($object->cleanSequence("ACGUN", "RNA"));
+        $this->assertTrue($object->cleanSequence("ACGUN", "RNA"));
     }
 
     public function testCleanSequenceInvalidRna()
@@ -111,9 +111,46 @@ class SequenceTraitTest extends TestCase
         $this->assertFalse($object->cleanSequence("ACGT", "RNA"));
     }
 
-    public function testCleanSequenceUnknownMolTypeReturnsNull()
+    /**
+     * A record read from a GenBank or EMBL file carries its sequence in lower case : that alone
+     * must not make it look invalid.
+     */
+    public function testCleanSequenceIsCaseInsensitive()
     {
         $object = $this->makeTraitObject();
-        $this->assertNull($object->cleanSequence("ACGT", "PROTEIN"));
+        $this->assertTrue($object->cleanSequence("aagactgcat", "DNA"));
+        $this->assertTrue($object->cleanSequence("acgun", "rna"));
+    }
+
+    /**
+     * Whitespace is not a symbol of any alphabet : the caller has to strip it first.
+     */
+    public function testCleanSequenceRejectsWhitespace()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertFalse($object->cleanSequence("aagactgcat ccggctccag", "DNA"));
+    }
+
+    public function testCleanSequenceValidProtein()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertTrue($object->cleanSequence("GAVLIFYWKRH", "PROTEIN"));
+        $this->assertTrue($object->cleanSequence("GAVLIX*", "PROTEIN"));
+    }
+
+    public function testCleanSequenceInvalidProtein()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertFalse($object->cleanSequence("GAVLIJ", "PROTEIN"));
+    }
+
+    /**
+     * A molecule type without a known alphabet cannot be vouched for, so it is not vouched for.
+     */
+    public function testCleanSequenceRejectsAnUncheckableMolType()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertFalse($object->cleanSequence("ACGT", "mRNA"));
+        $this->assertFalse($object->cleanSequence("ACGT", ""));
     }
 }

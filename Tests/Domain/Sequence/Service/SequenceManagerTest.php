@@ -207,6 +207,108 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($fExpected, $fMolWt);
     }
 
+    /**
+     * An unknown symbol used to be weighed as zero : molwt("ATGZ") quietly returned 964.73 instead
+     * of the 1253.945 of "ATGC", a result wrong by one whole base.
+     */
+    public function testMolWtThrowsOnAnUnrecognizedSymbolInsteadOfWeighingItZero()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Unrecognized DNA symbol in input sequence.");
+
+        $sequenceManager->molwt("upperlimit", "ATGZ", "DNA", 4);
+    }
+
+    public function testMolWtOnCanonicalBases()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // A + T + G + C + water, both limits equal since no symbol is degenerated
+        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 3));
+        $this->assertEquals(1253.945, round($sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 3));
+    }
+
+    /**
+     * A degenerated symbol stands for several bases, so it weighs a range : N is any base, so its
+     * lower limit is cytosine and its upper limit guanine. Both used to be zero.
+     */
+    public function testMolWtResolvesDegeneratedSymbolsIntoALimitRange()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals(307.23, round($sequenceManager->molwt("lowerlimit", "N", "DNA", 1), 3));
+        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "N", "DNA", 1), 3));
+    }
+
+    public function testMolWtResolvesDegeneratedSymbolsForRna()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // W is A or U : in RNA uracil is the lighter of the two
+        $this->assertEquals(324.21, round($sequenceManager->molwt("lowerlimit", "W", "RNA", 1), 3));
+        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "W", "RNA", 1), 3));
+    }
+
+    public function testMolWtAcceptsASequenceAsWrittenInAGenbankRecord()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "at gc", "DNA", 4), 3));
+    }
+
+    public function testMolWtThrowsOnAnUnknownLimit()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Unknown weight limit "DNA"');
+
+        $sequenceManager->molwt("DNA", "ATGC", "DNA", 4);
+    }
+
+    public function testMolWtThrowsOnAMolTypeWithoutAWeightTable()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Molecular weight is only available for DNA and RNA");
+
+        $sequenceManager->molwt("upperlimit", "GAVLI", "PROTEIN", 5);
+    }
+
+    /**
+     * SequenceBuilder used to forward the molecule type where molwt() expects the limit, so the
+     * limit asked for was silently ignored.
+     */
+    public function testBuilderForwardsTheRequestedLimit()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $oSequence = new Sequence();
+        $oSequence->setMoltype("DNA");
+        $oSequence->setSequence("N");
+        $oSequence->setSeqlength(1);
+        $sequenceBuilder->setSequence($oSequence);
+
+        $this->assertEquals(307.23, round($sequenceBuilder->molwt("lowerlimit"), 3));
+        $this->assertEquals(347.26, round($sequenceBuilder->molwt("upperlimit"), 3));
+    }
+
+    /**
+     * A record read from GenBank carries its sequence in lower case, split into blocks separated
+     * by spaces : complement() used to throw on its very first symbol.
+     */
+    public function testComplementAcceptsASequenceAsWrittenInAGenbankRecord()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals("TTCTGACGTA", $sequenceManager->complement("aagactgcat", "DNA"));
+        $this->assertEquals("TTCTGACGTA", $sequenceManager->complement("aagac tgcat", "DNA"));
+    }
+
     public function testSubseq()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);

@@ -3,7 +3,7 @@
  * Traits for sequences formatting
  * Freely inspired by BioPHP's project biophp.org
  * Created 22 july 2019
- * Last modified 1st january 2021
+ * Last modified 25 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Traits;
 
@@ -52,24 +52,29 @@ trait SequenceTrait
     }
 
     /**
-     * Check if characters outside our 20-letter amino alphabet is included in the sequence.
-     * If there are unknown characters, then do not compute molwt and instead return FALSE.
-     * @param $sSequence
-     * @param $sMolType
-     * @return bool
+     * Checks that a sequence only holds symbols belonging to the alphabet of its molecule type.
+     * The comparison is case insensitive, so a record read from a GenBank or EMBL file, where the
+     * sequence is written in lower case, is not rejected for that reason alone.
+     * @param   string      $sSequence      The sequence
+     * @param   string      $sMolType       DNA, RNA or PROTEIN
+     * @return  bool                        TRUE when every symbol is known, FALSE when one of them
+     * is not, and FALSE as well when the molecule type itself cannot be checked
      */
     public function cleanSequence($sSequence, $sMolType)
     {
-        if ($sMolType == "DNA") {
-            preg_match_all("/[^ACGTMRWSYKVHDBXN]/", $sSequence, $match);
-            if (count($match[0]) > 0) {
-                return false;
-            }
-        } elseif ($sMolType == "RNA") {
-            preg_match_all("/[^ACGUMRWSYKVHDBXN]/", $sSequence, $match);
-            if (count($match[0]) > 0) {
-                return false;
-            }
+        $aAlphabets = [
+            "DNA"     => "/[^ACGTMRWSYKVHDBXN]/",
+            "RNA"     => "/[^ACGUMRWSYKVHDBXN]/",
+            "PROTEIN" => "/[^ACDEFGHIKLMNPQRSTVWYX*]/"
+        ];
+
+        $sMolType = strtoupper((string) $sMolType);
+        if (!isset($aAlphabets[$sMolType])) {
+            return false;
         }
+
+        preg_match_all($aAlphabets[$sMolType], strtoupper((string) $sSequence), $match);
+
+        return count($match[0]) == 0;
     }
 }

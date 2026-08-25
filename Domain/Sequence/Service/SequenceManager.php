@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 1st 2021 - Goodbye sh**ty year !!!
+ * Last modified 25 August 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -102,6 +102,11 @@ class SequenceManager
         try {
             $sComplement = "";
             $aComplements = [];
+
+            // Records read from GenBank or EMBL carry their sequence in lower case, split into
+            // blocks separated by spaces. Normalizing here lets a parsed record be passed as it
+            // is, instead of throwing on its very first symbol.
+            $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
 
             if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
                 $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
@@ -210,48 +215,110 @@ class SequenceManager
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * The nucleotide database only carries the four canonical bases, each with a single weight.
+     * The IUPAC ambiguity codes are resolved here into the lightest and the heaviest base they
+     * stand for : that is what makes the lower and the upper limit differ. On a sequence holding
+     * only canonical bases, both limits are equal.
+     * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string        $sSequence    The sequence
      * @param   string        $sMolType     DNA or RNA
-     * @param   int           $iNALen       Length of the sequence
-     * @param   string        $sLimit       Upper or Lowerlimit
+     * @param   int           $iNALen       Number of bases to weigh, capped by the actual length
      * @return  float                       The molecular weight, upper or lower limit
-     * @throws  \Exception
+     * @throws  \Exception                  When the limit, the molecule type or a symbol is unknown
      */
     public function molwt(string $sLimit, string $sSequence, string $sMolType, int $iNALen) : float
     {
         try {
-            $this->cleanSequence($sSequence, $sMolType);
-
             $iLowLimit   = 0;
             $iUppLimit   = 1;
-            $iWlimit     = 1;
             $aMwt        = [0, 0];
+
+            $aLimits = ["lowerlimit" => $iLowLimit, "upperlimit" => $iUppLimit];
+            if (!isset($aLimits[$sLimit])) {
+                throw new \Exception(
+                    "Unknown weight limit \"$sLimit\", expected \"lowerlimit\" or \"upperlimit\"."
+                );
+            }
+            $iWlimit = $aLimits[$sLimit];
+
+            $sMolType  = strtoupper($sMolType);
+            $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
+
+            // cleanSequence() knows which symbols are legal : its answer used to be discarded, so
+            // an unknown symbol was silently weighed as zero and the result was quietly wrong.
+            if (!$this->cleanSequence($sSequence, $sMolType)) {
+                throw new \Exception("Unrecognized $sMolType symbol in input sequence.");
+            }
 
             $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
             $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
             $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
-            $na_wts = $aAllNaWts[$sMolType];
+            if (!isset($aAllNaWts[$sMolType])) {
+                throw new \Exception(
+                    "Molecular weight is only available for DNA and RNA, \"$sMolType\" given."
+                );
+            }
+            $na_wts = $this->getNucleotidWeightLimits($aAllNaWts[$sMolType], $sMolType);
 
-            for($i = 0; $i < $iNALen; $i++) {
+            $iLength = min($iNALen, strlen($sSequence));
+            for($i = 0; $i < $iLength; $i++) {
                 $sNABase = substr($sSequence, $i, 1);
-                $aMwt[$iLowLimit] += $na_wts[$sNABase];
-                $aMwt[$iUppLimit] += $na_wts[$sNABase];
+                if (!isset($na_wts[$sNABase])) {
+                    throw new \Exception("Unrecognized nucleotide symbol \"$sNABase\" at position $i.");
+                }
+                $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
+                $aMwt[$iUppLimit] += $na_wts[$sNABase][$iUppLimit];
             }
 
             $aMwt[$iLowLimit] += $this->water->getWeight();
             $aMwt[$iUppLimit] += $this->water->getWeight();
 
-            if($sLimit == "lowerlimit") {
-                $iWlimit = 1;
-            }
-            else if($sLimit == "upperlimit") {
-                $iWlimit = 0;
-            }
-
             return $aMwt[$iWlimit];
         } catch (\Exception $ex) {
             throw new \Exception($ex);
         }
+    }
+
+    /**
+     * Turns the canonical weight table of a molecule type into a lower/upper limit pair per
+     * symbol, the degenerated ones included. A degenerated symbol stands for several bases : its
+     * lower limit is the lightest of them, its upper limit the heaviest.
+     * @param   array       $aCanonicalWeights  One weight per canonical base, as served by the API
+     * @param   string      $sMolType           DNA or RNA
+     * @return  array                           [symbol => [lower weight, upper weight]]
+     */
+    private function getNucleotidWeightLimits(array $aCanonicalWeights, string $sMolType) : array
+    {
+        $aExpansions = [
+            "M" => "AC",  "R" => "AG",  "W" => "AT",   "S" => "CG",
+            "Y" => "CT",  "K" => "GT",  "V" => "ACG",  "H" => "ACT",
+            "D" => "AGT", "B" => "CGT", "X" => "ACGT", "N" => "ACGT"
+        ];
+
+        $aWeights = [];
+        foreach($aCanonicalWeights as $sBase => $fWeight) {
+            $aWeights[$sBase] = [$fWeight, $fWeight];
+        }
+
+        foreach($aExpansions as $sSymbol => $sBases) {
+            if ($sMolType == "RNA") {
+                $sBases = strtr($sBases, ["T" => "U"]);
+            }
+
+            $aPossible = [];
+            for($i = 0; $i < strlen($sBases); $i++) {
+                $sBase = substr($sBases, $i, 1);
+                if (isset($aCanonicalWeights[$sBase])) {
+                    $aPossible[] = $aCanonicalWeights[$sBase];
+                }
+            }
+
+            if (count($aPossible) > 0) {
+                $aWeights[$sSymbol] = [min($aPossible), max($aPossible)];
+            }
+        }
+
+        return $aWeights;
     }
 
 
