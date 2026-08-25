@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Domain\Database\Service;
+namespace Tests\Domain\Parser;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;

@@ -1,0 +1,6 @@
+ID   TEST_FAMILY; BLOCK
+AC   IPB002128C; distance from previous block=(30,31)
+DE   A test protein family block used by the BioPHP unit
+DE   tests.
+BL   RDG;  width=55; seqs=158; 99.5%=1918; strength=2332
+//

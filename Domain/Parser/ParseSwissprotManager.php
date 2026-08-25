@@ -3,10 +3,11 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 19 january 2020
+ * Last modified 25 August 2026
  */
-namespace Amelaye\BioPHP\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Parser;
 
+use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
@@ -25,6 +26,55 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @var array
      */
     private $aLines;
+
+    /**
+     * The name this format is known by in the collection records and in DatabaseParserFactory.
+     * @return string
+     */
+    public static function getFormat() : string
+    {
+        return "SWISSPROT";
+    }
+
+    /**
+     * Tells whether a line opens a new Swiss-Prot entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryStart(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "ID";
+    }
+
+    /**
+     * Tells whether a line closes a Swiss-Prot entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryEnd(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "//";
+    }
+
+    /**
+     * Extracts the identifier uniquely naming a Swiss-Prot entry.
+     * @param   array       $aFlines        The whole file, buffered
+     * @param   string      $sLine          The line opening the entry
+     * @return  string
+     */
+    public static function getEntryId(array $aFlines, string $sLine) : string
+    {
+        foreach($aFlines as $sCurrent) {
+            if (substr($sCurrent, 0, 2) == "AC") {
+                $sCurrent = str_replace(' ', '', substr($sCurrent, 5));
+                $aWords = preg_split("/;/", $sCurrent);
+
+                return $aWords[0];
+            }
+        }
+
+        return "";
+    }
 
     /**
      * Parses a Swissprot data file and returns a Seq object containing parsed data.

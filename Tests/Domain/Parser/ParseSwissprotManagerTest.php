@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Domain\Database\Service;
+namespace Tests\Domain\Parser;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
@@ -12,7 +12,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Entity\SpDatabank;
 use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
-use Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager;
+use Amelaye\BioPHP\Domain\Parser\ParseSwissprotManager;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -665,5 +665,33 @@ class ParseSwissprotManagerTest extends TestCase
         $oExpected->setSpDatabank($aExpectedSpDataBank);
 
         //$this->assertEquals($oExpected, $oParseSwisprotManager);
+    }
+
+    /**
+     * The identifier is read from the AC line, wherever it sits in the entry.
+     */
+    public function testGetEntryIdReadsTheAccessionLine()
+    {
+        $aFlines = ["ID   TNFA_HUMAN", "AC   P01375;", "DE   Something."];
+
+        $this->assertEquals("P01375", ParseSwissprotManager::getEntryId($aFlines, $aFlines[0]));
+    }
+
+    /**
+     * An entry without an AC line has no identifier to give : it yields an empty string rather
+     * than falling off the end of the method.
+     */
+    public function testGetEntryIdReturnsAnEmptyStringWithoutAnAccessionLine()
+    {
+        $aFlines = ["ID   TNFA_HUMAN", "DE   Something."];
+
+        $this->assertSame("", ParseSwissprotManager::getEntryId($aFlines, $aFlines[0]));
+    }
+
+    public function testFormatMetadata()
+    {
+        $this->assertEquals("SWISSPROT", ParseSwissprotManager::getFormat());
+        $this->assertTrue(ParseSwissprotManager::isEntryStart("ID   TNFA_HUMAN"));
+        $this->assertFalse(ParseSwissprotManager::isEntryStart("DE   Something."));
     }
 }

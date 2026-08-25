@@ -1,0 +1,26 @@
+ORGANISM        Homo sapiens
+COMMON_NAME     human
+CLASSIFICATION  Eukaryota; Metazoa; Chordata;
+	Craniata; Vertebrata; Mammalia
+COMPLETED       NO
+GB_RELEASE      134
+GB_ENTRIES      1234567
+GB_BASEPAIRS    9876543210
+GENOME_SIZE     3200000000
+REF_TYPE        journal
+REF_AUTHOR      Lander E.S.;
+	Linton L.M.; Birren B.
+REF_TITLE       Initial sequencing and analysis of the
+	human genome.
+REF_JOURNAL     Nature
+REF_VOLUME      409
+REF_PAGES       860-921
+REF_YEAR        2001
+REF_TYPE        book
+REF_AUTHOR      Venter J.C.
+REF_TITLE       The sequence of the human genome.
+REF_JOURNAL     Science
+REF_VOLUME      291
+REF_PAGES       1304-1351
+REF_YEAR        2001
+//

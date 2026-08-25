@@ -1,9 +1,10 @@
 <?php
-namespace Tests\Domain\Database\Service;
+namespace Tests\Domain\Parser;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
+use Amelaye\BioPHP\Domain\Parser\ParsePrositeManager;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -70,5 +71,33 @@ class ParsePrositeManagerTest extends TestCase
         $this->assertTrue($aDbRefs[1]->isTruePositive());
         $this->assertEquals("P00003", $aDbRefs[2]->getAccession());
         $this->assertFalse($aDbRefs[2]->isTruePositive());
+    }
+
+    /**
+     * The identifier is read from the AC line, wherever it sits in the entry.
+     */
+    public function testGetEntryIdReadsTheAccessionLine()
+    {
+        $aFlines = ["ID   TEST_PATTERN; PATTERN.", "AC   P01375;", "DE   Something."];
+
+        $this->assertEquals("P01375", ParsePrositeManager::getEntryId($aFlines, $aFlines[0]));
+    }
+
+    /**
+     * An entry without an AC line has no identifier to give : it yields an empty string rather
+     * than falling off the end of the method.
+     */
+    public function testGetEntryIdReturnsAnEmptyStringWithoutAnAccessionLine()
+    {
+        $aFlines = ["ID   TEST_PATTERN; PATTERN.", "DE   Something."];
+
+        $this->assertSame("", ParsePrositeManager::getEntryId($aFlines, $aFlines[0]));
+    }
+
+    public function testFormatMetadata()
+    {
+        $this->assertEquals("PROSITE", ParsePrositeManager::getFormat());
+        $this->assertTrue(ParsePrositeManager::isEntryStart("ID   TEST_PATTERN; PATTERN."));
+        $this->assertFalse(ParsePrositeManager::isEntryStart("DE   Something."));
     }
 }

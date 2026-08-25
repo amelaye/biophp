@@ -19,9 +19,16 @@ treat these conventions as applying to both.
   responses are read from the `hydra:member` field.
 - `Domain/Sequence/`: sequence entities, interfaces, traits, the
   `SequenceBuilder` facade, and sequence-related services.
-- `Domain/Database/`: database entities, factories, and GenBank/Swiss-Prot
-  parsers.
+- `Domain/Database/`: database entities, factories, the `DatabaseManager`
+  service, and the `ParseDbAbstractManager` base class the record parsers
+  extend.
+- `Domain/Parser/`: the concrete database-format parsers (GenBank, Swiss-Prot,
+  EMBL, PDB, PROSITE, ExPASy ENZYME). They are resolved by
+  `DatabaseReaderFactory`, not injected.
 - `Domain/Tools/`: reusable genetics, mathematics, and oligonucleotide helpers.
+- `Domain/Sequence/ValueObject/`: immutable value objects wrapping sequence
+  strings (`DnaSequence`, `RnaSequence`, `AminoAcidSequence`). They validate
+  their alphabet on construction and never mutate.
 - `DependencyInjection/`: Symfony bundle configuration and service loading.
 - `*/Resources/config/services.xml`: Symfony service definitions and interface
   aliases.
@@ -96,6 +103,12 @@ do not add it.
   `#[ORM\Column(...)]`), not docblock annotations. When changing an entity,
   keep its attributes, PHP types, accessors, and related parser behavior
   consistent.
+- Supporting a new database format means writing one parser class in
+  `Domain/Parser/` (declaring `getFormat()`, `isEntryStart()`, `getEntryId()`
+  and `parseDataFile()`) and adding it to `DatabaseParserFactory::PARSERS`.
+  That constant is the only registration point; `DatabaseReaderFactory` and
+  `DatabaseRecorderFactory` resolve through it and must not grow format
+  switches of their own.
 - Service wiring is XML. When adding or changing a constructor dependency,
   update the appropriate `Resources/config/services.xml` definition. When a
   service implements a public domain interface, preserve or add its interface

@@ -3,10 +3,11 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 19 january 2020
+ * Last modified 25 August 2026
  */
-namespace Amelaye\BioPHP\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Parser;
 
+use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
@@ -25,6 +26,48 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @var array
      */
     private $aLines;
+
+    /**
+     * The name this format is known by in the collection records and in DatabaseParserFactory.
+     * @return string
+     */
+    public static function getFormat() : string
+    {
+        return "GENBANK";
+    }
+
+    /**
+     * Tells whether a line opens a new GenBank entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryStart(string $sLine) : bool
+    {
+        return substr($sLine, 0, 5) == "LOCUS";
+    }
+
+    /**
+     * Tells whether a line closes a GenBank entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryEnd(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "//";
+    }
+
+    /**
+     * Extracts the identifier uniquely naming a GenBank entry.
+     * @param   array       $aFlines        The whole file, buffered
+     * @param   string      $sLine          The line opening the entry
+     * @return  string
+     */
+    public static function getEntryId(array $aFlines, string $sLine) : string
+    {
+        $aLocus = preg_split("/\s+/", trim($sLine));
+
+        return trim($aLocus[1]);
+    }
 
     /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.

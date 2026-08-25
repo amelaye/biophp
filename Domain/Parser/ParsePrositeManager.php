@@ -3,9 +3,9 @@
  * PROSITE motif database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 25 August 2026
  */
-namespace Amelaye\BioPHP\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Parser;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
 use Amelaye\BioPHP\Domain\Model\PrositeDbRef;
@@ -94,6 +94,55 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      */
     public function __construct()
     {
+    }
+
+    /**
+     * The name this format is known by in the collection records and in DatabaseParserFactory.
+     * @return string
+     */
+    public static function getFormat() : string
+    {
+        return "PROSITE";
+    }
+
+    /**
+     * Tells whether a line opens a new PROSITE entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryStart(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "ID";
+    }
+
+    /**
+     * Tells whether a line closes a PROSITE entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryEnd(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "//";
+    }
+
+    /**
+     * Extracts the identifier uniquely naming a PROSITE entry.
+     * @param   array       $aFlines        The whole file, buffered
+     * @param   string      $sLine          The line opening the entry
+     * @return  string
+     */
+    public static function getEntryId(array $aFlines, string $sLine) : string
+    {
+        foreach($aFlines as $sCurrent) {
+            if (substr($sCurrent, 0, 2) == "AC") {
+                $sCurrent = str_replace(' ', '', substr($sCurrent, 5));
+                $aWords = preg_split("/;/", $sCurrent);
+
+                return $aWords[0];
+            }
+        }
+
+        return "";
     }
 
     /**

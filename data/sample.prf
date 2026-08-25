@@ -1,0 +1,19 @@
+CODE        0904306A
+NAME        interleukin 2
+ determine  protein
+SOURCE      Homo sapiens
+ cname      man
+ taxon      Eucarya;Animalia;Metazoa;Chordata;Vertebrata;Gnathostomata;
+            Mammalia;Eutheria;Primates;Catarrhini;Hominidae
+JOURNAL     Nature(London), 302(5906),305-310(1983)
+AUTHOR      Taniguchi,T., Matsui,H., Fujita,T., Takaoka,C., Kashima,N.,
+            Yoshimoto,R., Hamuro,J.
+TITLE       Structure and expression of a cloned cDNA for human interleukin-2.
+KEYWORD     Interleukin 2    Human    Cloning From cDNA Library
+            Seq Determination    812bp    mRNA Hybridization Translation
+CROSSREF    PIR=ICHU2;PIR=ICGI2
+SEQUENCE
+            MYRMQLLSCI ALSLALVTNS APTSSSTKKT QLQLEHLLLD LQMILNGINN YKNPKLTRML
+            TFKFYMPKKA TELKHLQCLE EELKPLEEVL NLAQSKNFHL RPRDLISNIN VIVLELKGSE
+            TTFMCEYADE TATIVEFLNR WITFCQSIIS TLT
+///

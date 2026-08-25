@@ -3,9 +3,9 @@
  * ExPASy ENZYME database parsing (EC nomenclature)
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 25 August 2026
  */
-namespace Amelaye\BioPHP\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Parser;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
 use Amelaye\BioPHP\Domain\Model\ExpasyDisease;
@@ -71,6 +71,46 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      */
     public function __construct()
     {
+    }
+
+    /**
+     * The name this format is known by in the collection records and in DatabaseParserFactory.
+     * @return string
+     */
+    public static function getFormat() : string
+    {
+        return "EXPASY_ENZYME";
+    }
+
+    /**
+     * Tells whether a line opens a new ExPASy ENZYME entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryStart(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "ID";
+    }
+
+    /**
+     * Tells whether a line closes a ExPASy ENZYME entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryEnd(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "//";
+    }
+
+    /**
+     * Extracts the identifier uniquely naming a ExPASy ENZYME entry.
+     * @param   array       $aFlines        The whole file, buffered
+     * @param   string      $sLine          The line opening the entry
+     * @return  string
+     */
+    public static function getEntryId(array $aFlines, string $sLine) : string
+    {
+        return trim(substr($sLine, 5));
     }
 
     /**

@@ -1,0 +1,5 @@
+gc; TEST_FINGERPRINT
+gn; COMPOUND(3)
+ga; 16-NOV-1995; UPDATE 06-JUN-1999
+gd; A test fingerprint used by the BioPHP unit tests, describing
+gd; a conserved motif found in a fictitious protein family.

@@ -16,8 +16,6 @@
             <argument>%files.path%</argument>
         </service>
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
-        <service id="Amelaye\BioPHP\Domain\Database\Service\ParseGenbankManager" />
-        <service id="Amelaye\BioPHP\Domain\Database\Service\ParseSwissprotManager" />
 
         <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="amelaye_biophp.database_manager" />
         

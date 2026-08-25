@@ -3,7 +3,7 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 11 August 2026
+ * Last modified 25 August 2026
  */
 namespace Amelaye\BioPHP\DependencyInjection;
 

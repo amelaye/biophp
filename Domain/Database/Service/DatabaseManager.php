@@ -9,6 +9,7 @@ namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
+use Amelaye\BioPHP\Domain\Database\Factory\DatabaseParserFactory;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseReaderFactory;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseRecorderFactory;
 use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
@@ -78,7 +79,7 @@ class DatabaseManager implements DatabaseInterface
             }
 
             $fpSeq = fopen( $this->sPath . $collectionDB->getFileName(), "r");
-            $aFlines = $this->line2r($fpSeq);
+            $aFlines = $this->line2r($fpSeq, $collectionDB->getDbFormat());
             $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
             return $oService;
         } catch (\Exception $e) {
@@ -204,17 +205,25 @@ class DatabaseManager implements DatabaseInterface
      * @return  array|bool
      * @throws  \Exception
      */
-    private function line2r($fpseq)
+    private function line2r($fpseq, $sDbFormat)
     {
         try {
+            // Which line closes an entry is a property of the format, so the parser is asked
+            // rather than guessed at here : "//" is the GenBank family convention, "END" the PDB
+            // one, and some formats use neither.
+            $sParser = DatabaseParserFactory::getParserClass($sDbFormat);
+
             $flines = array();
             while(1) {
-                $linestr = fgets($fpseq, 101);
+                // No length limit : a hundred character cap used to cut a longer line in two,
+                // handing the parser a second line whose label column held the middle of a word.
+                // recording() reads the same files with file(), which has never had that cap.
+                $linestr = fgets($fpseq);
                 if ($linestr === false) {
                     return $flines;
                 }
                 $flines[] = $linestr;
-                if (substr($linestr, 0, 2) == '//' || rtrim($linestr) == 'END') {
+                if ($sParser::isEntryEnd($linestr)) {
                     return $flines;
                 }
             }

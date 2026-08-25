@@ -1,0 +1,7 @@
+ID          Sbi.1
+TITLE       ESTs, Moderately similar to putative pyrophosphate-fructose-6-phosphate
+TITLE       1-phosphotransferase [Arabidopsis thaliana] [A.thaliana]
+EXPRESS     Embryos germinated for 24 hr ; 10- to 14-day-old light-grown seedlings ; Leaves
+PROTSIM     ORG=Arabidopsis thaliana; PROTGI=15221156; PROTID=ref:NP_172664.1; PCT=79.41; ALN=68
+SCOUNT      12
+//

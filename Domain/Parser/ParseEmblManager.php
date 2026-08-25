@@ -3,10 +3,11 @@
  * EMBL database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 12 August 2026
+ * Last modified 25 August 2026
  */
-namespace Amelaye\BioPHP\Domain\Database\Service;
+namespace Amelaye\BioPHP\Domain\Parser;
 
+use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
@@ -29,6 +30,48 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @var \ArrayIterator
      */
     private $aLines;
+
+    /**
+     * The name this format is known by in the collection records and in DatabaseParserFactory.
+     * @return string
+     */
+    public static function getFormat() : string
+    {
+        return "EMBL";
+    }
+
+    /**
+     * Tells whether a line opens a new EMBL entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryStart(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "ID";
+    }
+
+    /**
+     * Tells whether a line closes a EMBL entry.
+     * @param   string      $sLine          The line to analyze
+     * @return  bool
+     */
+    public static function isEntryEnd(string $sLine) : bool
+    {
+        return substr($sLine, 0, 2) == "//";
+    }
+
+    /**
+     * Extracts the identifier uniquely naming a EMBL entry.
+     * @param   array       $aFlines        The whole file, buffered
+     * @param   string      $sLine          The line opening the entry
+     * @return  string
+     */
+    public static function getEntryId(array $aFlines, string $sLine) : string
+    {
+        $aWords = preg_split("/;/", trim(substr($sLine, 5)));
+
+        return trim($aWords[0]);
+    }
 
     /**
      * Parses an EMBL data file and returns a Seq object containing parsed data.
