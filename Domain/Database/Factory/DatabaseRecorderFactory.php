@@ -3,7 +3,7 @@
  * Factory recording different databases format
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Factory;
 
@@ -26,6 +26,20 @@ abstract class DatabaseRecorderFactory
         $sClass = DatabaseParserFactory::getParserClass($sType);
 
         return $sClass::isEntryStart($sLinestr);
+    }
+
+    /**
+     * Finds the entry end of the file
+     * @param   string      $sType          Database format
+     * @param   string      $sLinestr       The line to analyze
+     * @return  bool
+     * @throws  \Exception
+     */
+    public static function getEntryEnd($sType, $sLinestr)
+    {
+        $sClass = DatabaseParserFactory::getParserClass($sType);
+
+        return $sClass::isEntryEnd($sLinestr);
     }
 
     /**

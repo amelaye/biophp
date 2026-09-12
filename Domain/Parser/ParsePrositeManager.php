@@ -3,7 +3,7 @@
  * PROSITE motif database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -152,51 +152,47 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aLines = new \ArrayIterator($aFlines);
+        $aLines = new \ArrayIterator($aFlines);
 
-            foreach ($aLines as $lineno => $linestr) {
-                switch (trim(substr($aLines->current(), 0, 2))) {
-                    case "ID":
-                        $this->parseId($aLines->current());
-                        break;
-                    case "AC":
-                        $this->accession = rtrim(trim(substr($aLines->current(), 5)), ";");
-                        break;
-                    case "DT":
-                        $this->parseDate($aLines->current());
-                        break;
-                    case "DE":
-                        $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
-                        break;
-                    case "PA":
-                        $this->pattern = $this->accumulate($aLines, $aFlines, "PA", "");
-                        break;
-                    case "MA":
-                        $this->matrix = $this->accumulate($aLines, $aFlines, "MA", " ");
-                        break;
-                    case "NR":
-                        $this->numericalResults = $this->parseQualifiers($this->accumulate($aLines, $aFlines, "NR", " "));
-                        break;
-                    case "CC":
-                        $this->comments = $this->parseQualifiers($this->accumulate($aLines, $aFlines, "CC", " "));
-                        break;
-                    case "RU":
-                        $this->rule = $this->accumulate($aLines, $aFlines, "RU", " ");
-                        break;
-                    case "3D":
-                        $this->pdbXrefs = $this->parseList($this->accumulate($aLines, $aFlines, "3D", " "));
-                        break;
-                    case "DR":
-                        $this->dbRefs = $this->parseDbRefs($this->accumulate($aLines, $aFlines, "DR", " "));
-                        break;
-                    case "DO":
-                        $this->docXref = rtrim(trim(substr($aLines->current(), 5)), ";");
-                        break;
-                }
+        foreach ($aLines as $lineno => $linestr) {
+            switch (trim(substr($aLines->current(), 0, 2))) {
+                case "ID":
+                    $this->parseId($aLines->current());
+                    break;
+                case "AC":
+                    $this->accession = rtrim(trim(substr($aLines->current(), 5)), ";");
+                    break;
+                case "DT":
+                    $this->parseDate($aLines->current());
+                    break;
+                case "DE":
+                    $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
+                    break;
+                case "PA":
+                    $this->pattern = $this->accumulate($aLines, $aFlines, "PA", "");
+                    break;
+                case "MA":
+                    $this->matrix = $this->accumulate($aLines, $aFlines, "MA", " ");
+                    break;
+                case "NR":
+                    $this->numericalResults = $this->parseQualifiers($this->accumulate($aLines, $aFlines, "NR", " "));
+                    break;
+                case "CC":
+                    $this->comments = $this->parseQualifiers($this->accumulate($aLines, $aFlines, "CC", " "));
+                    break;
+                case "RU":
+                    $this->rule = $this->accumulate($aLines, $aFlines, "RU", " ");
+                    break;
+                case "3D":
+                    $this->pdbXrefs = $this->parseList($this->accumulate($aLines, $aFlines, "3D", " "));
+                    break;
+                case "DR":
+                    $this->dbRefs = $this->parseDbRefs($this->accumulate($aLines, $aFlines, "DR", " "));
+                    break;
+                case "DO":
+                    $this->docXref = rtrim(trim(substr($aLines->current(), 5)), ";");
+                    break;
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
     }
 

@@ -3,7 +3,7 @@
  * EPD database parsing (Eukaryotic Promoter Database)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -147,47 +147,43 @@ final class ParseEpdManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sDescription = "";
-            $sComments    = "";
+        $sDescription = "";
+        $sComments    = "";
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
-
-                $sLabel = substr($sLine, 0, 2);
-                $sData  = trim(substr($sLine, 5));
-
-                switch($sLabel) {
-                    case "ID":
-                        $this->parseIdentifier($sData);
-                        break;
-                    case "AC":
-                        foreach(preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY) as $sAcc) {
-                            $sAcc = trim($sAcc);
-                            if ($sAcc != "") {
-                                $this->accessions[] = $sAcc;
-                            }
-                        }
-                        break;
-                    case "DT":
-                        $this->parseDate($sData);
-                        break;
-                    case "DE":
-                        $sDescription .= $sData . " ";
-                        break;
-                    case "CC":
-                        $sComments .= $sData . " ";
-                        break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
             }
 
-            $this->description = trim($sDescription);
-            $this->comments    = trim($sComments);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sLabel = substr($sLine, 0, 2);
+            $sData  = trim(substr($sLine, 5));
+
+            switch($sLabel) {
+                case "ID":
+                    $this->parseIdentifier($sData);
+                    break;
+                case "AC":
+                    foreach(preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY) as $sAcc) {
+                        $sAcc = trim($sAcc);
+                        if ($sAcc != "") {
+                            $this->accessions[] = $sAcc;
+                        }
+                    }
+                    break;
+                case "DT":
+                    $this->parseDate($sData);
+                    break;
+                case "DE":
+                    $sDescription .= $sData . " ";
+                    break;
+                case "CC":
+                    $sComments .= $sData . " ";
+                    break;
+            }
         }
+
+        $this->description = trim($sDescription);
+        $this->comments    = trim($sComments);
     }
 
     /**

@@ -1,0 +1,9 @@
+ENTRY       K00844                      KO
+NAME        HK; hexokinase
+DEFINITION  hexokinase [EC:2.7.1.1]
+CLASS       Metabolism; Carbohydrate Metabolism;
+            Glycolysis / Gluconeogenesis
+DBLINKS     GO: 0004396
+GENES       HSA: 3098 3099 3101
+            MMU: 15275 15277
+///

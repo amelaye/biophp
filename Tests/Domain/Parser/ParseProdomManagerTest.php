@@ -88,4 +88,20 @@ class ParseProdomManagerTest extends TestCase
             $oParser->getKeywords()
         );
     }
+
+    /**
+     * A frequent name is written with the count of sequences carrying it. One written without
+     * is kept all the same, counted zero : the name is part of the entry either way.
+     */
+    public function testAFrequentNameWithoutItsCountIsStillKept()
+    {
+        $oParser = new ParseProdomManager();
+        $oParser->parseDataFile([
+            "ID   20167 p2002.1                           10 seq.",
+            "KW   FADR(2) Y586 // COMPLETE PROTEOME",
+            "//",
+        ]);
+
+        $this->assertEquals(["FADR" => 2, "Y586" => 0], $oParser->getFreqNames());
+    }
 }

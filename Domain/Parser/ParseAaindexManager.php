@@ -3,7 +3,7 @@
  * AAINDEX1 database parsing (physico-chemical indices of amino acids)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -105,51 +105,47 @@ final class ParseAaindexManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aBuffers = ["D" => "", "A" => "", "T" => "", "J" => ""];
-            $sCurrent = "";
+        $aBuffers = ["D" => "", "A" => "", "T" => "", "J" => ""];
+        $sCurrent = "";
 
-            foreach($aFlines as $sLine) {
-                $sLabel = substr($sLine, 0, 1);
-                $sData  = trim(substr($sLine, 2));
+        foreach($aFlines as $sLine) {
+            $sLabel = substr($sLine, 0, 1);
+            $sData  = trim(substr($sLine, 2));
 
-                if ($sLabel == " ") {
-                    if ($sCurrent != "") {
-                        $aBuffers[$sCurrent] .= $sData . " ";
-                    }
-                    continue;
+            if ($sLabel == " ") {
+                if ($sCurrent != "") {
+                    $aBuffers[$sCurrent] .= $sData . " ";
                 }
-
-                $sCurrent = "";
-
-                switch($sLabel) {
-                    case "H":
-                        $this->accession = $sData;
-                        break;
-                    case "D":
-                    case "A":
-                    case "T":
-                    case "J":
-                        $aBuffers[$sLabel] = $sData . " ";
-                        $sCurrent = $sLabel;
-                        break;
-                    case "R":
-                        $this->parseReferences($sData);
-                        break;
-                }
-
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
+                continue;
             }
 
-            $this->description = trim($aBuffers["D"]);
-            $this->author      = trim($aBuffers["A"]);
-            $this->title       = trim($aBuffers["T"]);
-            $this->journal     = trim($aBuffers["J"]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sCurrent = "";
+
+            switch($sLabel) {
+                case "H":
+                    $this->accession = $sData;
+                    break;
+                case "D":
+                case "A":
+                case "T":
+                case "J":
+                    $aBuffers[$sLabel] = $sData . " ";
+                    $sCurrent = $sLabel;
+                    break;
+                case "R":
+                    $this->parseReferences($sData);
+                    break;
+            }
+
+            if (self::isEntryEnd($sLine)) {
+                break;
+            }
         }
+
+        $this->description = trim($aBuffers["D"]);
+        $this->author      = trim($aBuffers["A"]);
+        $this->title       = trim($aBuffers["T"]);
+        $this->journal     = trim($aBuffers["J"]);
     }
 
     /**

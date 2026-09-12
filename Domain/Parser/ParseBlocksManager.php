@@ -3,7 +3,7 @@
  * BLOCKS database parsing (conserved protein family motifs)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -111,39 +111,35 @@ final class ParseBlocksManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sDescription = "";
+        $sDescription = "";
 
-            foreach($aFlines as $sLine) {
-                $sLabel = substr($sLine, 0, 2);
-                $sData  = trim(substr($sLine, 5));
+        foreach($aFlines as $sLine) {
+            $sLabel = substr($sLine, 0, 2);
+            $sData  = trim(substr($sLine, 5));
 
-                switch($sLabel) {
-                    case "ID":
-                        $aTokens = preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY);
-                        $this->id = isset($aTokens[0]) ? trim($aTokens[0]) : "";
-                        break;
-                    case "AC":
-                        $this->parseAccession($sData);
-                        break;
-                    case "DE":
-                        $sDescription .= $sData . " ";
-                        break;
-                    case "BL":
-                        $aTokens = preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY);
-                        $this->aaTriplet = isset($aTokens[0]) ? trim($aTokens[0]) : "";
-                        break;
-                }
-
-                if ($sLabel == "//") {
+            switch($sLabel) {
+                case "ID":
+                    $aTokens = preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY);
+                    $this->id = isset($aTokens[0]) ? trim($aTokens[0]) : "";
                     break;
-                }
+                case "AC":
+                    $this->parseAccession($sData);
+                    break;
+                case "DE":
+                    $sDescription .= $sData . " ";
+                    break;
+                case "BL":
+                    $aTokens = preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY);
+                    $this->aaTriplet = isset($aTokens[0]) ? trim($aTokens[0]) : "";
+                    break;
             }
 
-            $this->description = trim($sDescription);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            if ($sLabel == "//") {
+                break;
+            }
         }
+
+        $this->description = trim($sDescription);
     }
 
     /**

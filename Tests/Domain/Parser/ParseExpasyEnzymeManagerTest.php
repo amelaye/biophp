@@ -4,6 +4,7 @@ namespace Tests\Domain\Parser;
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
+use Amelaye\BioPHP\Domain\Parser\ParseExpasyEnzymeManager;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -41,7 +42,10 @@ class ParseExpasyEnzymeManagerTest extends TestCase
         $this->assertEquals("1.1.1.2", $oParseExpasyEnzymeManager->getId());
         $this->assertEquals("Alcohol dehydrogenase (NADP+).", $oParseExpasyEnzymeManager->getDescription());
         $this->assertEquals(["Aldehyde reductase (NADPH)"], $oParseExpasyEnzymeManager->getAlternateNames());
-        $this->assertEquals("An alcohol + NADP(+) = an aldehyde + NADPH", $oParseExpasyEnzymeManager->getCatalyticActivity());
+        $this->assertEquals(
+            ["An alcohol + NADP(+) = an aldehyde + NADPH"],
+            $oParseExpasyEnzymeManager->getCatalyticActivities()
+        );
         $this->assertEquals(["Zinc"], $oParseExpasyEnzymeManager->getCofactors());
         $this->assertEquals(
             "-!- Some members of this group oxidize only primary alcohols; others act\n"
@@ -60,6 +64,73 @@ class ParseExpasyEnzymeManagerTest extends TestCase
         $this->assertEquals(
             ["P35630" => "ADH1_ENTHI", "Q24857" => "ADH3_ENTHI", "O57380" => "ADH4_RANPE"],
             $oParseExpasyEnzymeManager->getSwissprotRefs()
+        );
+    }
+
+    /**
+     * Consecutive AN lines each name the enzyme once more, where a DE wrapping over two lines
+     * is a single name : the two fields cannot be accumulated the same way.
+     */
+    public function testEachAlternateNameLineIsASeparateSynonym()
+    {
+        $aFlines = [
+            "ID   1.14.13.39",
+            "DE   Nitric-oxide synthase",
+            "DE   (NADPH).",
+            "AN   Constitutive NOS.",
+            "AN   Endothelial NOS.",
+            "AN   NOS.",
+            "//",
+        ];
+
+        $oParser = new ParseExpasyEnzymeManager();
+        $oParser->parseDataFile($aFlines);
+
+        $this->assertEquals(
+            ["Constitutive NOS", "Endothelial NOS", "NOS"],
+            $oParser->getAlternateNames()
+        );
+        $this->assertEquals("Nitric-oxide synthase (NADPH).", $oParser->getDescription());
+    }
+
+    /**
+     * An enzyme acting on several substrates catalyses several reactions, which the file
+     * numbers apart : alcohol dehydrogenase oxidises primary alcohols to aldehydes and
+     * secondary ones to ketones, and the two must not be run together into one string.
+     * Read from data/enzyme.dat, a real excerpt of the ExPASy ENZYME database.
+     */
+    public function testNumberedCatalyticActivitiesAreKeptApart()
+    {
+        $oParser = new ParseExpasyEnzymeManager();
+        $oParser->parseDataFile(array_slice(file("./data/enzyme.dat"), 24, 15));
+
+        $this->assertEquals("1.1.1.1", $oParser->getId());
+        $this->assertEquals(
+            [
+                "a primary alcohol + NAD(+) = an aldehyde + NADH + H(+)",
+                "a secondary alcohol + NAD(+) = a ketone + NADH + H(+)",
+            ],
+            $oParser->getCatalyticActivities()
+        );
+    }
+
+    /**
+     * A reaction long enough to wrap over two lines is one reaction, not two : only a number
+     * opens a new one.
+     */
+    public function testAnUnnumberedContinuationLineExtendsTheReactionAboveIt()
+    {
+        $oParser = new ParseExpasyEnzymeManager();
+        $oParser->parseDataFile([
+            "ID   1.1.1.1",
+            "CA   a primary alcohol + NAD(+) = an aldehyde",
+            "CA   + NADH + H(+).",
+            "//",
+        ]);
+
+        $this->assertEquals(
+            ["a primary alcohol + NAD(+) = an aldehyde + NADH + H(+)"],
+            $oParser->getCatalyticActivities()
         );
     }
 }

@@ -3,7 +3,7 @@
  * ProDom database parsing (protein domain families)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -110,30 +110,26 @@ final class ParseProdomManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            foreach($aFlines as $sLine) {
-                $sLabel = substr($sLine, 0, 2);
-                $sData  = trim(substr($sLine, 5));
+        foreach($aFlines as $sLine) {
+            $sLabel = substr($sLine, 0, 2);
+            $sData  = trim(substr($sLine, 5));
 
-                switch($sLabel) {
-                    case "ID":
-                        // The ID line is the only one whose data starts at column 3.
-                        $this->parseIdentifier(trim(substr($sLine, 3)));
-                        break;
-                    case "AC":
-                        $this->accession = $sData;
-                        break;
-                    case "KW":
-                        $this->parseKeywords($sData);
-                        break;
-                }
-
-                if (self::isEntryEnd($sLine)) {
+            switch($sLabel) {
+                case "ID":
+                    // The ID line is the only one whose data starts at column 3.
+                    $this->parseIdentifier(trim(substr($sLine, 3)));
                     break;
-                }
+                case "AC":
+                    $this->accession = $sData;
+                    break;
+                case "KW":
+                    $this->parseKeywords($sData);
+                    break;
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+
+            if (self::isEntryEnd($sLine)) {
+                break;
+            }
         }
     }
 
@@ -166,7 +162,11 @@ final class ParseProdomManager implements ParseDatabaseInterface
             foreach(preg_split("/\s+/", trim($aHalves[0]), -1, PREG_SPLIT_NO_EMPTY) as $sName) {
                 if (preg_match("/^(.+)\((\d+)\)$/", $sName, $aMatch)) {
                     $this->freqNames[$aMatch[1]] = (int) $aMatch[2];
+                    continue;
                 }
+                // A name written without its count is kept all the same : dropping it would
+                // lose a name the entry does carry, where a count of zero says it went unread.
+                $this->freqNames[$sName] = 0;
             }
         }
 

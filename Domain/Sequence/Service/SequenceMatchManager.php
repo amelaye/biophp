@@ -3,7 +3,7 @@
  * SeqMatch managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -51,24 +51,20 @@ class SequenceMatchManager implements SequenceMatchInterface
         string $sLetter1, string $sLetter2, ?array $aMatrix = null, ?string $sEqual = null,
         string $sPartial = "+", string $sNomatch = ".") : string
     {
-        try {
-            if (!isset($aMatrix)) { // if no custom substitution matrix was provided, use the default.
-                $aMatrix = $this->subMatrix->getRules();
-            }
-            if (!isset($sEqual)) { // if no symbol for exact matches was provided, use the residue symbol.
-                $sEqual = $sLetter1;
-            }
-            if ($sLetter1 == $sLetter2) {
-                return $sEqual;
-            }
-            elseif ($this->partialMatch($sLetter1, $sLetter2, $aMatrix)) {
-                return $sPartial;
-            }
-            else {
-                return $sNomatch;
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        if (!isset($aMatrix)) { // if no custom substitution matrix was provided, use the default.
+            $aMatrix = $this->subMatrix->getRules();
+        }
+        if (!isset($sEqual)) { // if no symbol for exact matches was provided, use the residue symbol.
+            $sEqual = $sLetter1;
+        }
+        if ($sLetter1 == $sLetter2) {
+            return $sEqual;
+        }
+        elseif ($this->partialMatch($sLetter1, $sLetter2, $aMatrix)) {
+            return $sPartial;
+        }
+        else {
+            return $sNomatch;
         }
     }
 
@@ -83,29 +79,25 @@ class SequenceMatchManager implements SequenceMatchInterface
      */
     public function hamdist(string $sSequence1, string $sSequence2) : int
     {
-        try {
-            // We terminate code execution if the two strings differ in length.
-            if (strlen($sSequence1) != strlen($sSequence2)) {
-                throw new \Exception("Both sequence must be of the same length ! ");
-            }
-
-            $iLength = strlen($sSequence1);
-            // Initialize the hamming distance to 0 (no difference between two strings).
-            $iDistance = 0;
-
-            // Match the two strings, character by character.  If they are NOT
-            // identical, increment $iDistance by 1.
-            for($i = 0; $i < $iLength; $i++) {
-                $sLet1 = substr($sSequence1, $i, 1);
-                $sLet2 = substr($sSequence2, $i, 1);
-                if ($sLet1 != $sLet2) {
-                    $iDistance++;
-                }
-            }
-            return $iDistance;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        // We terminate code execution if the two strings differ in length.
+        if (strlen($sSequence1) != strlen($sSequence2)) {
+            throw new \Exception("Both sequence must be of the same length ! ");
         }
+
+        $iLength = strlen($sSequence1);
+        // Initialize the hamming distance to 0 (no difference between two strings).
+        $iDistance = 0;
+
+        // Match the two strings, character by character.  If they are NOT
+        // identical, increment $iDistance by 1.
+        for($i = 0; $i < $iLength; $i++) {
+            $sLet1 = substr($sSequence1, $i, 1);
+            $sLet2 = substr($sSequence2, $i, 1);
+            if ($sLet1 != $sLet2) {
+                $iDistance++;
+            }
+        }
+        return $iDistance;
    }
 
     /**
@@ -126,19 +118,15 @@ class SequenceMatchManager implements SequenceMatchInterface
     public function levdist(string $sSequence1, string $sSequence2,
                             int $iCostInser = 1, int $iCostRepl = 1, int $iCostDel = 1) : int
     {
-        try {
-            // Check the lengths of the two strings.  If they exceed 255 characters, terminate code.
-            if (strlen($sSequence1) > 255) {
-                throw new \Exception("String length must not exceed 255 characters!");
-            }
-            if (strlen($sSequence2) > 255) {
-                throw new \Exception("String length must not exceed 255 characters!");
-            }
-            // Compute and return the Levenshtein Distance using PHP's built-in levenshtein() function.
-            return levenshtein($sSequence1, $sSequence2, $iCostInser, $iCostRepl, $iCostDel);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        // Check the lengths of the two strings.  If they exceed 255 characters, terminate code.
+        if (strlen($sSequence1) > 255) {
+            throw new \Exception("String length must not exceed 255 characters!");
         }
+        if (strlen($sSequence2) > 255) {
+            throw new \Exception("String length must not exceed 255 characters!");
+        }
+        // Compute and return the Levenshtein Distance using PHP's built-in levenshtein() function.
+        return levenshtein($sSequence1, $sSequence2, $iCostInser, $iCostRepl, $iCostDel);
    }
 
     /**

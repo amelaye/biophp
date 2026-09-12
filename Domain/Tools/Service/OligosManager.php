@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 18 january 2020
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
@@ -236,58 +236,54 @@ class OligosManager implements OligosInterface
      */
     public function findOligos($sSequence, $iOligoLen)
     {
-        try {
-            $i              = 0;
-            $aOligos1Step   = [];
-            $aOligos        = [];
+        $i              = 0;
+        $aOligos1Step   = [];
+        $aOligos        = [];
 
-            $iLength = strlen($sSequence) - $iOligoLen + 1;
-            while ($i < $iLength) {
-                $sMySequence = substr($sSequence, $i, $iOligoLen);
+        $iLength = strlen($sSequence) - $iOligoLen + 1;
+        while ($i < $iLength) {
+            $sMySequence = substr($sSequence, $i, $iOligoLen);
 
-                if (!isset($aOligos1Step[$sMySequence])) {
-                    $aOligos1Step[$sMySequence] = 1;
-                } else {
-                    $aOligos1Step[$sMySequence] ++;
-                }
-                $i ++;
+            if (!isset($aOligos1Step[$sMySequence])) {
+                $aOligos1Step[$sMySequence] = 1;
+            } else {
+                $aOligos1Step[$sMySequence] ++;
             }
-
-            switch ($iOligoLen) {
-                case 1:
-                    foreach($this->dnaComplements as $key => $oligo) {
-                        $aOligos[$oligo] = substr_count($sSequence, $oligo);
-                    }
-                    break;
-                case 2:
-                    $aOligos = $this->findOligos2BasesLong($aOligos1Step);
-                    break;
-                case 3:
-                    $aOligos = $this->findOligos3BasesLong($aOligos1Step);
-                    break;
-                case 4:
-                    $aOligos = $this->findOligos4BasesLong($aOligos1Step);
-                    break;
-                case 5:
-                    $aOligos = $this->findOligos5BasesLong($aOligos1Step);
-                    break;
-                case 6:
-                    $aOligos = $this->findOligos6BasesLong($aOligos1Step);
-                    break;
-                case 7:
-                    $aOligos = $this->findOligos7BasesLong($aOligos1Step);
-                    break;
-                case 8:
-                    $aOligos = $this->findOligos8BasesLong($aOligos1Step);
-                    break;
-                default:
-                    throwException(new \Exception("Invalid base format ! "));
-            }
-
-            return $aOligos;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+            $i ++;
         }
+
+        switch ($iOligoLen) {
+            case 1:
+                foreach($this->dnaComplements as $key => $oligo) {
+                    $aOligos[$oligo] = substr_count($sSequence, $oligo);
+                }
+                break;
+            case 2:
+                $aOligos = $this->findOligos2BasesLong($aOligos1Step);
+                break;
+            case 3:
+                $aOligos = $this->findOligos3BasesLong($aOligos1Step);
+                break;
+            case 4:
+                $aOligos = $this->findOligos4BasesLong($aOligos1Step);
+                break;
+            case 5:
+                $aOligos = $this->findOligos5BasesLong($aOligos1Step);
+                break;
+            case 6:
+                $aOligos = $this->findOligos6BasesLong($aOligos1Step);
+                break;
+            case 7:
+                $aOligos = $this->findOligos7BasesLong($aOligos1Step);
+                break;
+            case 8:
+                $aOligos = $this->findOligos8BasesLong($aOligos1Step);
+                break;
+            default:
+                throwException(new \Exception("Invalid base format ! "));
+        }
+
+        return $aOligos;
     }
 
     /**

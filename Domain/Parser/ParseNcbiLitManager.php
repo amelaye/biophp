@@ -3,7 +3,7 @@
  * NCBI biomedical literature parsing (journal list)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -110,47 +110,43 @@ final class ParseNcbiLitManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
-
-                // Split on the first separator only : a journal title may hold one of its own.
-                $aParts = explode(":", $sLine, 2);
-                if (count($aParts) < 2) {
-                    continue;
-                }
-
-                $sLabel = trim($aParts[0]);
-                $sValue = trim($aParts[1]);
-
-                switch($sLabel) {
-                    case "JrId":
-                        $this->id = $sValue;
-                        break;
-                    case "JournalTitle":
-                        $this->title = $sValue;
-                        break;
-                    case "MedAbbr":
-                        $this->medAbbr = $sValue;
-                        break;
-                    case "ISSN":
-                        $this->issn = $sValue;
-                        break;
-                    case "ESSN":
-                        $this->essn = $sValue;
-                        break;
-                    case "IsoAbbr":
-                        $this->isoAbbr = $sValue;
-                        break;
-                    case "NlmId":
-                        $this->nlmId = $sValue;
-                        break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+
+            // Split on the first separator only : a journal title may hold one of its own.
+            $aParts = explode(":", $sLine, 2);
+            if (count($aParts) < 2) {
+                continue;
+            }
+
+            $sLabel = trim($aParts[0]);
+            $sValue = trim($aParts[1]);
+
+            switch($sLabel) {
+                case "JrId":
+                    $this->id = $sValue;
+                    break;
+                case "JournalTitle":
+                    $this->title = $sValue;
+                    break;
+                case "MedAbbr":
+                    $this->medAbbr = $sValue;
+                    break;
+                case "ISSN":
+                    $this->issn = $sValue;
+                    break;
+                case "ESSN":
+                    $this->essn = $sValue;
+                    break;
+                case "IsoAbbr":
+                    $this->isoAbbr = $sValue;
+                    break;
+                case "NlmId":
+                    $this->nlmId = $sValue;
+                    break;
+            }
         }
     }
 

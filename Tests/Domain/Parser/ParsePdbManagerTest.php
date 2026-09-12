@@ -4,6 +4,7 @@ namespace Tests\Domain\Parser;
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
+use Amelaye\BioPHP\Domain\Parser\ParsePdbManager;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -43,10 +44,13 @@ class ParsePdbManagerTest extends TestCase
         $this->assertEquals("15-JAN-20", $oParsePdbManager->getDepositionDate());
         $this->assertEquals("CRYSTAL STRUCTURE OF TEST PROTEIN", $oParsePdbManager->getTitle());
         $this->assertEquals(
-            ["MOL_ID: 1", "MOLECULE: TEST PROTEIN", "CHAIN: A"],
+            [["MOL_ID" => "1", "MOLECULE" => "TEST PROTEIN", "CHAIN" => "A"]],
             $oParsePdbManager->getCompounds()
         );
-        $this->assertEquals("MOL_ID: 1; ORGANISM_SCIENTIFIC: HOMO SAPIENS;", $oParsePdbManager->getSource());
+        $this->assertEquals(
+            [["MOL_ID" => "1", "ORGANISM_SCIENTIFIC" => "HOMO SAPIENS"]],
+            $oParsePdbManager->getSources()
+        );
         $this->assertEquals(["HYDROLASE", "TEST", "STRUCTURAL GENOMICS"], $oParsePdbManager->getKeywords());
         $this->assertEquals("X-RAY DIFFRACTION", $oParsePdbManager->getExperimentalTechnique());
         $this->assertEquals(["J.SMITH", "A.DOE"], $oParsePdbManager->getAuthors());
@@ -104,5 +108,66 @@ class ParsePdbManagerTest extends TestCase
         $this->assertEquals("HOH", $aHetAtoms[0]->getResName());
         $this->assertEquals(101, $aHetAtoms[0]->getResSeq());
         $this->assertEquals(20.0, $aHetAtoms[0]->getX());
+    }
+
+    /**
+     * A structure holding several molecules opens a block per MOL_ID : here the two chains of
+     * haemoglobin, alpha carrying chains A and C, beta chains B and D. Flattened together, the
+     * chains could no longer be told apart, nor attached to the molecule they belong to.
+     */
+    public function testEachMoleculeOfACompndRecordIsItsOwnBlock()
+    {
+        $aFlines = [
+            "COMPND    MOL_ID: 1;",
+            "COMPND   2 MOLECULE: HEMOGLOBIN (DEOXY) (ALPHA CHAIN);",
+            "COMPND   3 CHAIN: A, C;",
+            "COMPND   4 MOL_ID: 2;",
+            "COMPND   5 MOLECULE: HEMOGLOBIN (DEOXY) (BETA CHAIN);",
+            "COMPND   6 CHAIN: B, D;",
+            "SOURCE    MOL_ID: 1;",
+            "SOURCE   2 ORGANISM_SCIENTIFIC: HOMO SAPIENS;",
+            "SOURCE   3 MOL_ID: 2;",
+            "SOURCE   4 ORGANISM_SCIENTIFIC: HOMO SAPIENS;",
+            "END",
+        ];
+
+        $oParser = new ParsePdbManager();
+        $oParser->parseDataFile($aFlines);
+
+        $this->assertEquals(
+            [
+                ["MOL_ID" => "1", "MOLECULE" => "HEMOGLOBIN (DEOXY) (ALPHA CHAIN)", "CHAIN" => "A, C"],
+                ["MOL_ID" => "2", "MOLECULE" => "HEMOGLOBIN (DEOXY) (BETA CHAIN)", "CHAIN" => "B, D"],
+            ],
+            $oParser->getCompounds()
+        );
+        $this->assertEquals(
+            [
+                ["MOL_ID" => "1", "ORGANISM_SCIENTIFIC" => "HOMO SAPIENS"],
+                ["MOL_ID" => "2", "ORGANISM_SCIENTIFIC" => "HOMO SAPIENS"],
+            ],
+            $oParser->getSources()
+        );
+    }
+
+    /**
+     * A COMPND record older than the specification list is free text naming the molecule : it
+     * has no token to key on and is kept whole.
+     */
+    public function testAFreeTextCompndRecordIsKeptAsIs()
+    {
+        $aFlines = [
+            "COMPND    BOVINE PANCREATIC TRYPSIN INHIBITOR (BPTI) MUTANT (TYR 23",
+            "COMPND   2 REPLACED BY ALA)",
+            "END",
+        ];
+
+        $oParser = new ParsePdbManager();
+        $oParser->parseDataFile($aFlines);
+
+        $this->assertEquals(
+            ["BOVINE PANCREATIC TRYPSIN INHIBITOR (BPTI) MUTANT (TYR 23 REPLACED BY ALA)"],
+            $oParser->getCompounds()
+        );
     }
 }

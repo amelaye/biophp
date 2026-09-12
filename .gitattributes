@@ -1,0 +1,4 @@
+# Parsing depends on the exact bytes of these records: a CRLF checkout on Windows leaves a
+# "\r" the flat-file formats never carry, so fixtures stay LF whatever the platform.
+data/** text eol=lf
+Tests/**/samples/** text eol=lf

@@ -3,7 +3,7 @@
  * Traits for sequences formatting
  * Freely inspired by BioPHP's project biophp.org
  * Created 22 july 2019
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Traits;
 
@@ -22,16 +22,12 @@ trait SequenceTrait
      */
     public function compDNA($sSequence)
     {
-        try {
-            $sSequence = strtoupper($sSequence);
-            $original   = ["(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)"];
-            $complement = ["t","a","c","g","r","y","w","s","m","k","h","b","d","v"];
-            $sSequence = preg_replace($original, $complement, $sSequence);
-            $sSequence = strtoupper($sSequence);
-            return $sSequence;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $sSequence = strtoupper($sSequence);
+        $original   = ["(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)"];
+        $complement = ["t","a","c","g","r","y","w","s","m","k","h","b","d","v"];
+        $sSequence = preg_replace($original, $complement, $sSequence);
+        $sSequence = strtoupper($sSequence);
+        return $sSequence;
     }
 
     /**
@@ -42,13 +38,9 @@ trait SequenceTrait
      */
     public function revCompDNA($sSequence)
     {
-        try {
-            $sSequence = strrev($sSequence);
-            $sSequence = $this->compDNA($sSequence);
-            return $sSequence;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $sSequence = strrev($sSequence);
+        $sSequence = $this->compDNA($sSequence);
+        return $sSequence;
     }
 
     /**

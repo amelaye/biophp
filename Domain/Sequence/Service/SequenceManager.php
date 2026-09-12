@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
@@ -99,45 +99,41 @@ class SequenceManager
      */
     public function complement(string $sSequence, string $sMoltypeUnfrmtd) : string
     {
-        try {
-            $sComplement = "";
-            $aComplements = [];
+        $sComplement = "";
+        $aComplements = [];
 
-            // Records read from GenBank or EMBL carry their sequence in lower case, split into
-            // blocks separated by spaces. Normalizing here lets a parsed record be passed as it
-            // is, instead of throwing on its very first symbol.
-            $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
+        // Records read from GenBank or EMBL carry their sequence in lower case, split into
+        // blocks separated by spaces. Normalizing here lets a parsed record be passed as it
+        // is, instead of throwing on its very first symbol.
+        $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
 
-            if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
-                $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
-            } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
-                $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
-            }
-
-            // The nucleotide database only carries the canonical bases (A/T/G/C or A/U/G/C).
-            // Fall back to the standard IUPAC ambiguity codes so degenerate sequences don't
-            // silently lose characters (each missing lookup used to append nothing).
-            $aIupacComplements = [
-                "Y" => "R", "R" => "Y", "W" => "W", "S" => "S",
-                "K" => "M", "M" => "K", "D" => "H", "V" => "B",
-                "H" => "D", "B" => "V", "N" => "N",
-            ];
-
-            $iSeqLength = strlen($sSequence);
-            for($i = 0; $i < $iSeqLength; $i++) {
-                $sAmino = substr($sSequence, $i, 1);
-                if (isset($aComplements[$sAmino])) {
-                    $sComplement .= $aComplements[$sAmino];
-                } elseif (isset($aIupacComplements[strtoupper($sAmino)])) {
-                    $sComplement .= $aIupacComplements[strtoupper($sAmino)];
-                } else {
-                    throw new \Exception("Unrecognized nucleotide symbol \"$sAmino\" at position $i.");
-                }
-            }
-            return $sComplement;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        if (strtoupper($sMoltypeUnfrmtd) == "DNA") {
+            $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
+        } elseif (strtoupper($sMoltypeUnfrmtd) == "RNA") {
+            $aComplements = $this->nucleotidApi::GetRNAComplement($this->nucleotids);
         }
+
+        // The nucleotide database only carries the canonical bases (A/T/G/C or A/U/G/C).
+        // Fall back to the standard IUPAC ambiguity codes so degenerate sequences don't
+        // silently lose characters (each missing lookup used to append nothing).
+        $aIupacComplements = [
+            "Y" => "R", "R" => "Y", "W" => "W", "S" => "S",
+            "K" => "M", "M" => "K", "D" => "H", "V" => "B",
+            "H" => "D", "B" => "V", "N" => "N",
+        ];
+
+        $iSeqLength = strlen($sSequence);
+        for($i = 0; $i < $iSeqLength; $i++) {
+            $sAmino = substr($sSequence, $i, 1);
+            if (isset($aComplements[$sAmino])) {
+                $sComplement .= $aComplements[$sAmino];
+            } elseif (isset($aIupacComplements[strtoupper($sAmino)])) {
+                $sComplement .= $aIupacComplements[strtoupper($sAmino)];
+            } else {
+                throw new \Exception("Unrecognized nucleotide symbol \"$sAmino\" at position $i.");
+            }
+        }
+        return $sComplement;
     }
 
     /**
@@ -150,24 +146,20 @@ class SequenceManager
      */
     public function halfSequence(string $sSequence, int $iIndex) : string
     {
-        try {
-            if(strlen($sSequence) % 2 != 0) {
-                $iCompLength = (int)(strlen($sSequence)/2);
-                if ($iIndex == 0) {
-                    return substr($sSequence, 0, $iCompLength);
-                } else {
-                    return substr($sSequence, $iCompLength + 1);
-                }
+        if(strlen($sSequence) % 2 != 0) {
+            $iCompLength = (int)(strlen($sSequence)/2);
+            if ($iIndex == 0) {
+                return substr($sSequence, 0, $iCompLength);
             } else {
-                $iCompLength = strlen($sSequence)/2;
-                if ($iIndex == 0) {
-                    return substr($sSequence, 0, $iCompLength);
-                } else {
-                    return substr($sSequence, $iCompLength);
-                }
+                return substr($sSequence, $iCompLength + 1);
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        } else {
+            $iCompLength = strlen($sSequence)/2;
+            if ($iIndex == 0) {
+                return substr($sSequence, 0, $iCompLength);
+            } else {
+                return substr($sSequence, $iCompLength);
+            }
         }
     }
 
@@ -198,18 +190,14 @@ class SequenceManager
      */
     public function expandNa(string $sSequence) : string
     {
-        try {
-            $aPattern = [
-                "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
-            ];
-            $aReplacement = [
-                ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
-            ];
-            $sExpansion = preg_replace($aPattern, $aReplacement, $sSequence);
-            return $sExpansion;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
+        $aPattern = [
+            "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
+        ];
+        $aReplacement = [
+            ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
+        ];
+        $sExpansion = preg_replace($aPattern, $aReplacement, $sSequence);
+        return $sExpansion;
     }
 
 
@@ -228,55 +216,51 @@ class SequenceManager
      */
     public function molwt(string $sLimit, string $sSequence, string $sMolType, int $iNALen) : float
     {
-        try {
-            $iLowLimit   = 0;
-            $iUppLimit   = 1;
-            $aMwt        = [0, 0];
+        $iLowLimit   = 0;
+        $iUppLimit   = 1;
+        $aMwt        = [0, 0];
 
-            $aLimits = ["lowerlimit" => $iLowLimit, "upperlimit" => $iUppLimit];
-            if (!isset($aLimits[$sLimit])) {
-                throw new \Exception(
-                    "Unknown weight limit \"$sLimit\", expected \"lowerlimit\" or \"upperlimit\"."
-                );
-            }
-            $iWlimit = $aLimits[$sLimit];
-
-            $sMolType  = strtoupper($sMolType);
-            $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
-
-            // cleanSequence() knows which symbols are legal : its answer used to be discarded, so
-            // an unknown symbol was silently weighed as zero and the result was quietly wrong.
-            if (!$this->cleanSequence($sSequence, $sMolType)) {
-                throw new \Exception("Unrecognized $sMolType symbol in input sequence.");
-            }
-
-            $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
-            $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
-            $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
-            if (!isset($aAllNaWts[$sMolType])) {
-                throw new \Exception(
-                    "Molecular weight is only available for DNA and RNA, \"$sMolType\" given."
-                );
-            }
-            $na_wts = $this->getNucleotidWeightLimits($aAllNaWts[$sMolType], $sMolType);
-
-            $iLength = min($iNALen, strlen($sSequence));
-            for($i = 0; $i < $iLength; $i++) {
-                $sNABase = substr($sSequence, $i, 1);
-                if (!isset($na_wts[$sNABase])) {
-                    throw new \Exception("Unrecognized nucleotide symbol \"$sNABase\" at position $i.");
-                }
-                $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
-                $aMwt[$iUppLimit] += $na_wts[$sNABase][$iUppLimit];
-            }
-
-            $aMwt[$iLowLimit] += $this->water->getWeight();
-            $aMwt[$iUppLimit] += $this->water->getWeight();
-
-            return $aMwt[$iWlimit];
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        $aLimits = ["lowerlimit" => $iLowLimit, "upperlimit" => $iUppLimit];
+        if (!isset($aLimits[$sLimit])) {
+            throw new \Exception(
+                "Unknown weight limit \"$sLimit\", expected \"lowerlimit\" or \"upperlimit\"."
+            );
         }
+        $iWlimit = $aLimits[$sLimit];
+
+        $sMolType  = strtoupper($sMolType);
+        $sSequence = strtoupper((string) preg_replace('/\s+/', "", $sSequence));
+
+        // cleanSequence() knows which symbols are legal : its answer used to be discarded, so
+        // an unknown symbol was silently weighed as zero and the result was quietly wrong.
+        if (!$this->cleanSequence($sSequence, $sMolType)) {
+            throw new \Exception("Unrecognized $sMolType symbol in input sequence.");
+        }
+
+        $dna_wts = $this->nucleotidApi::GetDNAWeight($this->nucleotids);
+        $rna_wts = $this->nucleotidApi::GetRNAWeight($this->nucleotids);
+        $aAllNaWts = ["DNA" => $dna_wts, "RNA" => $rna_wts];
+        if (!isset($aAllNaWts[$sMolType])) {
+            throw new \Exception(
+                "Molecular weight is only available for DNA and RNA, \"$sMolType\" given."
+            );
+        }
+        $na_wts = $this->getNucleotidWeightLimits($aAllNaWts[$sMolType], $sMolType);
+
+        $iLength = min($iNALen, strlen($sSequence));
+        for($i = 0; $i < $iLength; $i++) {
+            $sNABase = substr($sSequence, $i, 1);
+            if (!isset($na_wts[$sNABase])) {
+                throw new \Exception("Unrecognized nucleotide symbol \"$sNABase\" at position $i.");
+            }
+            $aMwt[$iLowLimit] += $na_wts[$sNABase][$iLowLimit];
+            $aMwt[$iUppLimit] += $na_wts[$sNABase][$iUppLimit];
+        }
+
+        $aMwt[$iLowLimit] += $this->water->getWeight();
+        $aMwt[$iUppLimit] += $this->water->getWeight();
+
+        return $aMwt[$iWlimit];
     }
 
     /**
@@ -348,12 +332,8 @@ class SequenceManager
      */
     public function subSeq($iStart, $iCount, $sSequence) : string
     {
-        try {
-            $newSeq = substr($sSequence, $iStart, $iCount);
-            return $newSeq;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
-        }
+        $newSeq = substr($sSequence, $iStart, $iCount);
+        return $newSeq;
     }
 
     /**
@@ -369,31 +349,27 @@ class SequenceManager
      */
     public function patPos($sPattern, $sOptions = "I", $sSequence = null) : array
     {
-        try {
-            $aOuter = [];
-            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
+        $aOuter = [];
+        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
 
-            if (strtoupper($sOptions) == "I") {
-                $sSequence = strtoupper($sSequence);
-            }
-
-            foreach($aPatFreq as $skey => $iValue) {
-                if ($sOptions == "I") {
-                    $skey = strtoupper($skey);
-                }
-                $aInner = [];
-                $iStart = 0;
-                for($i = 0; $i < $iValue; $i++) {
-                    $iLastPos = strpos($sSequence, $skey, $iStart);
-                    array_push($aInner, $iLastPos);
-                    $iStart = $iLastPos + strlen($skey);
-                }
-                $aOuter[$skey] = $aInner;
-            }
-            return $aOuter;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        if (strtoupper($sOptions) == "I") {
+            $sSequence = strtoupper($sSequence);
         }
+
+        foreach($aPatFreq as $skey => $iValue) {
+            if ($sOptions == "I") {
+                $skey = strtoupper($skey);
+            }
+            $aInner = [];
+            $iStart = 0;
+            for($i = 0; $i < $iValue; $i++) {
+                $iLastPos = strpos($sSequence, $skey, $iStart);
+                array_push($aInner, $iLastPos);
+                $iStart = $iLastPos + strlen($skey);
+            }
+            $aOuter[$skey] = $aInner;
+        }
+        return $aOuter;
     }
 
     /**
@@ -415,48 +391,44 @@ class SequenceManager
      */
     public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null)
     {
-        try {
-            $aAbsPos = [];
-            if (strtoupper($sOptions) == "I") {
-                $sSequence = strtoupper($sSequence);
-            }
-            $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
-            $iLastPos = -1 * $iCutPos;
-            $iCtr = 0;
-            $iRunSumStart = 0;
-            while(strlen($sSequence) >= strlen($sPattern)) {
-                $iCtr++;
-                if ($iCtr == 1) {
-                    $iStart = 0;
-                } else {
-                    $iStart = $iLastPos + $iCutPos;
-                }
-                $sSequence = substr($sSequence, $iStart);
-                $iRunSumStart += $iStart;
-                $iMinPos = 999999;
-                $bFoundFlag = false;
-                foreach($aPatFreq as $key => $value) {
-                    $iCurrentPos = strpos($sSequence, $key);
-                    if (gettype($iCurrentPos) == "integer") {
-                        $bFoundFlag = true;
-                        if ($iCurrentPos < $iMinPos) $iMinPos = $iCurrentPos;
-                    }
-                }
-                if (!$bFoundFlag) {
-                    break;
-                }
-                $iCurrentPos = $iMinPos;
-                if ($iCtr == 1) {
-                    $aAbsPos[] = $iCurrentPos;
-                } else {
-                    $aAbsPos[] = $iRunSumStart + $iCurrentPos;
-                }
-                $iLastPos = $iCurrentPos;
-            }
-            return $aAbsPos;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        $aAbsPos = [];
+        if (strtoupper($sOptions) == "I") {
+            $sSequence = strtoupper($sSequence);
         }
+        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
+        $iLastPos = -1 * $iCutPos;
+        $iCtr = 0;
+        $iRunSumStart = 0;
+        while(strlen($sSequence) >= strlen($sPattern)) {
+            $iCtr++;
+            if ($iCtr == 1) {
+                $iStart = 0;
+            } else {
+                $iStart = $iLastPos + $iCutPos;
+            }
+            $sSequence = substr($sSequence, $iStart);
+            $iRunSumStart += $iStart;
+            $iMinPos = 999999;
+            $bFoundFlag = false;
+            foreach($aPatFreq as $key => $value) {
+                $iCurrentPos = strpos($sSequence, $key);
+                if (gettype($iCurrentPos) == "integer") {
+                    $bFoundFlag = true;
+                    if ($iCurrentPos < $iMinPos) $iMinPos = $iCurrentPos;
+                }
+            }
+            if (!$bFoundFlag) {
+                break;
+            }
+            $iCurrentPos = $iMinPos;
+            if ($iCtr == 1) {
+                $aAbsPos[] = $iCurrentPos;
+            } else {
+                $aAbsPos[] = $iRunSumStart + $iCurrentPos;
+            }
+            $iLastPos = $iCurrentPos;
+        }
+        return $aAbsPos;
     }
 
     /**
@@ -491,22 +463,18 @@ class SequenceManager
      */
     public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array
     {
-        try {
-            if (strtoupper($sOptions) == "I") {
-                preg_match_all(
-                    "/" . $this->expandNa(strtoupper($sPattern)) . "/",
-                    strtoupper($sSequence),
-                    $sMatch);
-            } else {
-                preg_match_all(
-                    "/" . $this->expandNa($sPattern) . "/",
-                    $sSequence,
-                    $sMatch);
-            }
-            return $sMatch;
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        if (strtoupper($sOptions) == "I") {
+            preg_match_all(
+                "/" . $this->expandNa(strtoupper($sPattern)) . "/",
+                strtoupper($sSequence),
+                $sMatch);
+        } else {
+            preg_match_all(
+                "/" . $this->expandNa($sPattern) . "/",
+                $sSequence,
+                $sMatch);
         }
+        return $sMatch;
     }
 
     /**
@@ -520,15 +488,11 @@ class SequenceManager
      */
     public function symFreq(string $sSymbol, string $sSequence) : int
     {
-        try {
-            $iSymTally = count_chars(strtoupper($sSequence), 1);
-            if (!isset($iSymTally[ord($sSymbol)])) {
-                return 0;
-            } else {
-                return $iSymTally[ord($sSymbol)];
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        $iSymTally = count_chars(strtoupper($sSequence), 1);
+        if (!isset($iSymTally[ord($sSymbol)])) {
+            return 0;
+        } else {
+            return $iSymTally[ord($sSymbol)];
         }
     }
 

@@ -1,0 +1,23 @@
+LOCUS       NC_001416              48502 bp ds-DNA     linear   PHG 06-JUL-2016
+DEFINITION  Escherichia phage Lambda, complete genome.
+ACCESSION   NC_001416 J02459
+VERSION     NC_001416.1  GI:9626243
+KEYWORDS    complete genome; bacteriophage.
+SOURCE      Escherichia phage Lambda
+  ORGANISM  Escherichia phage Lambda
+            Viruses; Duplodnaviria; Heunggongvirae; Uroviricota;
+            Caudoviricetes; Lambdavirus.
+REFERENCE   1  (bases 1 to 48502)
+  AUTHORS   Sanger,F., Coulson,A.R., Hong,G.F., Hill,D.F. and
+            Petersen,G.B.
+  TITLE     Nucleotide sequence of bacteriophage lambda DNA
+  JOURNAL   J. Mol. Biol. 162 (4), 729-773 (1982)
+  PUBMED    6221115
+REFERENCE   2  (bases 1 to 48502)
+  AUTHORS   Hendrix,R.W. and Duda,R.L.
+  TITLE     Bacteriophage lambda PaPa: not the mother of all lambda
+            phages
+  JOURNAL   Science 258 (5085), 1145-1148 (1992)
+  PUBMED    1439823
+  REMARK    Review of the reference strain
+//

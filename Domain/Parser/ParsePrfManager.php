@@ -3,7 +3,7 @@
  * PRF/SEQDB database parsing (Protein Research Foundation)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -141,72 +141,68 @@ final class ParsePrfManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aBuffers = [
-                "JOURNAL" => "", "AUTHOR" => "", "TITLE" => "", "COMMENT" => "",
-                "KEYWORD" => "", "SEQUENCE" => "", "taxon" => ""
-            ];
-            $sCurrent = "";
+        $aBuffers = [
+            "JOURNAL" => "", "AUTHOR" => "", "TITLE" => "", "COMMENT" => "",
+            "KEYWORD" => "", "SEQUENCE" => "", "taxon" => ""
+        ];
+        $sCurrent = "";
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
-
-                $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
-                $sData  = trim(substr($sLine, self::LABEL_WIDTH));
-
-                if ($sLabel == "") {
-                    if ($sCurrent != "") {
-                        $aBuffers[$sCurrent] .= $sData . self::separatorFor($sCurrent);
-                    }
-                    continue;
-                }
-
-                $sCurrent = "";
-
-                switch($sLabel) {
-                    case "CODE":
-                        $this->entryCode = $sData;
-                        break;
-                    case "NAME":
-                        $this->entryName = $sData;
-                        break;
-                    case "SOURCE":
-                        $this->source = $sData;
-                        break;
-                    case "cname":
-                        $this->commonName = $sData;
-                        break;
-                    case "taxon":
-                    case "JOURNAL":
-                    case "AUTHOR":
-                    case "TITLE":
-                    case "KEYWORD":
-                    case "COMMENT":
-                        $aBuffers[$sLabel] = $sData . self::separatorFor($sLabel);
-                        $sCurrent = $sLabel;
-                        break;
-                    case "SEQUENCE":
-                        $aBuffers["SEQUENCE"] = $sData . " ";
-                        $sCurrent = "SEQUENCE";
-                        break;
-                    case "CROSSREF":
-                        $this->parseCrossRefs($sData);
-                        break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
             }
 
-            $this->journal  = trim($aBuffers["JOURNAL"]);
-            $this->title    = trim($aBuffers["TITLE"]);
-            $this->comment  = trim($aBuffers["COMMENT"]);
-            $this->authors  = $this->splitAuthors($aBuffers["AUTHOR"]);
-            $this->keywords = $this->splitKeywords($aBuffers["KEYWORD"]);
-            $this->taxonomy = $this->splitTaxonomy($aBuffers["taxon"]);
-            $this->sequence = (string) preg_replace('/\s+/', "", $aBuffers["SEQUENCE"]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
+            $sData  = trim(substr($sLine, self::LABEL_WIDTH));
+
+            if ($sLabel == "") {
+                if ($sCurrent != "") {
+                    $aBuffers[$sCurrent] .= $sData . self::separatorFor($sCurrent);
+                }
+                continue;
+            }
+
+            $sCurrent = "";
+
+            switch($sLabel) {
+                case "CODE":
+                    $this->entryCode = $sData;
+                    break;
+                case "NAME":
+                    $this->entryName = $sData;
+                    break;
+                case "SOURCE":
+                    $this->source = $sData;
+                    break;
+                case "cname":
+                    $this->commonName = $sData;
+                    break;
+                case "taxon":
+                case "JOURNAL":
+                case "AUTHOR":
+                case "TITLE":
+                case "KEYWORD":
+                case "COMMENT":
+                    $aBuffers[$sLabel] = $sData . self::separatorFor($sLabel);
+                    $sCurrent = $sLabel;
+                    break;
+                case "SEQUENCE":
+                    $aBuffers["SEQUENCE"] = $sData . " ";
+                    $sCurrent = "SEQUENCE";
+                    break;
+                case "CROSSREF":
+                    $this->parseCrossRefs($sData);
+                    break;
+            }
         }
+
+        $this->journal  = trim($aBuffers["JOURNAL"]);
+        $this->title    = trim($aBuffers["TITLE"]);
+        $this->comment  = trim($aBuffers["COMMENT"]);
+        $this->authors  = $this->splitAuthors($aBuffers["AUTHOR"]);
+        $this->keywords = $this->splitKeywords($aBuffers["KEYWORD"]);
+        $this->taxonomy = $this->splitTaxonomy($aBuffers["taxon"]);
+        $this->sequence = (string) preg_replace('/\s+/', "", $aBuffers["SEQUENCE"]);
     }
 
     /**

@@ -3,7 +3,7 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
@@ -68,23 +68,23 @@ class DatabaseManager implements DatabaseInterface
      */
     public function fetch($sSeqId)
     {
-        try {
-            $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
+        $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
 
-            if (empty($collectionDB)) {
-                return false;
-            }
-            if(!is_file($this->sPath . $collectionDB->getFileName())) {
-                throw new FileException("The file " . $this->sPath . $collectionDB->getFileName()." doesn't exist !");
-            }
-
-            $fpSeq = fopen( $this->sPath . $collectionDB->getFileName(), "r");
-            $aFlines = $this->line2r($fpSeq, $collectionDB->getDbFormat());
-            $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
-            return $oService;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        if (empty($collectionDB)) {
+            return false;
         }
+        if(!is_file($this->sPath . $collectionDB->getFileName())) {
+            throw new FileException("The file " . $this->sPath . $collectionDB->getFileName()." doesn't exist !");
+        }
+
+        $fpSeq = fopen( $this->sPath . $collectionDB->getFileName(), "r");
+        // A data file holds thousands of records one after the other, so reading from its
+        // first line would always hand back its first record. recording() noted where each
+        // record begins for that very reason.
+        $aFlines = $this->line2r($fpSeq, $collectionDB->getDbFormat(), (int) $collectionDB->getLineNo());
+        fclose($fpSeq);
+        $oService = DatabaseReaderFactory::readDatabase($collectionDB->getDbFormat(), $aFlines);
+        return $oService;
     }
 
     /**
@@ -101,66 +101,88 @@ class DatabaseManager implements DatabaseInterface
      */
     public function recording($sDbName, $sDbFormat = "GENBANK", ...$sDataFile)
     {
-        try {
-            $oCollection = new Collection();
-            $oCollection->setNomCollection($sDbName);
+        $oCollection = new Collection();
+        $oCollection->setNomCollection($sDbName);
 
-            $oCollectionExists = $this->em->getRepository(Collection::class)
-                ->findOneBy(['nomCollection' => $sDbName]);
+        $oCollectionExists = $this->em->getRepository(Collection::class)
+            ->findOneBy(['nomCollection' => $sDbName]);
 
-            // if user provided specific values for $file1, $file2, ... parameters.
-            if ((empty($oCollectionExists)) and (count($sDataFile) > 0)) {
-                // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
-                $this->em->persist($oCollection);
-                $this->em->flush();
-            } else {
-                $oCollection = $oCollectionExists;
-            }
+        // if user provided specific values for $file1, $file2, ... parameters.
+        if ((empty($oCollectionExists)) and (count($sDataFile) > 0)) {
+            // For now, assume USING/OPENING a database is to be done in READ ONLY MODE.
+            $this->em->persist($oCollection);
+            $this->em->flush();
+        } else {
+            $oCollection = $oCollectionExists;
+        }
 
-            // if user did not provide any datafile name.
-            if (count($sDataFile) == 0) {
-                throw new \Exception("No files provided !");
-            }
+        // if user did not provide any datafile name.
+        if (count($sDataFile) == 0) {
+            throw new \Exception("No files provided !");
+        }
 
-            $temp_r = array();
+        $temp_r = array();
 
-            foreach($sDataFile as $fileno => $filename) {
-                // Automatically create an index file containing info across all data files.
-                $flines = file($this->sPath .$filename);
+        foreach($sDataFile as $fileno => $filename) {
+            // Automatically create an index file containing info across all data files.
+            $flines = file($this->sPath .$filename);
 
-                foreach($flines as $lineno => $linestr) {
-                    if ($this->atEntrystart($linestr, $sDbFormat)) {
-                        $currentId =  $this->getEntryid($flines, $linestr, $sDbFormat);
-                        $temp_r[$currentId] = array(
-                            "id_element" => $currentId,
-                            "filename" => $filename,
-                            "dbformat" => $sDbFormat,
-                            "line_no" => $lineno
-                        );
+            // A record is gathered before it is identified : a parser reads the identifier
+            // out of the lines it is handed, so handing it the whole file would identify
+            // every record of that file as its first one. Lines sitting before any record
+            // start - the header a data file may open with - belong to no record.
+            $aEntryLines = null;
+            $sStartLine  = "";
+            $iStartNo    = 0;
+
+            foreach($flines as $lineno => $linestr) {
+                if ($this->atEntrystart($linestr, $sDbFormat)) {
+                    if ($aEntryLines !== null) {
+                        // A format closing no record leaves the previous one open.
+                        $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
+                        $temp_r[$aRow["id_element"]] = $aRow;
                     }
+                    $aEntryLines = array();
+                    $sStartLine  = $linestr;
+                    $iStartNo    = $lineno;
+                }
+
+                if ($aEntryLines === null) {
+                    continue;
+                }
+                $aEntryLines[] = $linestr;
+
+                if ($this->atEntryEnd($linestr, $sDbFormat)) {
+                    $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
+                    $temp_r[$aRow["id_element"]] = $aRow;
+                    $aEntryLines = null;
                 }
             }
 
-            foreach($temp_r as $seqid => $line_r) {
-                // Check if the file already exists
-                $collectionElementExists = $this->em->getRepository(CollectionElement::class)
-                    ->findOneBy(['fileName' => $line_r["filename"]]);
-
-                if(empty($collectionElementExists)) {
-                    $collectionElement = new CollectionElement();
-                    $collectionElement->setIdElement($line_r["id_element"]);
-                    $collectionElement->setCollection($oCollection);
-                    $collectionElement->setFileName($line_r["filename"]);
-                    $collectionElement->setSeqCount(count($temp_r));
-                    $collectionElement->setLineNo($line_r["line_no"]);
-                    $collectionElement->setDbFormat($line_r["dbformat"]);
-
-                    $this->em->persist($collectionElement);
-                    $this->em->flush();
-                }
+            if ($aEntryLines !== null) {
+                $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
+                $temp_r[$aRow["id_element"]] = $aRow;
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        }
+
+        foreach($temp_r as $seqid => $line_r) {
+            // Check on the record rather than on the file it comes from : a data file holds
+            // thousands of them, and stopping at the first would index only one per file.
+            $collectionElementExists = $this->em->getRepository(CollectionElement::class)
+                ->findOneBy(['idElement' => $line_r["id_element"]]);
+
+            if(empty($collectionElementExists)) {
+                $collectionElement = new CollectionElement();
+                $collectionElement->setIdElement($line_r["id_element"]);
+                $collectionElement->setCollection($oCollection);
+                $collectionElement->setFileName($line_r["filename"]);
+                $collectionElement->setSeqCount(count($temp_r));
+                $collectionElement->setLineNo($line_r["line_no"]);
+                $collectionElement->setDbFormat($line_r["dbformat"]);
+
+                $this->em->persist($collectionElement);
+                $this->em->flush();
+            }
         }
     }
 
@@ -173,11 +195,40 @@ class DatabaseManager implements DatabaseInterface
      */
     private function atEntrystart($linestr, $dbformat)
     {
-        try {
-            return DatabaseRecorderFactory::getEntryStart($dbformat, $linestr);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        return DatabaseRecorderFactory::getEntryStart($dbformat, $linestr);
+    }
+
+    /**
+     * Tests if the file pointer is at the end of a sequence entry.
+     * @param       string      $linestr        The line to analyze
+     * @param       string      $dbformat       Original DB format (Swissprot, Genbank)
+     * @return      bool
+     * @throws      \Exception
+     */
+    private function atEntryEnd($linestr, $dbformat)
+    {
+        return DatabaseRecorderFactory::getEntryEnd($dbformat, $linestr);
+    }
+
+    /**
+     * Builds the index row of one entry : what identifies it, the file holding it and the line
+     * it starts at, which is what lets fetch() reach it again.
+     * @param       array       $aEntryLines    The lines of the entry
+     * @param       string      $sStartLine     The line opening the entry
+     * @param       int         $iStartNo       Line number the entry starts at
+     * @param       string      $sFilename      Name of the data file
+     * @param       string      $sDbFormat      Original DB format (Swissprot, Genbank)
+     * @return      array
+     * @throws      \Exception
+     */
+    private function indexEntry($aEntryLines, $sStartLine, $iStartNo, $sFilename, $sDbFormat)
+    {
+        return array(
+            "id_element" => $this->getEntryid($aEntryLines, $sStartLine, $sDbFormat),
+            "filename"   => $sFilename,
+            "dbformat"   => $sDbFormat,
+            "line_no"    => $iStartNo
+        );
     }
 
     /**
@@ -191,12 +242,8 @@ class DatabaseManager implements DatabaseInterface
      */
     private function getEntryid(&$flines, $linestr, $dbformat)
     {
-        try {
-            $iEntryId = DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
-            return($iEntryId);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $iEntryId = DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
+        return($iEntryId);
     }
 
     /**
@@ -205,30 +252,34 @@ class DatabaseManager implements DatabaseInterface
      * @return  array|bool
      * @throws  \Exception
      */
-    private function line2r($fpseq, $sDbFormat)
+    private function line2r($fpseq, $sDbFormat, $iLineNo = 0)
     {
-        try {
-            // Which line closes an entry is a property of the format, so the parser is asked
-            // rather than guessed at here : "//" is the GenBank family convention, "END" the PDB
-            // one, and some formats use neither.
-            $sParser = DatabaseParserFactory::getParserClass($sDbFormat);
+        // Which line closes an entry is a property of the format, so the parser is asked
+        // rather than guessed at here : "//" is the GenBank family convention, "END" the PDB
+        // one, and some formats use neither.
+        $sParser = DatabaseParserFactory::getParserClass($sDbFormat);
 
-            $flines = array();
-            while(1) {
-                // No length limit : a hundred character cap used to cut a longer line in two,
-                // handing the parser a second line whose label column held the middle of a word.
-                // recording() reads the same files with file(), which has never had that cap.
-                $linestr = fgets($fpseq);
-                if ($linestr === false) {
-                    return $flines;
-                }
-                $flines[] = $linestr;
-                if ($sParser::isEntryEnd($linestr)) {
-                    return $flines;
-                }
+        // Skip whatever precedes the record asked for, be it the records before it or the
+        // header a data file may open with.
+        for ($i = 0; $i < $iLineNo; $i++) {
+            if (fgets($fpseq) === false) {
+                return array();
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        }
+
+        $flines = array();
+        while(1) {
+            // No length limit : a hundred character cap used to cut a longer line in two,
+            // handing the parser a second line whose label column held the middle of a word.
+            // recording() reads the same files with file(), which has never had that cap.
+            $linestr = fgets($fpseq);
+            if ($linestr === false) {
+                return $flines;
+            }
+            $flines[] = $linestr;
+            if ($sParser::isEntryEnd($linestr)) {
+                return $flines;
+            }
         }
     }
 } 

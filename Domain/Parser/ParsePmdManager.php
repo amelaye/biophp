@@ -3,7 +3,7 @@
  * PMD database parsing (Protein Mutant Database)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -129,49 +129,45 @@ final class ParsePmdManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aBuffers = ["AUTHORS" => "", "JOURNAL" => "", "TITLE" => ""];
-            $sCurrent = "";
+        $aBuffers = ["AUTHORS" => "", "JOURNAL" => "", "TITLE" => ""];
+        $sCurrent = "";
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
-
-                $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
-                $sData  = trim(substr($sLine, self::LABEL_WIDTH));
-
-                if ($sLabel == "") {
-                    if ($sCurrent != "") {
-                        $aBuffers[$sCurrent] .= $sData . " ";
-                    }
-                    continue;
-                }
-
-                $sCurrent = "";
-
-                switch($sLabel) {
-                    case "ENTRY":
-                        $this->parseEntry($sData);
-                        break;
-                    case "MEDLINE":
-                        $this->medlineNo = $sData;
-                        break;
-                    case "AUTHORS":
-                    case "JOURNAL":
-                    case "TITLE":
-                        $aBuffers[$sLabel] = $sData . " ";
-                        $sCurrent = $sLabel;
-                        break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
             }
 
-            $this->journal = trim($aBuffers["JOURNAL"]);
-            $this->title   = trim($aBuffers["TITLE"]);
-            $this->authors = $this->splitAuthors($aBuffers["AUTHORS"]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
+            $sData  = trim(substr($sLine, self::LABEL_WIDTH));
+
+            if ($sLabel == "") {
+                if ($sCurrent != "") {
+                    $aBuffers[$sCurrent] .= $sData . " ";
+                }
+                continue;
+            }
+
+            $sCurrent = "";
+
+            switch($sLabel) {
+                case "ENTRY":
+                    $this->parseEntry($sData);
+                    break;
+                case "MEDLINE":
+                    $this->medlineNo = $sData;
+                    break;
+                case "AUTHORS":
+                case "JOURNAL":
+                case "TITLE":
+                    $aBuffers[$sLabel] = $sData . " ";
+                    $sCurrent = $sLabel;
+                    break;
+            }
         }
+
+        $this->journal = trim($aBuffers["JOURNAL"]);
+        $this->title   = trim($aBuffers["TITLE"]);
+        $this->authors = $this->splitAuthors($aBuffers["AUTHORS"]);
     }
 
     /**

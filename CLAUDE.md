@@ -13,6 +13,8 @@ and 8.5 for both the `master` and `develop` branches, with coverage collected
 only on the 8.2 job. `master` and `develop` currently track the same history;
 treat these conventions as applying to both.
 
+You are MY ASSISTANT. You know celluluar biology like a real specialist.
+
 ## Repository map
 
 - `Api/`: HTTP API clients, adapter interfaces, and DTOs. API Platform/Hydra
@@ -22,9 +24,16 @@ treat these conventions as applying to both.
 - `Domain/Database/`: database entities, factories, the `DatabaseManager`
   service, and the `ParseDbAbstractManager` base class the record parsers
   extend.
-- `Domain/Parser/`: the concrete database-format parsers (GenBank, Swiss-Prot,
-  EMBL, PDB, PROSITE, ExPASy ENZYME). They are resolved by
-  `DatabaseReaderFactory`, not injected.
+- `Domain/Parser/`: the concrete database-format parsers, one class per format
+  (GenBank, Swiss-Prot, EMBL, PDB, PROSITE, ExPASy ENZYME, Entrez, and the
+  TRANSFAC and KEGG families among others). They are resolved by
+  `DatabaseReaderFactory`, not injected. `DatabaseParserFactory::PARSERS` is the
+  authoritative list. The TRANSFAC and KEGG families each share a flat-file
+  grammar, held in `ParseTransfacAbstractManager` and
+  `ParseKeggAbstractManager`. Everything in `Legacy/` is now ported except
+  `kegg.inc.php`'s `parse_ecrel_kegg()` (a tab-separated KGML relation line, not
+  a flat-file record, so it does not fit `ParseDatabaseInterface`) and its
+  `Ligand`/`Mol` classes, which the original left empty.
 - `Domain/Tools/`: reusable genetics, mathematics, and oligonucleotide helpers.
 - `Domain/Sequence/ValueObject/`: immutable value objects wrapping sequence
   strings (`DnaSequence`, `RnaSequence`, `AminoAcidSequence`). They validate
@@ -104,11 +113,18 @@ do not add it.
   keep its attributes, PHP types, accessors, and related parser behavior
   consistent.
 - Supporting a new database format means writing one parser class in
-  `Domain/Parser/` (declaring `getFormat()`, `isEntryStart()`, `getEntryId()`
-  and `parseDataFile()`) and adding it to `DatabaseParserFactory::PARSERS`.
-  That constant is the only registration point; `DatabaseReaderFactory` and
-  `DatabaseRecorderFactory` resolve through it and must not grow format
-  switches of their own.
+  `Domain/Parser/` (declaring `getFormat()`, `isEntryStart()`, `isEntryEnd()`,
+  `getEntryId()` and `parseDataFile()`) and adding it to
+  `DatabaseParserFactory::PARSERS`. That constant is the only registration
+  point; `DatabaseReaderFactory` and `DatabaseRecorderFactory` resolve through
+  it and must not grow format switches of their own. `isEntryStart()` and
+  `isEntryEnd()` are what let `DatabaseManager::recording()` cut a data file
+  into its records, and `getEntryId()` is handed the lines of one record, never
+  the whole file.
+- Do not wrap a call in `try { ... } catch (\Exception $e) { throw new
+  \Exception($e); }`. That rethrow loses the type of the original exception,
+  turns its message into a stack trace and makes it uncatchable by type. Let an
+  exception propagate, and only catch one you actually handle.
 - Service wiring is XML. When adding or changing a constructor dependency,
   update the appropriate `Resources/config/services.xml` definition. When a
   service implements a public domain interface, preserve or add its interface

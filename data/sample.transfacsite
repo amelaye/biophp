@@ -1,0 +1,25 @@
+AC  R00001
+XX
+ID  MCK$MUS_01
+XX
+DT  20.06.1990 (created); ewi.
+XX
+TY  D
+XX
+DE  muscle creatine kinase gene, right E-box of the enhancer
+XX
+RE  enhancer
+XX
+SQ  CCCCAACACCTGCTGCCTGA
+XX
+SF  -1195
+XX
+BF  T00526; MyoD; Species: mouse, Mus musculus.
+XX
+OS  mouse, mus musculus
+XX
+MM  DNase I footprinting
+XX
+CC  binds myogenic bHLH factors as a heterodimer with E12/E47
+XX
+//

@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 12 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
@@ -57,9 +57,12 @@ class Sequence
     private $molType;
 
     /**
+     * The date as its record writes it, e.g. "21-JUL-1986" : a flat-file date carries no time
+     * zone and its precision varies by format, so it is stored as read rather than mapped to a
+     * date column, which Doctrine would expect to hydrate as a DateTime.
      * @var string|null
      */
-    #[ORM\Column(type: "date", nullable: true)]
+    #[ORM\Column(type: "string", length: 11, nullable: true)]
     private $date;
 
     /**

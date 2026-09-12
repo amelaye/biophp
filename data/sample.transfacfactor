@@ -1,0 +1,20 @@
+AC  T00526
+XX
+ID  T00526
+XX
+DT  20.06.1990 (created); ewi.
+DT  16.10.1995 (updated); ewi.
+XX
+FA  MyoD
+XX
+SY  MYF3; MyoD1; myogenic differentiation 1
+XX
+OS  mouse, mus musculus
+OC  eukaryota; animalia; metazoa; chordata; vertebrata;
+OC  tetrapoda; mammalia; eutheria; rodentia
+XX
+HO  MyoD (human), CMD1 (chicken), XMyoD (xenopus)
+XX
+CL  C0010; bHLH; 1.2.3.0.1.
+XX
+//

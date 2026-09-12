@@ -3,7 +3,7 @@
  * EMBL database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -80,44 +80,40 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $this->aLines = new \ArrayIterator($aFlines);
+        $this->aLines = new \ArrayIterator($aFlines);
 
-            foreach ($this->aLines as $lineno => $linestr) {
-                switch (substr($this->aLines->current(), 0, 2)) {
-                    case "ID":
-                        $this->parseId();
-                        break;
-                    case "AC":
-                        $this->parseAccession();
-                        break;
-                    case "DT":
-                        $this->parseDate();
-                        break;
-                    case "DE":
-                        $this->parseDescription($aFlines);
-                        break;
-                    case "KW":
-                        $this->parseKeywords();
-                        break;
-                    case "OS":
-                        $this->parseOrganism($aFlines);
-                        break;
-                    case "RN":
-                        $this->parseReferences($aFlines);
-                        break;
-                    case "FT":
-                        if (trim(substr($this->aLines->current(), 5, 15)) != "") {
-                            $this->parseFeatures($aFlines);
-                        }
-                        break;
-                    case "SQ":
-                        $this->parseSequence();
-                        break;
-                }
+        foreach ($this->aLines as $lineno => $linestr) {
+            switch (substr($this->aLines->current(), 0, 2)) {
+                case "ID":
+                    $this->parseId();
+                    break;
+                case "AC":
+                    $this->parseAccession();
+                    break;
+                case "DT":
+                    $this->parseDate();
+                    break;
+                case "DE":
+                    $this->parseDescription($aFlines);
+                    break;
+                case "KW":
+                    $this->parseKeywords();
+                    break;
+                case "OS":
+                    $this->parseOrganism($aFlines);
+                    break;
+                case "RN":
+                    $this->parseReferences($aFlines);
+                    break;
+                case "FT":
+                    if (trim(substr($this->aLines->current(), 5, 15)) != "") {
+                        $this->parseFeatures($aFlines);
+                    }
+                    break;
+                case "SQ":
+                    $this->parseSequence();
+                    break;
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
     }
 
@@ -128,27 +124,23 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseId()
     {
-        try {
-            $aParts = array_map('trim', explode(";", trim(substr($this->aLines->current(), 5))));
+        $aParts = array_map('trim', explode(";", trim(substr($this->aLines->current(), 5))));
 
-            $sEntryName = $aParts[0];
-            $sVersion   = trim(str_replace("SV", "", $aParts[1]));
-            $sTopology  = $aParts[2];
-            $sMolType   = $aParts[3];
-            $sDivision  = $aParts[5];
-            $iLength    = (int) preg_replace("/\D/", "", $aParts[6]);
+        $sEntryName = $aParts[0];
+        $sVersion   = trim(str_replace("SV", "", $aParts[1]));
+        $sTopology  = $aParts[2];
+        $sMolType   = $aParts[3];
+        $sDivision  = $aParts[5];
+        $iLength    = (int) preg_replace("/\D/", "", $aParts[6]);
 
-            $this->sequence->setPrimAcc($sEntryName);
-            $this->sequence->setSeqLength($iLength);
-            $this->sequence->setMolType($sMolType);
+        $this->sequence->setPrimAcc($sEntryName);
+        $this->sequence->setSeqLength($iLength);
+        $this->sequence->setMolType($sMolType);
 
-            $this->gbSequence->setPrimAcc($sEntryName);
-            $this->gbSequence->setTopology(strtoupper($sTopology));
-            $this->gbSequence->setDivision(strtoupper($sDivision));
-            $this->gbSequence->setVersion($sEntryName . "." . $sVersion);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $this->gbSequence->setPrimAcc($sEntryName);
+        $this->gbSequence->setTopology(strtoupper($sTopology));
+        $this->gbSequence->setDivision(strtoupper($sDivision));
+        $this->gbSequence->setVersion($sEntryName . "." . $sVersion);
     }
 
     /**
@@ -158,23 +150,19 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseAccession()
     {
-        try {
-            $sLineData = trim(substr($this->aLines->current(), 5));
-            $aAccessions = array_filter(array_map('trim', explode(";", $sLineData)));
-            $aAccessions = array_values($aAccessions);
+        $sLineData = trim(substr($this->aLines->current(), 5));
+        $aAccessions = array_filter(array_map('trim', explode(";", $sLineData)));
+        $aAccessions = array_values($aAccessions);
 
-            if ($this->sequence->getPrimAcc() == "") {
-                $this->sequence->setPrimAcc($aAccessions[0]);
-            }
+        if ($this->sequence->getPrimAcc() == "") {
+            $this->sequence->setPrimAcc($aAccessions[0]);
+        }
 
-            foreach (array_slice($aAccessions, 1) as $sAccession) {
-                $oAccession = new Accession();
-                $oAccession->setPrimAcc($this->sequence->getPrimAcc());
-                $oAccession->setAccession($sAccession);
-                $this->accession[] = $oAccession;
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        foreach (array_slice($aAccessions, 1) as $sAccession) {
+            $oAccession = new Accession();
+            $oAccession->setPrimAcc($this->sequence->getPrimAcc());
+            $oAccession->setAccession($sAccession);
+            $this->accession[] = $oAccession;
         }
     }
 
@@ -185,17 +173,13 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseDate()
     {
-        try {
-            $sLineData = trim(substr($this->aLines->current(), 5));
-            $aWords = preg_split("/\(/", $sLineData);
-            $iFirstComma = strpos($aWords[1], ",");
-            $sComment = strtoupper(trim(substr($aWords[1], $iFirstComma + 1)));
+        $sLineData = trim(substr($this->aLines->current(), 5));
+        $aWords = preg_split("/\(/", $sLineData);
+        $iFirstComma = strpos($aWords[1], ",");
+        $sComment = strtoupper(trim(substr($aWords[1], $iFirstComma + 1)));
 
-            if ($sComment == "CREATED)") {
-                $this->sequence->setDate(trim($aWords[0]));
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        if ($sComment == "CREATED)") {
+            $this->sequence->setDate(trim($aWords[0]));
         }
     }
 
@@ -206,20 +190,16 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseDescription($aFlines)
     {
-        try {
-            $sDescription = trim(substr($this->aLines->current(), 5));
-            while (true) {
-                $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
-                if ($sHead != "DE") {
-                    break;
-                }
-                $this->aLines->next();
-                $sDescription .= " " . trim(substr($this->aLines->current(), 5));
+        $sDescription = trim(substr($this->aLines->current(), 5));
+        while (true) {
+            $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
+            if ($sHead != "DE") {
+                break;
             }
-            $this->sequence->setDescription($sDescription);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+            $this->aLines->next();
+            $sDescription .= " " . trim(substr($this->aLines->current(), 5));
         }
+        $this->sequence->setDescription($sDescription);
     }
 
     /**
@@ -229,19 +209,15 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseKeywords()
     {
-        try {
-            $sLineData = trim(substr($this->aLines->current(), 5));
-            $sLineData = rtrim($sLineData, ".");
-            $aKeywords = array_filter(array_map('trim', explode(";", $sLineData)));
+        $sLineData = trim(substr($this->aLines->current(), 5));
+        $sLineData = rtrim($sLineData, ".");
+        $aKeywords = array_filter(array_map('trim', explode(";", $sLineData)));
 
-            foreach ($aKeywords as $sKeyword) {
-                $oKeyword = new Keyword();
-                $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
-                $oKeyword->setKeywords($sKeyword);
-                $this->keywords[] = $oKeyword;
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        foreach ($aKeywords as $sKeyword) {
+            $oKeyword = new Keyword();
+            $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
+            $oKeyword->setKeywords($sKeyword);
+            $this->keywords[] = $oKeyword;
         }
     }
 
@@ -254,28 +230,24 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseOrganism($aFlines)
     {
-        try {
-            $sSpecies = trim(substr($this->aLines->current(), 5));
-            $this->sequence->setSource($sSpecies);
+        $sSpecies = trim(substr($this->aLines->current(), 5));
+        $this->sequence->setSource($sSpecies);
 
-            $aOrganism = [$sSpecies];
-            while (true) {
-                $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
-                if ($sHead != "OC") {
-                    break;
-                }
-                $this->aLines->next();
-                $aTokens = explode(";", trim(substr($this->aLines->current(), 5)));
-                foreach ($aTokens as $sToken) {
-                    if (trim($sToken) != "") {
-                        $aOrganism[] = trim($sToken);
-                    }
+        $aOrganism = [$sSpecies];
+        while (true) {
+            $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
+            if ($sHead != "OC") {
+                break;
+            }
+            $this->aLines->next();
+            $aTokens = explode(";", trim(substr($this->aLines->current(), 5)));
+            foreach ($aTokens as $sToken) {
+                if (trim($sToken) != "") {
+                    $aOrganism[] = trim($sToken);
                 }
             }
-            $this->sequence->setOrganism($aOrganism);
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+        $this->sequence->setOrganism($aOrganism);
     }
 
     /**
@@ -285,64 +257,60 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseReferences($aFlines)
     {
-        try {
-            $oReference = new Reference();
-            $oReference->setPrimAcc($this->sequence->getPrimAcc());
-            $oReference->setRefno(trim(trim(substr($this->aLines->current(), 5)), "[]"));
+        $oReference = new Reference();
+        $oReference->setPrimAcc($this->sequence->getPrimAcc());
+        $oReference->setRefno(trim(trim(substr($this->aLines->current(), 5)), "[]"));
 
+        $this->aLines->next();
+
+        if (substr($this->aLines->current(), 0, 2) == "RP") {
+            $oReference->setBaseRange(trim(substr($this->aLines->current(), 5)));
             $this->aLines->next();
-
-            if (substr($this->aLines->current(), 0, 2) == "RP") {
-                $oReference->setBaseRange(trim(substr($this->aLines->current(), 5)));
-                $this->aLines->next();
-            }
-
-            while (substr($this->aLines->current(), 0, 2) == "RX") {
-                $sRx = rtrim(trim(substr($this->aLines->current(), 5)), ".");
-                $aRx = array_map('trim', explode(";", $sRx));
-                if (strtoupper($aRx[0]) == "PUBMED" && isset($aRx[1])) {
-                    $oReference->setPubmed($aRx[1]);
-                }
-                $this->aLines->next();
-            }
-
-            if (substr($this->aLines->current(), 0, 2) == "RA") {
-                $sAuthors = rtrim(trim(substr($this->aLines->current(), 5)), ";");
-                $sAuthors = str_replace(".", "", $sAuthors);
-                $aAuthors = explode(",", $sAuthors);
-                foreach ($aAuthors as $sAuthor) {
-                    $oAuthor = new Author();
-                    $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
-                    $oAuthor->setRefno($oReference->getRefno());
-                    $oAuthor->setAuthor(trim($sAuthor));
-                    $this->authors[] = $oAuthor;
-                }
-                $this->aLines->next();
-            }
-
-            if (substr($this->aLines->current(), 0, 2) == "RT") {
-                $sTitle = trim(substr($this->aLines->current(), 5));
-                while (true) {
-                    $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
-                    if ($sHead != "RT") {
-                        break;
-                    }
-                    $this->aLines->next();
-                    $sTitle .= " " . trim(substr($this->aLines->current(), 5));
-                }
-                $sTitle = trim($sTitle, " \";");
-                $oReference->setTitle($sTitle);
-                $this->aLines->next();
-            }
-
-            if (substr($this->aLines->current(), 0, 2) == "RL") {
-                $oReference->setJournal(trim(substr($this->aLines->current(), 5)));
-            }
-
-            $this->references[] = $oReference;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+
+        while (substr($this->aLines->current(), 0, 2) == "RX") {
+            $sRx = rtrim(trim(substr($this->aLines->current(), 5)), ".");
+            $aRx = array_map('trim', explode(";", $sRx));
+            if (strtoupper($aRx[0]) == "PUBMED" && isset($aRx[1])) {
+                $oReference->setPubmed($aRx[1]);
+            }
+            $this->aLines->next();
+        }
+
+        if (substr($this->aLines->current(), 0, 2) == "RA") {
+            $sAuthors = rtrim(trim(substr($this->aLines->current(), 5)), ";");
+            $sAuthors = str_replace(".", "", $sAuthors);
+            $aAuthors = explode(",", $sAuthors);
+            foreach ($aAuthors as $sAuthor) {
+                $oAuthor = new Author();
+                $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
+                $oAuthor->setRefno($oReference->getRefno());
+                $oAuthor->setAuthor(trim($sAuthor));
+                $this->authors[] = $oAuthor;
+            }
+            $this->aLines->next();
+        }
+
+        if (substr($this->aLines->current(), 0, 2) == "RT") {
+            $sTitle = trim(substr($this->aLines->current(), 5));
+            while (true) {
+                $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
+                if ($sHead != "RT") {
+                    break;
+                }
+                $this->aLines->next();
+                $sTitle .= " " . trim(substr($this->aLines->current(), 5));
+            }
+            $sTitle = trim($sTitle, " \";");
+            $oReference->setTitle($sTitle);
+            $this->aLines->next();
+        }
+
+        if (substr($this->aLines->current(), 0, 2) == "RL") {
+            $oReference->setJournal(trim(substr($this->aLines->current(), 5)));
+        }
+
+        $this->references[] = $oReference;
     }
 
     /**
@@ -353,35 +321,31 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseFeatures($aFlines)
     {
-        try {
-            $sKey = trim(substr($this->aLines->current(), 5, 15));
-            $sLocation = str_replace(["complement(", "join(", ")"], "", trim(substr($this->aLines->current(), 21)));
-            $aBounds = explode("..", $sLocation);
+        $sKey = trim(substr($this->aLines->current(), 5, 15));
+        $sLocation = str_replace(["complement(", "join(", ")"], "", trim(substr($this->aLines->current(), 21)));
+        $aBounds = explode("..", $sLocation);
 
-            $sQualifiers = "";
-            while (true) {
-                $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
-                if (substr($sNextLine, 0, 2) != "FT" || trim(substr($sNextLine, 5, 15)) != "") {
-                    break;
-                }
-                $this->aLines->next();
-                $sQualifiers .= " " . trim(substr($this->aLines->current(), 21));
+        $sQualifiers = "";
+        while (true) {
+            $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
+            if (substr($sNextLine, 0, 2) != "FT" || trim(substr($sNextLine, 5, 15)) != "") {
+                break;
             }
+            $this->aLines->next();
+            $sQualifiers .= " " . trim(substr($this->aLines->current(), 21));
+        }
 
-            $aQualifiers = array_filter(preg_split("/\s+\//", trim($sQualifiers)));
-            foreach ($aQualifiers as $sQualifier) {
-                $aQualifier = explode("=", str_replace('"', "", ltrim($sQualifier, "/")), 2);
-                $oFeature = new Feature();
-                $oFeature->setPrimAcc($this->sequence->getPrimAcc());
-                $oFeature->setFtKey($sKey);
-                $oFeature->setFtQual($aQualifier[0]);
-                $oFeature->setFtValue($aQualifier[1] ?? "");
-                $oFeature->setFtFrom((int) ($aBounds[0] ?? 0));
-                $oFeature->setFtTo((int) ($aBounds[1] ?? 0));
-                $this->features[] = $oFeature;
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        $aQualifiers = array_filter(preg_split("/\s+\//", trim($sQualifiers)));
+        foreach ($aQualifiers as $sQualifier) {
+            $aQualifier = explode("=", str_replace('"', "", ltrim($sQualifier, "/")), 2);
+            $oFeature = new Feature();
+            $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+            $oFeature->setFtKey($sKey);
+            $oFeature->setFtQual($aQualifier[0]);
+            $oFeature->setFtValue($aQualifier[1] ?? "");
+            $oFeature->setFtFrom((int) ($aBounds[0] ?? 0));
+            $oFeature->setFtTo((int) ($aBounds[1] ?? 0));
+            $this->features[] = $oFeature;
         }
     }
 
@@ -391,17 +355,13 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseSequence()
     {
-        try {
-            $sSequence = "";
+        $sSequence = "";
+        $this->aLines->next();
+        while (substr($this->aLines->current(), 0, 2) != "//") {
+            $sLine = preg_replace("/\d+\s*$/", "", $this->aLines->current());
+            $sSequence .= str_replace(" ", "", $sLine);
             $this->aLines->next();
-            while (substr($this->aLines->current(), 0, 2) != "//") {
-                $sLine = preg_replace("/\d+\s*$/", "", $this->aLines->current());
-                $sSequence .= str_replace(" ", "", $sLine);
-                $this->aLines->next();
-            }
-            $this->sequence->setSequence(trim($sSequence));
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+        $this->sequence->setSequence(trim($sSequence));
     }
 }

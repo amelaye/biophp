@@ -3,7 +3,7 @@
  * Genome sequencing statistics parsing (the Legacy "DOGS" records)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -154,71 +154,24 @@ final class ParseGenomeManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sTaxonomy  = "";
-            $sAuthors   = "";
-            $sTitle     = "";
-            $sCurrent   = "";
-            $oReference = null;
+        $sTaxonomy  = "";
+        $sAuthors   = "";
+        $sTitle     = "";
+        $sCurrent   = "";
+        $oReference = null;
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
+            }
 
-                $sLabel = self::readLabel($sLine);
-                $sData  = self::readData($sLine);
+            $sLabel = self::readLabel($sLine);
+            $sData  = self::readData($sLine);
 
-                if ($sLabel == "") {
-                    switch($sCurrent) {
-                        case "CLASSIFICATION":
-                            $sTaxonomy .= $sData . " ";
-                            break;
-                        case "REF_AUTHOR":
-                            $sAuthors .= $sData . " ";
-                            break;
-                        case "REF_TITLE":
-                            $sTitle .= $sData . " ";
-                            break;
-                    }
-                    continue;
-                }
-
-                $sCurrent = $sLabel;
-
-                switch($sLabel) {
-                    case "ORGANISM":
-                        $this->organism = $sData;
-                        break;
-                    case "COMMON_NAME":
-                        $this->commonName = $sData;
-                        break;
+            if ($sLabel == "") {
+                switch($sCurrent) {
                     case "CLASSIFICATION":
                         $sTaxonomy .= $sData . " ";
-                        break;
-                    case "COMPLETED":
-                        $this->isComplete = $sData;
-                        break;
-                    case "GB_RELEASE":
-                        $this->gbRelease = $sData;
-                        break;
-                    case "GB_ENTRIES":
-                        $this->gbEntries = (int) $sData;
-                        break;
-                    case "GB_BASEPAIRS":
-                        $this->gbBasepairs = (int) $sData;
-                        break;
-                    case "GENOME_SIZE":
-                        $this->size = (int) $sData;
-                        break;
-                    case "REF_TYPE":
-                        // A new reference set starts here : close the one being filled, if any.
-                        $this->closeReference($oReference, $sAuthors, $sTitle);
-                        $sAuthors = "";
-                        $sTitle   = "";
-
-                        $oReference = new GenomeReference();
-                        $oReference->setType($sData);
                         break;
                     case "REF_AUTHOR":
                         $sAuthors .= $sData . " ";
@@ -226,34 +179,77 @@ final class ParseGenomeManager implements ParseDatabaseInterface
                     case "REF_TITLE":
                         $sTitle .= $sData . " ";
                         break;
-                    case "REF_JOURNAL":
-                        if ($oReference !== null) {
-                            $oReference->setJournal($sData);
-                        }
-                        break;
-                    case "REF_VOLUME":
-                        if ($oReference !== null) {
-                            $oReference->setVolume($sData);
-                        }
-                        break;
-                    case "REF_PAGES":
-                        if ($oReference !== null) {
-                            $oReference->setPages($sData);
-                        }
-                        break;
-                    case "REF_YEAR":
-                        if ($oReference !== null) {
-                            $oReference->setYear($sData);
-                        }
-                        break;
                 }
+                continue;
             }
 
-            $this->closeReference($oReference, $sAuthors, $sTitle);
-            $this->taxClass = $this->splitTaxonomy($sTaxonomy);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sCurrent = $sLabel;
+
+            switch($sLabel) {
+                case "ORGANISM":
+                    $this->organism = $sData;
+                    break;
+                case "COMMON_NAME":
+                    $this->commonName = $sData;
+                    break;
+                case "CLASSIFICATION":
+                    $sTaxonomy .= $sData . " ";
+                    break;
+                case "COMPLETED":
+                    $this->isComplete = $sData;
+                    break;
+                case "GB_RELEASE":
+                    $this->gbRelease = $sData;
+                    break;
+                case "GB_ENTRIES":
+                    $this->gbEntries = (int) $sData;
+                    break;
+                case "GB_BASEPAIRS":
+                    $this->gbBasepairs = (int) $sData;
+                    break;
+                case "GENOME_SIZE":
+                    $this->size = (int) $sData;
+                    break;
+                case "REF_TYPE":
+                    // A new reference set starts here : close the one being filled, if any.
+                    $this->closeReference($oReference, $sAuthors, $sTitle);
+                    $sAuthors = "";
+                    $sTitle   = "";
+
+                    $oReference = new GenomeReference();
+                    $oReference->setType($sData);
+                    break;
+                case "REF_AUTHOR":
+                    $sAuthors .= $sData . " ";
+                    break;
+                case "REF_TITLE":
+                    $sTitle .= $sData . " ";
+                    break;
+                case "REF_JOURNAL":
+                    if ($oReference !== null) {
+                        $oReference->setJournal($sData);
+                    }
+                    break;
+                case "REF_VOLUME":
+                    if ($oReference !== null) {
+                        $oReference->setVolume($sData);
+                    }
+                    break;
+                case "REF_PAGES":
+                    if ($oReference !== null) {
+                        $oReference->setPages($sData);
+                    }
+                    break;
+                case "REF_YEAR":
+                    if ($oReference !== null) {
+                        $oReference->setYear($sData);
+                    }
+                    break;
+            }
         }
+
+        $this->closeReference($oReference, $sAuthors, $sTitle);
+        $this->taxClass = $this->splitTaxonomy($sTaxonomy);
     }
 
     /**

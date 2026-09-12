@@ -1,0 +1,82 @@
+CC   -----------------------------------------------------------------------
+CC
+CC   ENZYME nomenclature database
+CC
+CC   -----------------------------------------------------------------------
+CC   Release of 02-Sep-2026
+CC   -----------------------------------------------------------------------
+CC
+CC   Alan Bridge and Kristian Axelsen
+CC   SIB Swiss Institute of Bioinformatics
+CC   Centre Medical Universitaire (CMU)
+CC   1, rue Michel Servet
+CC   1211 Geneva 4
+CC   Switzerland
+CC
+CC   Email: enzyme@expasy.org
+CC
+CC   WWW server: https://enzyme.expasy.org/
+CC
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the SIB Swiss Institute of Bioinformatics and
+CC   distributed under the Creative Commons Attribution (CC BY 4.0) License
+CC   -----------------------------------------------------------------------
+//
+ID   1.1.1.1
+DE   alcohol dehydrogenase.
+AN   aldehyde reductase.
+CA   (1) a primary alcohol + NAD(+) = an aldehyde + NADH + H(+).
+CA   (2) a secondary alcohol + NAD(+) = a ketone + NADH + H(+).
+CC   -!- Acts on primary or secondary alcohols or hemi-acetals with very broad
+CC       specificity; however the enzyme oxidizes methanol much more poorly
+CC       than ethanol.
+CC   -!- The animal, but not the yeast, enzyme acts also on cyclic secondary
+CC       alcohols.
+CC   -!- Formerly EC 1.1.1.32.
+DR   P07327, ADH1A_HUMAN;  P28469, ADH1A_MACMU;  Q5RBP7, ADH1A_PONAB;
+DR   P25405, ADH1A_SAAHA;  P25406, ADH1B_SAAHA;  P00327, ADH1E_HORSE;
+DR   P00326, ADH1G_HUMAN;  O97959, ADH1G_PAPHA;  P00328, ADH1S_HORSE;
+//
+ID   1.1.1.2
+DE   alcohol dehydrogenase (NADP(+)).
+AN   aldehyde reductase (NADPH).
+CA   a primary alcohol + NADP(+) = an aldehyde + NADPH + H(+).
+CC   -!- Some members of this group oxidize only primary alcohols; others act
+CC       also on secondary alcohols.
+CC   -!- May be identical with EC 1.1.1.19, EC 1.1.1.33 and EC 1.1.1.55.
+CC   -!- Re-specific with respect to NADPH.
+CC   -!- Formerly EC 1.1.1.33.
+DR   Q6AZW2, A1A1A_DANRE;  Q568L5, A1A1B_DANRE;  Q24857, ADH3_ENTH1 ;
+DR   Q04894, ADH6_YEAST ;  P25377, ADH7_YEAST ;  O57380, ADH8_PELPE ;
+DR   P74721, ADHA_SYNY3 ;  Q9F282, ADHA_THEET ;  P0CH36, ADHC1_MYCS2;
+//
+ID   1.1.1.5
+DE   Transferred entry: 1.1.1.303 and 1.1.1.304.
+//
+ID   1.1.1.74
+DE   Deleted entry.
+//
+ID   1.14.14.1
+DE   unspecific monooxygenase.
+AN   aryl-4-monooxygenase.
+AN   aryl hydrocarbon hydroxylase.
+AN   cytochrome P450.
+AN   flavoprotein-linked monooxygenase.
+AN   microsomal monooxygenase.
+AN   microsomal P450.
+AN   xenobiotic monooxygenase.
+CA   an organic molecule + reduced [NADPH--hemoprotein reductase] + O2 =
+CA   an alcohol + oxidized [NADPH--hemoprotein reductase] + H2O + H(+).
+CC   -!- Acts on a wide range of substrates including many xenobiotics,
+CC       steroids, fatty acids, vitamins and prostaglandins; reactions
+CC       catalyzed include hydroxylation, epoxidation, N-oxidation,
+CC       sulfooxidation, N-, S- and O-dealkylations, desulfation, deamination,
+CC       and reduction of azo, nitro and N-oxide groups.
+CC   -!- Together with EC 1.6.2.4, it forms a system in which two reducing
+CC       equivalents are supplied by NADPH.
+CC   -!- Some of the reactions attributed to EC 1.14.15.3 belong here.
+CC   -!- Formerly EC 1.14.1.1, EC 1.14.14.2, EC 1.14.99.8 and EC 1.99.1.1.
+DR   A0A3G9HRC2, ALT2_ALTAL ;  Q81BF4, C102_BACCR ;  Q9PVE8, C330_FUNHE ;
+DR   Q98T91, C340_ORYLA ;  Q8AXY5, C356_FUNHE ;  Q2UNA2, C505_ASPOR ;
+DR   Q9Y8G7, C505_FUSOX ;  O23066, C86A2_ARATH;  Q9LMM1, C86A4_ARATH;
+//

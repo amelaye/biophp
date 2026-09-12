@@ -1,0 +1,24 @@
+ENTRY       EC 2.7.1.1                  Enzyme
+NAME        hexokinase;
+            glucose kinase
+CLASS       Transferases;
+            Transferring phosphorus-containing groups;
+            Phosphotransferases with an alcohol group as acceptor
+SYSNAME     ATP:D-hexose 6-phosphotransferase
+REACTION    ATP + D-hexose = ADP + D-hexose 6-phosphate
+SUBSTRATE   ATP;
+            D-hexose
+PRODUCT     ADP;
+            D-hexose 6-phosphate
+COMMENT     D-glucose, D-mannose, D-fructose and sorbitol can act as
+            acceptors; ITP and dATP can act as donors
+PATHWAY     PATH: map00010  Glycolysis / Gluconeogenesis
+            PATH: map00052  Galactose metabolism
+ORTHOLOG    KO: K00844  hexokinase
+GENES       HSA: 3098 3099 3101
+            MMU: 15275 15277
+DISEASE     MIM: 235700  Hexokinase deficiency
+STRUCTURES  PDB: 1HKB 1HKC 1IG8
+DBLINKS     ExplorEnz - The Enzyme Database: 2.7.1.1
+            IUBMB Enzyme Nomenclature: 2.7.1.1
+///

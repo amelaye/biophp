@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 28 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 12 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
@@ -23,25 +23,21 @@ class MathematicsFunctions
      */
     public static function Mean($data)
     {
-        try {
-            $sum = 0;
-            $numValidElements = 0;
+        $sum = 0;
+        $numValidElements = 0;
 
-            foreach($data as $key => $val) {
-                if(isset($val)) {
-                    $sum += $val;
-                    $numValidElements += 1;
-                }
+        foreach($data as $key => $val) {
+            if(isset($val)) {
+                $sum += $val;
+                $numValidElements += 1;
             }
-            if ($numValidElements === 0) {
-                throw new \Exception("Cannot calculate the mean of an empty data set !");
-            }
-            $mean = $sum / $numValidElements;
-            $mean = round ($mean,3);
-            return $mean;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+        if ($numValidElements === 0) {
+            throw new \Exception("Cannot calculate the mean of an empty data set !");
+        }
+        $mean = $sum / $numValidElements;
+        $mean = round ($mean,3);
+        return $mean;
     }
 
 
@@ -53,16 +49,12 @@ class MathematicsFunctions
      */
     public static function Median($data)
     {
-        try {
-            sort($data);
-            $i = floor(sizeof($data)/2);
-            if (sizeof($data) / 2 != $i) {
-                return $data[$i];
-            }
-            return($data[$i-1] + $data[$i])/2;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
+        sort($data);
+        $i = floor(sizeof($data)/2);
+        if (sizeof($data) / 2 != $i) {
+            return $data[$i];
         }
+        return($data[$i-1] + $data[$i])/2;
     }
 
 
@@ -74,27 +66,23 @@ class MathematicsFunctions
      */
     public static function Variance($data)
     {
-        try {
-            $mean = self::Mean($data);
-            $sum = 0;
-            $numValidElements = 0;
+        $mean = self::Mean($data);
+        $sum = 0;
+        $numValidElements = 0;
 
-            foreach($data as $key => $val) {
-                if(isset($val)) {
-                    $tmp = $val - $mean;
-                    $sum += $tmp * $tmp;
-                    $numValidElements += 1;
-                }
+        foreach($data as $key => $val) {
+            if(isset($val)) {
+                $tmp = $val - $mean;
+                $sum += $tmp * $tmp;
+                $numValidElements += 1;
             }
-
-            if ($numValidElements <= 1) {
-                throw new \Exception("Cannot calculate the variance with fewer than 2 valid elements !");
-            }
-            $variance = $sum / ( $numValidElements - 1 );
-            $variance = round($variance,3);
-            return $variance;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+
+        if ($numValidElements <= 1) {
+            throw new \Exception("Cannot calculate the variance with fewer than 2 valid elements !");
+        }
+        $variance = $sum / ( $numValidElements - 1 );
+        $variance = round($variance,3);
+        return $variance;
     }
 }

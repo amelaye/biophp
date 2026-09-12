@@ -1,0 +1,26 @@
+AC  M00001
+XX
+ID  V$MYOD_01
+XX
+DT  19.10.1992 (created); ewi.
+DT  16.10.1995 (updated); ewi.
+XX
+NA  MyoD
+XX
+DE  myoblast determination gene product
+XX
+BF  T00526; MyoD; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      0      5      0      0      C
+02      5      0      0      0      A
+03      0      0      5      0      G
+04      0      4      0      1      C
+05      0      0      1      4      T
+06      0      0      5      0      G
+XX
+BA  5 functional elements in 3 genes
+XX
+CC  the canonical E-box CAGCTG bound by myogenic bHLH factors
+XX
+//

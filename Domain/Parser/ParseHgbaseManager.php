@@ -3,7 +3,7 @@
  * HGBase database parsing (human genic bi-allelic sequences)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -165,55 +165,51 @@ final class ParseHgbaseManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sCitation = "";
+        $sCitation = "";
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
-
-                $sLabel = self::readLabel($sLine);
-                $sData  = self::readData($sLine);
-
-                switch($sLabel) {
-                    case "HAPLOTYPEID":
-                        $this->haplotypeId = $sData;
-                        break;
-                    case "ALLELE":
-                        $this->allele = $sData;
-                        break;
-                    case "ISINBLOCK":
-                        $this->isInBlock = $sData;
-                        break;
-                    case "POPULATIONID":
-                        $this->populationId = $sData;
-                        break;
-                    case "POPULATION":
-                        $this->parsePopulation($sData);
-                        break;
-                    case "FREQUENCY":
-                        $this->parseFrequency($sData);
-                        break;
-                    case "SOURCEID":
-                        $this->sourceId = $sData;
-                        break;
-                    case "CITATION":
-                        $sCitation .= $sData . " ";
-                        break;
-                    case "SUBMITTER":
-                        $this->parseSubmitter($sData);
-                        break;
-                    case "SOURCECOMMENT":
-                        $this->sourceComment = $sData;
-                        break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
             }
 
-            $this->citation = trim($sCitation);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sLabel = self::readLabel($sLine);
+            $sData  = self::readData($sLine);
+
+            switch($sLabel) {
+                case "HAPLOTYPEID":
+                    $this->haplotypeId = $sData;
+                    break;
+                case "ALLELE":
+                    $this->allele = $sData;
+                    break;
+                case "ISINBLOCK":
+                    $this->isInBlock = $sData;
+                    break;
+                case "POPULATIONID":
+                    $this->populationId = $sData;
+                    break;
+                case "POPULATION":
+                    $this->parsePopulation($sData);
+                    break;
+                case "FREQUENCY":
+                    $this->parseFrequency($sData);
+                    break;
+                case "SOURCEID":
+                    $this->sourceId = $sData;
+                    break;
+                case "CITATION":
+                    $sCitation .= $sData . " ";
+                    break;
+                case "SUBMITTER":
+                    $this->parseSubmitter($sData);
+                    break;
+                case "SOURCECOMMENT":
+                    $this->sourceComment = $sData;
+                    break;
+            }
         }
+
+        $this->citation = trim($sCitation);
     }
 
     /**

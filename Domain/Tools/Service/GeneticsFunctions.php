@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 19 march  2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 1st january 2021 (goodbye sh**ty year !)
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
@@ -23,15 +23,11 @@ class GeneticsFunctions
      */
     public static function CountACGT($sSequence)
     {
-        try {
-            $cg = substr_count($sSequence,"A")
-                + substr_count($sSequence,"T")
-                + substr_count($sSequence,"G")
-                + substr_count($sSequence,"C");
-            return $cg;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $cg = substr_count($sSequence,"A")
+            + substr_count($sSequence,"T")
+            + substr_count($sSequence,"G")
+            + substr_count($sSequence,"C");
+        return $cg;
     }
 
     /**
@@ -42,21 +38,17 @@ class GeneticsFunctions
      */
     public function CountYRWSKMDVHB($c)
     {
-        try {
-            $cg = substr_count($c,"Y")
-                + substr_count($c,"R")
-                + substr_count($c,"W")
-                + substr_count($c,"S")
-                + substr_count($c,"K")
-                + substr_count($c,"M")
-                + substr_count($c,"D")
-                + substr_count($c,"V")
-                + substr_count($c,"H")
-                + substr_count($c,"B");
-            return $cg;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $cg = substr_count($c,"Y")
+            + substr_count($c,"R")
+            + substr_count($c,"W")
+            + substr_count($c,"S")
+            + substr_count($c,"K")
+            + substr_count($c,"M")
+            + substr_count($c,"D")
+            + substr_count($c,"V")
+            + substr_count($c,"H")
+            + substr_count($c,"B");
+        return $cg;
     }
 
     /**
@@ -66,13 +58,9 @@ class GeneticsFunctions
      */
     public static function CountCG($c)
     {
-        try {
-            $cg = substr_count($c,"G")
-                + substr_count($c,"C");
-            return $cg;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $cg = substr_count($c,"G")
+            + substr_count($c,"C");
+        return $cg;
     }
 
     /**
@@ -100,13 +88,9 @@ class GeneticsFunctions
      */
     public static function RemoveNonCodingProt($sSequence)
     {
-        try {
-            $sSequence = strtoupper($sSequence);
-            // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
-            $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
-            return $sSequence;
-        } catch (\Exception $e) {
-            throw new \Exception($e);
-        }
+        $sSequence = strtoupper($sSequence);
+        // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
+        $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
+        return $sSequence;
     }
 }

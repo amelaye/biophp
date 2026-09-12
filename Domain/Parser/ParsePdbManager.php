@@ -3,7 +3,7 @@
  * PDB (Protein Data Bank) database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -59,14 +59,16 @@ final class ParsePdbManager implements ParseDatabaseInterface
     private $title = "";
 
     /**
+     * One block per molecule, keyed by token : MOL_ID, MOLECULE, CHAIN...
      * @var array
      */
     private $compounds = [];
 
     /**
-     * @var string
+     * One block per molecule, keyed by token : MOL_ID, ORGANISM_SCIENTIFIC, STRAIN...
+     * @var array
      */
-    private $source = "";
+    private $sources = [];
 
     /**
      * @var array
@@ -117,6 +119,11 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @var string
      */
     private $sCompnd = "";
+
+    /**
+     * @var string
+     */
+    private $sSource = "";
 
     /**
      * @var string
@@ -187,66 +194,104 @@ final class ParsePdbManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            foreach ($aFlines as $sLine) {
-                $sRecord = trim(substr($sLine, 0, 6));
-                switch ($sRecord) {
-                    case "HEADER":
-                        $this->parseHeader($sLine);
-                        break;
-                    case "TITLE":
-                        $this->title = trim($this->title . " " . trim(substr($sLine, 10)));
-                        break;
-                    case "COMPND":
-                        $this->sCompnd .= " " . trim(substr($sLine, 10));
-                        break;
-                    case "SOURCE":
-                        $this->source = trim($this->source . " " . trim(substr($sLine, 10)));
-                        break;
-                    case "KEYWDS":
-                        $this->sKeywds .= " " . trim(substr($sLine, 10));
-                        break;
-                    case "EXPDTA":
-                        $this->experimentalTechnique = trim($this->experimentalTechnique . " " . trim(substr($sLine, 10)));
-                        break;
-                    case "AUTHOR":
-                        $this->sAuthor .= " " . trim(substr($sLine, 10));
-                        break;
-                    case "SEQRES":
-                        $this->parseSeqRes($sLine);
-                        break;
-                    case "HELIX":
-                        $this->helices[] = $this->parseHelix($sLine);
-                        break;
-                    case "SHEET":
-                        $this->sheets[] = $this->parseSheet($sLine);
-                        break;
-                    case "CRYST1":
-                        $this->parseCryst1($sLine);
-                        break;
-                    case "ATOM":
-                        $this->atoms[] = $this->parseAtom($sLine);
-                        break;
-                    case "HETATM":
-                        $this->hetAtoms[] = $this->parseAtom($sLine);
-                        break;
-                }
+        foreach ($aFlines as $sLine) {
+            $sRecord = trim(substr($sLine, 0, 6));
+            switch ($sRecord) {
+                case "HEADER":
+                    $this->parseHeader($sLine);
+                    break;
+                case "TITLE":
+                    $this->title = trim($this->title . " " . trim(substr($sLine, 10)));
+                    break;
+                case "COMPND":
+                    $this->sCompnd .= " " . trim(substr($sLine, 10));
+                    break;
+                case "SOURCE":
+                    $this->sSource .= " " . trim(substr($sLine, 10));
+                    break;
+                case "KEYWDS":
+                    $this->sKeywds .= " " . trim(substr($sLine, 10));
+                    break;
+                case "EXPDTA":
+                    $this->experimentalTechnique = trim($this->experimentalTechnique . " " . trim(substr($sLine, 10)));
+                    break;
+                case "AUTHOR":
+                    $this->sAuthor .= " " . trim(substr($sLine, 10));
+                    break;
+                case "SEQRES":
+                    $this->parseSeqRes($sLine);
+                    break;
+                case "HELIX":
+                    $this->helices[] = $this->parseHelix($sLine);
+                    break;
+                case "SHEET":
+                    $this->sheets[] = $this->parseSheet($sLine);
+                    break;
+                case "CRYST1":
+                    $this->parseCryst1($sLine);
+                    break;
+                case "ATOM":
+                    $this->atoms[] = $this->parseAtom($sLine);
+                    break;
+                case "HETATM":
+                    $this->hetAtoms[] = $this->parseAtom($sLine);
+                    break;
             }
-
-            $this->compounds = array_values(array_filter(array_map('trim', explode(";", $this->sCompnd))));
-            $this->keywords = array_values(array_filter(array_map('trim', explode(",", $this->sKeywds))));
-            $this->authors = array_values(array_filter(array_map('trim', explode(",", $this->sAuthor))));
-
-            foreach ($this->aSeqResCodes as $sChainId => $aCodes) {
-                $sSequence = "";
-                foreach ($aCodes as $sCode) {
-                    $sSequence .= self::$aminoAcidCodes[$sCode] ?? "X";
-                }
-                $this->seqRes[$sChainId] = $sSequence;
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+
+        $this->compounds = $this->parseSpecificationList($this->sCompnd);
+        $this->sources = $this->parseSpecificationList($this->sSource);
+        $this->keywords = array_values(array_filter(array_map('trim', explode(",", $this->sKeywds))));
+        $this->authors = array_values(array_filter(array_map('trim', explode(",", $this->sAuthor))));
+
+        foreach ($this->aSeqResCodes as $sChainId => $aCodes) {
+            $sSequence = "";
+            foreach ($aCodes as $sCode) {
+                $sSequence .= self::$aminoAcidCodes[$sCode] ?? "X";
+            }
+            $this->seqRes[$sChainId] = $sSequence;
+        }
+    }
+
+    /**
+     * Parses a COMPND or SOURCE record, both written in what the PDB format calls a
+     * specification list : "TOKEN: value;" pairs where each MOL_ID opens the block of one
+     * molecule. Keeping the blocks apart is what ties a chain to the molecule it belongs to,
+     * so a structure holding several molecules yields several blocks. Records of files older
+     * than the specification are free text carrying no token, and stay plain strings.
+     * @param   string      $sText
+     * @return  array
+     */
+    private function parseSpecificationList($sText)
+    {
+        $aBlocks  = [];
+        $aCurrent = [];
+
+        foreach (array_filter(array_map('trim', explode(";", $sText))) as $sItem) {
+            $aTokval = explode(":", $sItem, 2);
+
+            if (count($aTokval) < 2) {
+                if ($aCurrent != []) {
+                    $aBlocks[] = $aCurrent;
+                    $aCurrent  = [];
+                }
+                $aBlocks[] = $sItem;
+                continue;
+            }
+
+            $sToken = trim($aTokval[0]);
+            if ($sToken == "MOL_ID" && $aCurrent != []) {
+                $aBlocks[] = $aCurrent;
+                $aCurrent  = [];
+            }
+            $aCurrent[$sToken] = trim($aTokval[1]);
+        }
+
+        if ($aCurrent != []) {
+            $aBlocks[] = $aCurrent;
+        }
+
+        return $aBlocks;
     }
 
     /**
@@ -406,11 +451,11 @@ final class ParsePdbManager implements ParseDatabaseInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getSource(): string
+    public function getSources(): array
     {
-        return $this->source;
+        return $this->sources;
     }
 
     /**

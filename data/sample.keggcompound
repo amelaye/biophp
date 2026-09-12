@@ -1,0 +1,16 @@
+ENTRY       C00031                      Compound
+NAME        D-Glucose;
+            Grape sugar;
+            Dextrose;
+            D-Glucopyranose
+FORMULA     C6H12O6
+REACTION    R00010 R00015 R00026 R00028
+            R00299 R01600
+PATHWAY     PATH: map00010  Glycolysis / Gluconeogenesis
+            PATH: map00052  Galactose metabolism
+            PATH: map00500  Starch and sucrose metabolism
+ENZYME      1.1.1.118       1.1.1.119       2.7.1.1
+            2.7.1.2
+DBLINKS     CAS: 50-99-7
+            PubChem: 3333
+///

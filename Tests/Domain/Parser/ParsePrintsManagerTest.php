@@ -79,4 +79,22 @@ class ParsePrintsManagerTest extends TestCase
         $this->assertEquals("16-NOV-1995", $oParser->getCreateDate());
         $this->assertSame("", $oParser->getUpdDate());
     }
+
+    /**
+     * The description may come back in a second group of gd; lines further down the entry.
+     * Both groups belong to the same description and are kept, where the Legacy parser reset
+     * its buffer on the second and returned only the last group.
+     */
+    public function testTwoSeparateDescriptionGroupsAreBothKept()
+    {
+        $oParser = new ParsePrintsManager();
+        $oParser->parseDataFile([
+            "gc; TESTPRINT",
+            "gd; a conserved motif",
+            "gx; PR00001",
+            "gd; found in a fictitious family",
+        ]);
+
+        $this->assertEquals("a conserved motif found in a fictitious family", $oParser->getDescription());
+    }
 }

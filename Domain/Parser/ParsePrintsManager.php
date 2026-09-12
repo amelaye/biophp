@@ -3,7 +3,7 @@
  * PRINTS database parsing (protein fingerprints)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -102,33 +102,29 @@ final class ParsePrintsManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sDescription = "";
+        $sDescription = "";
 
-            foreach($aFlines as $sLine) {
-                $sLabel = substr($sLine, 0, 3);
-                $sData  = trim(substr($sLine, 4));
+        foreach($aFlines as $sLine) {
+            $sLabel = substr($sLine, 0, 3);
+            $sData  = trim(substr($sLine, 4));
 
-                switch($sLabel) {
-                    case "gc;":
-                        $this->entryName = $sData;
-                        break;
-                    case "gn;":
-                        $this->entryType = $sData;
-                        break;
-                    case "ga;":
-                        $this->parseDates($sData);
-                        break;
-                    case "gd;":
-                        $sDescription .= $sData . " ";
-                        break;
-                }
+            switch($sLabel) {
+                case "gc;":
+                    $this->entryName = $sData;
+                    break;
+                case "gn;":
+                    $this->entryType = $sData;
+                    break;
+                case "ga;":
+                    $this->parseDates($sData);
+                    break;
+                case "gd;":
+                    $sDescription .= $sData . " ";
+                    break;
             }
-
-            $this->description = trim($sDescription);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
         }
+
+        $this->description = trim($sDescription);
     }
 
     /**

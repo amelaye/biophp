@@ -55,7 +55,7 @@ class ParseSwissprotManagerTest extends TestCase
         // Sequences
         $oExpectedSequence = new Sequence();
         $oExpectedSequence->setPrimAcc("P01375");
-        $oExpectedSequence->setEntryName("FA");
+        $oExpectedSequence->setEntryName("TNFA");
         $oExpectedSequence->setSeqLength(233);
         $oExpectedSequence->setMolType("PRT;");
         $oExpectedSequence->setDate("21-JUL-1986");
@@ -79,178 +79,45 @@ class ParseSwissprotManagerTest extends TestCase
         $oExpectedSequence->setOrganism($aOrganism);
         $this->assertEquals($oExpectedSequence, $oParseSwisprotManager->getSequence());
 
-        // Authors
+        // Authors, per reference and in file order: see the RN/RA lines of data/basicswiss.txt.
+        // An author list spans several RA lines, all of which belong to the same reference.
+        $aExpectedAuthorNames = [
+            0 => [
+                "NEDOSPASOV S.A.", "SHAKHOV A.N.", "TURETSKAYA R.L.", "METT V.A.",
+                "AZIZOV M.M.", "GEORGIEV G.P.", "KOROBKO V.G.", "DOBRYNIN V.N.",
+                "FILIPPOV S.A.", "BYSTROV N.S.", "BOLDYREVA E.F.", "CHUVPILO S.A.",
+                "CHUMAKOV A.M.", "SHINGAROVA L.N.", "OVCHINNIKOV Y.A.",
+            ],
+            1 => [
+                "PENNICA D.", "NEDWIN G.E.", "HAYFLICK J.S.", "SEEBURG P.H.", "DERYNCK R.",
+                "PALLADINO M.A.", "KOHR W.J.", "AGGARWAL B.B.", "GOEDDEL D.V.",
+            ],
+            2 => ["SHIRAI T.", "YAMAGUCHI H.", "ITO H.", "TODD C.W.", "WALLACE R.B."],
+            3 => [
+                "NEDWIN G.E.", "NAYLOR S.L.", "SAKAGUCHI A.Y.", "SMITH D.H.",
+                "JARRETT-NEDWIN J.", "PENNICA D.", "GOEDDEL D.V.", "GRAY P.W.",
+            ],
+            4 => [
+                "WANG A.M.", "CREASEY A.A.", "LADNER M.B.", "LIN L.S.", "STRICKLER J.",
+                "VAN ARSDELL J.N.", "YAMAMOTO R.", "MARK D.F.",
+            ],
+            5 => ["ECK M.J.", "SPRANG S.R."],
+            6 => ["JONES E.Y.", "STUART D.I.", "WALKER N.P."],
+            7 => ["ECK M.J.", "SPRANG S.R."],
+            8 => ["OSTADE X.V.", "TAVERNIER J.", "PRANGE T.", "FIERS W."],
+            9 => ["STEVENSON F.T.", "BURSTEN S.L.", "LOCKSLEY R.M.", "LOVETT D.H."],
+        ];
+
         $aExpectedAuthors = [];
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(0);
-        $author->setAuthor("CHUMAKOV A.M.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(0);
-        $author->setAuthor("SHINGAROVA L.N.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(0);
-        $author->setAuthor("OVCHINNIKOV Y.A.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(1);
-        $author->setAuthor("PALLADINO M.A.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(1);
-        $author->setAuthor("KOHR W.J.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(1);
-        $author->setAuthor("AGGARWAL B.B.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(1);
-        $author->setAuthor("GOEDDEL D.V.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(2);
-        $author->setAuthor("SHIRAI T.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(2);
-        $author->setAuthor("YAMAGUCHI H.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(2);
-        $author->setAuthor("ITO H.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(2);
-        $author->setAuthor("TODD C.W.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(2);
-        $author->setAuthor("WALLACE R.B.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(3);
-        $author->setAuthor("JARRETT-NEDWIN J.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(3);
-        $author->setAuthor("PENNICA D.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(3);
-        $author->setAuthor("GOEDDEL D.V.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(3);
-        $author->setAuthor("GRAY P.W.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(4);
-        $author->setAuthor("VAN ARSDELL J.N.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(4);
-        $author->setAuthor("YAMAMOTO R.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(4);
-        $author->setAuthor("MARK D.F.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(5);
-        $author->setAuthor("ECK M.J.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(5);
-        $author->setAuthor("SPRANG S.R.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(6);
-        $author->setAuthor("JONES E.Y.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(6);
-        $author->setAuthor("STUART D.I.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(6);
-        $author->setAuthor("WALKER N.P.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(7);
-        $author->setAuthor("ECK M.J.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(7);
-        $author->setAuthor("SPRANG S.R.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(8);
-        $author->setAuthor("OSTADE X.V.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(8);
-        $author->setAuthor("TAVERNIER J.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(8);
-        $author->setAuthor("PRANGE T.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(8);
-        $author->setAuthor("FIERS W.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(9);
-        $author->setAuthor("STEVENSON F.T.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(9);
-        $author->setAuthor("BURSTEN S.L.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(9);
-        $author->setAuthor("LOCKSLEY R.M.");
-        $aExpectedAuthors[] = $author;
-        $author = new Author();
-        $author->setPrimAcc("P01375");
-        $author->setRefno(9);
-        $author->setAuthor("LOVETT D.H.");
-        $aExpectedAuthors[] = $author;
+        foreach($aExpectedAuthorNames as $iRefno => $aNames) {
+            foreach($aNames as $sName) {
+                $author = new Author();
+                $author->setPrimAcc("P01375");
+                $author->setRefno($iRefno);
+                $author->setAuthor($sName);
+                $aExpectedAuthors[] = $author;
+            }
+        }
         $this->assertEquals($aExpectedAuthors, $oParseSwisprotManager->getAuthors());
 
         $aExpectedFeatures = [];
@@ -693,5 +560,148 @@ class ParseSwissprotManagerTest extends TestCase
         $this->assertEquals("SWISSPROT", ParseSwissprotManager::getFormat());
         $this->assertTrue(ParseSwissprotManager::isEntryStart("ID   TNFA_HUMAN"));
         $this->assertFalse(ParseSwissprotManager::isEntryStart("DE   Something."));
+    }
+
+    /**
+     * The entry name is read from the ID line whether the record separates the line code from
+     * its data by the three spaces of the flat-file format or by a single one.
+     */
+    public function testTheEntryNameIsReadWhateverTheColumnSpacing()
+    {
+        $aSpacings = [
+            "three spaces" => "ID   TNFA_HUMAN     STANDARD;      PRT;   233 AA.",
+            "one space"    => "ID TNFA_HUMAN STANDARD; PRT; 233 AA.",
+        ];
+
+        foreach($aSpacings as $sCase => $sIdLine) {
+            $oParser = new ParseSwissprotManager();
+            $oParser->parseDataFile([$sIdLine, "AC   P01375;", "//"]);
+
+            $this->assertEquals("TNFA", $oParser->getSequence()->getEntryName(), $sCase);
+            $this->assertEquals("HUMAN", $oParser->getSequence()->getSource(), $sCase);
+            $this->assertEquals(233, $oParser->getSequence()->getSeqLength(), $sCase);
+        }
+    }
+
+    /**
+     * An author list wraps over as many RA lines as it needs, and only the last one ends with
+     * a ";" : every line belongs to the same reference.
+     */
+    public function testAuthorListSpanningSeveralRaLinesIsKeptWhole()
+    {
+        $aFlines = [
+            "ID   TNFA_HUMAN     STANDARD;      PRT;   233 AA.",
+            "AC   P01375;",
+            "RN   [1]",
+            "RX   MEDLINE; 87217060.",
+            "RA   NEDOSPASOV S.A., SHAKHOV A.N.,",
+            "RA   TURETSKAYA R.L.;",
+            "RL   NATURE 312:724-729(1984).",
+            "//",
+        ];
+
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+
+        $aAuthors = array_map(function($oAuthor) {
+            return $oAuthor->getAuthor();
+        }, $oParser->getAuthors());
+
+        $this->assertEquals(["NEDOSPASOV S.A.", "SHAKHOV A.N.", "TURETSKAYA R.L."], $aAuthors);
+    }
+
+    /**
+     * A journal reference wrapping over two RL lines is joined back into one citation.
+     */
+    public function testJournalSpanningSeveralRlLinesIsKeptWhole()
+    {
+        $aFlines = [
+            "ID   TNFA_HUMAN     STANDARD;      PRT;   233 AA.",
+            "AC   P01375;",
+            "RN   [1]",
+            "RX   MEDLINE; 87217060.",
+            "RA   ECK M.J., SPRANG S.R.;",
+            "RL   COLD SPRING HARB. SYMP. QUANT.",
+            "RL   BIOL. 51:611-624(1986).",
+            "//",
+        ];
+
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+
+        $aReferences = $oParser->getReferences();
+        $this->assertEquals(
+            "COLD SPRING HARB. SYMP. QUANT. BIOL. 51:611-624(1986).",
+            $aReferences[0]->getJournal()
+        );
+    }
+
+    /**
+     * A reference is free of any RX cross-reference line : the ones it does carry are still
+     * read, and no Medline or PubMed identifier is invented for it.
+     */
+    public function testAReferenceWithoutAnRxLineIsStillRead()
+    {
+        $aFlines = [
+            "ID   TNFA_HUMAN     STANDARD;      PRT;   233 AA.",
+            "AC   P01375;",
+            "RN   [1]",
+            "RA   ECK M.J., SPRANG S.R.;",
+            "RL   J. BIOL. CHEM. 264:17595-17605(1989).",
+            "//",
+        ];
+
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+
+        $aReferences = $oParser->getReferences();
+        $this->assertCount(1, $aReferences);
+        $this->assertEquals("J. BIOL. CHEM. 264:17595-17605(1989).", $aReferences[0]->getJournal());
+        $this->assertNull($aReferences[0]->getMedline());
+        $this->assertNull($aReferences[0]->getPubmed());
+    }
+
+    /**
+     * A Swiss-Prot entry carries three dates : the Sequence entity holds the creation one, the
+     * two update dates stay on the parser.
+     */
+    public function testTheThreeDtDatesAreKept()
+    {
+        $aFlines = [
+            "ID   TNFA_HUMAN     STANDARD;      PRT;   233 AA.",
+            "AC   P01375;",
+            "DT   21-JUL-1986 (REL. 01, CREATED)",
+            "DT   01-MAR-1989 (REL. 10, LAST SEQUENCE UPDATE)",
+            "DT   01-FEB-1995 (REL. 31, LAST ANNOTATION UPDATE)",
+            "//",
+        ];
+
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+
+        $this->assertEquals("21-JUL-1986", $oParser->getSequence()->getDate());
+        $this->assertEquals("01-MAR-1989", $oParser->getSequpdDate());
+        $this->assertEquals("01-FEB-1995", $oParser->getNotupdDate());
+    }
+
+    /**
+     * The GN line groups synonyms of one gene together and separates distinct genes : TNF and
+     * its former name TNFA are one gene, LTA is another.
+     */
+    public function testGeneNamesAreGroupedBySynonym()
+    {
+        $aCases = [
+            "GN   TNFA."                   => [["TNFA"]],
+            "GN   TNF OR TNFA."            => [["TNF", "TNFA"]],
+            "GN   TNF AND LTA."            => [["TNF"], ["LTA"]],
+            "GN   (TNF OR TNFA) AND LTA."  => [["TNF", "TNFA"], ["LTA"]],
+        ];
+
+        foreach($aCases as $sGnLine => $aExpected) {
+            $oParser = new ParseSwissprotManager();
+            $oParser->parseDataFile(["AC   P01375;", $sGnLine, "//"]);
+
+            $this->assertEquals($aExpected, $oParser->getGeneNames(), $sGnLine);
+        }
     }
 }

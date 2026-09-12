@@ -3,7 +3,7 @@
  * PIR database parsing (Protein Information Resource)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -181,45 +181,41 @@ final class ParsePirManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aBuffers = [
-                "ENTRY" => "", "TITLE" => "", "ORGANISM" => "", "DATE" => "",
-                "ACCESSIONS" => "", "KEYWORDS" => "", "SUMMARY" => ""
-            ];
-            $sCurrent = "";
+        $aBuffers = [
+            "ENTRY" => "", "TITLE" => "", "ORGANISM" => "", "DATE" => "",
+            "ACCESSIONS" => "", "KEYWORDS" => "", "SUMMARY" => ""
+        ];
+        $sCurrent = "";
 
-            foreach($aFlines as $sLine) {
-                if (self::isEntryEnd($sLine)) {
-                    break;
-                }
+        foreach($aFlines as $sLine) {
+            if (self::isEntryEnd($sLine)) {
+                break;
+            }
 
-                $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
-                $sData  = trim(substr($sLine, self::LABEL_WIDTH));
+            $sLabel = trim(substr($sLine, 0, self::LABEL_WIDTH));
+            $sData  = trim(substr($sLine, self::LABEL_WIDTH));
 
-                if ($sLabel == "") {
-                    if ($sCurrent != "") {
-                        $aBuffers[$sCurrent] .= $sData . " ";
-                    }
-                    continue;
-                }
-
-                $sCurrent = isset($aBuffers[$sLabel]) ? $sLabel : "";
+            if ($sLabel == "") {
                 if ($sCurrent != "") {
                     $aBuffers[$sCurrent] .= $sData . " ";
                 }
+                continue;
             }
 
-            $this->readEntry($aBuffers["ENTRY"]);
-            $this->readOrganism($aBuffers["ORGANISM"]);
-            $this->readDates($aBuffers["DATE"]);
-            $this->readSummary($aBuffers["SUMMARY"]);
-
-            $this->title      = trim($aBuffers["TITLE"]);
-            $this->accessions = $this->splitList($aBuffers["ACCESSIONS"]);
-            $this->keywords   = $this->splitList($aBuffers["KEYWORDS"]);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            $sCurrent = isset($aBuffers[$sLabel]) ? $sLabel : "";
+            if ($sCurrent != "") {
+                $aBuffers[$sCurrent] .= $sData . " ";
+            }
         }
+
+        $this->readEntry($aBuffers["ENTRY"]);
+        $this->readOrganism($aBuffers["ORGANISM"]);
+        $this->readDates($aBuffers["DATE"]);
+        $this->readSummary($aBuffers["SUMMARY"]);
+
+        $this->title      = trim($aBuffers["TITLE"]);
+        $this->accessions = $this->splitList($aBuffers["ACCESSIONS"]);
+        $this->keywords   = $this->splitList($aBuffers["KEYWORDS"]);
     }
 
     /**

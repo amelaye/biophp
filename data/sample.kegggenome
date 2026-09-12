@@ -1,0 +1,8 @@
+ENTRY       T01001                      Genome
+NAME        hsa, HUMAN, 9606
+DEFINITION  Homo sapiens (human)
+TAXONOMY    TAX:9606
+LINEAGE     Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo
+///

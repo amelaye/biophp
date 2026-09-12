@@ -3,7 +3,7 @@
  * PDBSTR database parsing (structural families derived from PDB)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -108,28 +108,24 @@ final class ParsePdbstrManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            foreach($aFlines as $sLine) {
-                $sLabel = trim(substr($sLine, 0, 12));
-                $sData  = trim(substr($sLine, 12));
+        foreach($aFlines as $sLine) {
+            $sLabel = trim(substr($sLine, 0, 12));
+            $sData  = trim(substr($sLine, 12));
 
-                if ($sLabel == "MEMBER") {
-                    $aTokens = preg_split("/\s+/", $sData, -1, PREG_SPLIT_NO_EMPTY);
+            if ($sLabel == "MEMBER") {
+                $aTokens = preg_split("/\s+/", $sData, -1, PREG_SPLIT_NO_EMPTY);
 
-                    $this->entryId    = isset($aTokens[0]) ? $aTokens[0] : "";
-                    $this->length     = isset($aTokens[1]) ? (int) $aTokens[1] : 0;
-                    $this->molType    = isset($aTokens[2]) ? $aTokens[2] : "";
-                    $this->entryGroup = isset($aTokens[3]) ? $aTokens[3] : "";
-                    $this->createDate = isset($aTokens[4]) ? $aTokens[4] : "";
-                    $this->updDate    = isset($aTokens[5]) ? $aTokens[5] : "";
-                }
-
-                if ($sLabel == "//") {
-                    break;
-                }
+                $this->entryId    = isset($aTokens[0]) ? $aTokens[0] : "";
+                $this->length     = isset($aTokens[1]) ? (int) $aTokens[1] : 0;
+                $this->molType    = isset($aTokens[2]) ? $aTokens[2] : "";
+                $this->entryGroup = isset($aTokens[3]) ? $aTokens[3] : "";
+                $this->createDate = isset($aTokens[4]) ? $aTokens[4] : "";
+                $this->updDate    = isset($aTokens[5]) ? $aTokens[5] : "";
             }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+
+            if ($sLabel == "//") {
+                break;
+            }
         }
     }
 

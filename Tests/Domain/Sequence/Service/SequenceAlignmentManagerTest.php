@@ -787,6 +787,34 @@ class SequenceAlignmentManagerTest extends TestCase
         $this->assertEquals($sExpected, $sConsensus);
     }
 
+    /**
+     * ClustalW closes each line with the count of residues written so far, where Clustal Omega
+     * writes none. Both forms have to read the same, and the count must not end up inside the
+     * sequence : here the two haemoglobin alpha chains, human and mouse, over two blocks.
+     */
+    public function testClustalwResidueCountsAreNotReadAsSequence()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename("data/clustalw-counts.txt");
+        $sequenceAlignmentManager->setFormat("CLUSTAL");
+        $sequenceAlignmentManager->parseFile();
+
+        $sequences = $sequenceAlignmentManager->getSeqSet();
+        $this->assertCount(2, $sequences);
+
+        $sHuman = "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHF-DLS"
+            . "HGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKL";
+
+        $this->assertEquals("sp|P69905|HBA_HUMAN", $sequences[0]->getPrimAcc());
+        $this->assertEquals($sHuman, $sequences[0]->getSequence());
+        // 102 alignment columns for 101 residues : the gap holds a column but counts for no
+        // residue, which is why the count the file writes reads one short of the length.
+        $this->assertEquals(102, $sequences[0]->getSeqlength());
+        $this->assertEquals(102, $sequences[1]->getSeqlength());
+        $this->assertDoesNotMatchRegularExpression('/\d/', $sequences[0]->getSequence());
+        $this->assertDoesNotMatchRegularExpression('/\d/', $sequences[1]->getSequence());
+    }
+
     public function testAddSequence()
     {
         $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);

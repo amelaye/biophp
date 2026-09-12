@@ -3,7 +3,7 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
@@ -99,15 +99,11 @@ class SequenceBuilder implements SequenceInterface
      */
     public function halfSequence(int $iIndex, ?string $sSequence = null) : string
     {
-        try {
-            if($sSequence == null) {
-                $sSequence = $this->sequence->getSequence();
-            }
-
-            return $this->sequenceManager->halfSequence($sSequence, $iIndex);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+        if($sSequence == null) {
+            $sSequence = $this->sequence->getSequence();
         }
+
+        return $this->sequenceManager->halfSequence($sSequence, $iIndex);
     }
 
     /**

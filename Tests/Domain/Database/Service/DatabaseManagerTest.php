@@ -84,7 +84,7 @@ class DatabaseManagerTest extends TestCase
 
         $collectionElementRepo = $this->createMock(EntityRepository::class);
         $collectionElementRepo->expects($this->once())->method('findOneBy')
-            ->with(['fileName' => "human.seq"])
+            ->with(['idElement' => "NM_031438"])
             ->willReturn(null);
 
         $mockedEm = $this->createMock(EntityManager::class);
@@ -135,7 +135,7 @@ class DatabaseManagerTest extends TestCase
 
         $collectionElementRepo = $this->createMock(EntityRepository::class);
         $collectionElementRepo->expects($this->once())->method('findOneBy')
-            ->with(['fileName' => "human.seq"])
+            ->with(['idElement' => "NM_031438"])
             ->willReturn($existingElement);
 
         $mockedEm = $this->createMock(EntityManager::class);
@@ -149,5 +149,103 @@ class DatabaseManagerTest extends TestCase
 
         $databaseManager = new DatabaseManager($mockedEm, './data/');
         $databaseManager->recording("humandb", "GENBANK", "human.seq");
+    }
+
+    /**
+     * data/enzyme.dat is a real excerpt of the ExPASy ENZYME database : the copyright header it
+     * opens with, then five records. Indexing it has to yield one row per record, each pointing
+     * at the line its own record starts at, and none for the header, which is no record.
+     */
+    public function testRecordingIndexesEveryRecordOfARealDataFile()
+    {
+        $collectionRepo = $this->createMock(EntityRepository::class);
+        $collectionRepo->method('findOneBy')->willReturn(null);
+
+        $collectionElementRepo = $this->createMock(EntityRepository::class);
+        $collectionElementRepo->method('findOneBy')->willReturn(null);
+
+        $mockedEm = $this->createMock(EntityManager::class);
+        $mockedEm->method('getRepository')->willReturnMap([
+            [Collection::class, $collectionRepo],
+            [CollectionElement::class, $collectionElementRepo],
+        ]);
+
+        $persisted = [];
+        $mockedEm->method('persist')->willReturnCallback(function ($entity) use (&$persisted) {
+            $persisted[] = $entity;
+        });
+
+        $databaseManager = new DatabaseManager($mockedEm, './data/');
+        $databaseManager->recording("enzymedb", "EXPASY_ENZYME", "enzyme.dat");
+
+        $aElements = array_values(array_filter($persisted, function ($oEntity) {
+            return $oEntity instanceof CollectionElement;
+        }));
+
+        $aIndexed = [];
+        foreach ($aElements as $oElement) {
+            $aIndexed[$oElement->getIdElement()] = $oElement->getLineNo();
+        }
+
+        $this->assertEquals(
+            ["1.1.1.1" => 24, "1.1.1.2" => 39, "1.1.1.5" => 52, "1.1.1.74" => 55, "1.14.14.1" => 58],
+            $aIndexed
+        );
+    }
+
+    /**
+     * Reading a record of a real data file means reading that record, not the first one the
+     * file happens to hold : EC 1.14.14.1 sits past four other records.
+     */
+    public function testFetchReadsTheRecordItsIndexPointsAt()
+    {
+        $collection = new Collection();
+        $collection->setId(1);
+        $collection->setNomCollection("enzymedb");
+
+        $collectionElement = new CollectionElement();
+        $collectionElement->setIdElement("1.14.14.1");
+        $collectionElement->setFileName("enzyme.dat");
+        $collectionElement->setDbFormat("EXPASY_ENZYME");
+        $collectionElement->setSeqCount(5);
+        $collectionElement->setLineNo(58);
+        $collectionElement->setCollection($collection);
+
+        $repo = $this->createMock(EntityRepository::class);
+        $repo->method('findOneBy')->willReturn($collectionElement);
+
+        $mockedEm = $this->createMock(EntityManager::class);
+        $mockedEm->method('getRepository')->willReturn($repo);
+
+        $databaseManager = new DatabaseManager($mockedEm, './data/');
+        $oParser = $databaseManager->fetch("1.14.14.1");
+
+        $this->assertEquals("1.14.14.1", $oParser->getId());
+        $this->assertEquals("unspecific monooxygenase.", $oParser->getDescription());
+    }
+
+    /**
+     * A record whose EC number was moved elsewhere keeps only the notice saying where to look.
+     */
+    public function testFetchReadsATransferredEntry()
+    {
+        $collectionElement = new CollectionElement();
+        $collectionElement->setIdElement("1.1.1.5");
+        $collectionElement->setFileName("enzyme.dat");
+        $collectionElement->setDbFormat("EXPASY_ENZYME");
+        $collectionElement->setSeqCount(5);
+        $collectionElement->setLineNo(52);
+
+        $repo = $this->createMock(EntityRepository::class);
+        $repo->method('findOneBy')->willReturn($collectionElement);
+
+        $mockedEm = $this->createMock(EntityManager::class);
+        $mockedEm->method('getRepository')->willReturn($repo);
+
+        $databaseManager = new DatabaseManager($mockedEm, './data/');
+        $oParser = $databaseManager->fetch("1.1.1.5");
+
+        $this->assertEquals("1.1.1.5", $oParser->getId());
+        $this->assertEquals("Transferred entry: 1.1.1.303 and 1.1.1.304.", $oParser->getDescription());
     }
 }

@@ -6,12 +6,18 @@ use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
 use Amelaye\BioPHP\Domain\Parser\ParseAaindexManager;
 use Amelaye\BioPHP\Domain\Parser\ParseBlocksManager;
 use Amelaye\BioPHP\Domain\Parser\ParseEmblManager;
+use Amelaye\BioPHP\Domain\Parser\ParseEntrezManager;
 use Amelaye\BioPHP\Domain\Parser\ParseEpdManager;
 use Amelaye\BioPHP\Domain\Parser\ParseExpasyEnzymeManager;
 use Amelaye\BioPHP\Domain\Parser\ParseGenbankManager;
 use Amelaye\BioPHP\Domain\Parser\ParsePdbManager;
 use Amelaye\BioPHP\Domain\Parser\ParseGenomeManager;
 use Amelaye\BioPHP\Domain\Parser\ParseHgbaseManager;
+use Amelaye\BioPHP\Domain\Parser\ParseKeggCompoundManager;
+use Amelaye\BioPHP\Domain\Parser\ParseKeggEnzymeManager;
+use Amelaye\BioPHP\Domain\Parser\ParseKeggGenomeManager;
+use Amelaye\BioPHP\Domain\Parser\ParseKeggOrthologManager;
+use Amelaye\BioPHP\Domain\Parser\ParseKeggReactionManager;
 use Amelaye\BioPHP\Domain\Parser\ParseNcbiLitManager;
 use Amelaye\BioPHP\Domain\Parser\ParsePdbstrManager;
 use Amelaye\BioPHP\Domain\Parser\ParsePirManager;
@@ -21,6 +27,12 @@ use Amelaye\BioPHP\Domain\Parser\ParsePrintsManager;
 use Amelaye\BioPHP\Domain\Parser\ParseProdomManager;
 use Amelaye\BioPHP\Domain\Parser\ParsePrositeManager;
 use Amelaye\BioPHP\Domain\Parser\ParseSwissprotManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacCellManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacClassManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacFactorManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacGeneManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacMatrixManager;
+use Amelaye\BioPHP\Domain\Parser\ParseTransfacSiteManager;
 use Amelaye\BioPHP\Domain\Parser\ParseUnigeneManager;
 use PHPUnit\Framework\TestCase;
 
@@ -50,7 +62,19 @@ class DatabaseParserFactoryTest extends TestCase
             ["PRF", ParsePrfManager::class],
             ["PIR", ParsePirManager::class],
             ["EPD", ParseEpdManager::class],
-            ["GENOME", ParseGenomeManager::class]
+            ["GENOME", ParseGenomeManager::class],
+            ["ENTREZ", ParseEntrezManager::class],
+            ["TRANSFAC_MATRIX", ParseTransfacMatrixManager::class],
+            ["TRANSFAC_GENE", ParseTransfacGeneManager::class],
+            ["TRANSFAC_CLASS", ParseTransfacClassManager::class],
+            ["TRANSFAC_CELL", ParseTransfacCellManager::class],
+            ["TRANSFAC_FACTOR", ParseTransfacFactorManager::class],
+            ["TRANSFAC_SITE", ParseTransfacSiteManager::class],
+            ["KEGG_COMPOUND", ParseKeggCompoundManager::class],
+            ["KEGG_REACTION", ParseKeggReactionManager::class],
+            ["KEGG_ENZYME", ParseKeggEnzymeManager::class],
+            ["KEGG_ORTHOLOG", ParseKeggOrthologManager::class],
+            ["KEGG_GENOME", ParseKeggGenomeManager::class]
         ];
     }
 
@@ -85,7 +109,10 @@ class DatabaseParserFactoryTest extends TestCase
         $aExpected = [
             "GENBANK", "SWISSPROT", "EMBL", "PDB", "PROSITE", "EXPASY_ENZYME",
             "PDBSTR", "UNIGENE", "PRINTS", "BLOCKS",
-            "AAINDEX", "PRODOM", "NCBI_LIT", "PMD", "HGBASE", "PRF", "PIR", "EPD", "GENOME"
+            "AAINDEX", "PRODOM", "NCBI_LIT", "PMD", "HGBASE", "PRF", "PIR", "EPD", "GENOME",
+            "ENTREZ", "TRANSFAC_MATRIX", "TRANSFAC_GENE", "TRANSFAC_CLASS", "TRANSFAC_CELL",
+            "TRANSFAC_FACTOR", "TRANSFAC_SITE", "KEGG_COMPOUND", "KEGG_REACTION", "KEGG_ENZYME",
+            "KEGG_ORTHOLOG", "KEGG_GENOME"
         ];
 
         $this->assertEquals($aExpected, DatabaseParserFactory::getFormats());
@@ -104,7 +131,7 @@ class DatabaseParserFactoryTest extends TestCase
     public function testGetParserClassThrowsOnAnUnknownFormat()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Unknown database format ! "XNA" is not one of GENBANK, SWISSPROT, EMBL, PDB, PROSITE, EXPASY_ENZYME, PDBSTR, UNIGENE, PRINTS, BLOCKS, AAINDEX, PRODOM, NCBI_LIT, PMD, HGBASE, PRF, PIR, EPD, GENOME.');
+        $this->expectExceptionMessage('Unknown database format ! "XNA" is not one of GENBANK, SWISSPROT, EMBL, PDB, PROSITE, EXPASY_ENZYME, PDBSTR, UNIGENE, PRINTS, BLOCKS, AAINDEX, PRODOM, NCBI_LIT, PMD, HGBASE, PRF, PIR, EPD, GENOME, ENTREZ, TRANSFAC_MATRIX, TRANSFAC_GENE, TRANSFAC_CLASS, TRANSFAC_CELL, TRANSFAC_FACTOR, TRANSFAC_SITE, KEGG_COMPOUND, KEGG_REACTION, KEGG_ENZYME, KEGG_ORTHOLOG, KEGG_GENOME.');
 
         DatabaseParserFactory::getParserClass("XNA");
     }

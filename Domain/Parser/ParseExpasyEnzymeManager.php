@@ -3,7 +3,7 @@
  * ExPASy ENZYME database parsing (EC nomenclature)
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -37,9 +37,16 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
     private $alternateNames = [];
 
     /**
-     * @var string
+     * One entry per reaction the enzyme catalyses : an enzyme acting on several substrates has
+     * as many, and the file numbers them "(1)", "(2)".
+     * @var array
      */
-    private $catalyticActivity = "";
+    private $catalyticActivities = [];
+
+    /**
+     * @var array
+     */
+    private $aCaLines = [];
 
     /**
      * @var array
@@ -120,49 +127,76 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $aLines = new \ArrayIterator($aFlines);
-            $sComments = "";
+        $aLines = new \ArrayIterator($aFlines);
+        $sComments = "";
 
-            foreach ($aLines as $lineno => $linestr) {
-                switch (trim(substr($aLines->current(), 0, 2))) {
-                    case "ID":
-                        $this->id = trim(substr($aLines->current(), 5));
-                        break;
-                    case "DE":
-                        $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
-                        break;
-                    case "AN":
-                        $this->alternateNames[] = rtrim($this->accumulate($aLines, $aFlines, "AN", " "), ".");
-                        break;
-                    case "CA":
-                        $this->catalyticActivity = rtrim($this->accumulate($aLines, $aFlines, "CA", " "), ".");
-                        break;
-                    case "CF":
-                        $this->cofactors = $this->parseCofactors($this->accumulate($aLines, $aFlines, "CF", " "));
-                        break;
-                    case "CC":
-                        $sComments .= substr(rtrim($aLines->current(), "\r\n"), 5) . "\n";
-                        break;
-                    case "DI":
-                        $this->diseases[] = $this->parseDisease(trim(substr($aLines->current(), 5)));
-                        break;
-                    case "PR":
-                        $this->prositeRefs[] = $this->parsePrositeRef(trim(substr($aLines->current(), 5)));
-                        break;
-                    case "DR":
-                        $this->swissprotRefs = array_merge(
-                            $this->swissprotRefs,
-                            $this->parseSwissprotRefs($this->accumulate($aLines, $aFlines, "DR", ""))
-                        );
-                        break;
-                }
+        foreach ($aLines as $lineno => $linestr) {
+            switch (trim(substr($aLines->current(), 0, 2))) {
+                case "ID":
+                    $this->id = trim(substr($aLines->current(), 5));
+                    break;
+                case "DE":
+                    $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
+                    break;
+                case "AN":
+                    // One synonym per line: unlike DE, CA or CF, consecutive AN lines are
+                    // separate names, not one name wrapped over several lines.
+                    $this->alternateNames[] = rtrim(trim(substr($aLines->current(), 5)), ".");
+                    break;
+                case "CA":
+                    $this->aCaLines[] = trim(substr($aLines->current(), 5));
+                    break;
+                case "CF":
+                    $this->cofactors = $this->parseCofactors($this->accumulate($aLines, $aFlines, "CF", " "));
+                    break;
+                case "CC":
+                    $sComments .= substr(rtrim($aLines->current(), "\r\n"), 5) . "\n";
+                    break;
+                case "DI":
+                    $this->diseases[] = $this->parseDisease(trim(substr($aLines->current(), 5)));
+                    break;
+                case "PR":
+                    $this->prositeRefs[] = $this->parsePrositeRef(trim(substr($aLines->current(), 5)));
+                    break;
+                case "DR":
+                    $this->swissprotRefs = array_merge(
+                        $this->swissprotRefs,
+                        $this->parseSwissprotRefs($this->accumulate($aLines, $aFlines, "DR", ""))
+                    );
+                    break;
             }
-
-            $this->comments = rtrim($sComments, "\n");
-        } catch (\Exception $e) {
-            throw new \Exception($e);
         }
+
+        $this->comments = rtrim($sComments, "\n");
+        $this->catalyticActivities = $this->parseCatalyticActivities($this->aCaLines);
+    }
+
+    /**
+     * Reads the CA field into one entry per reaction. An enzyme acting on several substrates
+     * has several, which the file numbers "(1)", "(2)"; an unnumbered line continues the
+     * reaction above it, a long reaction being wrapped rather than repeated.
+     * @param   array       $aLines
+     * @return  array
+     */
+    private function parseCatalyticActivities($aLines)
+    {
+        $aActivities = [];
+
+        foreach ($aLines as $sLine) {
+            if (preg_match('/^\(\d+\)\s*(.*)$/', $sLine, $aMatch)) {
+                $aActivities[] = $aMatch[1];
+                continue;
+            }
+            if ($aActivities == []) {
+                $aActivities[] = $sLine;
+                continue;
+            }
+            $aActivities[count($aActivities) - 1] .= " " . $sLine;
+        }
+
+        return array_values(array_filter(array_map(function ($sActivity) {
+            return rtrim(trim($sActivity), ".");
+        }, $aActivities)));
     }
 
     /**
@@ -275,11 +309,11 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getCatalyticActivity(): string
+    public function getCatalyticActivities(): array
     {
-        return $this->catalyticActivity;
+        return $this->catalyticActivities;
     }
 
     /**

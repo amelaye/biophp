@@ -1,0 +1,8 @@
+ENTRY       R00299                      Reaction
+NAME        ATP:D-glucose 6-phosphotransferase
+DEFINITION  ATP + D-Glucose <=> ADP + D-Glucose 6-phosphate
+EQUATION    C00002 + C00031 <=> C00008 + C00092
+PATHWAY     PATH: map00010  Glycolysis / Gluconeogenesis
+            PATH: map00052  Galactose metabolism
+ENZYME      2.7.1.1         2.7.1.2         2.7.1.69
+///

@@ -3,7 +3,7 @@
  * UniGene database parsing (clusters of expressed sequence tags)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 12 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser;
 
@@ -99,42 +99,38 @@ final class ParseUnigeneManager implements ParseDatabaseInterface
      */
     public function parseDataFile($aFlines)
     {
-        try {
-            $sTitle = "";
+        $sTitle = "";
 
-            foreach($aFlines as $sLine) {
-                $sLabel = trim(substr($sLine, 0, 12));
-                $sData  = trim(substr($sLine, 12));
+        foreach($aFlines as $sLine) {
+            $sLabel = trim(substr($sLine, 0, 12));
+            $sData  = trim(substr($sLine, 12));
 
-                switch($sLabel) {
-                    case "ID":
-                        $this->clusterId = $sData;
-                        break;
-                    case "TITLE":
-                        $sTitle .= $sData . " ";
-                        break;
-                    case "EXPRESS":
-                        foreach(preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY) as $sTissue) {
-                            $this->expression[] = trim($sTissue);
-                        }
-                        break;
-                    case "PROTSIM":
-                        $this->protSims[] = $sData;
-                        break;
-                    case "SCOUNT":
-                        $this->seqCount = (int) $sData;
-                        break;
-                }
-
-                if ($sLabel == "//") {
+            switch($sLabel) {
+                case "ID":
+                    $this->clusterId = $sData;
                     break;
-                }
+                case "TITLE":
+                    $sTitle .= $sData . " ";
+                    break;
+                case "EXPRESS":
+                    foreach(preg_split("/;/", $sData, -1, PREG_SPLIT_NO_EMPTY) as $sTissue) {
+                        $this->expression[] = trim($sTissue);
+                    }
+                    break;
+                case "PROTSIM":
+                    $this->protSims[] = $sData;
+                    break;
+                case "SCOUNT":
+                    $this->seqCount = (int) $sData;
+                    break;
             }
 
-            $this->title = trim($sTitle);
-        } catch (\Exception $ex) {
-            throw new \Exception($ex);
+            if ($sLabel == "//") {
+                break;
+            }
         }
+
+        $this->title = trim($sTitle);
     }
 
     /**
