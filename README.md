@@ -1,7 +1,7 @@
 # amelayes-biophp [![Tests](https://github.com/amelaye/biophp/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/amelaye/biophp/actions/workflows/tests.yml) [![codecov](https://codecov.io/gh/amelaye/biophp/branch/develop/graph/badge.svg)](https://codecov.io/gh/amelaye/biophp)
 
 ## Introduction
-You can read the website of the application, with docs and informations about the project : http://www.amelayes-biophp.net.
+You can read the website of the application, with docs and informations about the project : https://www.amelayes-biophp.net.
 
 This is my own version of BioPHP available here : http://biophp.org. It requires at least PHP 8.2 (tested up to PHP 8.5) and every framework which can work on it,
 as Symfony 7.
