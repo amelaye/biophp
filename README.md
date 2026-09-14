@@ -15,8 +15,7 @@ It works very easily :
 The application is connected with a **REST API**, for the Biology Data, available at : https://api.amelayes-biophp.net.
 If you want to use your own API, it must implements my schema API (cf. code documentation), and then you can have fun !
 
-The **BioTools** (amelaye/biotools) package is actually in working progress, please be patient, and you'll can have more features soon !
-Instead of it, you can use your own application.
+The **BioTools** (amelaye/biotools) package is working !
 
 ## Content
 BioPHP is actually a Symfony bundle. Create your own PHP application and run :
