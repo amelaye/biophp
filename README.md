@@ -12,7 +12,7 @@ It works very easily :
 
 ![alt text](https://www.amelayes-biophp.net/img/biophp2.png "BioPHP schema")
 
-The application is connected with a **REST API**, for the Biology Data, available at : http://api.amelayes-biophp.net.
+The application is connected with a **REST API**, for the Biology Data, available at : https://api.amelayes-biophp.net.
 If you want to use your own API, it must implements my schema API (cf. code documentation), and then you can have fun !
 
 The **BioTools** (amelaye/biotools) package is actually in working progress, please be patient, and you'll can have more features soon !
