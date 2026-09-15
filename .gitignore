@@ -43,5 +43,3 @@ composer.lock
 .idea/
 myreport/
 /docs/
-/output/
-/.claude/
