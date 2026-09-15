@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>BioPHP — Audit de la refonte et feuille de route fonctionnelle</title>
+<style>
+@page { size: A4; margin: 16mm 15mm 18mm 15mm; }
+:root{
+  --ink:#16211f; --ink2:#40534f; --muted:#6b7d79;
+  --line:#dfe6e4; --line2:#eef2f1;
+  --accent:#0f6b5c; --accent2:#0b4f44; --accent-bg:#eaf5f2;
+  --crit:#a3241d; --crit-bg:#fbeceb;
+  --maj:#a8631a; --maj-bg:#fdf2e6;
+  --moy:#8a7315; --moy-bg:#fbf6e3;
+  --min:#4a5c78; --min-bg:#eef2f7;
+  --ok:#1c6b4a; --ok-bg:#e9f5ef;
+}
+*{box-sizing:border-box}
+body{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  color:var(--ink); font-size:10.2pt; line-height:1.55; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.ui{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+code,pre,.mono{font-family:"SF Mono","Menlo",Consolas,monospace}
+
+/* ---------- cover ---------- */
+.cover{height:247mm; display:flex; flex-direction:column; justify-content:space-between; page-break-after:always}
+.cover .top{border-top:5px solid var(--accent); padding-top:10mm}
+.eyebrow{font-size:8.5pt; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); font-weight:700}
+.cover h1{font-size:31pt; line-height:1.12; margin:7mm 0 4mm; letter-spacing:-.02em; font-weight:700}
+.cover .sub{font-size:12.5pt; color:var(--ink2); line-height:1.5; max-width:135mm}
+.cover .meta{border-top:1px solid var(--line); padding-top:5mm; font-size:9pt; color:var(--muted)}
+.cover .meta table{width:100%; border-collapse:collapse}
+.cover .meta td{padding:1.6mm 0; vertical-align:top}
+.cover .meta td:first-child{width:38mm; color:var(--accent2); font-weight:700; font-family:"Helvetica Neue",Arial,sans-serif; font-size:8.2pt; letter-spacing:.07em; text-transform:uppercase}
+.kpirow{display:flex; gap:4mm; margin:8mm 0}
+.kpi{flex:1; border:1px solid var(--line); border-radius:3px; padding:4mm 3.5mm; background:#fbfdfc}
+.kpi .n{font-family:"Helvetica Neue",Arial,sans-serif; font-size:20pt; font-weight:700; color:var(--accent2); line-height:1; letter-spacing:-.02em}
+.kpi .l{font-size:8pt; color:var(--muted); margin-top:2mm; line-height:1.35; font-family:"Helvetica Neue",Arial,sans-serif}
+
+/* ---------- structure ---------- */
+h2{font-size:15pt; margin:11mm 0 4mm; padding-bottom:2mm; border-bottom:2px solid var(--accent); letter-spacing:-.01em; page-break-after:avoid}
+h2 .num{color:var(--accent); font-weight:700; margin-right:3mm}
+h3{font-size:11.5pt; margin:7mm 0 2.5mm; color:var(--accent2); page-break-after:avoid}
+h4{font-size:9.8pt; margin:5mm 0 1.5mm; page-break-after:avoid}
+p{margin:0 0 3mm}
+ul,ol{margin:0 0 3mm; padding-left:5.5mm}
+li{margin-bottom:1.4mm}
+.lead{font-size:11pt; color:var(--ink2); line-height:1.6}
+strong{font-weight:700}
+a{color:var(--accent2); text-decoration:none}
+
+/* ---------- tables ---------- */
+table.t{width:100%; border-collapse:collapse; font-size:8.7pt; margin:3mm 0 5mm;
+  font-family:"Helvetica Neue",Arial,sans-serif; page-break-inside:avoid}
+table.t th{background:var(--accent-bg); color:var(--accent2); text-align:left; padding:2.2mm 2.5mm;
+  border-bottom:1.5px solid var(--accent); font-size:7.8pt; letter-spacing:.06em; text-transform:uppercase}
+table.t td{padding:2.2mm 2.5mm; border-bottom:1px solid var(--line2); vertical-align:top; line-height:1.45}
+table.t tr:last-child td{border-bottom:1px solid var(--line)}
+table.t td.c{text-align:center} table.t td.r{text-align:right}
+table.t.zebra tbody tr:nth-child(even){background:#fafcfb}
+
+/* ---------- badges ---------- */
+.b{display:inline-block; font-family:"Helvetica Neue",Arial,sans-serif; font-size:7pt; font-weight:700;
+  letter-spacing:.07em; text-transform:uppercase; padding:.7mm 2mm; border-radius:2px; white-space:nowrap}
+.b-crit{background:var(--crit-bg); color:var(--crit)}
+.b-maj{background:var(--maj-bg); color:var(--maj)}
+.b-moy{background:var(--moy-bg); color:var(--moy)}
+.b-min{background:var(--min-bg); color:var(--min)}
+.b-ok{background:var(--ok-bg); color:var(--ok)}
+
+/* ---------- finding blocks ---------- */
+.f{border:1px solid var(--line); border-left:3.5px solid var(--muted); border-radius:0 3px 3px 0;
+  padding:3.5mm 4mm; margin:0 0 4mm; page-break-inside:avoid; background:#fff}
+.f.crit{border-left-color:var(--crit)} .f.maj{border-left-color:var(--maj)}
+.f.moy{border-left-color:var(--moy)}  .f.min{border-left-color:var(--min)}
+.f h4{margin:0 0 2mm; font-size:10pt; display:flex; align-items:baseline; gap:2.5mm}
+.f h4 .id{font-family:"SF Mono",Menlo,monospace; font-size:8pt; color:var(--muted); font-weight:400}
+.f p{margin:0 0 2mm; font-size:9.6pt}
+.f p:last-child{margin-bottom:0}
+.f .loc{font-family:"SF Mono",Menlo,monospace; font-size:8pt; color:var(--accent2); background:var(--accent-bg);
+  padding:.4mm 1.5mm; border-radius:2px}
+.fix{background:var(--ok-bg); border-radius:2px; padding:2mm 3mm; font-size:9.2pt; margin-top:2.5mm}
+.fix b{color:var(--ok); font-family:"Helvetica Neue",Arial,sans-serif; font-size:7.5pt;
+  letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:.8mm}
+
+pre{background:#f7faf9; border:1px solid var(--line); border-radius:3px; padding:2.5mm 3mm;
+  font-size:8pt; line-height:1.5; overflow-x:auto; margin:2mm 0; white-space:pre-wrap; word-break:break-word}
+code{font-size:8.6pt; background:var(--line2); padding:.3mm 1.2mm; border-radius:2px}
+pre code{background:none; padding:0; font-size:8pt}
+
+.note{background:#fbfdfc; border:1px solid var(--line); border-radius:3px; padding:3mm 4mm; margin:3mm 0; font-size:9.4pt}
+.note b{font-family:"Helvetica Neue",Arial,sans-serif; font-size:8pt; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--accent); display:block; margin-bottom:1mm}
+
+/* ---------- feature cards ---------- */
+.feat{border:1px solid var(--line); border-radius:3px; margin:0 0 4mm; page-break-inside:avoid; overflow:hidden}
+.feat .hd{background:var(--accent-bg); padding:2.5mm 3.5mm; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:3mm}
+.feat .hd .n{font-family:"Helvetica Neue",Arial,sans-serif; font-weight:700; font-size:8.5pt;
+  color:#fff; background:var(--accent); width:6.5mm; height:6.5mm; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center; flex:none}
+.feat .hd h4{margin:0; font-size:10.2pt; flex:1; color:var(--accent2)}
+.feat .bd{padding:3mm 3.5mm}
+.feat .bd p{font-size:9.5pt; margin:0 0 2mm}
+.feat dl{margin:2.5mm 0 0; font-size:8.8pt; font-family:"Helvetica Neue",Arial,sans-serif}
+.feat dt{float:left; clear:left; width:26mm; color:var(--muted); font-size:7.6pt; letter-spacing:.05em;
+  text-transform:uppercase; font-weight:700; padding-top:.5mm}
+.feat dd{margin:0 0 1.6mm 27mm; line-height:1.45}
+.pagebreak{page-break-before:always}
+.avoid{page-break-inside:avoid}
+footer{margin-top:10mm; padding-top:3mm; border-top:1px solid var(--line); font-size:8pt; color:var(--muted)}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="eyebrow">Audit technique &amp; prospective fonctionnelle</div>
+    <h1>BioPHP<br>Audit de la refonte<br>et feuille de route</h1>
+    <p class="sub">Revue complète du code de production issu de la migration PHP 8.2 / Symfony 7,
+    puis propositions de nouvelles fonctionnalités établies par comparaison avec les bibliothèques
+    de bioinformatique de référence en Python, Perl, Java, R et Rust.</p>
+
+    <div class="kpirow">
+      <div class="kpi"><div class="n">93</div><div class="l">fichiers de production<br>13 895 lignes (hors <code>Legacy/</code>)</div></div>
+      <div class="kpi"><div class="n">231</div><div class="l">tests verts<br>626 assertions, PHP 8.5.9</div></div>
+      <div class="kpi"><div class="n">11</div><div class="l">anomalies confirmées<br>dont 2 bloquantes</div></div>
+      <div class="kpi"><div class="n">18</div><div class="l">fonctionnalités<br>proposées et priorisées</div></div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <table>
+      <tr><td>Projet</td><td><code>amelaye/biophp</code> — bibliothèque PHP et bundle Symfony de bioinformatique</td></tr>
+      <tr><td>Branche</td><td><code>master</code> — HEAD <code>08fba4e</code> « Fix ElementDTO deserialization » — arbre de travail propre</td></tr>
+      <tr><td>Date</td><td>24 août 2026</td></tr>
+      <tr><td>Périmètre</td><td><code>Api/</code>, <code>Domain/</code>, <code>DependencyInjection/</code>, <code>Tests/</code>, <code>composer.json</code>, mapping Doctrine, câblage XML, CI. <code>Legacy/</code> hors périmètre.</td></tr>
+      <tr><td>Fait suite à</td><td><code>legacy_analyse_complete_2026-08-12.md</code> et <code>compte_rendu_maj_2026-08-13.md</code> — l'audit précédent portait sur la <em>couverture</em> du Legacy ; celui-ci porte sur la <em>qualité et la complétude de la refonte elle-même</em>.</td></tr>
+      <tr><td>Méthode</td><td>Lecture intégrale du code, exécution de la suite de tests, et vérification empirique de chaque anomalie par un script ou un test-sonde jetable. Aucune anomalie n'est rapportée sans preuve d'exécution.</td></tr>
+    </table>
+  </div>
+</section>
+
+<h2><span class="num">§0</span>Synthèse</h2>
+
+<p class="lead">La refonte est <strong>architecturalement saine et fonctionnellement en avance</strong> sur
+le BioPHP d'origine : découpage domaine/API net, injection de dépendances propre, 231 tests verts sur
+PHP 8.2 à 8.5. Mais elle porte deux défauts <strong>bloquants et invisibles pour la suite de tests</strong> :
+la couche de persistance Doctrine ne fonctionne plus du tout depuis le passage à DBAL 4 — la commande
+<code>doctrine:schema:create</code> que le README demande d'exécuter échoue, et aucune séquence parsée ne peut
+être enregistrée. Le cœur calculatoire, lui, contient trois régressions silencieuses (poids moléculaire,
+validation de séquence, alphabet IUPAC) qui renvoient un résultat <em>faux mais plausible</em> plutôt qu'une erreur.</p>
+
+<p>Sur le plan fonctionnel, BioPHP couvre très bien un domaine — manipulation de séquence, motifs
+palindromiques, enzymes de restriction, parsing de sept formats de bases biologiques — et n'en couvre
+pas du tout deux autres qui sont devenus le quotidien du métier : <strong>l'alignement calculé</strong>
+(le module d'alignement ne fait que <em>lire</em> des alignements produits par ClustalW) et
+<strong>les données de séquençage</strong> (FASTQ, qualités, intervalles génomiques, VCF/GFF — absents).
+La partie C propose 18 fonctionnalités pour combler cet écart, chacune adossée à une bibliothèque
+de référence existante et à un point d'ancrage déjà présent dans le code.</p>
+
+<table class="t zebra">
+<tr><th style="width:34%">Axe</th><th style="width:11%">État</th><th>Constat</th></tr>
+<tr><td>Architecture &amp; découpage</td><td><span class="b b-ok">Solide</span></td><td>Domaine / API / DTO / entités bien séparés, interfaces et alias de services systématiques.</td></tr>
+<tr><td>Modernisation PHP 8 / SF 7</td><td><span class="b b-ok">Aboutie</span></td><td>Attributs Doctrine, CI sur 4 versions de PHP, dépendances à jour, annotations abandonnées.</td></tr>
+<tr><td>Couverture de tests</td><td><span class="b b-moy">Correcte</span></td><td>231 tests mais 2,7 assertions par test, et aucun test ne franchit la frontière de persistance — d'où l'invisibilité des deux bugs bloquants.</td></tr>
+<tr><td>Persistance Doctrine</td><td><span class="b b-crit">Cassée</span></td><td>Type <code>array</code> supprimé de DBAL 4 ; dates parsées en chaîne contre une colonne <code>date</code>.</td></tr>
+<tr><td>Exactitude du calcul</td><td><span class="b b-maj">À corriger</span></td><td>3 régressions renvoyant des résultats faux sans lever d'erreur.</td></tr>
+<tr><td>Typage &amp; rigueur statique</td><td><span class="b b-moy">Partiel</span></td><td>25 % des méthodes sans type de retour, 25 % des paramètres sans type, 0 <code>declare(strict_types=1)</code>, aucune analyse statique.</td></tr>
+<tr><td>Empaquetage (Composer)</td><td><span class="b b-maj">À corriger</span></td><td>PHPUnit et <code>symfony/framework-bundle</code> en dépendances de production.</td></tr>
+<tr><td>Couverture fonctionnelle</td><td><span class="b b-moy">Spécialisée</span></td><td>Excellente sur la séquence classique ; absente sur l'alignement calculé et le séquençage moderne.</td></tr>
+</table>
+
+<div class="note">
+<b>Les trois choses à faire en premier</b>
+<ol style="margin-bottom:0">
+<li><strong>Rétablir la persistance</strong> (§A2.1 et §A2.2) — sans elle, la moitié documentée de la bibliothèque est inutilisable ; et ajouter le test d'intégration SQLite qui rendra ces deux régressions impossibles à réintroduire.</li>
+<li><strong>Corriger les trois régressions de calcul</strong> (§A2.3 à §A2.5) — un résultat faux est plus coûteux qu'une exception.</li>
+<li><strong>Sortir PHPUnit des dépendances de production</strong> (§A2.8) — un correctif d'une ligne qui allège toutes les installations en aval, à commencer par <code>amelaye/biotools</code>.</li>
+</ol>
+</div>
+
+<h2 class="pagebreak"><span class="num">§A1</span>État des lieux</h2>
+
+<h3>Le code tel qu'il est aujourd'hui</h3>
+
+<table class="t">
+<tr><th style="width:30%">Ensemble</th><th class="c" style="width:12%">Fichiers</th><th>Contenu</th></tr>
+<tr><td><code>Api/</code></td><td class="c">44</td><td>14 adaptateurs HTTP + 14 interfaces + 15 DTO + la classe de base <code>Bioapi</code>. Tous frappent la même API maison (<code>api.amelayes-biophp.net</code>) et lisent le champ <code>hydra:member</code>.</td></tr>
+<tr><td><code>Domain/Sequence/</code></td><td class="c">24</td><td>11 entités Doctrine, 5 services (dont <code>SequenceManager</code>, 1 056 l.), la façade <code>SequenceBuilder</code>, 2 traits, 5 interfaces.</td></tr>
+<tr><td><code>Domain/Database/</code></td><td class="c">12</td><td><code>DatabaseManager</code> + 7 parseurs (GenBank, Swiss-Prot, EMBL, PDB, PROSITE, ExPASy ENZYME) + 2 fabriques.</td></tr>
+<tr><td><code>Domain/Model/</code></td><td class="c">5</td><td>Objets de valeur non persistés — <code>PdbAtom</code>, <code>PdbHelix</code>, <code>PdbSheet</code>, <code>PrositeDbRef</code>, <code>ExpasyDisease</code>.</td></tr>
+<tr><td><code>Domain/Tools/</code></td><td class="c">4</td><td><code>GeneticsFunctions</code>, <code>MathematicsFunctions</code>, <code>OligosManager</code> — ajouts nets de la refonte, sans équivalent Legacy.</td></tr>
+<tr><td><code>Tests/</code></td><td class="c">66</td><td>231 tests, 626 assertions, 0 échec, exécution en 1,7 s.</td></tr>
+</table>
+
+<h3>Mesures</h3>
+
+<table class="t zebra">
+<tr><th style="width:52%">Indicateur</th><th class="r" style="width:14%">Valeur</th><th>Lecture</th></tr>
+<tr><td>Lignes de production (hors <code>Legacy/</code>)</td><td class="r">13 895</td><td>Taille maîtrisable pour un audit exhaustif.</td></tr>
+<tr><td>Assertions par test</td><td class="r">2,7</td><td>Faible : beaucoup de tests vérifient un seul retour nominal.</td></tr>
+<tr><td>Classes de production sans fichier de test homonyme</td><td class="r">12</td><td>Dont <code>SequenceBuilder</code> — la façade publique principale, testée seulement indirectement.</td></tr>
+<tr><td>Méthodes sans type de retour déclaré</td><td class="r">188 / 761 (25 %)</td><td>Le typage est présent mais irrégulier, souvent au sein d'une même classe.</td></tr>
+<tr><td>Paramètres sans type déclaré</td><td class="r">173 / 680 (25 %)</td><td>Idem.</td></tr>
+<tr><td>Fichiers avec <code>declare(strict_types=1)</code></td><td class="r">0 / 93</td><td>Les coercitions silencieuses restent possibles partout.</td></tr>
+<tr><td><code>throw new \Exception(...)</code></td><td class="r">106</td><td>Aucune hiérarchie d'exceptions propre à la bibliothèque : impossible de rattraper finement en aval.</td></tr>
+<tr><td>dont <code>throw new \Exception($e)</code></td><td class="r">51</td><td>Anti-motif : réencapsule l'exception dans son propre message, perd le type et chaîne la trace en texte.</td></tr>
+<tr><td>Outil d'analyse statique configuré</td><td class="r">aucun</td><td>PHPStan/Psalm auraient signalé la majorité des anomalies de la partie A2.</td></tr>
+</table>
+
+<h3>Ce qui est réellement réussi</h3>
+
+<p>Ces points méritent d'être notés parce qu'ils sont durables et qu'ils ne doivent pas être défaits
+par les correctifs proposés plus loin.</p>
+
+<ul>
+<li><strong>La séparation domaine / infrastructure tient.</strong> <code>SequenceManager</code> ne connaît que
+des interfaces <code>*ApiAdapter</code>, jamais Guzzle. C'est ce qui rend les tests possibles sans réseau, et c'est
+ce qui permettrait demain de brancher NCBI ou UniProt à la place de l'API maison (§C10).</li>
+<li><strong>La façade <code>SequenceBuilder</code> est le bon patron.</strong> L'état (la <code>Sequence</code> courante)
+est isolé dans la façade, les calculs restent sans état dans <code>SequenceManager</code>. Peu de bibliothèques
+de ce domaine tiennent cette discipline.</li>
+<li><strong>Le test d'intégration DI est exemplaire.</strong> <code>AmelayeBioPHPExtensionTest</code> compile un vrai
+conteneur Symfony avec Doctrine et JMS, et son commentaire explique <em>pourquoi</em> chaque étape est nécessaire.
+C'est ce test qui a rattrapé l'incompatibilité <code>getContainerExtension()</code>. Il lui manque une seule
+chose — générer le schéma — et il aurait aussi rattrapé §A2.1.</li>
+<li><strong>Les sept parseurs sont fidèles et honnêtes.</strong> Les champs volontairement simplifiés
+(la matrice <code>MA</code> de PROSITE, les enregistrements <code>CONECT</code> de PDB) sont documentés comme tels
+plutôt que faussement implémentés.</li>
+<li><strong>La double implémentation du complément est un choix, pas un oubli.</strong>
+<code>SequenceTrait::compDNA()</code> et <code>SequenceManager::complement()</code> coexistent parce que
+<code>amelaye/biotools</code> consomme directement le trait. L'ancien audit la signalait comme dette ;
+c'est en réalité une contrainte de compatibilité, à documenter dans le code plutôt qu'à résorber.</li>
+<li><strong>La correction IUPAC de <code>complement()</code> est bien vue.</strong> Le commentaire explique que les
+bases dégénérées disparaissaient silencieusement auparavant. C'est exactement le raisonnement qu'il faut
+maintenant appliquer à <code>expandNa()</code> (§A2.6), qui souffre du même mal.</li>
+</ul>
+
+<h3>Suivi de la feuille de route précédente</h3>
+
+<table class="t">
+<tr><th style="width:8%">Réf.</th><th style="width:42%">Point ouvert au 13/08/2026</th><th>Vérification du 24/08</th></tr>
+<tr><td>P1-1</td><td><code>RestrictionEnzymeManager::fetchCutposAndPlen()</code> renvoie toujours un tableau vide</td><td><span class="b b-ok">Corrigé</span> La méthode accumule bien dans <code>$aEnzymes</code>.</td></tr>
+<tr><td>P1-2</td><td><code>SequenceManager::getBridge()</code> marqué « does not seems to work »</td><td><span class="b b-ok">Corrigé</span> Le <code>@todo</code> a disparu et la logique pair/impair est juste.</td></tr>
+<tr><td>P1-3</td><td>Duplication <code>complement()</code> / <code>compDNA()</code></td><td><span class="b b-ok">Clos</span> Requalifié en contrainte de compatibilité <code>biotools</code>. À inscrire en commentaire dans les deux fichiers.</td></tr>
+<tr><td>P2-4→7</td><td>Parseurs EMBL, PDB, PROSITE, ExPASy ENZYME</td><td><span class="b b-ok">Livrés</span> Avec fixtures et tests.</td></tr>
+<tr><td>P4-11/12</td><td>Tests <code>DatabaseManager</code>, <code>GeneticsFunctions</code>, <code>MathematicsFunctions</code></td><td><span class="b b-ok">Livrés</span></td></tr>
+<tr><td>P3-8→10</td><td>KEGG, TRANSFAC, PIR, PRF, PMD, PRINTS, ProDom, BLOCKS, AAINDEX, EPD, HGBase, UniGene…</td><td><span class="b b-min">Non entamé</span> Voir §C : ces formats sont, pour la plupart, moins prioritaires que les manques transversaux identifiés ici.</td></tr>
+<tr><td>—</td><td><code>OligosManagerTest::testFindZScore</code> et <code>PKApiTest</code> « problèmes préexistants »</td><td><span class="b b-ok">Résolu</span> La suite est entièrement verte, sans test ignoré (<code>markTestSkipped</code> : 0 occurrence).</td></tr>
+</table>
+
+<p>Autrement dit : <strong>la totalité des priorités 1, 2 et 4 de l'audit précédent est traitée.</strong>
+Le présent audit ouvre un autre front — celui de la refonte examinée pour elle-même, indépendamment
+du Legacy.</p>
