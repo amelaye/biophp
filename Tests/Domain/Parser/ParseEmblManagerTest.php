@@ -11,6 +11,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
+use Amelaye\BioPHP\Domain\Parser\ParseEmblManager;
 use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -103,6 +104,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("organism");
         $oFeature->setFtValue("Homo sapiens");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("AB012345");
@@ -111,6 +113,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("mol_type");
         $oFeature->setFtValue("mRNA");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("AB012345");
@@ -119,6 +122,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("taxon:9606");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("AB012345");
@@ -127,6 +131,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("TESTG");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("AB012345");
@@ -135,6 +140,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("codon_start");
         $oFeature->setFtValue("1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("AB012345");
@@ -143,6 +149,7 @@ class ParseEmblManagerTest extends TestCase
         $oFeature->setFtTo(120);
         $oFeature->setFtQual("product");
         $oFeature->setFtValue("test protein");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $this->assertEquals($aExpectedFeatures, $oParseEmblManager->getFeatures());
 
@@ -155,5 +162,74 @@ class ParseEmblManagerTest extends TestCase
         $oGbSequence->setDivision("HUM");
         $oGbSequence->setVersion("AB012345.2");
         $this->assertEquals($oGbSequence, $oParseEmblManager->getGbSequence());
+    }
+
+    /**
+     * Regression test: a join() location's bounds used to be computed by exploding the whole,
+     * comma-separated location on ".." without splitting on the commas first, so a spliced
+     * feature's ftTo ended up being the numeric prefix of a completely unrelated substring
+     * (e.g. "10,50" cast to (int) as "10") instead of spanning every segment. A complement()
+     * wrapper, previously dropped with no trace at all, must now be readable as the feature's
+     * strand.
+     */
+    public function testEmblJoinLocationSpansEverySegment()
+    {
+        $aLines = [
+            "ID   AB012345; SV 2; linear; mRNA; STD; HUM; 120 BP.\n",
+            "AC   AB012345;\n",
+            "FT   CDS             complement(join(1..10,50..60))\n",
+            "FT                   /product=\"test protein\"\n",
+        ];
+
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile($aLines);
+
+        $aFeatures = $oParser->getFeatures();
+        $this->assertCount(1, $aFeatures);
+        $this->assertEquals(1, $aFeatures[0]->getFtFrom());
+        $this->assertEquals(60, $aFeatures[0]->getFtTo());
+        $this->assertEquals("-", $aFeatures[0]->getStrand());
+    }
+
+    /**
+     * A location with no complement() wrapper is on the direct/sense strand.
+     */
+    public function testEmblLocationWithoutComplementIsPlusStrand()
+    {
+        $aLines = [
+            "ID   AB012345; SV 2; linear; mRNA; STD; HUM; 120 BP.\n",
+            "AC   AB012345;\n",
+            "FT   CDS             1..60\n",
+            "FT                   /product=\"test protein\"\n",
+        ];
+
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile($aLines);
+
+        $this->assertEquals("+", $oParser->getFeatures()[0]->getStrand());
+    }
+
+    /**
+     * Regression test: parseAccession() used to drop the first accession of *every* AC line,
+     * when only the very first accession of the very first AC line (the one duplicating the ID
+     * line's entry name) should be skipped. A continuation AC line's first accession is a
+     * genuine secondary accession and must be kept.
+     */
+    public function testEmblKeepsEveryAccessionOfContinuationLines()
+    {
+        $aLines = [
+            "ID   AB012345; SV 2; linear; mRNA; STD; HUM; 120 BP.\n",
+            "AC   AB012345;\n",
+            "AC   AB023456; AB034567;\n",
+        ];
+
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile($aLines);
+
+        $aAccessions = array_map(
+            fn($oAccession) => $oAccession->getAccession(),
+            $oParser->getAccession()
+        );
+        $this->assertEquals(["AB023456", "AB034567"], $aAccessions);
     }
 }

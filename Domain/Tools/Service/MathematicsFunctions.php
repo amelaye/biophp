@@ -66,10 +66,25 @@ class MathematicsFunctions
      */
     public static function Variance($data)
     {
-        $mean = self::Mean($data);
+        // Mean() rounds its result to 3 decimals for display purposes: reusing that rounded
+        // figure here would bias every squared deviation below. The mean used internally is
+        // computed unrounded instead; only the final variance is rounded, exactly as Mean()
+        // rounds only its own final output.
         $sum = 0;
         $numValidElements = 0;
+        foreach($data as $key => $val) {
+            if(isset($val)) {
+                $sum += $val;
+                $numValidElements += 1;
+            }
+        }
+        if ($numValidElements === 0) {
+            throw new \Exception("Cannot calculate the mean of an empty data set !");
+        }
+        $mean = $sum / $numValidElements;
 
+        $sum = 0;
+        $numValidElements = 0;
         foreach($data as $key => $val) {
             if(isset($val)) {
                 $tmp = $val - $mean;

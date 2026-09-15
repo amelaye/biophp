@@ -121,7 +121,7 @@ class AminoApiTest extends WebTestCase
           ],
           "Pyrrolysine" =>  [
             1 => "O",
-            3 => "Pyr",
+            3 => "Pyl",
           ],
           "Proline" =>  [
             1 => "P",
@@ -129,7 +129,7 @@ class AminoApiTest extends WebTestCase
           ],
           "Glutamine" =>  [
             1 => "Q",
-            3 => "Gin",
+            3 => "Gln",
           ],
           "Arginine" =>  [
             1 => "R",
@@ -192,9 +192,9 @@ class AminoApiTest extends WebTestCase
           "L" => "Leu",
           "M" => "Met",
           "N" => "Asn",
-          "O" => "Pyr",
+          "O" => "Pyl",
           "P" => "Pro",
-          "Q" => "Gin",
+          "Q" => "Gln",
           "R" => "Arg",
           "S" => "Ser",
           "T" => "Thr",

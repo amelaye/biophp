@@ -4,6 +4,7 @@ namespace Tests\Domain\Sequence\Service;
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;
 use Amelaye\BioPHP\Api\NucleotidApi;
+use Amelaye\BioPHP\Domain\Parser\ParseGenbankManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
@@ -194,6 +195,39 @@ class SequenceManagerTest extends TestCase
         $sExpected = "GATTAG[GC][AT]";
 
         $this->assertEquals($sExpandNa, $sExpected);
+    }
+
+    /**
+     * Every IUPAC ambiguity code must expand to its own definition, individually - regression
+     * test for expandNa() silently leaving "V" untouched (its pattern had been duplicated with
+     * "R" instead of "V").
+     */
+    public function testExpandNaCoversEveryIupacCode()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $aExpected = [
+            "N" => ".",
+            "X" => ".",
+            "R" => "[AG]",
+            "Y" => "[CT]",
+            "S" => "[GC]",
+            "W" => "[AT]",
+            "M" => "[AC]",
+            "K" => "[TG]",
+            "B" => "[CGT]",
+            "D" => "[AGT]",
+            "H" => "[ACT]",
+            "V" => "[ACG]",
+        ];
+        foreach ($aExpected as $sCode => $sExpansion) {
+            $this->assertEquals(
+                $sExpansion,
+                $sequenceBuilder->expandNa($sCode),
+                "expandNa(\"$sCode\") should expand to \"$sExpansion\""
+            );
+        }
     }
 
     public function testMolWT()
@@ -427,6 +461,34 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($codon, $sExpected);
     }
 
+    /**
+     * Regression test: SequenceBuilder::getCodon() used to shadow its own $iReadFrame parameter
+     * with a hardcoded 0 ("$iReadFrame = 0" written as the argument itself), so only reading
+     * frame 0 was ever reachable through the facade.
+     */
+    public function testGetCodonHonoursReadingFrameThroughBuilder()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $this->assertEquals("TGG", $sequenceBuilder->getCodon(0, "ATGGCCATTGTA", 1));
+        $this->assertEquals("GGC", $sequenceBuilder->getCodon(0, "ATGGCCATTGTA", 2));
+    }
+
+    /**
+     * Regression test: SequenceBuilder::translateCodon() used to shadow its own $iFormat
+     * parameter with a hardcoded 3 ("$iFormat = 3" written as the argument itself), so the
+     * single-letter format was never reachable through the facade.
+     */
+    public function testTranslateCodonHonoursFormatThroughBuilder()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $this->assertEquals("M", $sequenceBuilder->translateCodon("AUG", 1));
+        $this->assertEquals("Met", $sequenceBuilder->translateCodon("AUG", 3));
+    }
+
     public function testTranslate()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -442,6 +504,60 @@ class SequenceManagerTest extends TestCase
         $translate = $sequenceBuilder->translate();
 
         $this->assertEquals($translate, $sExpected);
+    }
+
+    /**
+     * Regression test: a codon holding an IUPAC ambiguity code (N, R, ...) anywhere used to
+     * either crash with a TypeError (the translation table's switch fell through without a
+     * return) or, for AU*, silently return Isoleucine even though AUG (Methionine) is one of
+     * the codons an "AUN" also stands for. Every such codon must resolve to "X"/"XXX" instead.
+     */
+    public function testTranslateHandlesAmbiguousCodons()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // Ambiguous first base: no amino acid family can be determined at all.
+        $this->assertEquals("X", $sequenceManager->translateCodon("NNN", 1));
+        $this->assertEquals("XXX", $sequenceManager->translateCodon("NNN", 3));
+
+        // AUN covers AUU/AUC/AUA (Ile) *and* AUG (Met): must not resolve to Isoleucine.
+        $this->assertEquals("X", $sequenceManager->translateCodon("AUN", 1));
+
+        // One ambiguous codon per starting letter (U/C/A/G), each previously reachable through
+        // a switch with no default case.
+        $this->assertEquals("X", $sequenceManager->translateCodon("UAN", 1));
+        $this->assertEquals("X", $sequenceManager->translateCodon("CAN", 1));
+        $this->assertEquals("X", $sequenceManager->translateCodon("AAN", 1));
+        $this->assertEquals("X", $sequenceManager->translateCodon("GAN", 1));
+
+        // A 4-fold degenerate family (the third base never changes the amino acid) must still
+        // resolve normally even when that third base is ambiguous.
+        $this->assertEquals("V", $sequenceManager->translateCodon("GUN", 1));
+    }
+
+    /**
+     * Regression test: countCodons() used to divide the *whole record's* length by 3, and its
+     * documented input shape ($aFeatures["CDS"]["/codon_start"]) could never be produced by any
+     * parser (which returns a flat array of Feature objects). It must instead read the CDS
+     * feature's own span (from data/human.seq: CDS 94..1482, /codon_start=1) and use only that.
+     */
+    public function testCountCodonsUsesTheCdsInterval()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(file('data/human.seq'));
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        // (1482 - 94 + 1 - (1 - 1)) / 3 = 1389 / 3 = 463 - not
+        // (3488 - 1 + 1) / 3 = 1163, the whole-record count the old implementation produced.
+        $this->assertEquals(463, $sequenceManager->countCodons($oParser->getFeatures()));
+    }
+
+    public function testCountCodonsRequiresACdsFeature()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\Exception::class);
+        $sequenceManager->countCodons([]);
     }
 
     public function testCharge()
@@ -1069,6 +1185,26 @@ class SequenceManagerTest extends TestCase
 
         $testPalindrome = $sequenceBuilder->findPalindrome(null, 0, 0);
         $this->assertFalse($testPalindrome);
+    }
+
+    /**
+     * Regression test: when only the palindrome window length is given (findPalindrome()'s
+     * "CASE 3"), the half-window comparison used to be computed from strlen() of the *whole*
+     * input sequence instead of the length of the candidate window itself - so the very same
+     * window could be reported as a palindrome or not purely depending on how much sequence
+     * followed it. A true palindrome (EcoRI site GAATTC) at the same position must be detected
+     * identically whether or not it is followed by more sequence.
+     */
+    public function testFindPalindromeDoesNotDependOnFlankingLength()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $aWithoutFlank = $sequenceBuilder->findPalindrome("GAATTC", 6, 0);
+        $aWithFlank    = $sequenceBuilder->findPalindrome("GAATTC" . str_repeat("G", 16), 6, 0);
+
+        $this->assertEquals([["GAATTC", 0]], $aWithoutFlank);
+        $this->assertEquals([["GAATTC", 0]], $aWithFlank);
     }
 
     public function testFindPalindromeWitPalenAndLen()

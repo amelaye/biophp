@@ -157,6 +157,8 @@ class SequenceAlignmentManagerTest extends TestCase
         $oExpected1->setSequence($sSeq1);
         $oExpected1->setOrganism(["Human"]);
         $oExpected1->setSeqlength(1231);
+        $oExpected1->setStart(0);
+        $oExpected1->setEnd(1230);
 
         $this->assertEquals($oMySuperSeq1, $oExpected1);
 
@@ -179,6 +181,8 @@ class SequenceAlignmentManagerTest extends TestCase
         $oExpected2->setOrganism(["Human"]);
         $oExpected2->setSequence($sSeq2);
         $oExpected2->setSeqlength(1020);
+        $oExpected2->setStart(0);
+        $oExpected2->setEnd(1019);
 
         $this->assertEquals($oMySuperSeq2, $oExpected2);
     }
@@ -216,6 +220,24 @@ class SequenceAlignmentManagerTest extends TestCase
 
         $bIsFlush = $sequenceAlignmentManager->getIsFlush();
         $this->assertTrue($bIsFlush);
+    }
+
+    /**
+     * Regression test: the in-loop length comparison in parseFasta() only ever runs from the
+     * third sequence onward ($iSeqCount >= 3), which is right for skipping the fake
+     * pre-first-header pseudo record - but the comparison guarding the *last* sequence, after
+     * the loop, reused that same threshold, so a FASTA file with exactly two sequences of
+     * different lengths never got compared at all and was wrongly reported as flush.
+     * data/fasta-2.txt holds exactly two sequences (1231 bp and 1020 bp).
+     */
+    public function testGetIsFlushIsFalseForTwoFastaSequencesOfDifferentLength()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename("data/fasta-2.txt");
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+
+        $this->assertFalse($sequenceAlignmentManager->getIsFlush());
     }
 
     public function testChatAtRes()
@@ -785,6 +807,27 @@ class SequenceAlignmentManagerTest extends TestCase
         $sExpected.= "??????????????????????????????????????????";
 
         $this->assertEquals($sExpected, $sConsensus);
+    }
+
+    /**
+     * Regression test: a gap ("-") used to be able to win a column as "the" consensus symbol as
+     * soon as it was the single most frequent character there, even when a real residue was
+     * still present and the gap was not unanimous. Two gapped sequences and one real residue at
+     * a single-column alignment: the gap is the plurality (2 of 3) but must not be reported as
+     * the consensus once the threshold is low enough for the actual residue (1 of 3) to qualify.
+     */
+    public function testConsensusDoesNotReturnGapAsResidue()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["-", "-", "A"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(1);
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("A", $sequenceAlignmentManager->consensus(30));
     }
 
     /**

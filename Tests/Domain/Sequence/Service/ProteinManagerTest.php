@@ -68,4 +68,37 @@ class ProteinManagerTest extends TestCase
 
         $this->assertEquals($aExpected, $molwt);
     }
+
+    /**
+     * Regression test: an empty protein sequence used to return [18.015, 18.015] (one spurious
+     * water molecule gained) instead of [0, 0], because "(seqlen() - 1) * water" is negative
+     * when seqlen() is 0.
+     */
+    public function testMolwtOfEmptySequence()
+    {
+        $proteinManager = new ProteinManager($this->apiAminoMock);
+
+        $oProtein = new Protein();
+        $oProtein->setName("empty");
+        $oProtein->setSequence("");
+        $proteinManager->setProtein($oProtein);
+
+        $this->assertEquals([0, 0], $proteinManager->molwt());
+    }
+
+    /**
+     * A single-residue protein loses no water at all (there is no peptide bond to form), so its
+     * molecular weight is simply the free amino acid's own weight.
+     */
+    public function testMolwtOfSingleResidueSequence()
+    {
+        $proteinManager = new ProteinManager($this->apiAminoMock);
+
+        $oProtein = new Protein();
+        $oProtein->setName("single");
+        $oProtein->setSequence("G");
+        $proteinManager->setProtein($oProtein);
+
+        $this->assertEquals([75.07, 75.07], $proteinManager->molwt());
+    }
 }

@@ -228,6 +228,33 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     }
 
     /**
+     * Parses an INSDC feature location (shared by GenBank and EMBL) into its outer bounds and
+     * strand. Strips the complement()/join() wrappers and the "<"/">" fuzzy-boundary markers.
+     * For a join() of several comma-separated segments (a spliced feature), Feature has no room
+     * to keep each exon separately, so this returns the lowest start and the highest end across
+     * every segment.
+     * @param   string  $sLocation  The raw location text, e.g. "complement(join(<1..10,50..>60))".
+     * @return  array   [$iFrom, $iTo, $sStrand] - $sStrand is "-" when the location was wrapped
+     * in complement(...), "+" otherwise.
+     */
+    protected function parseLocationBounds(string $sLocation) : array
+    {
+        $sStrand = (strpos($sLocation, "complement(") !== false) ? "-" : "+";
+        $sLocation = str_replace(["complement(", "join(", ")", "<", ">"], "", $sLocation);
+        $aSegments = explode(",", $sLocation);
+        $iFrom = null;
+        $iTo   = null;
+        foreach ($aSegments as $sSegment) {
+            $aSegmentBounds = explode("..", trim($sSegment));
+            $iSegmentFrom = (int) ($aSegmentBounds[0] ?? 0);
+            $iSegmentTo   = (int) ($aSegmentBounds[1] ?? $iSegmentFrom);
+            $iFrom = ($iFrom === null) ? $iSegmentFrom : min($iFrom, $iSegmentFrom);
+            $iTo   = ($iTo === null) ? $iSegmentTo : max($iTo, $iSegmentTo);
+        }
+        return [$iFrom ?? 0, $iTo ?? 0, $sStrand];
+    }
+
+    /**
      * Parses a GenBank data file and returns a Seq object containing parsed data.
      * @param   array       $aFlines        The lines the script has to parse
      * @throws \Exception

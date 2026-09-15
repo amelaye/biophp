@@ -169,27 +169,18 @@ class SequenceBuilder implements SequenceInterface
     }
 
     /**
-     * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
-     * @param   array     $aFeatures
-     * @param   int       $iSeqLength
-     * @return  int       The number of codons within a sequence, expressed as an non-negative integer.
-     * @todo : test after
+     * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
+     * parsed record.
+     * @param   array     $aFeatures    The record's Feature objects, as returned by a database
+     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). Sequence itself carries
+     * no features, so there is no default to fall back to : the caller must supply them.
+     * @return  int       The number of complete codons within the CDS, expressed as a
+     * non-negative integer.
+     * @throws  \Exception  When $aFeatures holds no "CDS" feature.
      */
-    public function countCodons(?array $aFeatures = null, ?int $iSeqLength = null) : int
+    public function countCodons(array $aFeatures) : int
     {
-        if($aFeatures == null) {
-            $aFeatures = $this->sequence->getFeatures();
-        }
-
-        if($iSeqLength == null) {
-            $iSeqLength = $this->sequence->getSeqlength();
-        }
-
-        if($aFeatures == null || $iSeqLength == null) {
-            throw new \InvalidArgumentException("Cannot load countCodons() method, needs all the arguments.");
-        }
-
-        return $this->sequenceManager->countCodons($aFeatures, $iSeqLength);
+        return $this->sequenceManager->countCodons($aFeatures);
     }
 
     /**
@@ -356,7 +347,7 @@ class SequenceBuilder implements SequenceInterface
             throw new \InvalidArgumentException("Cannot load getCodon() method, needs all the arguments.");
         }
 
-        return $this->sequenceManager->getCodon($iIndex, $sSequence, $iReadFrame = 0);
+        return $this->sequenceManager->getCodon($iIndex, $sSequence, $iReadFrame);
     }
 
     /**
@@ -438,7 +429,7 @@ class SequenceBuilder implements SequenceInterface
      */
     public function translateCodon(string $sCodon, int $iFormat = 3) : string
     {
-        return $this->sequenceManager->translateCodon($sCodon, $iFormat = 3);
+        return $this->sequenceManager->translateCodon($sCodon, $iFormat);
     }
 
     /**

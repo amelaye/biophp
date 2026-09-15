@@ -78,13 +78,15 @@ interface SequenceInterface
     public function molwt($sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float;
 
     /**
-     * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
-     * @param   array     $aFeatures
-     * @param   int       $iSeqLength
-     * @return  int       The number of codons within a sequence, expressed as an non-negative integer.
-     * @todo : test after
+     * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
+     * parsed record.
+     * @param   array     $aFeatures    The record's Feature objects, as returned by a database
+     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()).
+     * @return  int       The number of complete codons within the CDS, expressed as a
+     * non-negative integer.
+     * @throws  \Exception  When $aFeatures holds no "CDS" feature.
      */
-    public function countCodons(?array $aFeatures = null, ?int $iSeqLength = null) : int;
+    public function countCodons(array $aFeatures) : int;
 
     /**
      * Creates a new sequence object with a sequence that is a substring of another.

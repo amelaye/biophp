@@ -147,18 +147,18 @@ class SequenceMatchManager implements SequenceMatchInterface
             throw new \Exception("String length must not exceed 1024 characters");
         }
 
-        // initialize the array
-        $aValues  = [];
-        $aTemp    = [];
-        $aTemp[0] = 0;
-
-        for($j = 1; $j <= $iSeqLen2; $j++) {
-            $aTemp[$j] = 0;
+        // Classic Levenshtein dynamic-programming matrix. $aValues[$i][$j] is the edit distance
+        // between the first $i characters of $sSequence1 and the first $j characters of
+        // $sSequence2. Row/column 0 are the base cases: turning an empty string into a prefix of
+        // length n costs n insertions (or deletions), so $aValues[$i][0] = $i and
+        // $aValues[0][$j] = $j - not 0, which is what let this function report unrelated strings
+        // as identical.
+        $aValues = [];
+        for ($i = 0; $i <= $iSeqLen1; $i++) {
+            $aValues[$i][0] = $i;
         }
-
-        $aValues[0] = $aTemp;
-        for($i = 1; $i <= $iSeqLen1; $i++) {
-            $aValues[$i] = $aTemp;
+        for ($j = 0; $j <= $iSeqLen2; $j++) {
+            $aValues[0][$j] = $j;
         }
 
         for($i = 1; $i <= $iSeqLen1; $i++) {
@@ -167,23 +167,12 @@ class SequenceMatchManager implements SequenceMatchInterface
                 $sLett = substr($sSequence2, $j-1, 1);
                 $iCost = ($sLets == $sLett) ? 0 : 1;
 
-                // "normal" values of $up, $left, and $upleft
-                $iUp     = ($j > 1) ? $aValues[$i][$j-1] : 0;
-                $iLeft   = ($i > 1) ? $aValues[$i-1][$j] : 0;
-                $iUpLeft = (($i > 1) && ($j > 1)) ? $aValues[$i-1][$j-1] : 0;
+                $iUp     = $aValues[$i][$j-1];
+                $iLeft   = $aValues[$i-1][$j];
+                $iUpLeft = $aValues[$i-1][$j-1];
 
-                if ($i == 1) {
-                    $iValue = ($j == 1 || $iCost == 0) ? $iCost : $iUp + 1;
-                } else {
-                    // if at the first or topmost row, there is no upleft and above.
-                    if ($j == 1) {
-                        $iValue = ($iCost == 0) ? $iCost : $iLeft + 1;
-                    } else {
-                        $iValue = $this->getmin($iUp + 1, $iLeft + 1, $iUpLeft + $iCost);
-                    }
-                }
-                $aValues[$i][$j] = $iValue;
-            } 
+                $aValues[$i][$j] = $this->getmin($iUp + 1, $iLeft + 1, $iUpLeft + $iCost);
+            }
         }
         return $aValues[$iSeqLen1][$iSeqLen2];
     }
@@ -256,9 +245,6 @@ class SequenceMatchManager implements SequenceMatchInterface
      */
     public function partialMatch(string $sLet1, string $sLet2, array $aMatrix) : bool
     {
-        if (!isset($aMatrix) == FALSE) {
-            $aMatrix = $this->subMatrix->getRules();
-        }
         foreach($aMatrix as $aRule) {
             if ((in_array($sLet1, $aRule)) && (in_array($sLet2, $aRule))) {
                 return true;

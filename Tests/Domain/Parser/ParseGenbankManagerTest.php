@@ -11,6 +11,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Entity\SrcForm;
 use Amelaye\BioPHP\Domain\Database\Service\DatabaseManager;
+use Amelaye\BioPHP\Domain\Parser\ParseGenbankManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -339,6 +340,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("organism");
         $oFeature->setFtValue("Homo sapiens");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -347,6 +349,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("mol_type");
         $oFeature->setFtValue("mRNA");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -355,6 +358,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("taxon:9606");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -363,6 +367,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("chromosome");
         $oFeature->setFtValue("5");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -371,6 +376,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("map");
         $oFeature->setFtValue("5q21.2");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -379,6 +385,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -387,6 +394,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("nudix hydrolase 12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -395,6 +403,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("GeneID:83594");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -403,6 +412,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("HGNC:HGNC:18826");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -411,6 +421,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("MIM:609232");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -419,6 +430,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(87);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -427,6 +439,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(87);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -435,6 +448,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(299);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -443,6 +457,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(299);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -451,6 +466,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -459,6 +475,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("EC_number");
         $oFeature->setFtValue("3.6.1.22");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -470,6 +487,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $note.= "peroxisomal NADH pyrophosphatase NUDT12; nudix motif 12; nucleoside diphosphate-linked moiety X motif 12; nudix ";
         $note.= "(nucleoside diphosphate linked moiety X)-type motif 12";
         $oFeature->setFtValue($note);
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -478,6 +496,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("codon_start");
         $oFeature->setFtValue("1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -486,6 +505,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("product");
         $oFeature->setFtValue("peroxisomal NADH pyrophosphatase NUDT12 isoform 1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -494,6 +514,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("protein_id");
         $oFeature->setFtValue("NP_113626.1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -502,6 +523,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("CCDS:CCDS4096.1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -510,6 +532,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("GeneID:83594");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -518,6 +541,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("HGNC:HGNC:18826");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -526,6 +550,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("db_xref");
         $oFeature->setFtValue("MIM:609232");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -543,6 +568,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $translation.= "PSSLMIGCLALAVSTEIKVDKNEIEDARWFTREQVLDVLTKGKQQAFFVPPSRAIAHQ ";
         $translation.= "LIKHWIRINPNL";
         $oFeature->setFtValue($translation);
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -551,6 +577,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(213);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -559,6 +586,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(213);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -567,6 +595,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(213);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 1");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -575,6 +604,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(315);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -583,6 +613,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(315);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -591,6 +622,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(315);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 2");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -599,6 +631,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(387);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -607,6 +640,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(387);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -615,6 +649,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(387);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 3");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -623,6 +658,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(648);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -631,6 +667,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(648);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -639,6 +676,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(648);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKBSwiss-Prot (Q9BQG2.1); modified site");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -647,6 +685,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(969);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -655,6 +694,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(969);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -663,6 +703,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(969);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKBSwiss-Prot (Q9BQG2.1); modified site");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -671,6 +712,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1221);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -679,6 +721,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1221);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -687,6 +730,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1221);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: Nudix box");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -695,6 +739,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1479);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -703,6 +748,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1479);
         $oFeature->setFtQual("experiment");
         $oFeature->setFtValue("experimental evidence, no additional details recorded");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -711,6 +757,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1479);
         $oFeature->setFtQual("note");
         $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: Microbody targeting signal. {ECO:0000305}");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -719,6 +766,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(889);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -727,6 +775,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(889);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -735,6 +784,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1057);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -743,6 +793,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1057);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -751,6 +802,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1171);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -759,6 +811,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1171);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -767,6 +820,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1371);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -775,6 +829,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(1371);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -783,6 +838,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("gene");
         $oFeature->setFtValue("NUDT12");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
         $oFeature->setPrimAcc("NM_031438");
@@ -791,6 +847,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtTo(3488);
         $oFeature->setFtQual("inference");
         $oFeature->setFtValue("alignment:Splign:2.1.0");
+        $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $this->assertEquals($aExpectedFeatures, $oParseGenbankManager->getFeatures());
 
@@ -886,5 +943,110 @@ class ParseGenbankManagerTest extends WebTestCase
         $oGbSequence->setDivision("PRI");
         $oGbSequence->setVersion("NM_031438.4");
         $this->assertEquals($oGbSequence, $oParseGenbankManager->getGbSequence());
+    }
+
+    /**
+     * Regression test: a "complement(...)" / "join(...)" / fuzzy ("<"/">") location used to
+     * crash with a TypeError (the raw, unstripped location text was cast to a Feature's typed
+     * ?int field), and a feature key absent from the parser's short whitelist (e.g. "mRNA") used
+     * to break out of the whole FEATURES loop, silently discarding every feature after it -
+     * including the CDS. data/demo.seq exercises both: its mRNA and CDS features use
+     * complement-free but multi-line join() locations with fuzzy endpoints, and "mRNA" itself is
+     * not in the whitelist and sits right before "gene" and "CDS".
+     */
+    public function testGenbankParsesJoinedFuzzyLocationsAndKeepsParsingAfterAnUnlistedFeature()
+    {
+        // Only the FEATURES table is needed here: data/demo.seq's LOCUS line uses an older,
+        // pre-2001 NCBI column layout that parseLocus() (built for the modern one - see
+        // data/human.seq) cannot read, which is a separate, unrelated limitation.
+        $aAllLines = file('data/demo.seq');
+        $iFeaturesIndex = null;
+        foreach ($aAllLines as $i => $sLine) {
+            if (str_starts_with($sLine, "FEATURES")) {
+                $iFeaturesIndex = $i;
+                break;
+            }
+        }
+        $this->assertNotNull($iFeaturesIndex, "data/demo.seq should contain a FEATURES line");
+        $aFeatureLines = array_slice($aAllLines, $iFeaturesIndex);
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aFeatureLines);
+
+        $aFeatureKeys = array_map(
+            fn(Feature $oFeature) => $oFeature->getFtKey(),
+            $oParser->getFeatures()
+        );
+        // "mRNA" is not in the parser's feature whitelist and must not stop the table from
+        // being read any further: "gene" and "CDS" both come after it in the file.
+        $this->assertContains("gene", $aFeatureKeys);
+        $this->assertContains("CDS", $aFeatureKeys);
+
+        $aCdsFeatures = array_filter(
+            $oParser->getFeatures(),
+            fn(Feature $oFeature) => $oFeature->getFtKey() === "CDS"
+        );
+        $this->assertNotEmpty($aCdsFeatures);
+        $oCdsFeature = reset($aCdsFeatures);
+        // join(265..402,673..781,911..1007,1088..1215,1377..1573,1866..2146,2306..2634,2683..2855)
+        $this->assertEquals(265, $oCdsFeature->getFtFrom());
+        $this->assertEquals(2855, $oCdsFeature->getFtTo());
+        // None of demo.seq's locations are wrapped in complement(): every feature is "+".
+        $this->assertEquals("+", $oCdsFeature->getStrand());
+    }
+
+    /**
+     * A location wrapped in complement(...), previously dropped with no trace at all, must be
+     * readable as the feature's strand.
+     */
+    public function testGenbankComplementLocationIsMinusStrand()
+    {
+        $aLines = [
+            "FEATURES             Location/Qualifiers\n",
+            "     CDS             complement(1..60)\n",
+            "                     /product=\"test protein\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac\n",
+            "//\n",
+        ];
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        $aFeatures = $oParser->getFeatures();
+        $this->assertNotEmpty($aFeatures);
+        $this->assertEquals("-", $aFeatures[0]->getStrand());
+        $this->assertEquals(1, $aFeatures[0]->getFtFrom());
+        $this->assertEquals(60, $aFeatures[0]->getFtTo());
+    }
+
+    /**
+     * Regression test: parseAccession() used to read the primary accession's array index
+     * (index 1) from *inside* the loop building the secondary Accession rows, after that array
+     * had already had its first two elements (the "ACCESSION" tag and the primary accession)
+     * shifted off - so every secondary accession was stamped with the wrong primAcc.
+     */
+    public function testGenbankSecondaryAccessionsPointToThePrimaryAccession()
+    {
+        $oParser = new ParseGenbankManager();
+
+        $oReflection = new \ReflectionClass($oParser);
+
+        // Properties/methods are reflection-accessible without setAccessible() since PHP 8.1.
+        $oReflection->getProperty('sequence')->setValue($oParser, new Sequence());
+        $oReflection->getProperty('aLines')->setValue(
+            $oParser,
+            new \ArrayIterator(["ACCESSION   U49845 X11111 X22222"])
+        );
+        $oReflection->getMethod('parseAccession')->invoke($oParser);
+
+        $this->assertEquals("U49845", $oParser->getSequence()->getPrimAcc());
+        foreach ($oParser->getAccession() as $oAccession) {
+            $this->assertEquals("U49845", $oAccession->getPrimAcc());
+        }
+        $this->assertEquals(
+            ["X11111", "X22222"],
+            array_map(fn($oAccession) => $oAccession->getAccession(), $oParser->getAccession())
+        );
     }
 }

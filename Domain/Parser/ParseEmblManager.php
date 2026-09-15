@@ -32,6 +32,15 @@ final class ParseEmblManager extends ParseDbAbstractManager
     private $aLines;
 
     /**
+     * Whether an AC line has already been parsed for the entry being read. Only the very first
+     * accession of the very first AC line is the entry's primary accession (already captured
+     * from the ID line); every accession on every AC line after that, continuation lines
+     * included, is a genuine secondary accession and must be kept.
+     * @var bool
+     */
+    private $bAccessionLineSeen = false;
+
+    /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
      * @return string
      */
@@ -154,11 +163,15 @@ final class ParseEmblManager extends ParseDbAbstractManager
         $aAccessions = array_filter(array_map('trim', explode(";", $sLineData)));
         $aAccessions = array_values($aAccessions);
 
-        if ($this->sequence->getPrimAcc() == "") {
-            $this->sequence->setPrimAcc($aAccessions[0]);
+        if (!$this->bAccessionLineSeen) {
+            if ($this->sequence->getPrimAcc() == "") {
+                $this->sequence->setPrimAcc($aAccessions[0]);
+            }
+            $aAccessions = array_slice($aAccessions, 1);
+            $this->bAccessionLineSeen = true;
         }
 
-        foreach (array_slice($aAccessions, 1) as $sAccession) {
+        foreach ($aAccessions as $sAccession) {
             $oAccession = new Accession();
             $oAccession->setPrimAcc($this->sequence->getPrimAcc());
             $oAccession->setAccession($sAccession);
@@ -322,8 +335,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
     private function parseFeatures($aFlines)
     {
         $sKey = trim(substr($this->aLines->current(), 5, 15));
-        $sLocation = str_replace(["complement(", "join(", ")"], "", trim(substr($this->aLines->current(), 21)));
-        $aBounds = explode("..", $sLocation);
+        [$iFtFrom, $iFtTo, $sStrand] = $this->parseLocationBounds(trim(substr($this->aLines->current(), 21)));
 
         $sQualifiers = "";
         while (true) {
@@ -343,8 +355,9 @@ final class ParseEmblManager extends ParseDbAbstractManager
             $oFeature->setFtKey($sKey);
             $oFeature->setFtQual($aQualifier[0]);
             $oFeature->setFtValue($aQualifier[1] ?? "");
-            $oFeature->setFtFrom((int) ($aBounds[0] ?? 0));
-            $oFeature->setFtTo((int) ($aBounds[1] ?? 0));
+            $oFeature->setFtFrom($iFtFrom ?? 0);
+            $oFeature->setFtTo($iFtTo ?? 0);
+            $oFeature->setStrand($sStrand);
             $this->features[] = $oFeature;
         }
     }

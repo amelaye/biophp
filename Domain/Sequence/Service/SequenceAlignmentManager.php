@@ -213,6 +213,8 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $oSequence->setSeqlength($iSeqLength);
                 $oSequence->setSequence($sSequence);
                 $oSequence->setDescription($sPrevDesc);
+                $oSequence->setStart(0);
+                $oSequence->setEnd($iSeqLength - 1);
                 if($sPrevDesc != "") {
                     $aDescription = explode(" ", $sPrevDesc);
                     $oSequence->setOrganism(array($aDescription[1]));
@@ -254,6 +256,8 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $oSequence->setSeqlength($iSeqLength);
         $oSequence->setSequence($sSequence);
         $oSequence->setDescription($sDescription);
+        $oSequence->setStart(0);
+        $oSequence->setEnd($iSeqLength - 1);
         $aDescription = explode(" ", $sPrevDesc);
         $oSequence->setOrganism(array($aDescription[1]));
         $oSequence->setEntryName($sDescription);
@@ -266,7 +270,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
             if ($iSeqLength > $iMaxLength) {
                 $iMaxLength = $iSeqLength;
             }
-            if (($iSeqCount >= 3) && ($iSeqLength != $iPrevLength)) {
+            // Unlike the in-loop comparison above (which needs $iSeqCount >= 3 to skip the fake
+            // pre-first-header pseudo record), $iSeqCount here already counts only real records:
+            // >= 2 is enough to know there is a previous one to compare this last record against.
+            if (($iSeqCount >= 2) && ($iSeqLength != $iPrevLength)) {
                 $bSameLength = false;
             }
             $this->aSeqSet->append($oSequence);
@@ -791,6 +798,17 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $aFrequences[$sCurrLet] = 1;
             }
         }
+
+        // A gap is not a residue: it must not win a column as "the" consensus symbol while any
+        // sequence still carries a real character there. Only when every sequence has a gap at
+        // this column is there nothing else to report, and "-" is kept as that (unanimous) result.
+        $iGapCount = $aFrequences["-"] ?? 0;
+        unset($aFrequences["-"]);
+        if (empty($aFrequences)) {
+            $aKeys = ["-"];
+            return ($iGapCount / $this->aSeqSet->count()) * 100;
+        }
+
         arsort($aFrequences);
         $aKeys = array_keys($aFrequences);
         $iMaxPercent = ($aFrequences[$aKeys[0]]/$this->aSeqSet->count()) * 100;

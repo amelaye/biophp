@@ -191,7 +191,7 @@ class SequenceManager
     public function expandNa(string $sSequence) : string
     {
         $aPattern = [
-            "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/R/"
+            "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/V/"
         ];
         $aReplacement = [
             ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
@@ -307,16 +307,42 @@ class SequenceManager
 
 
     /**
-     * Counts the number of codons (a trio of nucleotide base-pairs) in a sequence.
-     * @param   array     $aFeatures
-     * @param   int       $iSeqLength
-     * @return  int       The number of codons within a sequence, expressed as an non-negative integer.
-     * @todo : test after
+     * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
+     * parsed record.
+     * @param   array     $aFeatures    The record's Feature objects, as returned by a database
+     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). Every row sharing the
+     * "CDS" key is expected to carry the same ftFrom/ftTo span - one per /qualifier read off the
+     * CDS feature - and, when present, a "codon_start" qualifier row gives the 1-based offset
+     * (1, 2 or 3) of the first complete codon within that span.
+     * @return  int       The number of complete codons within the CDS, expressed as a
+     * non-negative integer.
+     * @throws  \Exception  When $aFeatures holds no "CDS" feature.
      */
-    public function countCodons(array $aFeatures, int $iSeqLength) : int
+    public function countCodons(array $aFeatures) : int
     {
-        $codstart = (isset($aFeatures["CDS"]["/codon_start"])) ? $aFeatures["CDS"]["/codon_start"] : 1;
-        $codcount = (int) (($iSeqLength - $codstart + 1)/3);
+        $iCdsFrom = null;
+        $iCdsTo = null;
+        $iCodonStart = 1;
+
+        foreach ($aFeatures as $oFeature) {
+            if ($oFeature->getFtKey() !== "CDS") {
+                continue;
+            }
+            if ($iCdsFrom === null) {
+                $iCdsFrom = $oFeature->getFtFrom();
+                $iCdsTo = $oFeature->getFtTo();
+            }
+            if ($oFeature->getFtQual() === "codon_start") {
+                $iCodonStart = (int) $oFeature->getFtValue();
+            }
+        }
+
+        if ($iCdsFrom === null) {
+            throw new \Exception("No CDS feature found : cannot count codons.");
+        }
+
+        $iCdsLength = $iCdsTo - $iCdsFrom + 1;
+        $codcount = (int) (($iCdsLength - $iCodonStart + 1) / 3);
         return $codcount;
     }
 
@@ -673,7 +699,8 @@ class SequenceManager
                 $sTranslation = $this->guanineLetters($sLetter2, $sLetter3, $iFormat);
                 break;
             default:
-                $sTranslation =  "X";
+                // Ambiguous first base (N, R, ...): no single amino acid can be determined.
+                $sTranslation = ($iFormat == 3) ? "XXX" : "X";
         }
         return $sTranslation;
     }
@@ -845,11 +872,15 @@ class SequenceManager
                     case "G":
                         return $aAminos["Glutamic acid"][$format]; // GAA or GAG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // GAN - covers both Asp and Glu
                 }
                 break;
             case "G":
                 return $aAminos["Glycine"][$format]; // GG*
                 break;
+            default:
+                return $aAminos["Any"][$format]; // GNx or GxN - ambiguous second/third base
         }
     }
 
@@ -869,9 +900,13 @@ class SequenceManager
                     case "G":
                         return $aAminos["Methionine"][$format]; // AUG
                         break;
-                    default:
-                        return $aAminos["Isoleucine"][$format]; // AU* - G
+                    case "U":
+                    case "C":
+                    case "A":
+                        return $aAminos["Isoleucine"][$format]; // AUU / AUC / AUA
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // AUN - covers both Ile and Met
                 }
                 break;
             case "C":
@@ -887,6 +922,8 @@ class SequenceManager
                     case "G":
                         return $aAminos["Lysine"][$format]; // AAA / AAG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // AAN - covers both Asn and Lys
                 }
             break;
             case "G":
@@ -899,8 +936,12 @@ class SequenceManager
                     case "G":
                         return $aAminos["Arginine"][$format]; // AGA / AGG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // AGN - covers both Ser and Arg
                 }
                 break;
+            default:
+                return $aAminos["Any"][$format]; // ANx or AxN - ambiguous second/third base
         }
     }
 
@@ -911,7 +952,7 @@ class SequenceManager
      * @param   int     $format
      * @return  string
      */
-    private function cytosineLetters($letter2, $letter3, $format)
+    private function cytosineLetters($letter2, $letter3, $format) : string
     {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
@@ -931,11 +972,15 @@ class SequenceManager
                     case "G":
                         return $aAminos["Glutamine"][$format]; // CAA / CAG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // CAN - covers both His and Gln
                 }
                 break;
             case "G":
                 return $aAminos["Arginine"][$format]; // CG*
                 break;
+            default:
+                return $aAminos["Any"][$format]; // CNx or CxN - ambiguous second/third base
         }
     }
 
@@ -947,7 +992,7 @@ class SequenceManager
      * @param   int       $format
      * @return  string
      */
-    private function uracileLetters($letter2, $letter3, $format)
+    private function uracileLetters($letter2, $letter3, $format) : string
     {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
@@ -961,6 +1006,8 @@ class SequenceManager
                     case "G":
                         return $aAminos["Leucine"][$format]; // UUA / UUG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // UUN - covers both Phe and Leu
                 }
                 break;
             case "C":
@@ -976,6 +1023,8 @@ class SequenceManager
                     case "G":
                         return $aAminos["STOP"][$format]; // UAA / UAG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // UAN - covers both Tyr and STOP
                 }
                 break;
             case "G":
@@ -990,8 +1039,12 @@ class SequenceManager
                     case "G":
                         return $aAminos["Tryptophan"][$format]; // UGG
                         break;
+                    default:
+                        return $aAminos["Any"][$format]; // UGN - covers Cys, STOP and Trp
                 }
                 break;
+            default:
+                return $aAminos["Any"][$format]; // UNx or UxN - ambiguous second/third base
         }
     }
 
@@ -1034,7 +1087,7 @@ class SequenceManager
 
         for($j = 0; $j < $iCount; $j++) {
             $sSubSeq = substr($sSequence, $j, $iSeqlength);
-            $iHalfSeq = (int) (strlen($sSequence)/2);
+            $iHalfSeq = (int) (strlen($sSubSeq)/2);
             $sPalindrome = "";
             for($k = 0; $k < $iHalfSeq; $k++) {
                 $sLetter1 = substr($sSubSeq, $k, 1);

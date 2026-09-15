@@ -102,14 +102,19 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                     break;
                 case "FEATURES":
                     while(1) {
-                        // Verify next line
-                        $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
-                        $aFields = ["source", "gene", "exon", "CDS", "misc_feature"];
-                        if($sHead != "" && !in_array($sHead, $aFields)) {
+                        // Verify next line. A feature key (whether we recognize it or not) and a
+                        // qualifier continuation line are both indented; only an unindented line
+                        // (the next top-level section, or the "//" record terminator) means the
+                        // FEATURES table is over. A feature key we don't parse (e.g. "mRNA") must
+                        // not stop the loop, or every feature after it in the record is lost.
+                        $sNextLine = $aFlines[$this->aLines->key()+1] ?? "";
+                        $bStillInFeatureTable = ($sNextLine === "") || ctype_space(substr($sNextLine, 0, 1));
+                        if(!$bStillInFeatureTable) {
                             break;
                         }
                         $this->aLines->next();
                         $sHead = trim(substr($this->aLines->current(), 0, 20));
+                        $aFields = ["source", "gene", "exon", "CDS", "misc_feature"];
                         if(in_array($sHead, $aFields)) {
                             $this->parseFeatures($aFlines, $sHead);
                         }
@@ -362,7 +367,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         array_shift($wordarray);
         foreach($wordarray as $word) {
             $oAccession = new Accession();
-            $oAccession->setPrimAcc($wordarray[1]);
+            $oAccession->setPrimAcc($this->sequence->getPrimAcc());
             $oAccession->setAccession($word);
             $this->accession[] = $oAccession;
         }
@@ -377,26 +382,49 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      */
     private function parseFeatures($aFlines, $sField)
     {
-        $sKey = $sField ." ". trim(substr($this->aLines->current(), 20));
-        $aLineKeys = explode(" ", $sKey);
-        $sKey = $aLineKeys[0];
-        $aBounds = explode("..", $aLineKeys[1]);
+        $sKey = $sField;
+        $sLocation = trim(substr($this->aLines->current(), 20));
+        // A location can wrap across several physical lines (a spliced join() feature commonly
+        // does). Keep appending lines to it until the next one starts a qualifier ("/...") or a
+        // new feature/section begins.
+        while (true) {
+            $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
+            $sNextTrimmed = trim($sNextLine);
+            if ($sNextTrimmed === "" || $sNextTrimmed[0] === "/") {
+                break;
+            }
+            if (trim(substr($sNextLine, 0, 12)) != "") {
+                break;
+            }
+            $this->aLines->next();
+            $sLocation .= trim(substr($this->aLines->current(), 20));
+        }
+        $aBounds = $this->parseLocationBounds($sLocation);
         $this->aLines->next();
         $sLine = trim(substr($this->aLines->current(), 20));
         while (1) {
-            // If line begins with  /
-            // Adding line in array
-            if(trim($aFlines[$this->aLines->key()+1])[0] == "/") {
+            // Decide from the *next* line, before consuming it: a new "/qualifier=" line means
+            // the one just accumulated in $sLine is complete. A new feature key (or a top-level
+            // section like ORIGIN) occupies columns 0-11, same as the check that opens a
+            // feature's own key/location line; a qualifier's own wrapped continuation line never
+            // does, since its content starts only past column 20. Checking this on the line
+            // about to be consumed - not one line later, once it has already been swallowed - is
+            // what keeps the next feature's key/location line from being absorbed as if it were
+            // more of this feature's qualifier text.
+            $sNextLine = $aFlines[$this->aLines->key()+1] ?? "";
+            $sNextTrimmed = trim($sNextLine);
+            $bNextStartsQualifier = ($sNextTrimmed !== "") && ($sNextTrimmed[0] === "/");
+            $bNextIsNewFeatureOrSection = trim(substr($sNextLine, 0, 12)) !== "";
+
+            if ($bNextStartsQualifier || $bNextIsNewFeatureOrSection) {
                 $this->buildFeature($sLine, $sKey, $aBounds);
                 $sLine = ""; // RAZ
             }
-            $this->aLines->next();
-            $sLine .= " ".trim(substr($this->aLines->current(), 20));
-            $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 12));
-            if($sHead != "") { // Stop if we change feature
-                $this->buildFeature($sLine, $sKey, $aBounds);
+            if ($bNextIsNewFeatureOrSection) {
                 break;
             }
+            $this->aLines->next();
+            $sLine .= " ".trim(substr($this->aLines->current(), 20));
         }
     }
 
@@ -404,7 +432,8 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * Creates Feature object
      * @param   string  $sLine
      * @param   string  $sKey
-     * @param   array   $aBounds
+     * @param   array   $aBounds    [$iFtFrom, $iFtTo, $sStrand], as returned by
+     * parseLocationBounds().
      */
     private function buildFeature($sLine, $sKey, $aBounds)
     {
@@ -417,6 +446,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         $oFeature->setFtValue($aLine[1]);
         $oFeature->setFtFrom($aBounds[0]);
         $oFeature->setFtTo($aBounds[1]);
+        $oFeature->setStrand($aBounds[2] ?? null);
         $this->features[] = $oFeature;
     }
 }

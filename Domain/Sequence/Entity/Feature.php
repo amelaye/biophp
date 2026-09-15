@@ -66,6 +66,15 @@ class Feature
     private $ftDesc = "";
 
     /**
+     * The strand the feature was read from : "+" (direct/sense) or "-" (the location was wrapped
+     * in "complement(...)"). Null when the format has no strand concept (e.g. Swiss-Prot, whose
+     * features are positions on a protein sequence) or none was recorded.
+     * @var string|null
+     */
+    #[ORM\Column(type: "string", length: 1, nullable: true)]
+    private $strand;
+
+    /**
      * @return string
      */
     public function getPrimAcc() : string
@@ -175,5 +184,21 @@ class Feature
     public function setFtDesc(string $ftDesc) : void
     {
         $this->ftDesc = $ftDesc;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getStrand() : ?string
+    {
+        return $this->strand;
+    }
+
+    /**
+     * @param string|null $strand
+     */
+    public function setStrand(?string $strand) : void
+    {
+        $this->strand = $strand;
     }
 }

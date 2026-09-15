@@ -280,7 +280,7 @@ class OligosManager implements OligosInterface
                 $aOligos = $this->findOligos8BasesLong($aOligos1Step);
                 break;
             default:
-                throwException(new \Exception("Invalid base format ! "));
+                throw new \Exception("Invalid base format ! ");
         }
 
         return $aOligos;
@@ -304,6 +304,9 @@ class OligosManager implements OligosInterface
             foreach($base_b as $key_b => $val_b) {
                 foreach($base_c as $key_c => $val_c) {
                     foreach($base_d as $key_d => $val_d) {
+                        if(!isset($oligos3[$val_a.$val_b.$val_c])) {
+                            $oligos3[$val_a.$val_b.$val_c] = null;
+                        }
                         if(!isset($oligos3[$val_b.$val_c.$val_d])) {
                             $oligos3[$val_b.$val_c.$val_d] = null;
                         }
@@ -333,7 +336,11 @@ class OligosManager implements OligosInterface
                         }
                         $etemp = $oligos4[$val_a.$val_b.$val_c.$val_d] - $exp[$val_a.$val_b.$val_c.$val_d];
 
-                        if(isset($var[$val_a.$val_b.$val_c.$val_d]) && sqrt($var[$val_a.$val_b.$val_c.$val_d] != 0)) {
+                        // A variance must be strictly positive to take a square root of: 0 leaves
+                        // no z-score defined for this index, and a negative value (the Markov
+                        // model applied outside its domain of validity) must not silently turn
+                        // into sqrt()'s NAN.
+                        if(isset($var[$val_a.$val_b.$val_c.$val_d]) && $var[$val_a.$val_b.$val_c.$val_d] > 0) {
                             $zscore[$i] = $etemp / sqrt($var[$val_a.$val_b.$val_c.$val_d]);
                         }
                         $i ++;

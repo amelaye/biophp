@@ -22509,4 +22509,37 @@ class OligosManagerTest extends TestCase
 
         $this->assertEquals($aExpected, $aOligos);
     }
+
+    /**
+     * Regression test: findOligos() used to call throwException(), a function that does not
+     * exist in PHP, for any length outside 1-8 - producing a fatal "undefined function" Error
+     * instead of the documented \Exception.
+     */
+    public function testFindOligosRejectsUnsupportedLength()
+    {
+        $oligosManager = new OligosManager($this->apiNucleoMock);
+
+        $this->expectException(\Exception::class);
+        $oligosManager->findOligos($this->sequence, 9);
+    }
+
+    /**
+     * Regression test: a fautly-parenthesized guard ("sqrt($var != 0)" instead of
+     * "sqrt($var) != 0") let a negative variance reach sqrt(), silently producing NAN instead of
+     * being excluded like a zero variance already was. No z-score may ever be NAN.
+     */
+    public function testFindZScoreNeverReturnsNan()
+    {
+        $oligosManager = new OligosManager($this->apiNucleoMock);
+
+        $aOligos2 = $oligosManager->findOligos($this->sequence, 2);
+        $aOligos3 = $oligosManager->findOligos($this->sequence, 3);
+        $aOligos4 = $oligosManager->findOligos($this->sequence, 4);
+
+        $aZScores = $oligosManager->findZScore($aOligos2, $aOligos3, $aOligos4);
+
+        foreach ($aZScores as $iIndex => $fZScore) {
+            $this->assertFalse(is_nan($fZScore), "z-score at index $iIndex must not be NAN");
+        }
+    }
 }

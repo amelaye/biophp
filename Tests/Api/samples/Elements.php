@@ -14,7 +14,7 @@ $element->setWeight(16.00);
 $aElementsObjects[] = $element;
 
 $element = new ElementDTO();
-$element->setName("nitrate");
+$element->setName("azote");
 $element->setWeight(14.01);
 $aElementsObjects[] = $element;
 

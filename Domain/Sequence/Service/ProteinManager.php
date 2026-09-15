@@ -90,8 +90,11 @@ class ProteinManager implements ProteinInterface
             $aMolecularWeight[$iUpperLimit] += $wts[$amino][$iUpperLimit];
         }
         $fMwtWater = 18.015;
-        $aMolecularWeight[$iLowerLimit] = $aMolecularWeight[$iLowerLimit] - (($this->seqlen() - 1) * $fMwtWater);
-        $aMolecularWeight[$iUpperLimit] = $aMolecularWeight[$iUpperLimit] - (($this->seqlen() - 1) * $fMwtWater);
+        // A chain of n residues loses (n-1) water molecules during polymerization. An empty
+        // chain (n=0) loses none: max(0, ...) keeps it from gaining a spurious water molecule.
+        $iWaterLosses = max(0, $this->seqlen() - 1);
+        $aMolecularWeight[$iLowerLimit] = $aMolecularWeight[$iLowerLimit] - ($iWaterLosses * $fMwtWater);
+        $aMolecularWeight[$iUpperLimit] = $aMolecularWeight[$iUpperLimit] - ($iWaterLosses * $fMwtWater);
         return $aMolecularWeight;
     }
 }

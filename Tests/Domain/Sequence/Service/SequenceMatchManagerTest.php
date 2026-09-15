@@ -165,9 +165,39 @@ class SequenceMatchManagerTest extends TestCase
         $sequenceMatchManager->setSubMatrix($this->subMatrix);
         $iLevdist = $sequenceMatchManager->xlevdist($sSeq1, $sSeq2);;
 
-        $iExpected = 49;
+        // xlevdist() is levdist() extended past the 255-character limit; on the very same
+        // pair of sequences it must return the same distance as levdist()/native levenshtein()
+        // in testLevdist() above.
+        $iExpected = 56;
 
         $this->assertEquals($iExpected, $iLevdist);
+    }
+
+    /**
+     * xlevdist() must agree with PHP's native levenshtein() - the oracle levdist() itself
+     * delegates to - on strings short enough for both to run.
+     */
+    public function testXlevdistMatchesNativeLevenshtein()
+    {
+        $sequenceMatchManager = new SequenceMatchManager();
+        $sequenceMatchManager->setSubMatrix($this->subMatrix);
+
+        $aCases = [
+            ["A", "XXXA"],
+            ["ABC", ""],
+            ["", ""],
+            ["GCT", "T"],
+            ["GG", "TTCG"],
+            ["CT", "TCT"],
+            ["ACGT", "ACGT"],
+        ];
+        foreach ($aCases as [$sSeq1, $sSeq2]) {
+            $this->assertEquals(
+                levenshtein($sSeq1, $sSeq2),
+                $sequenceMatchManager->xlevdist($sSeq1, $sSeq2),
+                "xlevdist(\"$sSeq1\", \"$sSeq2\") should match PHP's native levenshtein()"
+            );
+        }
     }
 
     public function testMatch()
@@ -186,5 +216,24 @@ class SequenceMatchManagerTest extends TestCase
         $sExpected = "......C..C..AG.CC.G..C..........C.......CC....C.C...G...G.C....C.C.....G....A...G..CTGG..GC.....G...";
 
         $this->assertEquals($sExpected, $sMatch);
+    }
+
+    /**
+     * Regression test: "if (!isset($aMatrix) == FALSE)" is always true for a required, non-
+     * nullable array parameter, so partialMatch() always overwrote the matrix its caller passed
+     * in with the default one. Grouping A and W together is not in the default matrix set up in
+     * setUp() (D/E, K/R/H, X), so this only passes once the supplied matrix is actually used.
+     */
+    public function testPartialMatchUsesTheSuppliedMatrix()
+    {
+        $sequenceMatchManager = new SequenceMatchManager();
+        $sequenceMatchManager->setSubMatrix($this->subMatrix);
+
+        $oCustomMatrix = new SubMatrix();
+        $oCustomMatrix->addrule('A', 'W');
+        $aCustomRules = $oCustomMatrix->getRules();
+
+        $this->assertTrue($sequenceMatchManager->partialMatch('A', 'W', $aCustomRules));
+        $this->assertFalse($sequenceMatchManager->partialMatch('A', 'W', $this->subMatrix->getRules()));
     }
 }
