@@ -2,12 +2,12 @@
 namespace Tests\Domain\Database\Factory;
 
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseReaderFactory;
-use Amelaye\BioPHP\Domain\Parser\ParseEmblManager;
-use Amelaye\BioPHP\Domain\Parser\ParseExpasyEnzymeManager;
-use Amelaye\BioPHP\Domain\Parser\ParseGenbankManager;
-use Amelaye\BioPHP\Domain\Parser\ParsePdbManager;
-use Amelaye\BioPHP\Domain\Parser\ParsePrositeManager;
-use Amelaye\BioPHP\Domain\Parser\ParseSwissprotManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseEmblManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseExpasyEnzymeManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParsePdbManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParsePrositeManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseSwissprotManager;
 use PHPUnit\Framework\TestCase;
 
 class DatabaseReaderFactoryTest extends TestCase

@@ -4,7 +4,7 @@ namespace Tests\Domain\Sequence\Service;
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;
 use Amelaye\BioPHP\Api\NucleotidApi;
-use Amelaye\BioPHP\Domain\Parser\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
