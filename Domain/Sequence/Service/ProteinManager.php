@@ -14,7 +14,7 @@ use Amelaye\BioPHP\Domain\Sequence\Interfaces\ProteinInterface;
 /**
  * We can have manipulation with proteins
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
- * @package App\Domain\Sequence\Service
+ * @package Amelaye\BioPHP\Domain\Sequence\Service
  */
 class ProteinManager implements ProteinInterface
 {

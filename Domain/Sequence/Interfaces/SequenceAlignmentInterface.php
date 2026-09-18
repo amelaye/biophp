@@ -14,7 +14,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
  * software such as ClustalW. The alignment is usually found in a file that uses
  * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
- * @package Amelaye\BioPHP\Domain\Sequence\Service
+ * @package Amelaye\BioPHP\Domain\Sequence\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  * @todo : length doit représenter la totalité des séquences
  */

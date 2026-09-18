@@ -19,7 +19,7 @@ use Amelaye\BioPHP\Domain\Model\PrositeDbRef;
  * as ParseEmblManager. The MA (matrix) field, which Legacy/motif.inc.php itself only
  * half-implemented (buggy 3-level nesting), is kept as a raw string here rather than
  * ported as-is.
- * @package Amelaye\BioPHP\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Parser
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParsePrositeManager implements ParseDatabaseInterface

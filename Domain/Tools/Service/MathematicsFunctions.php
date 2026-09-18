@@ -10,7 +10,7 @@ namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 /**
  * Class MathematicsManager
- * @package App\Domain\Tools\Service
+ * @package Amelaye\BioPHP\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class MathematicsFunctions

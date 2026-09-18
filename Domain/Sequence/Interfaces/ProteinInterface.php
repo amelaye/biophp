@@ -10,10 +10,16 @@ namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;
 
+/**
+ * Defines protein-specific sequence operations.
+ * @package Amelaye\BioPHP\Domain\Sequence\Interfaces
+ * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
+ */
 interface ProteinInterface
 {
     /**
-     * @param $oProtein
+     * Sets the protein sequence to operate on.
+     * @param Protein $oProtein
      */
     public function setProtein(Protein $oProtein);
 

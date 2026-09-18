@@ -17,7 +17,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
  * software such as ClustalW. The alignment is usually found in a file that uses
  * a particular format. Right now, my code supports only FASTA and CLUSTAL formats.
  * Properties and methods allow users to perform post-alignment operations, manipulations, etc.
- * @package App\Domain\Sequence\Service
+ * @package Amelaye\BioPHP\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceAlignmentManager implements SequenceAlignmentInterface

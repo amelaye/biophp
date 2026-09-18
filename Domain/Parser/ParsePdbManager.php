@@ -21,7 +21,7 @@ use Amelaye\BioPHP\Domain\Model\PdbSheet;
  * (identification, sequence per chain, secondary structure, atomic coordinates);
  * the many rarely-used PDB record types (CONECT, ANISOU, MASTER, ...) are left out,
  * matching what Legacy/pdb.inc.php itself had actually implemented.
- * @package Amelaye\BioPHP\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Parser
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParsePdbManager implements ParseDatabaseInterface

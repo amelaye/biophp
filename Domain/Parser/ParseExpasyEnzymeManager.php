@@ -16,7 +16,7 @@ use Amelaye\BioPHP\Domain\Model\ExpasyDisease;
  * ParsePdbManager and ParsePrositeManager, this class does not reuse the Sequence/Feature
  * entities of ParseDbAbstractManager. Not to be confused with RestrictionEnzymeManager,
  * which covers restriction endonucleases (a completely different Legacy/ExPASy database).
- * @package Amelaye\BioPHP\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Parser
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParseExpasyEnzymeManager implements ParseDatabaseInterface

@@ -17,7 +17,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\SpDatabank;
 
 /**
  * Class ParseSwissprotManager
- * @package Amelaye\BioPHP\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Parser
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParseSwissprotManager extends ParseDbAbstractManager

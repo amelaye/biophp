@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Sequence
- * @package Amelaye\BioPHP\Entity\Sequencing
+ * @package Amelaye\BioPHP\Domain\Sequence\Entity
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 #[ORM\Entity]

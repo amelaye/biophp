@@ -21,7 +21,7 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
  * line tags differ (2-char codes like ID/AC/DE/OS/OC/RN/FT/SQ instead of full keywords).
  * This class mirrors ParseGenbankManager's decomposition (one private parseXxx() per
  * record type, \ArrayIterator lookahead) applied to those EMBL tags.
- * @package Amelaye\BioPHP\Domain\Database\Service
+ * @package Amelaye\BioPHP\Domain\Parser
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 final class ParseEmblManager extends ParseDbAbstractManager

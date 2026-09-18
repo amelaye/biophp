@@ -17,7 +17,7 @@ use Amelaye\BioPHP\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
- * @package App\Domain\Sequence\Service
+ * @package Amelaye\BioPHP\Domain\Sequence\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class SequenceManager

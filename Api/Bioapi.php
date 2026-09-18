@@ -13,7 +13,7 @@ use JMS\Serializer\Serializer;
  * This class makes requests on the Bio API api.amelayes-biophp.net
  * This is the sample database
  * Class Bioapi
- * @package Amelaye\BioPHP\\Api
+ * @package Amelaye\BioPHP\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 abstract class Bioapi

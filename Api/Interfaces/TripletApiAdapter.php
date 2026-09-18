@@ -9,7 +9,7 @@ namespace Amelaye\BioPHP\Api\Interfaces;
 
 /**
  * Class TripletApi
- * @package Amelaye\BioPHP\Api
+ * @package Amelaye\BioPHP\Api\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface TripletApiAdapter

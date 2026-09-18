@@ -12,7 +12,7 @@ use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
 
 /**
  * Database of aminos - Amino acids
- * @package App\Api
+ * @package Amelaye\BioPHP\Api
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class AminoApi extends Bioapi implements AminoApiAdapter

@@ -11,7 +11,7 @@ use Amelaye\BioPHP\Api\DTO\ElementDTO;
 
 /**
  * Database of elements
- * @package Amelaye\BioPHP\Api
+ * @package Amelaye\BioPHP\Api\Interfaces
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 interface ElementApiAdapter
