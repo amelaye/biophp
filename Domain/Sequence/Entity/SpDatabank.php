@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "sp_databank")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc"])]
+#[ORM\UniqueConstraint(name: "uniq_sp_databank", columns: ["prim_acc"])]
 class SpDatabank
 {
     /**

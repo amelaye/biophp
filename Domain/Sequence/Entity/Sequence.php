@@ -23,7 +23,7 @@ class Sequence
      * @var string
      */
     #[ORM\Id]
-    #[ORM\Column(type: "string", length: 8, options: ["default" => 0], nullable: false)]
+    #[ORM\Column(type: "string", length: 8, nullable: false)]
     private $primAcc = "";
 
     /**
@@ -86,7 +86,7 @@ class Sequence
     /**
      * @var array|null
      */
-    #[ORM\Column(type: "array", nullable: true)]
+    #[ORM\Column(type: "json", nullable: true)]
     private $organism;
 
     /**

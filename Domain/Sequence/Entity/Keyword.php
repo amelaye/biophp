@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "keyword")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc", "keywords"])]
+#[ORM\UniqueConstraint(name: "uniq_keyword", columns: ["prim_acc", "keywords"])]
 class Keyword
 {
     /**

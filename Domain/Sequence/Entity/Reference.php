@@ -22,10 +22,8 @@ class Reference
      * @var string
      */
     #[ORM\Id]
-    #[ORM\Column(type: "string", length: 8, options: ["default" => 0], nullable: false)]
     #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    #[ORM\OneToMany(targetEntity: Author::class, mappedBy: "primAcc")]
     private $primAcc = "";
 
     /**

@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "accession")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc", "accession"])]
+#[ORM\UniqueConstraint(name: "uniq_accession", columns: ["prim_acc", "accession"])]
 class Accession
 {
 

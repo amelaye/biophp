@@ -23,7 +23,7 @@ class Author
      * @var string
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Reference::class, inversedBy: "primAcc")]
+    #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
     private $primAcc = "";
 

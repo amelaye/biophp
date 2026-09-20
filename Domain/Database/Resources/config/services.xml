@@ -15,9 +15,14 @@
             <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
             <argument>%files.path%</argument>
         </service>
+        <service class="Amelaye\BioPHP\Domain\Database\Service\RecordManager" id="amelaye_biophp.record_manager">
+            <argument type="service" id="Doctrine\ORM\EntityManagerInterface"></argument>
+            <argument>%files.path%</argument>
+        </service>
         <service id="Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager" />
 
         <service id="Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface" alias="amelaye_biophp.database_manager" />
+        <service id="Amelaye\BioPHP\Domain\Database\Interfaces\RecordStorageInterface" alias="amelaye_biophp.record_manager" />
         
     </services>
 

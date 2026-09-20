@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "src_form")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc"])]
+#[ORM\UniqueConstraint(name: "uniq_src_form", columns: ["prim_acc"])]
 class SrcForm
 {
     /**

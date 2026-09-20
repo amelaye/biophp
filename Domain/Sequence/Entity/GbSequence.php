@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "gb_sequence")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc"])]
+#[ORM\UniqueConstraint(name: "uniq_gb_sequence", columns: ["prim_acc"])]
 class GbSequence
 {
     /**

@@ -16,14 +16,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "feature")]
-#[ORM\UniqueConstraint(name: "prim_acc", columns: ["prim_acc", "ft_key", "ft_qual"])]
+#[ORM\UniqueConstraint(name: "uniq_feature", columns: ["prim_acc", "ft_key", "ft_qual"])]
 class Feature
 {
     /**
      * @var string
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Reference::class)]
+    #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
     private $primAcc = "";
 

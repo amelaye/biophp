@@ -11,7 +11,6 @@ use Amelaye\BioPHP\Domain\Database\Entity\Collection;
 use Amelaye\BioPHP\Domain\Database\Entity\CollectionElement;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseParserFactory;
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseReaderFactory;
-use Amelaye\BioPHP\Domain\Database\Factory\DatabaseRecorderFactory;
 use Amelaye\BioPHP\Domain\Database\Interfaces\DatabaseInterface;
 use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Doctrine\ORM\EntityManager;
@@ -127,41 +126,15 @@ class DatabaseManager implements DatabaseInterface
             // Automatically create an index file containing info across all data files.
             $flines = file($this->sPath .$filename);
 
-            // A record is gathered before it is identified : a parser reads the identifier
-            // out of the lines it is handed, so handing it the whole file would identify
-            // every record of that file as its first one. Lines sitting before any record
-            // start - the header a data file may open with - belong to no record.
-            $aEntryLines = null;
-            $sStartLine  = "";
-            $iStartNo    = 0;
-
-            foreach($flines as $lineno => $linestr) {
-                if ($this->atEntrystart($linestr, $sDbFormat)) {
-                    if ($aEntryLines !== null) {
-                        // A format closing no record leaves the previous one open.
-                        $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
-                        $temp_r[$aRow["id_element"]] = $aRow;
-                    }
-                    $aEntryLines = array();
-                    $sStartLine  = $linestr;
-                    $iStartNo    = $lineno;
-                }
-
-                if ($aEntryLines === null) {
-                    continue;
-                }
-                $aEntryLines[] = $linestr;
-
-                if ($this->atEntryEnd($linestr, $sDbFormat)) {
-                    $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
-                    $temp_r[$aRow["id_element"]] = $aRow;
-                    $aEntryLines = null;
-                }
-            }
-
-            if ($aEntryLines !== null) {
-                $aRow = $this->indexEntry($aEntryLines, $sStartLine, $iStartNo, $filename, $sDbFormat);
-                $temp_r[$aRow["id_element"]] = $aRow;
+            foreach(EntryReader::read($flines, $sDbFormat) as $aEntry) {
+                // Index row of one entry : what identifies it, the file holding it and the line
+                // it starts at, which is what lets fetch() reach it again.
+                $temp_r[$aEntry["id"]] = array(
+                    "id_element" => $aEntry["id"],
+                    "filename"   => $filename,
+                    "dbformat"   => $sDbFormat,
+                    "line_no"    => $aEntry["line_no"]
+                );
             }
         }
 
@@ -184,66 +157,6 @@ class DatabaseManager implements DatabaseInterface
                 $this->em->flush();
             }
         }
-    }
-
-    /**
-     * Tests if the file pointer is at the start of a new sequence entry.
-     * @param       string      $linestr        The line to analyze
-     * @param       string      $dbformat       Original DB format (Swissprot, Genbank)
-     * @return      bool
-     * @throws      \Exception
-     */
-    private function atEntrystart($linestr, $dbformat)
-    {
-        return DatabaseRecorderFactory::getEntryStart($dbformat, $linestr);
-    }
-
-    /**
-     * Tests if the file pointer is at the end of a sequence entry.
-     * @param       string      $linestr        The line to analyze
-     * @param       string      $dbformat       Original DB format (Swissprot, Genbank)
-     * @return      bool
-     * @throws      \Exception
-     */
-    private function atEntryEnd($linestr, $dbformat)
-    {
-        return DatabaseRecorderFactory::getEntryEnd($dbformat, $linestr);
-    }
-
-    /**
-     * Builds the index row of one entry : what identifies it, the file holding it and the line
-     * it starts at, which is what lets fetch() reach it again.
-     * @param       array       $aEntryLines    The lines of the entry
-     * @param       string      $sStartLine     The line opening the entry
-     * @param       int         $iStartNo       Line number the entry starts at
-     * @param       string      $sFilename      Name of the data file
-     * @param       string      $sDbFormat      Original DB format (Swissprot, Genbank)
-     * @return      array
-     * @throws      \Exception
-     */
-    private function indexEntry($aEntryLines, $sStartLine, $iStartNo, $sFilename, $sDbFormat)
-    {
-        return array(
-            "id_element" => $this->getEntryid($aEntryLines, $sStartLine, $sDbFormat),
-            "filename"   => $sFilename,
-            "dbformat"   => $sDbFormat,
-            "line_no"    => $iStartNo
-        );
-    }
-
-    /**
-     * Gets the primary accession number of the sequence entry which we are
-     * currently processing.  This uniquely identifies a sequence entry.
-     * @param       array       $flines     Buffed file as array
-     * @param       string      $linestr    Current line
-     * @param       string      $dbformat   Original DB format (Swissprot, Genbank)
-     * @return      string
-     * @throws      \Exception
-     */
-    private function getEntryid(&$flines, $linestr, $dbformat)
-    {
-        $iEntryId = DatabaseRecorderFactory::getEntryId($dbformat, $flines, $linestr);
-        return($iEntryId);
     }
 
     /**
