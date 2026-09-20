@@ -3,7 +3,7 @@
  * Doctrine Entity SrcForm
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 12 August 2026
+ * Last modified 20 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 

@@ -3,7 +3,7 @@
  * AAINDEX1 database parsing (physico-chemical indices of amino acids)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 12 September 2026
+ * Last modified 18 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 

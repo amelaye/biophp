@@ -3,7 +3,7 @@
  * One HELIX secondary-structure record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 13 August 2026
+ * Last modified 18 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 

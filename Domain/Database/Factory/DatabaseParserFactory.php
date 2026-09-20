@@ -3,7 +3,7 @@
  * Resolves a database format name to the parser that knows it
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 12 September 2026
+ * Last modified 18 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Factory;
 

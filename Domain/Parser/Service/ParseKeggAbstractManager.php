@@ -3,7 +3,7 @@
  * Shared reading of the KEGG flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 12 September 2026
+ * Last modified 18 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 

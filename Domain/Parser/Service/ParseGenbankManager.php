@@ -3,7 +3,7 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 12 September 2026
+ * Last modified 18 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 

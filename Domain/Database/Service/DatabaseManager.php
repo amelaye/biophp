@@ -3,7 +3,7 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 September 2026
+ * Last modified 20 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
