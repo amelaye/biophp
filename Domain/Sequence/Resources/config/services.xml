@@ -28,6 +28,11 @@
             <argument type="service" id="amelaye_biophp.api_ts"></argument>
             <argument type="service" id="amelaye_biophp.seq_enzyme"></argument>
         </service>
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\RestrictionEnzymeCatalog" id="amelaye_biophp.seq_restenzyme_catalog">
+            <argument type="service" id="amelaye_biophp.api_ts"></argument>
+            <argument type="service" id="amelaye_biophp.api_t2b"></argument>
+            <argument type="service" id="amelaye_biophp.api_t2s"></argument>
+        </service>
         <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceAlignmentManager" id="amelaye_biophp.seq_alignment">
             <argument type="service" id="amelaye_biophp.seq_sequences_bld"></argument>
         </service>
@@ -37,6 +42,7 @@
 
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\ProteinInterface" alias="amelaye_biophp.seq_proteins" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeInterface" alias="amelaye_biophp.seq_restenzyme" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeCatalogInterface" alias="amelaye_biophp.seq_restenzyme_catalog" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceAlignmentInterface" alias="amelaye_biophp.seq_alignment" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" alias="amelaye_biophp.seq_sequences_bld" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceMatchInterface" alias="amelaye_biophp.seq_match" />
