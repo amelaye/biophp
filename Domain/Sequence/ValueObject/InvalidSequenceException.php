@@ -3,7 +3,7 @@
  * Raised when a string cannot be wrapped into a sequence value object
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 24 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
 
@@ -41,5 +41,44 @@ class InvalidSequenceException extends \InvalidArgumentException
     public static function unsupportedMolType(string $sMolType) : self
     {
         return new self(sprintf('Unsupported molecule type "%s".', $sMolType));
+    }
+
+    /**
+     * Builds the exception raised when a circular sequence is built from an empty string.
+     * @return  InvalidSequenceException
+     */
+    public static function emptyCircularSequence() : self
+    {
+        return new self("A circular DNA sequence must not be empty.");
+    }
+
+    /**
+     * Builds the exception raised when sliceCircular() is asked for a negative length.
+     * @param   int         $iLength        The rejected, negative length
+     * @return  InvalidSequenceException
+     */
+    public static function negativeCircularSliceLength(int $iLength) : self
+    {
+        return new self(
+            sprintf('Circular slice length must not be negative, got %d.', $iLength)
+        );
+    }
+
+    /**
+     * Builds the exception raised when sliceCircular() is asked for a length longer than the
+     * circular sequence itself, which would require an explicit, not yet supported, repeat.
+     * @param   int         $iLength            The rejected length
+     * @param   int         $iSequenceLength    The length of the circular sequence
+     * @return  InvalidSequenceException
+     */
+    public static function circularSliceLengthExceedsSequence(int $iLength, int $iSequenceLength) : self
+    {
+        return new self(
+            sprintf(
+                'Circular slice length %d exceeds sequence length %d; wrapping repeats are not supported.',
+                $iLength,
+                $iSequenceLength
+            )
+        );
     }
 }
