@@ -21,12 +21,18 @@
         <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonOptimizer" id="amelaye_biophp.tools_codon_optimizer">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator" id="amelaye_biophp.tools_skew_calculator" />
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\CpGIslandFinder" id="amelaye_biophp.tools_cpg_island_finder">
+            <argument type="service" id="amelaye_biophp.tools_skew_calculator" />
+        </service>
 
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonAdaptationIndexInterface" alias="amelaye_biophp.tools_cai" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface" alias="amelaye_biophp.tools_orf_finder" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\MeltingTemperatureInterface" alias="amelaye_biophp.tools_melting_temperature" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonUsageTableBuilderInterface" alias="amelaye_biophp.tools_codon_usage_builder" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonOptimizerInterface" alias="amelaye_biophp.tools_codon_optimizer" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\SkewCalculatorInterface" alias="amelaye_biophp.tools_skew_calculator" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CpGIslandFinderInterface" alias="amelaye_biophp.tools_cpg_island_finder" />
     </services>
 
 </container>
