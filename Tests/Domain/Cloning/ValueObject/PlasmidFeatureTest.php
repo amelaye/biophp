@@ -20,7 +20,8 @@ class PlasmidFeatureTest extends TestCase
             Strand::FORWARD,
             "#FF00AA",
             "Ampicillin resistance",
-            "ext-42"
+            "ext-42",
+            ["genbankKey" => "CDS"]
         );
 
         $this->assertEquals("AmpR", $oFeature->getName());
@@ -31,6 +32,7 @@ class PlasmidFeatureTest extends TestCase
         $this->assertEquals("#FF00AA", $oFeature->getColor());
         $this->assertEquals("Ampicillin resistance", $oFeature->getNote());
         $this->assertEquals("ext-42", $oFeature->getExternalId());
+        $this->assertEquals(["genbankKey" => "CDS"], $oFeature->getMetadata());
     }
 
     public function testDefaultsToNoStrandAndNoOptionalFields()
@@ -41,6 +43,24 @@ class PlasmidFeatureTest extends TestCase
         $this->assertNull($oFeature->getColor());
         $this->assertNull($oFeature->getNote());
         $this->assertNull($oFeature->getExternalId());
+        $this->assertEquals([], $oFeature->getMetadata());
+    }
+
+    public function testRejectsNonSerializableMetadata()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new PlasmidFeature(
+            "X",
+            FeatureType::CDS,
+            1,
+            5,
+            Strand::NONE,
+            null,
+            null,
+            null,
+            ["bad" => new \stdClass()]
+        );
     }
 
     public function testRejectsAnEmptyName()

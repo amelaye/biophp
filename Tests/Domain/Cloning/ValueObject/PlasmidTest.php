@@ -190,6 +190,16 @@ class PlasmidTest extends TestCase
         $this->assertEquals("GTGGCTAA", $oRotated->extractFeatureSequence($oRotatedFeature)->getValue());
     }
 
+    public function testRotatingPreservesFeatureMetadata()
+    {
+        $oFeature = new PlasmidFeature("geneA", FeatureType::CDS, 1, 5, Strand::NONE, null, null, null, ["genbankKey" => "CDS"]);
+        $oPlasmid = new Plasmid("p1", $this->makeSequence(), [$oFeature]);
+
+        $oRotated = $oPlasmid->rotateToOrigin(3);
+
+        $this->assertEquals(["genbankKey" => "CDS"], $oRotated->getFeatures()[0]->getMetadata());
+    }
+
     public function testRotatingPreservesEveryFeatureName()
     {
         $oPlasmid = new Plasmid("p1", $this->makeSequence(), [

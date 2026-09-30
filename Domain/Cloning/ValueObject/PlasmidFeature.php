@@ -3,7 +3,7 @@
  * Immutable value object describing one annotated region of a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
@@ -61,6 +61,11 @@ class PlasmidFeature
     private $externalId;
 
     /**
+     * @var     array           Only scalars, null and arrays of the same, recursively
+     */
+    private $metadata;
+
+    /**
      * PlasmidFeature constructor.
      * @param   string      $sName          Must not be empty
      * @param   string      $sType          One of FeatureType::VALID_TYPES
@@ -70,6 +75,9 @@ class PlasmidFeature
      * @param   string|null $sColor         Strict "#RRGGBB" notation, or null
      * @param   string|null $sNote
      * @param   string|null $sExternalId
+     * @param   array|null  $aMetadata      Only scalars, null and arrays thereof ; a source format's
+     * original type or attributes that don't map onto a dedicated property (e.g. a GenBank feature
+     * key) belong here rather than being folded into $sNote
      */
     public function __construct(
         string $sName,
@@ -79,7 +87,8 @@ class PlasmidFeature
         string $sStrand = Strand::NONE,
         ?string $sColor = null,
         ?string $sNote = null,
-        ?string $sExternalId = null
+        ?string $sExternalId = null,
+        ?array $aMetadata = null
     ) {
         if (trim($sName) === "") {
             throw new \InvalidArgumentException("Plasmid feature name must not be empty.");
@@ -111,6 +120,9 @@ class PlasmidFeature
             );
         }
 
+        $aMetadata = $aMetadata ?? [];
+        $this->assertSerializableMetadata($sName, $aMetadata);
+
         $this->name = $sName;
         $this->type = $sType;
         $this->start = $iStart;
@@ -119,6 +131,7 @@ class PlasmidFeature
         $this->color = $sColor;
         $this->note = $sNote;
         $this->externalId = $sExternalId;
+        $this->metadata = $aMetadata;
     }
 
     /**
@@ -186,6 +199,14 @@ class PlasmidFeature
     }
 
     /**
+     * @return  array
+     */
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
+
+    /**
      * @return  bool        True when start is strictly after end, meaning the feature crosses the
      * origin of the circular molecule it belongs to.
      */
@@ -207,5 +228,28 @@ class PlasmidFeature
         }
 
         return $this->end - $this->start + 1;
+    }
+
+    /**
+     * Rejects metadata holding anything but scalars, null, or arrays of the same, recursively.
+     * @param   string      $sName          The feature's name, for the exception message
+     * @param   array       $aMetadata
+     */
+    private function assertSerializableMetadata(string $sName, array $aMetadata): void
+    {
+        foreach ($aMetadata as $mValue) {
+            if ($mValue === null || is_scalar($mValue)) {
+                continue;
+            }
+
+            if (is_array($mValue)) {
+                $this->assertSerializableMetadata($sName, $mValue);
+                continue;
+            }
+
+            throw new \InvalidArgumentException(
+                sprintf('Feature "%s" metadata must only contain scalars or arrays, got %s.', $sName, gettype($mValue))
+            );
+        }
     }
 }

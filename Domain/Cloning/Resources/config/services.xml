@@ -10,9 +10,11 @@
         <!-- Cloning -->
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\CircularRestrictionDigestManager" id="amelaye_biophp.cloning_digest" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\RestrictionEndCompatibilityManager" id="amelaye_biophp.cloning_end_compat" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\GenbankPlasmidMapper" id="amelaye_biophp.cloning_genbank_mapper" />
 
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface" alias="amelaye_biophp.cloning_genbank_mapper" />
     </services>
 
 </container>
