@@ -12,11 +12,13 @@
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\RestrictionEndCompatibilityManager" id="amelaye_biophp.cloning_end_compat" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\GenbankPlasmidMapper" id="amelaye_biophp.cloning_genbank_mapper" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\FeatureOverlapManager" id="amelaye_biophp.cloning_feature_overlap" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureReader" id="amelaye_biophp.cloning_gff_reader" />
 
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface" alias="amelaye_biophp.cloning_genbank_mapper" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\FeatureOverlapInterface" alias="amelaye_biophp.cloning_feature_overlap" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureReaderInterface" alias="amelaye_biophp.cloning_gff_reader" />
     </services>
 
 </container>

@@ -1,0 +1,148 @@
+<?php
+namespace Tests\Domain\Cloning\Service;
+
+use Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureReader;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
+use PHPUnit\Framework\TestCase;
+
+class GffFeatureReaderTest extends TestCase
+{
+    private $reader;
+
+    public function setUp(): void
+    {
+        $this->reader = new GffFeatureReader();
+    }
+
+    public function testSkipsBlankLinesAndCommentAndPragmaLines()
+    {
+        $oResult = $this->reader->read([
+            "##gff-version 3\n",
+            "\n",
+            "# just a comment\n",
+            "##sequence-region TESTPLAS 1 40\n",
+        ]);
+
+        $this->assertCount(0, $oResult->getFeatures());
+        $this->assertCount(0, $oResult->getWarnings());
+    }
+
+    public function testMapsAPromoterOnTheForwardStrandUsingTheNameAttribute()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tpromoter\t1\t20\t.\t+\t.\tID=prom1;Name=P_lac\n",
+        ]);
+
+        $this->assertCount(1, $oResult->getFeatures());
+        $oFeature = $oResult->getFeatures()[0];
+        $this->assertEquals("P_lac", $oFeature->getName());
+        $this->assertEquals(FeatureType::PROMOTER, $oFeature->getType());
+        $this->assertEquals(1, $oFeature->getStart());
+        $this->assertEquals(20, $oFeature->getEnd());
+        $this->assertEquals(Strand::FORWARD, $oFeature->getStrand());
+        $this->assertEquals("promoter", $oFeature->getMetadata()["gffType"]);
+    }
+
+    public function testMapsACdsWithANoteOnTheReverseStrand()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tCDS\t25\t45\t.\t-\t0\tID=cds1;Name=AmpR;Note=beta-lactamase\n",
+        ]);
+
+        $oFeature = $oResult->getFeatures()[0];
+        $this->assertEquals("AmpR", $oFeature->getName());
+        $this->assertEquals(FeatureType::CDS, $oFeature->getType());
+        $this->assertEquals(Strand::REVERSE, $oFeature->getStrand());
+        $this->assertEquals("beta-lactamase", $oFeature->getNote());
+    }
+
+    /**
+     * "misc_feature" (and any other term this reader does not recognize, including GenBank-style keys
+     * that are not standard Sequence Ontology terms) must fall back to MISC_FEATURE rather than being
+     * guessed at, exactly like GenbankPlasmidMapper's own equivalent fallback.
+     */
+    public function testAnUnrecognizedTypeFallsBackToMiscFeatureAndNameFallsBackToId()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tmisc_feature\t30\t38\t.\t+\t.\tID=site1;Note=test site\n",
+        ]);
+
+        $oFeature = $oResult->getFeatures()[0];
+        $this->assertEquals("site1", $oFeature->getName());
+        $this->assertEquals(FeatureType::MISC_FEATURE, $oFeature->getType());
+    }
+
+    public function testPercentEncodedAttributeValuesAreDecoded()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tCDS\t1\t10\t.\t+\t0\tID=cds1;Note=beta-lactamase%20resistance\n",
+        ]);
+
+        $this->assertEquals("beta-lactamase resistance", $oResult->getFeatures()[0]->getNote());
+    }
+
+    public function testAMalformedLineWithTooFewColumnsIsSkippedAndWarnedAboutRatherThanCrashing()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tpromoter\t1\t20\n",
+        ]);
+
+        $this->assertCount(0, $oResult->getFeatures());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("9 tab-separated", $oResult->getWarnings()[0]);
+    }
+
+    /**
+     * GFF3 does not support an origin-crossing feature directly (start must never exceed end) ;
+     * this is a real, expected input shape to reject cleanly, not a bug.
+     */
+    public function testAStartAfterEndIsSkippedAndWarnedAboutRatherThanCrashing()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tCDS\t10\t5\t.\t+\t0\tID=bad1\n",
+        ]);
+
+        $this->assertCount(0, $oResult->getFeatures());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("start (10) is after end (5)", $oResult->getWarnings()[0]);
+    }
+
+    public function testANonNumericCoordinateIsSkippedAndWarnedAboutRatherThanCrashing()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\trep_origin\t5\tx\t.\t+\t.\tID=bad2\n",
+        ]);
+
+        $this->assertCount(0, $oResult->getFeatures());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("non-numeric", $oResult->getWarnings()[0]);
+    }
+
+    public function testStopsReadingAtTheFastaPragmaWithoutCrashing()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\tmanual\tpromoter\t1\t20\t.\t+\t.\tID=prom1\n",
+            "##FASTA\n",
+            ">TESTPLAS some description\n",
+            "ACGTACGTACGT\n",
+        ]);
+
+        $this->assertCount(1, $oResult->getFeatures());
+        $this->assertCount(0, $oResult->getWarnings());
+    }
+
+    public function testAFullFixtureMixingValidAndInvalidLinesProducesBothFeaturesAndWarnings()
+    {
+        $oResult = $this->reader->read([
+            "##gff-version 3\n",
+            "TESTPLAS\tmanual\tpromoter\t1\t20\t.\t+\t.\tID=prom1;Name=P_lac\n",
+            "TESTPLAS\tmanual\tCDS\t25\t45\t.\t+\t0\tID=cds1;Name=AmpR;Note=beta-lactamase\n",
+            "malformed line with too few columns\n",
+            "TESTPLAS\tmanual\tCDS\t10\t5\t.\t+\t0\tID=bad1\n",
+        ]);
+
+        $this->assertCount(2, $oResult->getFeatures());
+        $this->assertCount(2, $oResult->getWarnings());
+    }
+}
