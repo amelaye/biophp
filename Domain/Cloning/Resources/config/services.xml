@@ -14,6 +14,7 @@
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\FeatureOverlapManager" id="amelaye_biophp.cloning_feature_overlap" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureReader" id="amelaye_biophp.cloning_gff_reader" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\GibsonAssemblyManager" id="amelaye_biophp.cloning_gibson_assembly" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureReader" id="amelaye_biophp.cloning_bed_reader" />
 
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
@@ -21,6 +22,7 @@
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\FeatureOverlapInterface" alias="amelaye_biophp.cloning_feature_overlap" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureReaderInterface" alias="amelaye_biophp.cloning_gff_reader" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GibsonAssemblyInterface" alias="amelaye_biophp.cloning_gibson_assembly" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureReaderInterface" alias="amelaye_biophp.cloning_bed_reader" />
     </services>
 
 </container>

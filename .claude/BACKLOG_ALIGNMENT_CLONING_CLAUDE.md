@@ -24,7 +24,7 @@ en découpant chaque feature en 1 ou 2 intervalles linéaires. Pas un vrai arbre
 donc la structure plus simple est aussi claire et au moins aussi rapide en pratique — décision
 documentée dans le docblock de l'interface plutôt qu'ajoutée en cachette.
 
-## 3. Parser GFF3/BED — GFF3 FAIT, BED pas fait
+## 3. Parser GFF3/BED — FAIT
 
 Pont d'import pour les `PlasmidFeature`. Finalement PAS via `Domain/Parser/`/
 `DatabaseParserFactory` : cette machinerie est construite pour des bases GenBank-like (une entrée =
@@ -33,7 +33,17 @@ persistence-independent de `Domain/Cloning` et avec la structure de GFF3 (une fe
 de délimiteurs d'entrée). Implémenté à la place comme lecteur autonome `GffFeatureReader` /
 `GffFeatureReaderInterface` dans `Domain/Cloning/Service/`, qui rend directement des `PlasmidFeature`
 (pas de `Feature` entity GenBank), tolérant aux lignes invalides (warning + skip, jamais de crash).
-BED n'a pas été fait dans ce lot (format plus simple, à la demande si besoin).
+
+BED implémenté ensuite (`BedFeatureReader`/`BedFeatureReaderInterface`), même esprit autonome.
+Particularité : BED est 0-based demi-ouvert (`[chromStart, chromEnd)`), converti une seule fois vers
+la convention 1-based inclusive du reste du projet (`start = chromStart + 1`, `end = chromEnd`).
+Un intervalle de longueur nulle (`chromStart == chromEnd`) est rejeté plutôt que naïvement converti :
+ça produirait `start > end`, la convention déjà réservée aux features franchissant l'origine — une
+mauvaise réinterprétation silencieuse évitée. BED n'a pas de colonne "type" comme GFF3 ; toute
+feature est `MISC_FEATURE`, chromosome et score étant conservés en métadonnées. Seules les 6
+premières colonnes (BED6 : chrom, chromStart, chromEnd, name, score, strand) sont lues ; les colonnes
+`thickStart`/`thickEnd`/`itemRgb`/blocs (BED12, structure exons) ne sont pas reconstruites — même
+simplification déjà documentée pour un `join()` GenBank ou une relation Parent/ID GFF3.
 
 ## 4. Assemblage Gibson / primers de jonction — FAIT (sans réutiliser l'aligneur, voir note)
 
