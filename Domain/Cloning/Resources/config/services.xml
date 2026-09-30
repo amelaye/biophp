@@ -15,6 +15,9 @@
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureReader" id="amelaye_biophp.cloning_gff_reader" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\GibsonAssemblyManager" id="amelaye_biophp.cloning_gibson_assembly" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureReader" id="amelaye_biophp.cloning_bed_reader" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureWriter" id="amelaye_biophp.cloning_gff_writer" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureWriter" id="amelaye_biophp.cloning_bed_writer" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\GenbankWriter" id="amelaye_biophp.cloning_genbank_writer" />
 
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
@@ -23,6 +26,9 @@
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureReaderInterface" alias="amelaye_biophp.cloning_gff_reader" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GibsonAssemblyInterface" alias="amelaye_biophp.cloning_gibson_assembly" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureReaderInterface" alias="amelaye_biophp.cloning_bed_reader" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureWriterInterface" alias="amelaye_biophp.cloning_gff_writer" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureWriterInterface" alias="amelaye_biophp.cloning_bed_writer" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankWriterInterface" alias="amelaye_biophp.cloning_genbank_writer" />
     </services>
 
 </container>

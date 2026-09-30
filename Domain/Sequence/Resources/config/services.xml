@@ -37,6 +37,7 @@
             <argument type="service" id="amelaye_biophp.seq_sequences_bld"></argument>
         </service>
         <service class="Amelaye\BioPHP\Domain\Sequence\Service\SequenceMatchManager" id="amelaye_biophp.seq_match" />
+        <service class="Amelaye\BioPHP\Domain\Sequence\Service\FastaWriter" id="amelaye_biophp.seq_fasta_writer" />
 
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OligosInterface" alias="amelaye_biophp.seq_oligos" />
 
@@ -46,6 +47,7 @@
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceAlignmentInterface" alias="amelaye_biophp.seq_alignment" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" alias="amelaye_biophp.seq_sequences_bld" />
         <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceMatchInterface" alias="amelaye_biophp.seq_match" />
+        <service id="Amelaye\BioPHP\Domain\Sequence\Interfaces\FastaWriterInterface" alias="amelaye_biophp.seq_fasta_writer" />
     </services>
 
 </container>
