@@ -7,7 +7,7 @@
  */
 namespace Amelaye\BioPHP\Domain\Alignment\Interfaces;
 
-use Amelaye\BioPHP\Domain\Alignment\ValueObject\PairwiseAlignmentResult;
+use Amelaye\BioPHP\Domain\Alignment\Result\PairwiseAlignmentResult;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
 
 /**

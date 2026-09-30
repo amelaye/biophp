@@ -9,7 +9,7 @@ namespace Amelaye\BioPHP\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\FeatureOverlapInterface;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureOverlap;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 
 /**

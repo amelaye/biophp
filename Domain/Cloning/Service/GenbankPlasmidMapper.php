@@ -9,8 +9,8 @@ namespace Amelaye\BioPHP\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\GenbankImportResult;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Result\GenbankImportResult;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;

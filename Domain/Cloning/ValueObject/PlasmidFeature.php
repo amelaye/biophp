@@ -18,7 +18,7 @@ use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class PlasmidFeature
+final class PlasmidFeature
 {
     /**
      * @var     string

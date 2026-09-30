@@ -5,9 +5,11 @@
  * Created 24 September 2026
  * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
+namespace Amelaye\BioPHP\Domain\Cloning\Aggregate;
 
 use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 
@@ -16,10 +18,10 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
  * it, independently of any Doctrine entity, form or graphical rendering. Every method that changes
  * the aggregate returns a new Plasmid; the feature list order given at construction is preserved.
  * Class Plasmid
- * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
+ * @package Amelaye\BioPHP\Domain\Cloning\Aggregate
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Plasmid
+final class Plasmid
 {
     /**
      * @var     string

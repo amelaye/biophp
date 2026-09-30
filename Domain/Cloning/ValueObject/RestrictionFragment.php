@@ -3,7 +3,7 @@
  * Immutable value object describing one linear fragment produced by a restriction digest
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
@@ -14,7 +14,7 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class RestrictionFragment
+final class RestrictionFragment
 {
     /**
      * @var     DnaSequence

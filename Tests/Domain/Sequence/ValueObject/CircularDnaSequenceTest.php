@@ -3,7 +3,7 @@ namespace Tests\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use PHPUnit\Framework\TestCase;
 
 class CircularDnaSequenceTest extends TestCase

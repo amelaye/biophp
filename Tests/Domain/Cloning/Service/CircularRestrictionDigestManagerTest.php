@@ -2,7 +2,7 @@
 namespace Tests\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Service\CircularRestrictionDigestManager;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionEnd;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RestrictionEnzymeDefinition;

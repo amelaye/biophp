@@ -1,11 +1,11 @@
 <?php
-namespace Tests\Domain\Sequence\ValueObject;
+namespace Tests\Domain\Sequence\Factory;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AminoAcidSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\MolecularSequenceFactory;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Factory\MolecularSequenceFactory;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RnaSequence;
 use PHPUnit\Framework\TestCase;
 

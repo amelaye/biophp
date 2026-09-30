@@ -2,7 +2,7 @@
 namespace Tests\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RnaSequence;
 use PHPUnit\Framework\TestCase;
 

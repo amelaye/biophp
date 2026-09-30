@@ -3,9 +3,11 @@
  * Immutable value object shared by the nucleic acid sequences
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * Holds what DNA and RNA have in common : a complement table covering the IUPAC degenerated

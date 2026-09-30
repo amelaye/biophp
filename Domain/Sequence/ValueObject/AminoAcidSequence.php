@@ -3,9 +3,11 @@
  * Immutable value object wrapping an amino acid sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * Accepts the twenty amino acids in single-letter format, plus the two symbols already handled by
@@ -15,7 +17,7 @@ namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class AminoAcidSequence extends AbstractMolecularSequence
+final class AminoAcidSequence extends AbstractMolecularSequence
 {
     /**
      * @inheritDoc

@@ -1,8 +1,8 @@
 <?php
-namespace Tests\Domain\Alignment\ValueObject;
+namespace Tests\Domain\Alignment\Result;
 
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
-use Amelaye\BioPHP\Domain\Alignment\ValueObject\PairwiseAlignmentResult;
+use Amelaye\BioPHP\Domain\Alignment\Result\PairwiseAlignmentResult;
 use PHPUnit\Framework\TestCase;
 
 class PairwiseAlignmentResultTest extends TestCase

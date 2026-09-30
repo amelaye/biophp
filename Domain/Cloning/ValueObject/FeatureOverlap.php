@@ -14,7 +14,7 @@ namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class FeatureOverlap
+final class FeatureOverlap
 {
     /**
      * @var     PlasmidFeature

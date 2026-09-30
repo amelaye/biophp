@@ -3,7 +3,7 @@
  * Immutable value object describing a restriction enzyme, independent of any API DTO or Doctrine entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
 
@@ -15,7 +15,7 @@ namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class RestrictionEnzymeDefinition
+final class RestrictionEnzymeDefinition
 {
     /**
      * Recognizes and cuts within its own recognition sequence, at a fixed position.

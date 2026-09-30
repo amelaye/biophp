@@ -7,8 +7,8 @@
  */
 namespace Amelaye\BioPHP\Domain\Cloning\Interfaces;
 
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionDigestResult;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Result\RestrictionDigestResult;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RestrictionEnzymeDefinition;
 
 /**

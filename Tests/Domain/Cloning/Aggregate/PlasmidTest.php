@@ -1,9 +1,9 @@
 <?php
-namespace Tests\Domain\Cloning\ValueObject;
+namespace Tests\Domain\Cloning\Aggregate;
 
 use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;

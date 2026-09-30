@@ -7,7 +7,7 @@
  */
 namespace Amelaye\BioPHP\Domain\Cloning\Interfaces;
 
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\GenbankImportResult;
+use Amelaye\BioPHP\Domain\Cloning\Result\GenbankImportResult;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;

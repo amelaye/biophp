@@ -9,7 +9,7 @@ namespace Amelaye\BioPHP\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureReaderInterface;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\GffImportResult;
+use Amelaye\BioPHP\Domain\Cloning\Result\GffImportResult;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 

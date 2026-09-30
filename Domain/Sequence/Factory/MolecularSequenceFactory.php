@@ -3,18 +3,23 @@
  * Builds sequence value objects out of the molecule types found in the parsed records
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+namespace Amelaye\BioPHP\Domain\Sequence\Factory;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\AminoAcidSequence;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\RnaSequence;
 
 /**
  * The molecule type stored by the parsers is the raw one of the source file : "mRNA" or "ss-DNA"
  * for GenBank and EMBL, "PRT;" for Swiss-Prot. This factory maps those to the matching value
  * object instead of leaving the caller compare strings.
  * Class MolecularSequenceFactory
- * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
+ * @package Amelaye\BioPHP\Domain\Sequence\Factory
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class MolecularSequenceFactory

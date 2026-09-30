@@ -2,7 +2,7 @@
 namespace Tests\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AminoAcidSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use PHPUnit\Framework\TestCase;
 
 class AminoAcidSequenceTest extends TestCase

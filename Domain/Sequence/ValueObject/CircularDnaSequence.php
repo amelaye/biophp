@@ -3,9 +3,11 @@
  * Immutable value object wrapping a circular DNA sequence and its origin-crossing operations
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * A DNA sequence with no first or last symbol : position 0 follows the last symbol, so rotating and
@@ -16,7 +18,7 @@ namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class CircularDnaSequence extends DnaSequence
+final class CircularDnaSequence extends DnaSequence
 {
     /**
      * CircularDnaSequence constructor.

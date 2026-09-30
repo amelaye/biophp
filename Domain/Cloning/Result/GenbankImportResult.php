@@ -5,17 +5,19 @@
  * Created 30 September 2026
  * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
+namespace Amelaye\BioPHP\Domain\Cloning\Result;
+
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 
 /**
  * The mapping always either succeeds with a Plasmid (skipping any feature it could not represent) or
  * throws (for an unsupported topology) ; getWarnings() lists every feature that was skipped and why,
  * so nothing is ever silently dropped without being reported.
  * Class GenbankImportResult
- * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
+ * @package Amelaye\BioPHP\Domain\Cloning\Result
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class GenbankImportResult
+final class GenbankImportResult
 {
     /**
      * @var     Plasmid

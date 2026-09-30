@@ -5,7 +5,7 @@
  * Created 30 September 2026
  * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Alignment\ValueObject;
+namespace Amelaye\BioPHP\Domain\Alignment\Result;
 
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
 
@@ -18,10 +18,10 @@ use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
  * An empty original sequence (aligned as all gaps) is represented as start=0, end=-1, the usual
  * empty-range convention ; it is never used for the aligned strings themselves, which are never empty.
  * Class PairwiseAlignmentResult
- * @package Amelaye\BioPHP\Domain\Alignment\ValueObject
+ * @package Amelaye\BioPHP\Domain\Alignment\Result
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class PairwiseAlignmentResult
+final class PairwiseAlignmentResult
 {
     /**
      * @var     string

@@ -5,7 +5,9 @@
  * Created 30 September 2026
  * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
+namespace Amelaye\BioPHP\Domain\Cloning\Result;
+
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 
 /**
  * Unlike GenbankImportResult, this never wraps a whole Plasmid : a GFF3 file annotates a sequence it
@@ -13,10 +15,10 @@ namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
  * has, via repeated withFeature() calls, which is also where an out-of-range coordinate for that
  * particular plasmid would surface.
  * Class GffImportResult
- * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
+ * @package Amelaye\BioPHP\Domain\Cloning\Result
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class GffImportResult
+final class GffImportResult
 {
     /**
      * @var     PlasmidFeature[]

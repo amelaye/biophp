@@ -7,7 +7,7 @@
  */
 namespace Amelaye\BioPHP\Domain\Cloning\Interfaces;
 
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\GffImportResult;
+use Amelaye\BioPHP\Domain\Cloning\Result\GffImportResult;
 
 /**
  * Interface GffFeatureReaderInterface - reads a GFF3 annotation file into PlasmidFeature instances,

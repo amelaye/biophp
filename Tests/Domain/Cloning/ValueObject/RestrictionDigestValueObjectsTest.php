@@ -1,9 +1,9 @@
 <?php
 namespace Tests\Domain\Cloning\ValueObject;
 
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionCut;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionDigestResult;
+use Amelaye\BioPHP\Domain\Cloning\Result\RestrictionDigestResult;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionEnd;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionFragment;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;

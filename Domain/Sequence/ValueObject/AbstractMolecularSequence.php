@@ -3,9 +3,11 @@
  * Immutable value object wrapping a biological sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * A molecular sequence is defined by its symbols only : two instances holding the same symbols are

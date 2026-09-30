@@ -3,7 +3,7 @@ namespace Tests\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Service\FeatureOverlapManager;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
-use Amelaye\BioPHP\Domain\Cloning\ValueObject\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use PHPUnit\Framework\TestCase;

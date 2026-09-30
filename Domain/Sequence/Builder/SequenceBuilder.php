@@ -3,7 +3,7 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 12 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
@@ -11,8 +11,8 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\MolecularSequenceFactory;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Factory\MolecularSequenceFactory;
 
 /**
  * This initialises whether the is a sequences object or not

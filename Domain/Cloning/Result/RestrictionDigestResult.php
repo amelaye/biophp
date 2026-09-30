@@ -3,19 +3,23 @@
  * Immutable value object holding the outcome of a circular restriction digest
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
+namespace Amelaye\BioPHP\Domain\Cloning\Result;
+
+use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionCut;
+use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionFragment;
 
 /**
  * getCuts() lists every recognition site found, including several isoschizomers cutting at the same
  * position; getFragments() lists the distinct linear fragments that digest actually produces, so its
  * count only ever equals the number of distinct cut positions, never the number of raw cuts.
  * Class RestrictionDigestResult
- * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
+ * @package Amelaye\BioPHP\Domain\Cloning\Result
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class RestrictionDigestResult
+final class RestrictionDigestResult
 {
     /**
      * @var     Plasmid

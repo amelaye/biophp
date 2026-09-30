@@ -3,7 +3,7 @@
  * Class of constants enumerating the kinds of annotation a PlasmidFeature may carry
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
@@ -13,7 +13,7 @@ namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class FeatureType
+final class FeatureType
 {
     const INSERT = "INSERT";
     const CDS = "CDS";

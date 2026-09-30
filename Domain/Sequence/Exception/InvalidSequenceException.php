@@ -3,13 +3,13 @@
  * Raised when a string cannot be wrapped into a sequence value object
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
-namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+namespace Amelaye\BioPHP\Domain\Sequence\Exception;
 
 /**
  * Class InvalidSequenceException
- * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
+ * @package Amelaye\BioPHP\Domain\Sequence\Exception
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class InvalidSequenceException extends \InvalidArgumentException

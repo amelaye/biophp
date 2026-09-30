@@ -3,7 +3,7 @@
  * Class of constants naming the strand a PlasmidFeature lies on
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
@@ -12,7 +12,7 @@ namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Strand
+final class Strand
 {
     const FORWARD = "FORWARD";
     const REVERSE = "REVERSE";

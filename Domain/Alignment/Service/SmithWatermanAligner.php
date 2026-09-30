@@ -10,7 +10,7 @@ namespace Amelaye\BioPHP\Domain\Alignment\Service;
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
 use Amelaye\BioPHP\Domain\Alignment\Interfaces\SmithWatermanAlignerInterface;
 use Amelaye\BioPHP\Domain\Alignment\Interfaces\SubstitutionScoringInterface;
-use Amelaye\BioPHP\Domain\Alignment\ValueObject\PairwiseAlignmentResult;
+use Amelaye\BioPHP\Domain\Alignment\Result\PairwiseAlignmentResult;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
 
 /**
