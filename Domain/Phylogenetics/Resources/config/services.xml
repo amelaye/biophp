@@ -10,9 +10,11 @@
         <!-- Phylogenetics -->
         <service class="Amelaye\BioPHP\Domain\Phylogenetics\Service\NewickReader" id="amelaye_biophp.phylogenetics_newick_reader" />
         <service class="Amelaye\BioPHP\Domain\Phylogenetics\Service\NeighborJoiningTreeBuilder" id="amelaye_biophp.phylogenetics_neighbor_joining" />
+        <service class="Amelaye\BioPHP\Domain\Phylogenetics\Service\UpgmaTreeBuilder" id="amelaye_biophp.phylogenetics_upgma" />
 
         <service id="Amelaye\BioPHP\Domain\Phylogenetics\Interfaces\NewickReaderInterface" alias="amelaye_biophp.phylogenetics_newick_reader" />
         <service id="Amelaye\BioPHP\Domain\Phylogenetics\Interfaces\NeighborJoiningInterface" alias="amelaye_biophp.phylogenetics_neighbor_joining" />
+        <service id="Amelaye\BioPHP\Domain\Phylogenetics\Interfaces\UpgmaTreeBuilderInterface" alias="amelaye_biophp.phylogenetics_upgma" />
     </services>
 
 </container>
