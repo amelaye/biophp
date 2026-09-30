@@ -35,15 +35,31 @@ de délimiteurs d'entrée). Implémenté à la place comme lecteur autonome `Gff
 (pas de `Feature` entity GenBank), tolérant aux lignes invalides (warning + skip, jamais de crash).
 BED n'a pas été fait dans ce lot (format plus simple, à la demande si besoin).
 
-## 4. Assemblage Gibson / primers de jonction
+## 4. Assemblage Gibson / primers de jonction — FAIT (sans réutiliser l'aligneur, voir note)
 
 Suite logique de la digestion + compatibilité de ligature déjà construites dans
-`Domain/Cloning/Service/`. Pourrait réutiliser l'aligneur (point 1/semi-global) pour vérifier
-l'homologie des zones de chevauchement.
+`Domain/Cloning/Service/`.
 
-## 5. Codon Adaptation Index (CAI)
+Implémenté en `GibsonAssemblyManager`/`GibsonAssemblyInterface` : `checkJunction()` détecte le plus
+long chevauchement EXACT (ancré, borné par min/max) entre la fin d'un fragment amont et le début d'un
+fragment aval ; `designHomologyArms()` calcule les tails d'amorces à ajouter quand aucun chevauchement
+n'existe déjà (convention standard NEBuilder). Décision assumée : je n'ai **pas** réutilisé
+`SemiGlobalAligner` (point 1) comme prévu initialement dans ce backlog — Gibson a besoin d'une
+identité quasi parfaite dans la zone d'homologie (chew-back exonucléase + appariement), pas d'un
+alignement tolérant les substitutions/gaps ; une recherche de correspondance exacte est à la fois plus
+juste scientifiquement et plus simple qu'un aligneur configuré pour approximer ça. Documenté dans le
+docblock de la classe.
 
-Utile pour l'optimisation d'expression d'un insert cloné. Petit chantier dans `Domain/Tools`.
+## 5. Codon Adaptation Index (CAI) — FAIT
+
+Utile pour l'optimisation d'expression d'un insert cloné. Implémenté dans `Domain/Tools` :
+`CodonAdaptationIndexCalculator`/`CodonAdaptationIndexInterface` + `CodonUsageTable` (table de
+référence validée) + `CaiResult`. Réutilise `SequenceInterface::translateCodon()` (le code génétique
+déjà câblé du projet) plutôt que de dupliquer une deuxième table de code génétique. Exclut les codons
+stop et les acides aminés sans synonyme (Met, Trp) du calcul, en suivant la définition originale de
+Sharp & Li (1987) — les inclure gonflerait artificiellement le score. `Domain/Tools` n'avait jamais eu
+son propre `Resources/config/services.xml` (les classes existantes comme `GeneticsFunctions` ne sont
+pas câblées en DI) ; j'en ai créé un, sans toucher aux classes legacy existantes.
 
 ## 6. FASTQ + décodage Phred
 
