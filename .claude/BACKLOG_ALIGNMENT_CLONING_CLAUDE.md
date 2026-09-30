@@ -61,10 +61,19 @@ Sharp & Li (1987) — les inclure gonflerait artificiellement le score. `Domain/
 son propre `Resources/config/services.xml` (les classes existantes comme `GeneticsFunctions` ne sont
 pas câblées en DI) ; j'en ai créé un, sans toucher aux classes legacy existantes.
 
-## 6. FASTQ + décodage Phred
+## 6. FASTQ + décodage Phred — FAIT
 
 Plus NGS-orienté (spécialité de Biogo), moins connecté au reste du projet actuel. Ouvrirait la
 porte au contrôle qualité de séquençage.
+
+Implémenté dans un nouveau domaine `Domain/Sequencing/` (le concept "read de séquençage +
+qualité" ne rentrait dans aucun domaine existant) : `FastqReader`/`FastqReaderInterface` lit un
+fichier FASTQ classique (groupes de 4 lignes, pas de wrapping multi-ligne comme FASTA - ce n'est
+pas un format FASTQ valide), tolérant aux enregistrements malformés (warning + skip, jamais de
+crash, même logique que `GffFeatureReader`). `FastqRecord` réutilise `DnaSequence` pour la partie
+séquence plutôt que de dupliquer une validation d'alphabet, et décode la qualité en Phred+33
+(Sanger / Illumina 1.8+ uniquement - l'ancien encodage Phred+64 n'a plus été produit par un
+séquenceur depuis 2011, hors scope). `getMeanPhredScore()` donne une métrique QC simple par read.
 
 ## 7. Newick + phylogénétique basique (neighbor-joining)
 
