@@ -52,6 +52,9 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Phylogenetics/Resources/config'));
         $loader->load('services.xml');
 
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Variants/Resources/config'));
+        $loader->load('services.xml');
+
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
     }
