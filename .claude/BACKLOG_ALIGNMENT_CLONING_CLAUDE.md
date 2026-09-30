@@ -75,7 +75,22 @@ séquence plutôt que de dupliquer une validation d'alphabet, et décode la qual
 (Sanger / Illumina 1.8+ uniquement - l'ancien encodage Phred+64 n'a plus été produit par un
 séquenceur depuis 2011, hors scope). `getMeanPhredScore()` donne une métrique QC simple par read.
 
-## 7. Newick + phylogénétique basique (neighbor-joining)
+## 7. Newick + phylogénétique basique (neighbor-joining) — FAIT
 
 Présent partout (BioRuby `Bio::Tree`), mais plus lourd et le moins connecté au reste du projet —
 en dernier.
+
+Implémenté dans un nouveau domaine `Domain/Phylogenetics/` : `PhylogeneticNode` (VO récursif
+immuable, feuille = pas d'enfants + nom obligatoire), `NewickReader`/`NewickReaderInterface`
+(parseur récursif-descendant, une arborescence par appel, pas de labels quotés ni de commentaires
+NHX — hors scope, non utilisés ailleurs dans le projet), `DistanceMatrix` (VO validé : carrée,
+diagonale nulle, symétrique, distances non négatives) et `NeighborJoiningTreeBuilder`/
+`NeighborJoiningInterface` (Saitou & Nei 1987). La réduction s'arrête à 3 clusters actifs (pas 2 —
+la formule classique a besoin d'un r_i calculé sur au moins un autre cluster actif) et les 3
+derniers sont résolus directement en une racine non enracinée à 3 enfants (trifurcation), la
+représentation standard d'un arbre NJ. Fixture de test hand-vérifiée : matrice de distances
+parfaitement additive dérivée d'un arbre connu — NJ est garanti de retrouver exactement la même
+topologie et les mêmes longueurs de branches sur une matrice additive, propriété reproduite pas à
+pas dans le docblock de la classe et dans le test. Les longueurs de branches négatives (un artefact
+documenté de NJ sur des distances légèrement non additives) sont acceptées sans validation par
+`PhylogeneticNode`, volontairement — ce n'est pas une erreur à rejeter.
