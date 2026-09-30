@@ -3,7 +3,7 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 24 September 2026
+ * Last modified 30 September 2026
  */
 namespace Amelaye\BioPHP\DependencyInjection;
 
@@ -38,6 +38,9 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
         $loader->load('services.xml');
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Cloning/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Alignment/Resources/config'));
         $loader->load('services.xml');
 
         $configuration = $this->getConfiguration($configs, $container);
