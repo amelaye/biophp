@@ -9,9 +9,14 @@
 
         <!-- Alignment -->
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\NeedlemanWunschAligner" id="amelaye_biophp.alignment_needleman_wunsch" />
+        <service class="Amelaye\BioPHP\Domain\Alignment\Service\SmithWatermanAligner" id="amelaye_biophp.alignment_smith_waterman" />
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\SimpleMatchMismatchScoring" id="amelaye_biophp.alignment_simple_scoring" />
+        <service class="Amelaye\BioPHP\Domain\Alignment\Service\Pam250Scoring" id="amelaye_biophp.alignment_pam250_scoring">
+            <argument type="service" id="Amelaye\BioPHP\Api\Interfaces\Pam250MatrixDigitApiAdapter" />
+        </service>
 
         <service id="Amelaye\BioPHP\Domain\Alignment\Interfaces\NeedlemanWunschAlignerInterface" alias="amelaye_biophp.alignment_needleman_wunsch" />
+        <service id="Amelaye\BioPHP\Domain\Alignment\Interfaces\SmithWatermanAlignerInterface" alias="amelaye_biophp.alignment_smith_waterman" />
     </services>
 
 </container>
