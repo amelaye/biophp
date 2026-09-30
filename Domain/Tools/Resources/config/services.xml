@@ -11,8 +11,12 @@
         <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonAdaptationIndexCalculator" id="amelaye_biophp.tools_cai">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\OrfFinder" id="amelaye_biophp.tools_orf_finder">
+            <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
+        </service>
 
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonAdaptationIndexInterface" alias="amelaye_biophp.tools_cai" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface" alias="amelaye_biophp.tools_orf_finder" />
     </services>
 
 </container>
