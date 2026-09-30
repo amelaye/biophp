@@ -17,10 +17,16 @@
         <service class="Amelaye\BioPHP\Domain\Tools\Service\MeltingTemperatureCalculator" id="amelaye_biophp.tools_melting_temperature">
             <argument type="service" id="Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter" />
         </service>
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonUsageTableBuilder" id="amelaye_biophp.tools_codon_usage_builder" />
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonOptimizer" id="amelaye_biophp.tools_codon_optimizer">
+            <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
+        </service>
 
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonAdaptationIndexInterface" alias="amelaye_biophp.tools_cai" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface" alias="amelaye_biophp.tools_orf_finder" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\MeltingTemperatureInterface" alias="amelaye_biophp.tools_melting_temperature" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonUsageTableBuilderInterface" alias="amelaye_biophp.tools_codon_usage_builder" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonOptimizerInterface" alias="amelaye_biophp.tools_codon_optimizer" />
     </services>
 
 </container>
