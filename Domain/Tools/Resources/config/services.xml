@@ -14,9 +14,13 @@
         <service class="Amelaye\BioPHP\Domain\Tools\Service\OrfFinder" id="amelaye_biophp.tools_orf_finder">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\MeltingTemperatureCalculator" id="amelaye_biophp.tools_melting_temperature">
+            <argument type="service" id="Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter" />
+        </service>
 
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonAdaptationIndexInterface" alias="amelaye_biophp.tools_cai" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface" alias="amelaye_biophp.tools_orf_finder" />
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\MeltingTemperatureInterface" alias="amelaye_biophp.tools_melting_temperature" />
     </services>
 
 </container>
