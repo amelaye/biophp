@@ -3,8 +3,10 @@
  * PROSITE motif database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -28,67 +30,67 @@ final class ParsePrositeManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $entryType = "";
+    private string $entryType = "";
 
     /**
      * @var string
      */
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @var array
      */
-    private $dates = [];
+    private array $dates = [];
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $pattern = "";
+    private string $pattern = "";
 
     /**
      * @var string
      */
-    private $matrix = "";
+    private string $matrix = "";
 
     /**
      * @var array
      */
-    private $numericalResults = [];
+    private array $numericalResults = [];
 
     /**
      * @var array
      */
-    private $comments = [];
+    private array $comments = [];
 
     /**
      * @var string
      */
-    private $rule = "";
+    private string $rule = "";
 
     /**
      * @var array
      */
-    private $pdbXrefs = [];
+    private array $pdbXrefs = [];
 
     /**
      * @var PrositeDbRefInterface[]
      */
-    private $dbRefs = [];
+    private array $dbRefs = [];
 
     /**
      * @var string
      */
-    private $docXref = "";
+    private string $docXref = "";
 
     /**
      * Constructor.
@@ -151,8 +153,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aLines = new \ArrayIterator($aFlines);
 
         foreach ($aLines as $lineno => $linestr) {
@@ -206,8 +207,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string          $sJoiner
      * @return  string
      */
-    private function accumulate(\ArrayIterator $aLines, $aFlines, $sTag, $sJoiner)
-    {
+    private function accumulate(\ArrayIterator $aLines, array $aFlines, string $sTag, string $sJoiner) : string {
         $sResult = trim(substr($aLines->current(), 5));
         while (true) {
             $sNextLine = $aFlines[$aLines->key() + 1] ?? "";
@@ -225,8 +225,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * Format : ID   ENTRYNAME; TYPE.
      * @param   string      $sLine
      */
-    private function parseId($sLine)
-    {
+    private function parseId(string $sLine) {
         $aParts = array_map('trim', explode(";", trim(substr($sLine, 5))));
         $this->entryName = $aParts[0];
         $this->entryType = rtrim($aParts[1] ?? "", ".");
@@ -237,8 +236,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * Format : DT   MMM-YEAR (CREATED); MMM-YEAR (DATA UPDATE); MMM-YEAR (INFO UPDATE).
      * @param   string      $sLine
      */
-    private function parseDate($sLine)
-    {
+    private function parseDate(string $sLine) {
         $sData = rtrim(trim(substr($sLine, 5)), ".");
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sData))));
         foreach ($aItems as $sItem) {
@@ -253,8 +251,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseQualifiers($sText)
-    {
+    private function parseQualifiers(string $sText) : array {
         $aResult = [];
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {
@@ -271,8 +268,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseList($sText)
-    {
+    private function parseList(string $sText) : array {
         return array_values(array_filter(array_map('trim', explode(";", $sText))));
     }
 
@@ -282,8 +278,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  PrositeDbRefInterface[]
      */
-    private function parseDbRefs($sText)
-    {
+    private function parseDbRefs(string $sText) : array {
         $aResult = [];
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {

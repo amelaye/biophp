@@ -3,8 +3,10 @@
  * Decides whether two restriction ends can be ligated together
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface;

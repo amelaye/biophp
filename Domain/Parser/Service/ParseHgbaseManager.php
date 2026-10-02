@@ -3,8 +3,10 @@
  * HGBase database parsing (human genic bi-allelic sequences)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -22,67 +24,67 @@ final class ParseHgbaseManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $haplotypeId = "";
+    private string $haplotypeId = "";
 
     /**
      * @var string
      */
-    private $allele = "";
+    private string $allele = "";
 
     /**
      * @var string
      */
-    private $isInBlock = "";
+    private string $isInBlock = "";
 
     /**
      * @var string
      */
-    private $populationId = "";
+    private string $populationId = "";
 
     /**
      * @var string
      */
-    private $popName = "";
+    private string $popName = "";
 
     /**
      * @var int
      */
-    private $popIndiv = 0;
+    private int $popIndiv = 0;
 
     /**
      * @var float
      */
-    private $freqPerc = 0.0;
+    private float $freqPerc = 0.0;
 
     /**
      * @var int
      */
-    private $freqIndiv = 0;
+    private int $freqIndiv = 0;
 
     /**
      * @var string
      */
-    private $sourceId = "";
+    private string $sourceId = "";
 
     /**
      * @var string
      */
-    private $citation = "";
+    private string $citation = "";
 
     /**
      * @var string
      */
-    private $submitterName = "";
+    private string $submitterName = "";
 
     /**
      * @var string
      */
-    private $submissionId = "";
+    private string $submissionId = "";
 
     /**
      * @var string
      */
-    private $sourceComment = "";
+    private string $sourceComment = "";
 
     /**
      * Constructor.
@@ -163,8 +165,7 @@ final class ParseHgbaseManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $sCitation = "";
 
         foreach($aFlines as $sLine) {

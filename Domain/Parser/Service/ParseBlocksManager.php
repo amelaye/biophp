@@ -3,8 +3,10 @@
  * BLOCKS database parsing (conserved protein family motifs)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -22,32 +24,32 @@ final class ParseBlocksManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $id = "";
+    private string $id = "";
 
     /**
      * @var string
      */
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @var int
      */
-    private $distMin = 0;
+    private int $distMin = 0;
 
     /**
      * @var int
      */
-    private $distMax = 0;
+    private int $distMax = 0;
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $aaTriplet = "";
+    private string $aaTriplet = "";
 
     /**
      * Constructor.
@@ -109,8 +111,7 @@ final class ParseBlocksManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $sDescription = "";
 
         foreach($aFlines as $sLine) {

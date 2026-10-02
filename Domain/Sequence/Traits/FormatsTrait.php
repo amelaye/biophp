@@ -3,8 +3,10 @@
  * Some useful functions
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 september 2019
- * Last modified 18 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Traits;
 
 /**
@@ -20,8 +22,7 @@ trait FormatsTrait
      * @param   int     $numchars
      * @return  bool|string
      */
-    public function left($str, $numchars)
-    {
+    public function left(string $str, int $numchars) {
         return substr($str, 0, $numchars);
     }
 
@@ -31,8 +32,7 @@ trait FormatsTrait
      * @param   int         $numchars
      * @return  bool|string
      */
-    public function right($str, $numchars)
-    {
+    public function right(string $str, int $numchars) {
         return substr($str, strlen($str)-$numchars);
     }
 
@@ -70,8 +70,7 @@ trait FormatsTrait
      * @param   int     $charcount
      * @return  bool|string
      */
-    public function rem_right($str, $charcount = 1)
-    {
+    public function rem_right(string $str, int $charcount = 1) {
         return substr($str, 0, strlen($str)-$charcount);
     }
 

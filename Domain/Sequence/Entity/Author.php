@@ -3,8 +3,10 @@
  * Doctrine Entity Authors
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,20 +27,20 @@ class Author
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var int
      */
     #[ORM\Id]
     #[ORM\Column(type: "integer", length: 11, nullable: false, options: ["default" => 0])]
-    private $refno = 0;
+    private int $refno = 0;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 50, nullable: false)]
-    private $author = "";
+    private string $author = "";
 
     /**
      * @return string

@@ -3,8 +3,10 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;

@@ -3,8 +3,10 @@
  * AAINDEX1 database parsing (physico-chemical indices of amino acids)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -24,32 +26,32 @@ final class ParseAaindexManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $author = "";
+    private string $author = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var string
      */
-    private $journal = "";
+    private string $journal = "";
 
     /**
      * @var array
      */
-    private $litRefs = [];
+    private array $litRefs = [];
 
     /**
      * Constructor.
@@ -103,8 +105,7 @@ final class ParseAaindexManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aBuffers = ["D" => "", "A" => "", "T" => "", "J" => ""];
         $sCurrent = "";
 

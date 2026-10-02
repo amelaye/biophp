@@ -3,8 +3,10 @@
  * SubMatrix Entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 26 april 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 /**
@@ -22,7 +24,7 @@ class SubMatrix
      * Rules of the matrix
      * @var array
      */
-    private $rules;
+    private array $rules;
 
     /**
      * submatrix simply initializes the rules property to the empty array.

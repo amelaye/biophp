@@ -3,8 +3,10 @@
  * Immutable value object describing one predicted CpG island
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\ValueObject;
 
 /**
@@ -21,22 +23,22 @@ final class CpGIsland
     /**
      * @var     int         1-based inclusive
      */
-    private $start;
+    private int $start;
 
     /**
      * @var     int         1-based inclusive
      */
-    private $end;
+    private int $end;
 
     /**
      * @var     float
      */
-    private $gcContent;
+    private float $gcContent;
 
     /**
      * @var     float
      */
-    private $observedToExpectedRatio;
+    private float $observedToExpectedRatio;
 
     /**
      * CpGIsland constructor.

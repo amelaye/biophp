@@ -3,8 +3,10 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
@@ -23,28 +25,28 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\SpDatabank;
 final class ParseSwissprotManager extends ParseDbAbstractManager
 {
     /**
-     * @var array
+     * @var \ArrayIterator|null
      */
-    private $aLines;
+    private ?\ArrayIterator $aLines = null;
 
     /**
      * Date of the last sequence update, read from the DT lines. The Sequence entity only
      * carries the creation date, so the two other DT dates stay on the parser.
      * @var string
      */
-    private $sequpdDate = "";
+    private string $sequpdDate = "";
 
     /**
      * Date of the last annotation update, read from the DT lines.
      * @var string
      */
-    private $notupdDate = "";
+    private string $notupdDate = "";
 
     /**
      * Gene names, as groups of synonyms: ( (GNAME1, GNAME2), (GNAME3) ).
      * @var array
      */
-    private $geneNames = [];
+    private array $geneNames = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -103,8 +105,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @param   array       $aFlines
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $this->aLines = new \ArrayIterator($aFlines); // <3
         $aReferences = [];
         $aAccessions = [];
@@ -220,8 +221,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @return  array
      * @throws  \Exception
      */
-    private function buildACFields(&$aAccess)
-    {
+    private function buildACFields(&$aAccess) : array {
         $sLineData = trim(substr($this->aLines->current(), 3));
         $sAccession = substr($sLineData, 0, strlen($sLineData)-1);
         $sAccessionLine = preg_split("/;/", $this->intrim($sAccession));
@@ -441,8 +441,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @param   array           $aAuthors
      * @throws  \Exception
      */
-    private function buildRNField($aFlines, &$aReferences, &$aAuthors)
-    {
+    private function buildRNField(array $aFlines, &$aReferences, &$aAuthors) {
         $ra_ctr = 0;
         $rl_ctr = 0;
         $ra_str = "";
@@ -649,8 +648,7 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @param       array       $aReferences
      * @throws      \Exception
      */
-    private function makeRefArray($aReferences)
-    {
+    private function makeRefArray(array $aReferences) {
         foreach($aReferences as $key => $value) {
             $oReference = new Reference();
             $oReference->setPrimAcc($this->sequence->getPrimAcc());

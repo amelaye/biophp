@@ -3,8 +3,10 @@
  * Doctrine Entity GbSequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,49 +27,49 @@ class GbSequence
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 2, nullable: true)]
-    private $strands;
+    private ?string $strands = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 1, nullable: true)]
-    private $topology;
+    private ?string $topology = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 3, nullable: true)]
-    private $division;
+    private ?string $division = null;
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $segmentNo;
+    private ?int $segmentNo = null;
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $segmentCount;
+    private ?int $segmentCount = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 10, nullable: true)]
-    private $version;
+    private ?string $version = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 30, nullable: true)]
-    private $ncbiGiId;
+    private ?string $ncbiGiId = null;
 
     /**
      * @return string

@@ -3,8 +3,10 @@
  * TRANSFAC gene.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -19,39 +21,39 @@ final class ParseTransfacGeneManager extends ParseTransfacAbstractManager
     /**
      * @var string
      */
-    private $shortDescription = "";
+    private string $shortDescription = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * Common name of the organism, e.g. "human".
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * Scientific name of the organism, e.g. "homo sapiens".
      * @var string
      */
-    private $species = "";
+    private string $species = "";
 
     /**
      * @var array
      */
-    private $taxClass = [];
+    private array $taxClass = [];
 
     /**
      * @var array
      */
-    private $compelAccessions = [];
+    private array $compelAccessions = [];
 
     /**
      * @var string
      */
-    private $sTaxonomy = "";
+    private string $sTaxonomy = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -67,8 +69,7 @@ final class ParseTransfacGeneManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);
@@ -107,8 +108,7 @@ final class ParseTransfacGeneManager extends ParseTransfacAbstractManager
      * Format : OS  human, homo sapiens
      * @param   string      $sData
      */
-    private function parseOrganism($sData)
-    {
+    private function parseOrganism(string $sData) {
         $aTokens = $this->splitList($sData, ",");
 
         $this->organism = $aTokens[0] ?? "";

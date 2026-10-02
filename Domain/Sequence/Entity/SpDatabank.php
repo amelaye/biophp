@@ -3,8 +3,10 @@
  * Doctrine Entity Swissprot databank
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 november 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,25 +27,25 @@ class SpDatabank
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 6, nullable: true)]
-    private $dbName;
+    private ?string $dbName = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 6, nullable: true)]
-    private $pid1;
+    private ?string $pid1 = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 6, nullable: true)]
-    private $pid2;
+    private ?string $pid2 = null;
 
     /**
      * @return string

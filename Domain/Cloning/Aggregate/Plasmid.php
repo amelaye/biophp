@@ -3,8 +3,10 @@
  * Immutable aggregate of a circular DNA sequence and its ordered, possibly overlapping features
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\Aggregate;
 
 use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
@@ -26,32 +28,32 @@ final class Plasmid
     /**
      * @var     string
      */
-    private $name;
+    private string $name;
 
     /**
      * @var     CircularDnaSequence
      */
-    private $sequence;
+    private CircularDnaSequence $sequence;
 
     /**
      * @var     PlasmidFeature[]    Ordered as given at construction, or after a withFeature() append
      */
-    private $features;
+    private array $features;
 
     /**
      * @var     string|null
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @var     string|null
      */
-    private $externalId;
+    private ?string $externalId = null;
 
     /**
      * @var     array           Only scalars, null and arrays of the same, recursively
      */
-    private $metadata;
+    private array $metadata;
 
     /**
      * Plasmid constructor.

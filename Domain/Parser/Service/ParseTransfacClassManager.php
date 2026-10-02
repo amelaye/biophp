@@ -3,8 +3,10 @@
  * TRANSFAC class.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,27 +22,27 @@ final class ParseTransfacClassManager extends ParseTransfacAbstractManager
      * The classification, from the broadest level down to the narrowest.
      * @var array
      */
-    private $classification = [];
+    private array $classification = [];
 
     /**
      * @var string
      */
-    private $structuralDescription = "";
+    private string $structuralDescription = "";
 
     /**
      * @var array
      */
-    private $memberFactors = [];
+    private array $memberFactors = [];
 
     /**
      * @var string
      */
-    private $comments = "";
+    private string $comments = "";
 
     /**
      * @var string
      */
-    private $sClass = "";
+    private string $sClass = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -56,8 +58,7 @@ final class ParseTransfacClassManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);

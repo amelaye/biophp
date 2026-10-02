@@ -3,8 +3,10 @@
  * Immutable value object holding the outcome of a circular restriction digest
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\Result;
 
 use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
@@ -24,27 +26,27 @@ final class RestrictionDigestResult
     /**
      * @var     Plasmid
      */
-    private $plasmid;
+    private Plasmid $plasmid;
 
     /**
      * @var     string[]
      */
-    private $enzymeNames;
+    private array $enzymeNames;
 
     /**
      * @var     RestrictionCut[]
      */
-    private $cuts;
+    private array $cuts;
 
     /**
      * @var     RestrictionFragment[]
      */
-    private $fragments;
+    private array $fragments;
 
     /**
      * @var     string[]
      */
-    private $warnings;
+    private array $warnings;
 
     /**
      * RestrictionDigestResult constructor.

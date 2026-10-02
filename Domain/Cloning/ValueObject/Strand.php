@@ -3,8 +3,10 @@
  * Class of constants naming the strand a PlasmidFeature lies on
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
 /**

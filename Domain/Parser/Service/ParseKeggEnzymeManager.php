@@ -3,8 +3,10 @@
  * KEGG ENZYME parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -19,68 +21,68 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
     /**
      * @var array
      */
-    private $classification = [];
+    private array $classification = [];
 
     /**
      * The systematic name, which spells out the chemistry the enzyme performs.
      * @var string
      */
-    private $sysname = "";
+    private string $sysname = "";
 
     /**
      * @var array
      */
-    private $reactions = [];
+    private array $reactions = [];
 
     /**
      * @var array
      */
-    private $substrates = [];
+    private array $substrates = [];
 
     /**
      * @var array
      */
-    private $products = [];
+    private array $products = [];
 
     /**
      * @var string
      */
-    private $comment = "";
+    private string $comment = "";
 
     /**
      * @var array
      */
-    private $pathways = [];
+    private array $pathways = [];
 
     /**
      * @var array
      */
-    private $orthologs = [];
+    private array $orthologs = [];
 
     /**
      * @var array
      */
-    private $genes = [];
+    private array $genes = [];
 
     /**
      * @var array
      */
-    private $diseases = [];
+    private array $diseases = [];
 
     /**
      * @var array
      */
-    private $motifs = [];
+    private array $motifs = [];
 
     /**
      * @var array
      */
-    private $structures = [];
+    private array $structures = [];
 
     /**
      * @var array
      */
-    private $dbLinks = [];
+    private array $dbLinks = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -96,8 +98,7 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aFields = $this->readFields($aFlines);
 
         $this->classification = isset($aFields["CLASS"]) ? $this->splitClasses($aFields["CLASS"]) : [];
@@ -121,8 +122,7 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
      * @param   array       $aLines
      * @return  array
      */
-    private function splitLines($aLines)
-    {
+    private function splitLines(array $aLines) : array {
         return array_values(array_filter(array_map(function ($sLine) {
             return rtrim(trim($sLine), ";");
         }, $aLines)));
@@ -135,8 +135,7 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
      * @param   array       $aLines
      * @return  array
      */
-    private function splitStructures($aLines)
-    {
+    private function splitStructures(array $aLines) : array {
         $aTokens = $this->splitTokens($aLines);
 
         return array_values(array_filter($aTokens, function ($sToken) {
@@ -149,8 +148,7 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
      * @param   array       $aLines
      * @return  array
      */
-    private function splitClasses($aLines)
-    {
+    private function splitClasses(array $aLines) : array {
         return array_values(array_filter(array_map(
             'trim',
             explode(";", $this->joinLines($aLines))

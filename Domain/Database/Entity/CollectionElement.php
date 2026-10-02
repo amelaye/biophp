@@ -3,8 +3,10 @@
  * Replaces the .dir file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 11 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -23,132 +25,122 @@ class CollectionElement
      */
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 20)]
-    private $idElement;
+    private ?string $idElement = null;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 50, nullable: false)]
-    private $fileName;
+    private ?string $fileName = null;
 
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 50, nullable: false)]
-    private $dbFormat;
+    private ?string $dbFormat = null;
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 5)]
-    private $lineNo;
+    private ?int $lineNo = null;
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 5)]
-    private $seqCount;
+    private ?int $seqCount = null;
 
     /**
-     * @var int
+     * @var Collection|null
      */
     #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(name: "id_collection", referencedColumnName: "id")]
-    private $collection;
+    private ?Collection $collection = null;
 
     /**
      * @return string
      */
-    public function getIdElement()
-    {
+    public function getIdElement() : string {
         return $this->idElement;
     }
 
     /**
      * @param string $idElement
      */
-    public function setIdElement($idElement)
-    {
+    public function setIdElement(string $idElement) {
         $this->idElement = $idElement;
     }
 
     /**
      * @return string
      */
-    public function getFileName()
-    {
+    public function getFileName() : string {
         return $this->fileName;
     }
 
     /**
      * @param string $fileName
      */
-    public function setFileName($fileName)
-    {
+    public function setFileName(string $fileName) {
         $this->fileName = $fileName;
     }
 
     /**
      * @return string
      */
-    public function getDbFormat()
-    {
+    public function getDbFormat() : string {
         return $this->dbFormat;
     }
 
     /**
      * @param string $dbFormat
      */
-    public function setDbFormat($dbFormat)
-    {
+    public function setDbFormat(string $dbFormat) {
         $this->dbFormat = $dbFormat;
     }
 
     /**
      * @return int
      */
-    public function getLineNo()
-    {
+    public function getLineNo() : int {
         return $this->lineNo;
     }
 
     /**
      * @param int $lineNo
      */
-    public function setLineNo($lineNo)
-    {
+    public function setLineNo(int $lineNo) {
         $this->lineNo = $lineNo;
     }
 
     /**
      * @return int
      */
-    public function getSeqCount()
-    {
+    public function getSeqCount() : int {
         return $this->seqCount;
     }
 
     /**
      * @param int $seqCount
      */
-    public function setSeqCount($seqCount)
-    {
+    public function setSeqCount(int $seqCount) {
         $this->seqCount = $seqCount;
     }
 
     /**
-     * @return int
+     * @return Collection|null
      */
-    public function getCollection()
+    public function getCollection(): ?Collection
     {
         return $this->collection;
     }
 
     /**
-     * @param int $collection
+     * @param Collection|null $collection
      */
-    public function setCollection($collection)
+    public function setCollection(?Collection $collection): void
     {
         $this->collection = $collection;
     }

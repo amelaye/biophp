@@ -3,8 +3,10 @@
  * Database of Temperatures
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -18,17 +20,17 @@ class TmBaseStackingDTO
     /**
      * @var     string         Id of the nucleotid (auto-increment)
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     float      Enthalpy Temperature
      */
-    private $temperatureEnthalpy;
+    private ?float $temperatureEnthalpy = null;
 
     /**
      * @var     float      Enthropy Temperature
      */
-    private $temperatureEnthropy;
+    private ?float $temperatureEnthropy = null;
 
     /**
      * @return string

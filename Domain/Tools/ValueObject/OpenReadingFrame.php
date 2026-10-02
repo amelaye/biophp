@@ -3,8 +3,10 @@
  * Immutable value object describing one open reading frame found in a DNA sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\ValueObject;
 
 /**
@@ -24,27 +26,27 @@ final class OpenReadingFrame
     /**
      * @var     int
      */
-    private $frame;
+    private int $frame;
 
     /**
      * @var     int         1-based inclusive, ascending, in the original forward-strand sequence
      */
-    private $start;
+    private int $start;
 
     /**
      * @var     int         1-based inclusive, ascending, in the original forward-strand sequence
      */
-    private $end;
+    private int $end;
 
     /**
      * @var     string
      */
-    private $peptide;
+    private string $peptide;
 
     /**
      * @var     bool
      */
-    private $hasStopCodon;
+    private bool $hasStopCodon;
 
     /**
      * OpenReadingFrame constructor.

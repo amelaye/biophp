@@ -3,8 +3,10 @@
  * Immutable value object describing a restriction enzyme, independent of any API DTO or Doctrine entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
 
 /**
@@ -40,47 +42,47 @@ final class RestrictionEnzymeDefinition
     /**
      * @var     string          Canonical name
      */
-    private $name;
+    private string $name;
 
     /**
      * @var     string[]        Isoschizomers or other names sharing the same recognition pattern
      */
-    private $aliases;
+    private array $aliases;
 
     /**
      * @var     string          One of the VALID_FAMILIES constants
      */
-    private $family;
+    private string $family;
 
     /**
      * @var     string          Human notation of the recognition sequence, with cleavage marks (' and _)
      */
-    private $recognitionPattern;
+    private string $recognitionPattern;
 
     /**
      * @var     string          Recognition pattern meant for pattern searches
      */
-    private $computingPattern;
+    private string $computingPattern;
 
     /**
      * @var     int             Length of the recognition pattern
      */
-    private $recognitionLength;
+    private int $recognitionLength;
 
     /**
      * @var     int             Cleavage position on the upper strand
      */
-    private $cleavagePositionUpper;
+    private int $cleavagePositionUpper;
 
     /**
      * @var     int             Cleavage position on the lower strand, relative to the upper one
      */
-    private $cleavagePositionLower;
+    private int $cleavagePositionLower;
 
     /**
      * @var     int             Number of non-N bases within the recognition pattern
      */
-    private $nonAmbiguousBaseCount;
+    private int $nonAmbiguousBaseCount;
 
     /**
      * RestrictionEnzymeDefinition constructor.

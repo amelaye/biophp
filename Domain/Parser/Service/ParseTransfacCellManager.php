@@ -3,8 +3,10 @@
  * TRANSFAC cell.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,17 +22,17 @@ final class ParseTransfacCellManager extends ParseTransfacAbstractManager
      * Common name of the organism, e.g. "human".
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * @var string
      */
-    private $factorSource = "";
+    private string $factorSource = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -46,8 +48,7 @@ final class ParseTransfacCellManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);

@@ -3,8 +3,10 @@
  * Immutable value object describing one node of a phylogenetic tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Phylogenetics\ValueObject;
 
 use Amelaye\BioPHP\Domain\Phylogenetics\Exception\InvalidPhylogeneticTreeException;
@@ -25,17 +27,17 @@ final class PhylogeneticNode
     /**
      * @var     string|null
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * @var     float|null      Distance to this node's own parent ; null when not specified (e.g. the root)
      */
-    private $branchLength;
+    private ?float $branchLength = null;
 
     /**
      * @var     PhylogeneticNode[]
      */
-    private $children;
+    private ?array $children = null;
 
     /**
      * PhylogeneticNode constructor.

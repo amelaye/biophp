@@ -3,8 +3,10 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
@@ -23,9 +25,9 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 final class ParseGenbankManager extends ParseDbAbstractManager
 {
     /**
-     * @var array
+     * @var \ArrayIterator|null
      */
-    private $aLines;
+    private ?\ArrayIterator $aLines = null;
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -74,8 +76,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $this->aLines = new \ArrayIterator($aFlines); // <3
 
         foreach($this->aLines as $lineno => $linestr) {
@@ -147,12 +148,11 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @param   array       $aFlines    The lines the script has to parse
      * @throws  \Exception
      */
-    private function parseReferences($aFlines)
-    {
+    private function parseReferences(array $aFlines) {
         $oReference = new Reference();
         $aWords = preg_split("/\s+/", trim(substr($this->aLines->current(),12)));
         $oReference->setPrimAcc($this->sequence->getPrimAcc());
-        $oReference->setRefno($aWords[0]);
+        $oReference->setRefno((int) $aWords[0]);
         array_shift($aWords);
         $sbaseRange = implode(" ", $aWords);
         $sbaseRange = str_replace(["(bases ",")"], "", $sbaseRange);
@@ -230,8 +230,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @return  string
      * @throws  \Exception
      */
-    private function seekReferences(&$sReferenceProperty)
-    {
+    private function seekReferences(&$sReferenceProperty) : string {
         while(1) {
             $sReferenceProperty .= " ".trim(substr($this->aLines->current(), 12));
             $this->aLines->next();
@@ -380,8 +379,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @param   string  $sField
      * @throws  \Exception
      */
-    private function parseFeatures($aFlines, $sField)
-    {
+    private function parseFeatures(array $aFlines, string $sField) {
         $sKey = $sField;
         $sLocation = trim(substr($this->aLines->current(), 20));
         // A location can wrap across several physical lines (a spliced join() feature commonly
@@ -435,8 +433,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @param   array   $aBounds    [$iFtFrom, $iFtTo, $sStrand], as returned by
      * parseLocationBounds().
      */
-    private function buildFeature($sLine, $sKey, $aBounds)
-    {
+    private function buildFeature(string $sLine, string $sKey, array $aBounds) {
         $sLine = str_replace("/","",trim($sLine));
         $aLine = explode("=",str_replace('"',"",$sLine));
         $oFeature = new Feature();

@@ -3,8 +3,10 @@
  * NCBI biomedical literature parsing (journal list)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,37 +25,37 @@ final class ParseNcbiLitManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $id = "";
+    private string $id = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var string
      */
-    private $medAbbr = "";
+    private string $medAbbr = "";
 
     /**
      * @var string
      */
-    private $issn = "";
+    private string $issn = "";
 
     /**
      * @var string
      */
-    private $essn = "";
+    private string $essn = "";
 
     /**
      * @var string
      */
-    private $isoAbbr = "";
+    private string $isoAbbr = "";
 
     /**
      * @var string
      */
-    private $nlmId = "";
+    private string $nlmId = "";
 
     /**
      * Constructor.
@@ -108,8 +110,7 @@ final class ParseNcbiLitManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach($aFlines as $sLine) {
             if (self::isEntryEnd($sLine)) {
                 break;

@@ -3,8 +3,10 @@
  * Immutable value object wrapping an amino acid sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;

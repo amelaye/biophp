@@ -3,8 +3,10 @@
  * One parsed database record, kept as a JSON document
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 September 2026
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -27,32 +29,32 @@ class ParsedRecord
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer", name: "id")]
-    private $id;
+    private ?int $id = null;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 30, nullable: false, name: "db_format")]
-    private $dbFormat = "";
+    private string $dbFormat = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 100, nullable: false, name: "entry_id")]
-    private $entryId = "";
+    private string $entryId = "";
 
     /**
      * @var array
      */
     #[ORM\Column(type: "json", nullable: false, name: "data")]
-    private $data = [];
+    private array $data = [];
 
     /**
      * @var Collection|null
      */
     #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(name: "id_collection", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    private $collection;
+    private ?Collection $collection = null;
 
     /**
      * @return int|null

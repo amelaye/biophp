@@ -3,8 +3,10 @@
  * TRANSFAC matrix.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,28 +22,28 @@ final class ParseTransfacMatrixManager extends ParseTransfacAbstractManager
     /**
      * @var string
      */
-    private $name = "";
+    private string $name = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * One row per position : ["A" => 1, "C" => 2, "G" => 2, "T" => 0, "consensus" => "N"].
      * @var array
      */
-    private $matrix = [];
+    private array $matrix = [];
 
     /**
      * @var string
      */
-    private $basis = "";
+    private string $basis = "";
 
     /**
      * @var string
      */
-    private $comments = "";
+    private string $comments = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -57,8 +59,7 @@ final class ParseTransfacMatrixManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);
@@ -98,8 +99,7 @@ final class ParseTransfacMatrixManager extends ParseTransfacAbstractManager
      * @param   string      $sData
      * @return  array
      */
-    private function parseMatrixRow($sData)
-    {
+    private function parseMatrixRow(string $sData) : array {
         $aTokens = preg_split("/\s+/", $sData, -1, PREG_SPLIT_NO_EMPTY);
 
         return [

@@ -3,8 +3,10 @@
  * Doctrine Entity SrcForm
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,13 +27,13 @@ class SrcForm
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $entry = "";
+    private string $entry = "";
 
     /**
      * @return string

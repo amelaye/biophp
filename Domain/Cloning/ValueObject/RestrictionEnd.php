@@ -3,8 +3,10 @@
  * Immutable value object describing the overhang left by a restriction cut
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
 /**
@@ -33,12 +35,12 @@ final class RestrictionEnd
     /**
      * @var     string
      */
-    private $type;
+    private ?string $type = null;
 
     /**
      * @var     string|null
      */
-    private $overhangSequence;
+    private ?string $overhangSequence = null;
 
     /**
      * RestrictionEnd constructor.

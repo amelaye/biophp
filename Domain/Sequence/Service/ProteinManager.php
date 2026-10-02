@@ -3,8 +3,10 @@
  * Protein Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 18 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\AminoApiAdapter;
@@ -21,17 +23,17 @@ class ProteinManager implements ProteinInterface
     /**
      * @var Protein
      */
-    private $protein;
+    private ?Protein $protein = null;
 
     /**
      * @var array
      */
-    private $aminos;
+    private ?array $aminos = null;
 
     /**
      * @var AminoApiAdapter
      */
-    private $aminoApi;
+    private AminoApiAdapter $aminoApi;
 
     /**
      * Constructor

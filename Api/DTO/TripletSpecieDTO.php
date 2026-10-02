@@ -3,8 +3,10 @@
  * Database of Triplets
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,23 +19,23 @@ class TripletSpecieDTO
     /**
      * @var     int     The id (auto-increment)
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * Standard, Vertebrate mitochondrial ...
      * @var     string
      */
-    private $nature;
+    private ?string $nature = null;
 
     /**
      * @var     array
      */
-    private $triplets;
+    private ?array $triplets = null;
 
     /**
      * @var     array
      */
-    private $tripletsGroups;
+    private ?array $tripletsGroups = null;
 
     /**
      * @return int

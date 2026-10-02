@@ -3,8 +3,10 @@
  * Immutable value object describing the primer tails needed to create a Gibson junction
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
 /**
@@ -23,12 +25,12 @@ final class GibsonHomologyArms
     /**
      * @var     string
      */
-    private $downstreamForwardPrimerTail;
+    private string $downstreamForwardPrimerTail;
 
     /**
      * @var     string
      */
-    private $upstreamReversePrimerTail;
+    private string $upstreamReversePrimerTail;
 
     /**
      * GibsonHomologyArms constructor.

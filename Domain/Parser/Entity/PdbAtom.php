@@ -3,8 +3,10 @@
  * One ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 
 use Amelaye\BioPHP\Domain\Parser\Interfaces\PdbAtomInterface;
@@ -19,62 +21,62 @@ class PdbAtom implements PdbAtomInterface
     /**
      * @var int
      */
-    private $serial = 0;
+    private int $serial = 0;
 
     /**
      * @var string
      */
-    private $name = "";
+    private string $name = "";
 
     /**
      * @var string
      */
-    private $altLoc = "";
+    private string $altLoc = "";
 
     /**
      * @var string
      */
-    private $resName = "";
+    private string $resName = "";
 
     /**
      * @var string
      */
-    private $chainId = "";
+    private string $chainId = "";
 
     /**
      * @var int
      */
-    private $resSeq = 0;
+    private int $resSeq = 0;
 
     /**
      * @var float
      */
-    private $x = 0.0;
+    private float $x = 0.0;
 
     /**
      * @var float
      */
-    private $y = 0.0;
+    private float $y = 0.0;
 
     /**
      * @var float
      */
-    private $z = 0.0;
+    private float $z = 0.0;
 
     /**
      * @var float
      */
-    private $occupancy = 0.0;
+    private float $occupancy = 0.0;
 
     /**
      * @var float
      */
-    private $tempFactor = 0.0;
+    private float $tempFactor = 0.0;
 
     /**
      * @var string
      */
-    private $element = "";
+    private string $element = "";
 
     /**
      * @return int

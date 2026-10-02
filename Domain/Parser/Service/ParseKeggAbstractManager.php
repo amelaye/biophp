@@ -3,8 +3,10 @@
  * Shared reading of the KEGG flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -27,12 +29,12 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    protected $entry = "";
+    protected string $entry = "";
 
     /**
      * @var array
      */
-    protected $names = [];
+    protected array $names = [];
 
     /**
      * Constructor.
@@ -127,8 +129,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @return  array
      */
-    protected function readFields($aFlines)
-    {
+    protected function readFields(array $aFlines) : array {
         $aFields  = [];
         $sCurrent = "";
 
@@ -160,8 +161,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    private function readNames($aLines)
-    {
+    private function readNames(array $aLines) : array {
         return array_values(array_filter(array_map(
             'trim',
             explode(";", implode(" ", $aLines))
@@ -174,8 +174,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  string
      */
-    protected function joinLines($aLines)
-    {
+    protected function joinLines(array $aLines) : string {
         $sResult = "";
         foreach ($aLines as $sLine) {
             if (substr($sLine, 0, 1) == '$') {
@@ -193,8 +192,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    protected function splitTokens($aLines)
-    {
+    protected function splitTokens(array $aLines) : array {
         return preg_split("/\s+/", trim(implode(" ", $aLines)), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     }
 
@@ -204,8 +202,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    protected function parsePathways($aLines)
-    {
+    protected function parsePathways(array $aLines) : array {
         $aPathways = [];
         foreach (preg_split("/PATH:/", implode(" ", $aLines), -1, PREG_SPLIT_NO_EMPTY) as $sPath) {
             $sPath = trim($sPath);
@@ -224,8 +221,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    protected function parseDbLinks($aLines)
-    {
+    protected function parseDbLinks(array $aLines) : array {
         $aLinks = [];
         foreach ($aLines as $sLine) {
             $aTokens = preg_split("/:\s/", trim($sLine), 2, PREG_SPLIT_NO_EMPTY);

@@ -3,8 +3,10 @@
  * Database of elements - TypeIIs Endonucleolases
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,42 +19,42 @@ class TypeIIsEndonucleaseDTO
     /**
      * @var     string      First endonucleolase of the list
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     array       All endonucleolases recognizing the same pattern
      */
-    private $samePattern;
+    private ?array $samePattern = null;
 
     /**
      * @var     string      Recognition pattern
      */
-    private $recognitionPattern;
+    private ?string $recognitionPattern = null;
 
     /**
      * @var     string      Recognition pattern for computing
      */
-    private $computingPattern;
+    private ?string $computingPattern = null;
 
     /**
      * @var     int         Length of all recognition pattern
      */
-    private $lengthRecognitionPattern;
+    private ?int $lengthRecognitionPattern = null;
 
     /**
      * @var     int         Cleavage position in upper strand
      */
-    private $cleavagePosUpper;
+    private ?int $cleavagePosUpper = null;
 
     /**
      * @var     int         Cleavage position in lower strand, relative to previous one
      */
-    private $cleavagePosLower;
+    private ?int $cleavagePosLower = null;
 
     /**
      * @var     int         Number of non-N bases within recognition pattern
      */
-    private $nbNonNBases;
+    private ?int $nbNonNBases = null;
 
     /**
      * @return string

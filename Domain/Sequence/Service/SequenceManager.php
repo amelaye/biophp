@@ -3,8 +3,10 @@
  * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\DTO\ElementDTO;
@@ -45,32 +47,32 @@ class SequenceManager
     /**
      * @var array
      */
-    private $elements;
+    private ?array $elements = null;
 
     /**
      * @var AminoApiAdapter
      */
-    private $aminoApi;
+    private ?AminoApiAdapter $aminoApi = null;
 
     /**
      * @var NucleotidApiAdapter
      */
-    private $nucleotidApi;
+    private ?NucleotidApiAdapter $nucleotidApi = null;
 
     /**
      * @var array
      */
-    private $nucleotids;
+    private ?array $nucleotids = null;
 
     /**
      * @var ElementDTO
      */
-    private $water;
+    private ?ElementDTO $water = null;
 
     /**
      * @var array
      */
-    private $aminos;
+    private ?array $aminos = null;
     
     /**
      * SequenceManager constructor.
@@ -169,8 +171,7 @@ class SequenceManager
      * @param   string    $string     A palindromic or mirror sequence containing the bridge.
      * @return  string
      */
-    public function getBridge(string $string)
-    {
+    public function getBridge(string $string) : string {
         if(strlen($string) % 2 != 0) { // odd
             $comp_len = (int) (strlen($string)/2);
             return substr($string, $comp_len, 1);
@@ -356,8 +357,7 @@ class SequenceManager
      * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq($iStart, $iCount, $sSequence) : string
-    {
+    public function subSeq(int $iStart, int $iCount, string $sSequence) : string {
         $newSeq = substr($sSequence, $iStart, $iCount);
         return $newSeq;
     }
@@ -373,8 +373,7 @@ class SequenceManager
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos($sPattern, $sOptions = "I", $sSequence = null) : array
-    {
+    public function patPos(string $sPattern, string $sOptions = "I", ?string $sSequence = null) : array {
         $aOuter = [];
         $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
 
@@ -415,8 +414,7 @@ class SequenceManager
      * position is equal to zero (0).
      * @throws      \Exception
      */
-    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null)
-    {
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null) : array {
         $aAbsPos = [];
         if (strtoupper($sOptions) == "I") {
             $sSequence = strtoupper($sSequence);
@@ -469,8 +467,7 @@ class SequenceManager
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I")
-    {
+    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I") : array {
         $sMatch = $this->findpattern($sPattern, $sSequence, $sOptions);
         return array_count_values($sMatch[0]);
     }
@@ -530,8 +527,7 @@ class SequenceManager
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, string $sSequence, int $iReadFrame)
-    {
+    public function getCodon(int $iIndex, string $sSequence, int $iReadFrame) : string {
         return strtoupper(substr($sSequence, ($iIndex * 3) + $iReadFrame, 3));
     }
 
@@ -740,8 +736,7 @@ class SequenceManager
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2, string $sOptions)
-    {
+    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2, string $sOptions) {
         $iSeqLength = strlen($sSequence);
 
         if ($iPallen2 == null) { // if third parameter (representing upper palindrome length) is missing
@@ -891,8 +886,7 @@ class SequenceManager
      * @param   int     $format
      * @return  string
      */
-    private function adenineLetters($letter2, $letter3, $format) : string
-    {
+    private function adenineLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
@@ -952,8 +946,7 @@ class SequenceManager
      * @param   int     $format
      * @return  string
      */
-    private function cytosineLetters($letter2, $letter3, $format) : string
-    {
+    private function cytosineLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
@@ -992,8 +985,7 @@ class SequenceManager
      * @param   int       $format
      * @return  string
      */
-    private function uracileLetters($letter2, $letter3, $format) : string
-    {
+    private function uracileLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":

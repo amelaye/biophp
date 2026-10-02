@@ -3,8 +3,10 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -24,12 +26,12 @@ class SequenceBuilder implements SequenceInterface
     /**
      * @var Sequence
      */
-    private $sequence;
+    private ?Sequence $sequence = null;
 
     /**
      * @var SequenceManager
      */
-    private $sequenceManager;
+    private SequenceManager $sequenceManager;
 
     /**
      * SequenceFactory constructor.
@@ -144,8 +146,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float
-    {
+    public function molwt(string $sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -193,8 +194,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq(int $iStart, int $iCount, $sSequence = null) : string
-    {
+    public function subSeq(int $iStart, int $iCount, ?string $sSequence = null) : string {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -297,8 +297,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, ?string $sSequence = null, $sOptions = "I") : array
-    {
+    public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -338,8 +337,7 @@ class SequenceBuilder implements SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, ?string $sSequence = null, $iReadFrame = 0) : string
-    {
+    public function getCodon(int $iIndex, ?string $sSequence = null, int $iReadFrame = 0) : string {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -395,8 +393,7 @@ class SequenceBuilder implements SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge(string $sAminoSeq)
-    {
+    public function charge(string $sAminoSeq) : string {
         return $this->sequenceManager->charge($sAminoSeq);
     }
 
@@ -469,8 +466,7 @@ class SequenceBuilder implements SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(?string $sSequence = null, ?int $iPallen1 = null, ?int $iPallen2 = null, string $sOptions = "E")
-    {
+    public function findMirror(?string $sSequence = null, ?int $iPallen1 = null, ?int $iPallen2 = null, string $sOptions = "E") {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
             $iSeqLength = strlen($sSequence);

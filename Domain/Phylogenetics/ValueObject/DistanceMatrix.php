@@ -3,8 +3,10 @@
  * Immutable value object wrapping a validated symmetric distance matrix between taxa
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Phylogenetics\ValueObject;
 
 use Amelaye\BioPHP\Domain\Phylogenetics\Exception\InvalidDistanceMatrixException;
@@ -23,12 +25,12 @@ final class DistanceMatrix
     /**
      * @var     string[]
      */
-    private $labels;
+    private array $labels;
 
     /**
      * @var     float[][]
      */
-    private $distances;
+    private array $distances;
 
     /**
      * DistanceMatrix constructor.

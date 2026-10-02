@@ -3,8 +3,10 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,45 +27,45 @@ class Feature
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var string
      */
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 15, nullable: false)]
-    private $ftKey = "";
+    private string $ftKey = "";
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $ftFrom;
+    private ?int $ftFrom = null;
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $ftTo;
+    private ?int $ftTo = null;
 
     /**
      * @var string
      */
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 60, nullable: false)]
-    private $ftQual = "";
+    private string $ftQual = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $ftValue = "";
+    private string $ftValue = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $ftDesc = "";
+    private string $ftDesc = "";
 
     /**
      * The strand the feature was read from : "+" (direct/sense) or "-" (the location was wrapped
@@ -72,7 +74,7 @@ class Feature
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 1, nullable: true)]
-    private $strand;
+    private ?string $strand = null;
 
     /**
      * @return string

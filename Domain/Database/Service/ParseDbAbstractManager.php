@@ -3,8 +3,10 @@
  * Global database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 19 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -25,47 +27,47 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     /**
      * @var array
      */
-    protected $accession;
+    protected ?array $accession = null;
 
     /**
      * @var Sequence
      */
-    protected $sequence;
+    protected ?Sequence $sequence = null;
 
     /**
      * @var array
      */
-    protected $authors;
+    protected ?array $authors = null;
 
     /**
      * @var array
      */
-    protected $features;
+    protected ?array $features = null;
 
     /**
      * @var array
      */
-    protected $keywords;
+    protected ?array $keywords = null;
 
     /**
      * @var array
      */
-    protected $references;
+    protected ?array $references = null;
 
     /**
      * @var SrcForm
      */
-    protected $srcForm;
+    protected ?SrcForm $srcForm = null;
 
     /**
      * @var GbSequence
      */
-    protected $gbSequence;
+    protected ?GbSequence $gbSequence = null;
 
     /**
      * @var array
      */
-    protected $spDatabank;
+    protected ?array $spDatabank = null;
 
     /**
      * Constructor.
@@ -86,64 +88,56 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     /**
      * @return array
      */
-    public function getAccession()
-    {
+    public function getAccession() : array {
         return $this->accession;
     }
 
     /**
      * @return Sequence
      */
-    public function getSequence()
-    {
+    public function getSequence() : Sequence {
         return $this->sequence;
     }
 
     /**
      * @return array
      */
-    public function getAuthors()
-    {
+    public function getAuthors() : array {
         return $this->authors;
     }
 
     /**
      * @return GbSequence
      */
-    public function getGbSequence()
-    {
+    public function getGbSequence() : GbSequence {
         return $this->gbSequence;
     }
 
     /**
      * @return array
      */
-    public function getFeatures()
-    {
+    public function getFeatures() : array {
         return $this->features;
     }
 
     /**
      * @return array
      */
-    public function getKeywords()
-    {
+    public function getKeywords() : array {
         return $this->keywords;
     }
 
     /**
      * @return array
      */
-    public function getReferences()
-    {
+    public function getReferences() : array {
         return $this->references;
     }
 
     /**
      * @return SrcForm
      */
-    public function getSrcForm()
-    {
+    public function getSrcForm() : SrcForm {
         return $this->srcForm;
     }
 
@@ -259,5 +253,5 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws \Exception
      */
-    public function parseDataFile($aFlines) {}
+    public function parseDataFile(array $aFlines) {}
 }

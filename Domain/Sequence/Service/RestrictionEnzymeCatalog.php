@@ -3,8 +3,10 @@
  * Typed restriction enzyme catalog, merging Type II, Type IIb and Type IIs endonuclease sources
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 24 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\TypeIIbEndonucleaseApiAdapter;
@@ -27,12 +29,12 @@ class RestrictionEnzymeCatalog implements RestrictionEnzymeCatalogInterface
     /**
      * @var     RestrictionEnzymeDefinition[]   Keyed by uppercase canonical name
      */
-    private $aDefinitionsByName = [];
+    private array $aDefinitionsByName = [];
 
     /**
      * @var     string[]        Uppercase name or alias => uppercase canonical name
      */
-    private $aCanonicalNameByAlias = [];
+    private array $aCanonicalNameByAlias = [];
 
     /**
      * RestrictionEnzymeCatalog constructor.
@@ -146,8 +148,7 @@ class RestrictionEnzymeCatalog implements RestrictionEnzymeCatalogInterface
      * @param   string      $sFamily    One of RestrictionEnzymeDefinition::VALID_FAMILIES
      * @return  RestrictionEnzymeDefinition
      */
-    private function mapDtoToDefinition($oDto, string $sFamily): RestrictionEnzymeDefinition
-    {
+    private function mapDtoToDefinition(object $oDto, string $sFamily) : RestrictionEnzymeDefinition {
         $sName = $oDto->getId();
         $aSamePattern = $oDto->getSamePattern();
         $aAliases = [];

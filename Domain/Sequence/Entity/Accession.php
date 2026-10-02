@@ -3,8 +3,10 @@
  * Doctrine Entity Accession
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -26,14 +28,14 @@ class Accession
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var string
      */
     #[ORM\Id]
     #[ORM\Column(type: "string", length: 8, nullable: false)]
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @return string

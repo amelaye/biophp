@@ -3,8 +3,10 @@
  * Immutable value object describing whether two fragments already share Gibson homology
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\Result;
 
 /**
@@ -21,12 +23,12 @@ final class GibsonJunctionResult
     /**
      * @var     int
      */
-    private $overlapLength;
+    private int $overlapLength;
 
     /**
      * @var     string|null
      */
-    private $overlapSequence;
+    private ?string $overlapSequence = null;
 
     /**
      * GibsonJunctionResult constructor.

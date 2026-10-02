@@ -4,8 +4,10 @@
  * Inspired by BioPHP's project biophp.org
  * Created 19 march  2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 12 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 /**
@@ -21,8 +23,7 @@ class GeneticsFunctions
      * @return  int
      * @throws \Exception
      */
-    public static function CountACGT($sSequence)
-    {
+    public static function CountACGT(string $sSequence) : int {
         $cg = substr_count($sSequence,"A")
             + substr_count($sSequence,"T")
             + substr_count($sSequence,"G")
@@ -36,8 +37,7 @@ class GeneticsFunctions
      * @return  int
      * @throws \Exception
      */
-    public function CountYRWSKMDVHB($c)
-    {
+    public function CountYRWSKMDVHB(string $c) : int {
         $cg = substr_count($c,"Y")
             + substr_count($c,"R")
             + substr_count($c,"W")
@@ -56,8 +56,7 @@ class GeneticsFunctions
      * @return int
      * @throws \Exception
      */
-    public static function CountCG($c)
-    {
+    public static function CountCG($c) : int {
         $cg = substr_count($c,"G")
             + substr_count($c,"C");
         return $cg;
@@ -86,8 +85,7 @@ class GeneticsFunctions
      * @return      string
      * @throws      \Exception
      */
-    public static function RemoveNonCodingProt($sSequence)
-    {
+    public static function RemoveNonCodingProt(string $sSequence) : string {
         $sSequence = strtoupper($sSequence);
         // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
         $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);

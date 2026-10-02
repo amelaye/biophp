@@ -4,8 +4,10 @@
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^=
- * Last modified 18 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Interfaces;
 
 /**
@@ -71,7 +73,7 @@ interface OligosInterface
      * @return      array
      * @throws      \Exception
      */
-    public function findOligos($sSequence, $iOligoLen);
+    public function findOligos(string $sSequence, int $iOligoLen) : array ;
 
     /**
      * COMPUTE Z-SCORES FOR TETRANUCLEOTIDES
@@ -80,5 +82,5 @@ interface OligosInterface
      * @param $oligos4
      * @return array
      */
-    public function findZScore($oligos2, $oligos3, $oligos4);
+    public function findZScore($oligos2, $oligos3, $oligos4) : array ;
 }

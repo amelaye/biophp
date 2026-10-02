@@ -3,8 +3,10 @@
  * Immutable value object describing one annotated region of a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
 use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
@@ -23,47 +25,47 @@ final class PlasmidFeature
     /**
      * @var     string
      */
-    private $name;
+    private string $name;
 
     /**
      * @var     string          One of FeatureType::VALID_TYPES
      */
-    private $type;
+    private string $type;
 
     /**
      * @var     int             1-based inclusive
      */
-    private $start;
+    private int $start;
 
     /**
      * @var     int             1-based inclusive
      */
-    private $end;
+    private int $end;
 
     /**
      * @var     string          One of Strand::VALID_STRANDS
      */
-    private $strand;
+    private string $strand;
 
     /**
      * @var     string|null     Strict "#RRGGBB" hexadecimal notation
      */
-    private $color;
+    private ?string $color = null;
 
     /**
      * @var     string|null
      */
-    private $note;
+    private ?string $note = null;
 
     /**
      * @var     string|null
      */
-    private $externalId;
+    private ?string $externalId = null;
 
     /**
      * @var     array           Only scalars, null and arrays of the same, recursively
      */
-    private $metadata;
+    private array $metadata;
 
     /**
      * PlasmidFeature constructor.

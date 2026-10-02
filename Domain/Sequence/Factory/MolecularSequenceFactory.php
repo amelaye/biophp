@@ -3,8 +3,10 @@
  * Builds sequence value objects out of the molecule types found in the parsed records
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Factory;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;

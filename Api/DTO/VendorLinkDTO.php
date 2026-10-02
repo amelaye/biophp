@@ -3,8 +3,10 @@
  * Database of elements - TypeIIs Endonucleolases
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,17 +19,17 @@ class VendorLinkDTO
     /**
      * @var string
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var string
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * @var string
      */
-    private $link;
+    private ?string $link = null;
 
     /**
      * @return string

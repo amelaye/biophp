@@ -3,8 +3,10 @@
  * Immutable value object holding the base-composition skew metrics of a sequence window
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\ValueObject;
 
 /**
@@ -20,22 +22,22 @@ final class SkewResult
     /**
      * @var     float       (G-C)/(G+C) ; 0.0 when G+C=0
      */
-    private $gcSkew;
+    private float $gcSkew;
 
     /**
      * @var     float       (A-T)/(A+T) ; 0.0 when A+T=0
      */
-    private $atSkew;
+    private float $atSkew;
 
     /**
      * @var     float       (G+C-A-T)/(A+C+G+T) ; 0.0 for an empty window
      */
-    private $ketoSkew;
+    private float $ketoSkew;
 
     /**
      * @var     float       (G+C)/(A+C+G+T) ; 0.0 for an empty window
      */
-    private $gcContent;
+    private float $gcContent;
 
     /**
      * SkewResult constructor.

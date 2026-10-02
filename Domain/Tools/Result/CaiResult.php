@@ -3,8 +3,10 @@
  * Immutable value object holding the outcome of a Codon Adaptation Index calculation
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Result;
 
 /**
@@ -23,12 +25,12 @@ final class CaiResult
     /**
      * @var     float
      */
-    private $score;
+    private float $score;
 
     /**
      * @var     int
      */
-    private $codonsScored;
+    private int $codonsScored;
 
     /**
      * CaiResult constructor.

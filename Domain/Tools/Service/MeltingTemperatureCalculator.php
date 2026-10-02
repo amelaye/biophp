@@ -3,8 +3,10 @@
  * Calculates a primer's GC content and melting temperature
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter;
@@ -33,12 +35,12 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
     /**
      * @var     array<string,float>
      */
-    private $enthalpyValues;
+    private array $enthalpyValues;
 
     /**
      * @var     array<string,float>
      */
-    private $entropyValues;
+    private array $entropyValues;
 
     /**
      * MeltingTemperatureCalculator constructor.

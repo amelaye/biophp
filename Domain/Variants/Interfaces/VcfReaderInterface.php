@@ -3,8 +3,10 @@
  * VCF variant-file reading Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Variants\Interfaces;
 
 use Amelaye\BioPHP\Domain\Variants\Result\VcfImportResult;

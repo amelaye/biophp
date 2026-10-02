@@ -3,8 +3,10 @@
  * Calculates GC-skew, AT-skew, KETO-skew and GC content of a sequence window
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 use Amelaye\BioPHP\Domain\Tools\Interfaces\SkewCalculatorInterface;

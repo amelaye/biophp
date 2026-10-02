@@ -3,8 +3,10 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 20 December 2019
- * Last modified 15 October 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\Interfaces;
 
 /**

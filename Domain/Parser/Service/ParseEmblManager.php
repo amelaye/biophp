@@ -3,8 +3,10 @@
  * EMBL database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
@@ -29,7 +31,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
     /**
      * @var \ArrayIterator
      */
-    private $aLines;
+    private ?\ArrayIterator $aLines = null;
 
     /**
      * Whether an AC line has already been parsed for the entry being read. Only the very first
@@ -38,7 +40,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * included, is a genuine secondary accession and must be kept.
      * @var bool
      */
-    private $bAccessionLineSeen = false;
+    private bool $bAccessionLineSeen = false;
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -87,8 +89,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $this->aLines = new \ArrayIterator($aFlines);
 
         foreach ($this->aLines as $lineno => $linestr) {
@@ -201,8 +202,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @param   array       $aFlines
      * @throws  \Exception
      */
-    private function parseDescription($aFlines)
-    {
+    private function parseDescription(array $aFlines) {
         $sDescription = trim(substr($this->aLines->current(), 5));
         while (true) {
             $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
@@ -241,8 +241,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @param   array       $aFlines
      * @throws  \Exception
      */
-    private function parseOrganism($aFlines)
-    {
+    private function parseOrganism(array $aFlines) {
         $sSpecies = trim(substr($this->aLines->current(), 5));
         $this->sequence->setSource($sSpecies);
 
@@ -268,11 +267,10 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @param   array       $aFlines
      * @throws  \Exception
      */
-    private function parseReferences($aFlines)
-    {
+    private function parseReferences(array $aFlines) {
         $oReference = new Reference();
         $oReference->setPrimAcc($this->sequence->getPrimAcc());
-        $oReference->setRefno(trim(trim(substr($this->aLines->current(), 5)), "[]"));
+        $oReference->setRefno((int) trim(trim(substr($this->aLines->current(), 5)), "[]"));
 
         $this->aLines->next();
 
@@ -332,8 +330,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * @param   array       $aFlines
      * @throws  \Exception
      */
-    private function parseFeatures($aFlines)
-    {
+    private function parseFeatures(array $aFlines) {
         $sKey = trim(substr($this->aLines->current(), 5, 15));
         [$iFtFrom, $iFtTo, $sStrand] = $this->parseLocationBounds(trim(substr($this->aLines->current(), 21)));
 

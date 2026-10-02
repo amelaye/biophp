@@ -4,8 +4,10 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 10 january 2020
- * Last modified 18 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Protein;

@@ -3,8 +3,10 @@
  * PDB (Protein Data Bank) database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -44,104 +46,104 @@ final class ParsePdbManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $idCode = "";
+    private string $idCode = "";
 
     /**
      * @var string
      */
-    private $classification = "";
+    private string $classification = "";
 
     /**
      * @var string
      */
-    private $depositionDate = "";
+    private string $depositionDate = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * One block per molecule, keyed by token : MOL_ID, MOLECULE, CHAIN...
      * @var array
      */
-    private $compounds = [];
+    private array $compounds = [];
 
     /**
      * One block per molecule, keyed by token : MOL_ID, ORGANISM_SCIENTIFIC, STRAIN...
      * @var array
      */
-    private $sources = [];
+    private array $sources = [];
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * @var string
      */
-    private $experimentalTechnique = "";
+    private string $experimentalTechnique = "";
 
     /**
      * @var array
      */
-    private $authors = [];
+    private array $authors = [];
 
     /**
      * @var array
      */
-    private $seqRes = [];
+    private array $seqRes = [];
 
     /**
      * @var array
      */
-    private $helices = [];
+    private array $helices = [];
 
     /**
      * @var array
      */
-    private $sheets = [];
+    private array $sheets = [];
 
     /**
      * @var array
      */
-    private $cryst1 = [];
+    private array $cryst1 = [];
 
     /**
      * @var array
      */
-    private $atoms = [];
+    private array $atoms = [];
 
     /**
      * @var array
      */
-    private $hetAtoms = [];
+    private array $hetAtoms = [];
 
     /**
      * @var string
      */
-    private $sCompnd = "";
+    private string $sCompnd = "";
 
     /**
      * @var string
      */
-    private $sSource = "";
+    private string $sSource = "";
 
     /**
      * @var string
      */
-    private $sKeywds = "";
+    private string $sKeywds = "";
 
     /**
      * @var string
      */
-    private $sAuthor = "";
+    private string $sAuthor = "";
 
     /**
      * @var array
      */
-    private $aSeqResCodes = [];
+    private array $aSeqResCodes = [];
 
     /**
      * Constructor.
@@ -195,8 +197,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sRecord = trim(substr($sLine, 0, 6));
             switch ($sRecord) {
@@ -265,8 +266,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseSpecificationList($sText)
-    {
+    private function parseSpecificationList(string $sText) : array {
         $aBlocks  = [];
         $aCurrent = [];
 
@@ -302,8 +302,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * Columns : 11-50 classification, 51-59 deposition date, 63-66 idCode.
      * @param   string      $sLine
      */
-    private function parseHeader($sLine)
-    {
+    private function parseHeader(string $sLine) {
         $this->classification = trim(substr($sLine, 10, 40));
         $this->depositionDate = trim(substr($sLine, 50, 9));
         $this->idCode = trim(substr($sLine, 62, 4));
@@ -314,8 +313,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * Columns : 12 chainID, 20- residues (3-letter codes, space-separated).
      * @param   string      $sLine
      */
-    private function parseSeqRes($sLine)
-    {
+    private function parseSeqRes(string $sLine) {
         $sChainId = trim(substr($sLine, 11, 1));
         $aCodes = array_values(array_filter(preg_split("/\s+/", trim(substr($sLine, 19)))));
 
@@ -332,8 +330,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  PdbHelixInterface
      */
-    private function parseHelix($sLine)
-    {
+    private function parseHelix(string $sLine) : PdbHelixInterface {
         $oHelix = new PdbHelix();
         $oHelix->setHelixId(trim(substr($sLine, 11, 3)));
         $oHelix->setInitResName(trim(substr($sLine, 15, 3)));
@@ -354,8 +351,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  PdbSheetInterface
      */
-    private function parseSheet($sLine)
-    {
+    private function parseSheet(string $sLine) : PdbSheetInterface {
         $oSheet = new PdbSheet();
         $oSheet->setStrand((int) trim(substr($sLine, 7, 3)));
         $oSheet->setSheetId(trim(substr($sLine, 11, 3)));
@@ -374,8 +370,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * 56-66 space group, 67-70 Z.
      * @param   string      $sLine
      */
-    private function parseCryst1($sLine)
-    {
+    private function parseCryst1(string $sLine) {
         $this->cryst1 = [
             "a"          => (float) trim(substr($sLine, 6, 9)),
             "b"          => (float) trim(substr($sLine, 15, 9)),
@@ -395,8 +390,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  PdbAtomInterface
      */
-    private function parseAtom($sLine)
-    {
+    private function parseAtom(string $sLine) : PdbAtomInterface {
         $oAtom = new PdbAtom();
         $oAtom->setSerial((int) trim(substr($sLine, 6, 5)));
         $oAtom->setName(trim(substr($sLine, 12, 4)));

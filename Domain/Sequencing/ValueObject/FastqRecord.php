@@ -3,8 +3,10 @@
  * Immutable value object holding one FASTQ sequencing read and its per-base quality
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequencing\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
@@ -27,17 +29,17 @@ final class FastqRecord
     /**
      * @var     string
      */
-    private $identifier;
+    private string $identifier;
 
     /**
      * @var     DnaSequence
      */
-    private $sequence;
+    private DnaSequence $sequence;
 
     /**
      * @var     string
      */
-    private $quality;
+    private string $quality;
 
     /**
      * FastqRecord constructor.

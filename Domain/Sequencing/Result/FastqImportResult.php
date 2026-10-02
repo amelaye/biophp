@@ -3,8 +3,10 @@
  * Immutable value object holding the outcome of reading a FASTQ file
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequencing\Result;
 
 use Amelaye\BioPHP\Domain\Sequencing\ValueObject\FastqRecord;
@@ -19,12 +21,12 @@ final class FastqImportResult
     /**
      * @var     FastqRecord[]
      */
-    private $records;
+    private array $records;
 
     /**
      * @var     string[]
      */
-    private $warnings;
+    private array $warnings;
 
     /**
      * FastqImportResult constructor.

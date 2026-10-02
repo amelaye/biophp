@@ -3,8 +3,10 @@
  * Raised when a string cannot be wrapped into a sequence value object
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Exception;
 
 /**

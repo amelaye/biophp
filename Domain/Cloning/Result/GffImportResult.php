@@ -3,8 +3,10 @@
  * Immutable value object holding the outcome of reading a GFF3 file
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\Result;
 
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
@@ -23,12 +25,12 @@ final class GffImportResult
     /**
      * @var     PlasmidFeature[]
      */
-    private $features;
+    private array $features;
 
     /**
      * @var     string[]
      */
-    private $warnings;
+    private array $warnings;
 
     /**
      * GffImportResult constructor.

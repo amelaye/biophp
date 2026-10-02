@@ -3,8 +3,10 @@
  * Database of elements - PK Values
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,52 +19,52 @@ class PKDTO
     /**
      * @var     string       Id of the row (EMBOSS ...)
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     float
      */
-    private $nTerminus;
+    private ?float $nTerminus = null;
 
     /**
      * @var     float
      */
-    private $k;
+    private ?float $k = null;
 
     /**
      * @var     float
      */
-    private $r;
+    private ?float $r = null;
 
     /**
      * @var     float
      */
-    private $h;
+    private ?float $h = null;
 
     /**
      * @var     float
      */
-    private $cTerminus;
+    private ?float $cTerminus = null;
 
     /**
      * @var     float
      */
-    private $d;
+    private ?float $d = null;
 
     /**
      * @var     float
      */
-    private $e;
+    private ?float $e = null;
 
     /**
      * @var     float
      */
-    private $c;
+    private ?float $c = null;
 
     /**
      * @var     float
      */
-    private $y;
+    private ?float $y = null;
 
     /**
      * @return string

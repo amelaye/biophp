@@ -3,8 +3,10 @@
  * PAM250 substitution matrix scoring
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Alignment\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\Pam250MatrixDigitApiAdapter;
@@ -27,7 +29,7 @@ class Pam250Scoring implements SubstitutionScoringInterface
     /**
      * @var     int[]       Flattened matrix, keyed by the two-letter residue pair code
      */
-    private $matrix;
+    private array $matrix;
 
     /**
      * Pam250Scoring constructor.

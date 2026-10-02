@@ -3,8 +3,10 @@
  * Doctrine Entity Reference
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -24,56 +26,56 @@ class Reference
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Sequence::class)]
     #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var int
      */
     #[ORM\Id]
     #[ORM\Column(type: "integer", length: 11, nullable: false, options: ["default" => 0])]
-    private $refno = 0;
+    private int $refno = 0;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 80, nullable: true)]
-    private $baseRange;
+    private ?string $baseRange = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $title;
+    private ?string $title = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 8, nullable: true)]
-    private $medline;
+    private ?string $medline = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 20, nullable: true)]
-    private $pubmed;
+    private ?string $pubmed = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $remark;
+    private ?string $remark = null;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $journal = "";
+    private string $journal = "";
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $comments;
+    private ?string $comments = null;
 
     /**
      * @return string

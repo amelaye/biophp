@@ -3,8 +3,10 @@
  * Immutable value object describing the outcome of a pairwise sequence alignment
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Alignment\Result;
 
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
@@ -26,37 +28,37 @@ final class PairwiseAlignmentResult
     /**
      * @var     string
      */
-    private $alignedFirst;
+    private string $alignedFirst;
 
     /**
      * @var     string
      */
-    private $alignedSecond;
+    private string $alignedSecond;
 
     /**
      * @var     int
      */
-    private $score;
+    private int $score;
 
     /**
      * @var     int
      */
-    private $firstStart;
+    private int $firstStart;
 
     /**
      * @var     int
      */
-    private $firstEnd;
+    private int $firstEnd;
 
     /**
      * @var     int
      */
-    private $secondStart;
+    private int $secondStart;
 
     /**
      * @var     int
      */
-    private $secondEnd;
+    private int $secondEnd;
 
     /**
      * PairwiseAlignmentResult constructor.

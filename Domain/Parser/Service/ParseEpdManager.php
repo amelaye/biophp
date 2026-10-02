@@ -3,8 +3,10 @@
  * EPD database parsing (Eukaryotic Promoter Database)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,67 +25,67 @@ final class ParseEpdManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $dataClass = "";
+    private string $dataClass = "";
 
     /**
      * @var string
      */
-    private $insiteType = "";
+    private string $insiteType = "";
 
     /**
      * @var string
      */
-    private $taxDiv = "";
+    private string $taxDiv = "";
 
     /**
      * @var array
      */
-    private $accessions = [];
+    private array $accessions = [];
 
     /**
      * @var string
      */
-    private $createDate = "";
+    private string $createDate = "";
 
     /**
      * @var string
      */
-    private $createRel = "";
+    private string $createRel = "";
 
     /**
      * @var string
      */
-    private $sequpdDate = "";
+    private string $sequpdDate = "";
 
     /**
      * @var string
      */
-    private $sequpdRel = "";
+    private string $sequpdRel = "";
 
     /**
      * @var string
      */
-    private $notupdDate = "";
+    private string $notupdDate = "";
 
     /**
      * @var string
      */
-    private $notupdRel = "";
+    private string $notupdRel = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $comments = "";
+    private string $comments = "";
 
     /**
      * Constructor.
@@ -145,8 +147,7 @@ final class ParseEpdManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $sDescription = "";
         $sComments    = "";
 

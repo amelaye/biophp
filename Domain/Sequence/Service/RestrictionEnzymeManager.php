@@ -3,8 +3,10 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
@@ -25,17 +27,17 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     /**
      * @var array
      */
-    private $aRestEnzimDB;
+    private array $aRestEnzimDB;
 
     /**
      * @var Enzyme
      */
-    private $enzyme;
+    private ?Enzyme $enzyme = null;
 
     /**
-     * @var SequenceManager
+     * @var SequenceInterface|null
      */
-    private $sequenceManager;
+    private ?SequenceInterface $sequenceManager = null;
 
     /**
      * RestrictionEnzymeManager constructor.
@@ -88,14 +90,15 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     public function parseEnzyme(string $sName, ?string $sPattern = null, ?string $sCutpos = null, string $sMake = "custom")
     {
         if ($sMake == "custom") {
+            $iCutpos = (int) $sCutpos;
             $this->enzyme->setName($sName);
             $this->enzyme->setPattern($sPattern);
-            $this->enzyme->setCutpos($sCutpos);
+            $this->enzyme->setCutpos($iCutpos);
             $this->enzyme->setLength(strlen($this->enzyme->getPattern()));
 
             $inner = array();
             $inner[] = $sPattern;
-            $inner[] = $sCutpos;
+            $inner[] = $iCutpos;
             $this->aRestEnzimDB[$this->enzyme->getName()] = $inner;
         } else {
             // Look for given endonuclease in the aRestEnzimDB array.
@@ -214,8 +217,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @return  array
      * @throws  \Exception
      */
-    private function oTreatment()
-    {
+    private function oTreatment() : array {
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
         $aPos = $this->sequenceManager->patposo($this->enzyme->getPattern(),"I", $this->enzyme->getCutpos());
@@ -228,8 +230,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @return array
      * @throws \Exception
      */
-    private function nTreatment()
-    {
+    private function nTreatment() : array {
         $oSequence  = $this->sequenceManager->getSequence();
         $aFragment  = array();
         // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
@@ -246,8 +247,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   array         $aPos
      * @param   Sequence      $oSequence
      */
-    private function posTraitment(&$aFragment, $aPos, $oSequence)
-    {
+    private function posTraitment(&$aFragment, array $aPos, Sequence $oSequence) {
         $iPrevIndex = 0;
         $iCtr = 0;
         foreach($aPos as $iCurrIndex) {
@@ -273,8 +273,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   string      $sPattern
      * @return  array
      */
-    private function fetchPatternOnly($sPattern)
-    {
+    private function fetchPatternOnly(string $sPattern) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
             if ($aEnzyme[0] == $sPattern) {
@@ -289,8 +288,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   int         $iCutpos
      * @return  array
      */
-    private function fetchPatternAndCutpos($sPattern, $iCutpos)
-    {
+    private function fetchPatternAndCutpos(string $sPattern, int $iCutpos) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
             if (($aEnzyme[0] == $sPattern) && ($aEnzyme[1] == $iCutpos)) {
@@ -305,8 +303,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @return  array
      * @throws  \Exception
      */
-    private function fetchCutpos($sCutpos)
-    {
+    private function fetchCutpos($sCutpos) : array {
         $aEnzymes = [];
         if (is_string($sCutpos)) {
             if (preg_match("/^<\d+$/", $sCutpos)) {
@@ -356,8 +353,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param  int    $iPlen
      * @return array
      */
-    private function fetchLength($iPlen)
-    {
+    private function fetchLength(int $iPlen) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
             if (strlen($aEnzyme[0]) == $iPlen) {
@@ -372,8 +368,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * @param   int     $iPlen
      * @return  array
      */
-    private function fetchCutposAndPlen($iCutpos, $iPlen)
-    {
+    private function fetchCutposAndPlen(int $iCutpos, int $iPlen) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
             if (($aEnzyme[1] == $iCutpos) && (strlen($aEnzyme[0]) == $iPlen)) {

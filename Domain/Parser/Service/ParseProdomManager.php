@@ -3,8 +3,10 @@
  * ProDom database parsing (protein domain families)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,32 +25,32 @@ final class ParseProdomManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryNo = "";
+    private string $entryNo = "";
 
     /**
      * @var string
      */
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @var string
      */
-    private $release = "";
+    private string $release = "";
 
     /**
      * @var int
      */
-    private $domainCount = 0;
+    private int $domainCount = 0;
 
     /**
      * @var array
      */
-    private $freqNames = [];
+    private array $freqNames = [];
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * Constructor.
@@ -108,8 +110,7 @@ final class ParseProdomManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach($aFlines as $sLine) {
             $sLabel = substr($sLine, 0, 2);
             $sData  = trim(substr($sLine, 5));

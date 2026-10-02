@@ -3,8 +3,10 @@
  * Contract for one ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Interfaces;
 
 /**

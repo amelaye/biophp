@@ -3,8 +3,10 @@
  * One literature reference of an Entrez genome record
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 
 use Amelaye\BioPHP\Domain\Parser\Interfaces\EntrezReferenceInterface;
@@ -19,43 +21,43 @@ class EntrezReference implements EntrezReferenceInterface
     /**
      * @var string
      */
-    private $refNo = "";
+    private string $refNo = "";
 
     /**
      * The stretch of sequence the reference covers, e.g. "(bases 1 to 48502)".
      * @var string
      */
-    private $baseRange = "";
+    private string $baseRange = "";
 
     /**
      * @var array
      */
-    private $authors = [];
+    private array $authors = [];
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var string
      */
-    private $journal = "";
+    private string $journal = "";
 
     /**
      * @var string
      */
-    private $medline = "";
+    private string $medline = "";
 
     /**
      * @var string
      */
-    private $pubmed = "";
+    private string $pubmed = "";
 
     /**
      * @var string
      */
-    private $remark = "";
+    private string $remark = "";
 
     /**
      * @return string

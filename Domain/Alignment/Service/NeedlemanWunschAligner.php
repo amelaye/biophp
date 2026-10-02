@@ -3,8 +3,10 @@
  * Global pairwise sequence alignment by dynamic programming
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Alignment\Service;
 
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;

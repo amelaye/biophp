@@ -3,8 +3,10 @@
  * Immutable value object holding the outcome of a nearest-neighbor melting temperature calculation
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Result;
 
 /**
@@ -17,17 +19,17 @@ final class NearestNeighborTmResult
     /**
      * @var     float       Degrees Celsius
      */
-    private $tm;
+    private float $tm;
 
     /**
      * @var     float       kcal/mol
      */
-    private $enthalpy;
+    private float $enthalpy;
 
     /**
      * @var     float       cal/(mol*K)
      */
-    private $entropy;
+    private float $entropy;
 
     /**
      * NearestNeighborTmResult constructor.

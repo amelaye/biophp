@@ -4,8 +4,10 @@
  * Inspired by BioPHP's project biophp.org
  * Created 28 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 12 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 /**
@@ -21,8 +23,7 @@ class MathematicsFunctions
      * @return      float|int
      * @throws      \Exception
      */
-    public static function Mean($data)
-    {
+    public static function Mean(array $data) {
         $sum = 0;
         $numValidElements = 0;
 
@@ -47,8 +48,7 @@ class MathematicsFunctions
      * @return      float|int
      * @throws      \Exception
      */
-    public static function Median($data)
-    {
+    public static function Median(array $data) {
         sort($data);
         $i = floor(sizeof($data)/2);
         if (sizeof($data) / 2 != $i) {
@@ -64,8 +64,7 @@ class MathematicsFunctions
      * @return      float|int
      * @throws      \Exception
      */
-    public static function Variance($data)
-    {
+    public static function Variance(array $data) {
         // Mean() rounds its result to 3 decimals for display purposes: reusing that rounded
         // figure here would bias every squared deviation below. The mean used internally is
         // computed unrounded instead; only the final variance is rounded, exactly as Mean()

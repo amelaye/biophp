@@ -3,8 +3,10 @@
  * KEGG REACTION parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,24 +22,24 @@ final class ParseKeggReactionManager extends ParseKeggAbstractManager
      * The reaction written with the names of its compounds.
      * @var string
      */
-    private $definition = "";
+    private string $definition = "";
 
     /**
      * The reaction written with the identifiers of its compounds.
      * @var string
      */
-    private $equation = "";
+    private string $equation = "";
 
     /**
      * @var array
      */
-    private $pathways = [];
+    private array $pathways = [];
 
     /**
      * EC numbers of the enzymes catalysing the reaction.
      * @var array
      */
-    private $enzymes = [];
+    private array $enzymes = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -53,8 +55,7 @@ final class ParseKeggReactionManager extends ParseKeggAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aFields = $this->readFields($aFlines);
 
         $this->definition = isset($aFields["DEFINITION"]) ? $this->joinLines($aFields["DEFINITION"]) : "";

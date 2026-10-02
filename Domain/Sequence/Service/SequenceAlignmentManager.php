@@ -3,8 +3,10 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
@@ -24,52 +26,52 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
 {
     /**
      * Dependency injection for the Sequences Services
-     * @var SequenceManager
+     * @var SequenceBuilder
      */
-    private $sequenceManager;
+    private SequenceBuilder $sequenceManager;
 
     /**
      * Letters of the alphabet
      * @var array
      */
-    private $aAlphabet;
+    private ?array $aAlphabet = null;
 
     /**
      * The length of the longest sequence in the alignment set.
      * @var int
      */
-    private $iLength;
+    private ?int $iLength = null;
 
     /**
      * The total number of gaps ("-") in all sequences in the alignment set.
      * @var int
      */
-    private $iGapCount;
+    private ?int $iGapCount = null;
 
     /**
      * An array containing all the sequences in the alignment set.
      * As ArrayIterator I dropped the former next(), prev(), fetch(), last(), first() functions, easy pieceeeee <3
      * @var \ArrayIterator
      */
-    private $aSeqSet;
+    private ?\ArrayIterator $aSeqSet = null;
 
     /**
      * A boolean or logical value: TRUE if all the sequences in the alignment have the same length, FALSE otherwise.
      * @var bool
      */
-    private $bFlush;
+    private ?bool $bFlush = null;
 
     /**
      * Filename of the original parsed file.
      * @var string
      */
-    private $sFilename;
+    private ?string $sFilename = null;
 
     /**
      * Format of the original parsed file.
      * @var string
      */
-    private $sFormat;
+    private ?string $sFormat = null;
 
     /**
      * SequenceAlignmentManager constructor.
@@ -98,8 +100,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * Sets a specific filename : the file to parse
      * @param   string  $sFilename
      */
-    public function setFilename($sFilename)
-    {
+    public function setFilename(string $sFilename) {
         $this->sFilename = $sFilename;
     }
 
@@ -107,8 +108,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * Sets a specific format : FASTA or CLUSTAL
      * @param   string  $sFormat
      */
-    public function setFormat($sFormat)
-    {
+    public function setFormat(string $sFormat) {
         $this->sFormat = $sFormat;
     }
 
@@ -209,7 +209,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $sDescription = str_replace(">", "", trim($sLine));
 
                 $oSequence = new Sequence();
-                $oSequence->setPrimAcc($iPrevId);
+                $oSequence->setPrimAcc((string) $iPrevId);
                 $oSequence->setSeqlength($iSeqLength);
                 $oSequence->setSequence($sSequence);
                 $oSequence->setDescription($sPrevDesc);
@@ -252,7 +252,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $iSeqLength = strlen($sSequence);
 
         $oSequence = new Sequence();
-        $oSequence->setPrimAcc($iPrevId);
+        $oSequence->setPrimAcc((string) $iPrevId);
         $oSequence->setSeqlength($iSeqLength);
         $oSequence->setSequence($sSequence);
         $oSequence->setDescription($sDescription);
@@ -388,8 +388,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @return  boolean | string        A single character representing an amino acid residue or a "gap".
      * @throws  \Exception
      */
-    public function charAtRes(int $iSeqIdx, int $iRes)
-    {
+    public function charAtRes(int $iSeqIdx, int $iRes) {
          $iNonGapCount = $iLength = 0;
          return $this->validationRes($iSeqIdx, $iRes, $iNonGapCount, $iLength, "charAtRes");
     }
@@ -406,8 +405,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      *          an explicit exception when the value is missing, vs treat the absence as a
      *          valid business case).
      */
-    public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0)
-    {
+    public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0) {
         $iNonGapCtr   = 0;
         $sSubSequence = "";
 

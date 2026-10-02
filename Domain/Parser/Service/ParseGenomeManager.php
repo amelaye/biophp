@@ -3,8 +3,10 @@
  * Genome sequencing statistics parsing (the Legacy "DOGS" records)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -26,47 +28,47 @@ final class ParseGenomeManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * @var string
      */
-    private $commonName = "";
+    private string $commonName = "";
 
     /**
      * @var array
      */
-    private $taxClass = [];
+    private array $taxClass = [];
 
     /**
      * @var string
      */
-    private $isComplete = "";
+    private string $isComplete = "";
 
     /**
      * @var string
      */
-    private $gbRelease = "";
+    private string $gbRelease = "";
 
     /**
      * @var int
      */
-    private $gbEntries = 0;
+    private int $gbEntries = 0;
 
     /**
      * @var int
      */
-    private $gbBasepairs = 0;
+    private int $gbBasepairs = 0;
 
     /**
      * @var int
      */
-    private $size = 0;
+    private int $size = 0;
 
     /**
      * @var GenomeReferenceInterface[]
      */
-    private $references = [];
+    private array $references = [];
 
     /**
      * Constructor.
@@ -154,8 +156,7 @@ final class ParseGenomeManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $sTaxonomy  = "";
         $sAuthors   = "";
         $sTitle     = "";
@@ -260,8 +261,7 @@ final class ParseGenomeManager implements ParseDatabaseInterface
      * @param   string                  $sAuthors       The accumulated REF_AUTHOR lines
      * @param   string                  $sTitle         The accumulated REF_TITLE lines
      */
-    private function closeReference($oReference, string $sAuthors, string $sTitle) : void
-    {
+    private function closeReference(?GenomeReferenceInterface $oReference, string $sAuthors, string $sTitle) : void {
         if ($oReference === null) {
             return;
         }

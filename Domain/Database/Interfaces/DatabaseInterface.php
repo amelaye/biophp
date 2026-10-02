@@ -3,8 +3,10 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 8 may 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -23,7 +25,7 @@ interface DatabaseInterface
      * @return      Sequence|bool
      * @throws      \Exception
      */
-    public function fetch($sSeqId);
+    public function fetch(string $sSeqId) ;
 
 
     /**

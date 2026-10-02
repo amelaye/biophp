@@ -3,8 +3,10 @@
  * Global database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 19 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -27,5 +29,5 @@ interface ParseDatabaseInterface
      * @param   array       $aFlines
      * @return  Sequence    $oSequence
      */
-    public function parseDataFile($aFlines);
+    public function parseDataFile(array $aFlines);
 }

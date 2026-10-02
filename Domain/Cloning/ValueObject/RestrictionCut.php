@@ -3,8 +3,10 @@
  * Immutable value object describing one restriction enzyme cut on a circular plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
 
 /**
@@ -25,32 +27,32 @@ final class RestrictionCut
     /**
      * @var     string
      */
-    private $enzymeName;
+    private string $enzymeName;
 
     /**
      * @var     int
      */
-    private $recognitionPosition;
+    private int $recognitionPosition;
 
     /**
      * @var     int
      */
-    private $upperCutPosition;
+    private int $upperCutPosition;
 
     /**
      * @var     int
      */
-    private $lowerCutPosition;
+    private int $lowerCutPosition;
 
     /**
      * @var     RestrictionEnd
      */
-    private $end;
+    private RestrictionEnd $end;
 
     /**
      * @var     bool
      */
-    private $reverseStrand;
+    private bool $reverseStrand;
 
     /**
      * RestrictionCut constructor.

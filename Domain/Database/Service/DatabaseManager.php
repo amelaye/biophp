@@ -3,8 +3,10 @@
  * Biological Databases Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Entity\Collection;
@@ -40,12 +42,12 @@ class DatabaseManager implements DatabaseInterface
     /**
      * @var EntityManager
      */
-    protected $em;
+    protected ?EntityManager $em = null;
 
     /**
      * @var string
      */
-    protected $sPath;
+    protected string $sPath;
 
     /**
      * DatabaseManager constructor.
@@ -65,8 +67,7 @@ class DatabaseManager implements DatabaseInterface
      * @return      ParseSwissprotManager | ParseGenbankManager | ParseEmblManager | bool
      * @throws      \Exception
      */
-    public function fetch($sSeqId)
-    {
+    public function fetch(string $sSeqId) {
         $collectionDB  = $this->em->getRepository(CollectionElement::class)->findOneBy(['idElement' => $sSeqId]);
 
         if (empty($collectionDB)) {
@@ -98,8 +99,7 @@ class DatabaseManager implements DatabaseInterface
      * @param       mixed       ...$sDataFile   Files to parse
      * @throws      \Exception
      */
-    public function recording($sDbName, $sDbFormat = "GENBANK", ...$sDataFile)
-    {
+    public function recording($sDbName, $sDbFormat = "GENBANK", ...$sDataFile) {
         $oCollection = new Collection();
         $oCollection->setNomCollection($sDbName);
 

@@ -3,8 +3,10 @@
  * Immutable value object describing one VCF variant record
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 30 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Variants\ValueObject;
 
 use Amelaye\BioPHP\Domain\Variants\Exception\InvalidVcfRecordException;
@@ -24,42 +26,42 @@ final class VcfVariant
     /**
      * @var     string
      */
-    private $chrom;
+    private string $chrom;
 
     /**
      * @var     int         1-based
      */
-    private $position;
+    private int $position;
 
     /**
      * @var     string|null
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     string
      */
-    private $reference;
+    private string $reference;
 
     /**
      * @var     string[]    Empty when ALT is "." (no alternate allele)
      */
-    private $alternates;
+    private array $alternates;
 
     /**
      * @var     float|null
      */
-    private $quality;
+    private ?float $quality = null;
 
     /**
      * @var     string|null
      */
-    private $filter;
+    private ?string $filter = null;
 
     /**
      * @var     array<string,string|bool>  A flag-only INFO key (no "=value") maps to true
      */
-    private $info;
+    private array $info;
 
     /**
      * VcfVariant constructor.

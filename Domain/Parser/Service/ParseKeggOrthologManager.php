@@ -3,8 +3,10 @@
  * KEGG ORTHOLOG parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,23 +22,23 @@ final class ParseKeggOrthologManager extends ParseKeggAbstractManager
     /**
      * @var string
      */
-    private $definition = "";
+    private string $definition = "";
 
     /**
      * @var array
      */
-    private $classification = [];
+    private array $classification = [];
 
     /**
      * One entry per organism, e.g. "HSA: 3101 3098".
      * @var array
      */
-    private $genes = [];
+    private array $genes = [];
 
     /**
      * @var array
      */
-    private $dbLinks = [];
+    private array $dbLinks = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -52,8 +54,7 @@ final class ParseKeggOrthologManager extends ParseKeggAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aFields = $this->readFields($aFlines);
 
         $this->definition = isset($aFields["DEFINITION"]) ? $this->joinLines($aFields["DEFINITION"]) : "";
