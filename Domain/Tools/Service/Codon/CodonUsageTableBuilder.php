@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Amelaye\BioPHP\Domain\Tools\Service;
+namespace Amelaye\BioPHP\Domain\Tools\Service\Codon;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 use Amelaye\BioPHP\Domain\Tools\Interfaces\CodonUsageTableBuilderInterface;

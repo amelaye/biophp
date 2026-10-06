@@ -1,8 +1,8 @@
 <?php
-namespace Tests\Domain\Cloning\Service;
+namespace Tests\Domain\Cloning\Service\Writer;
 
-use Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureReader;
-use Amelaye\BioPHP\Domain\Cloning\Service\GffFeatureWriter;
+use Amelaye\BioPHP\Domain\Cloning\Service\Reader\GffFeatureReader;
+use Amelaye\BioPHP\Domain\Cloning\Service\Writer\GffFeatureWriter;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;

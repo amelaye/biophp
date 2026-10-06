@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Amelaye\BioPHP\Domain\Cloning\Service;
+namespace Amelaye\BioPHP\Domain\Cloning\Service\Writer;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureWriterInterface;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;

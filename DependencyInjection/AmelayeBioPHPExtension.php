@@ -88,6 +88,20 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                         'prefix'    => 'Amelaye\BioPHP\Domain\Sequence\Entity',
                         'alias'     => 'BioPHPSeq',
                     ],
+                    'Amelaye\BioPHP\Domain\Cloning\Entity' => [
+                        'type'      => 'attribute',
+                        'dir'       => __DIR__.'/../Domain/Cloning/Entity',
+                        'is_bundle' => false,
+                        'prefix'    => 'Amelaye\BioPHP\Domain\Cloning\Entity',
+                        'alias'     => 'BioPHPCloning',
+                    ],
+                    'Amelaye\BioPHP\Domain\Variants\Entity' => [
+                        'type'      => 'attribute',
+                        'dir'       => __DIR__.'/../Domain/Variants/Entity',
+                        'is_bundle' => false,
+                        'prefix'    => 'Amelaye\BioPHP\Domain\Variants\Entity',
+                        'alias'     => 'BioPHPVariants',
+                    ],
                 ],
             ],
         ]);

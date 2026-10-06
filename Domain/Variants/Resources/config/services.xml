@@ -9,8 +9,10 @@
 
         <!-- Variants -->
         <service class="Amelaye\BioPHP\Domain\Variants\Service\VcfReader" id="amelaye_biophp.variants_vcf_reader" />
+        <service class="Amelaye\BioPHP\Domain\Variants\Service\VcfVariantRecordMapper" id="amelaye_biophp.variants_vcf_record_mapper" />
 
         <service id="Amelaye\BioPHP\Domain\Variants\Interfaces\VcfReaderInterface" alias="amelaye_biophp.variants_vcf_reader" />
+        <service id="Amelaye\BioPHP\Domain\Variants\Interfaces\VcfVariantRecordMapperInterface" alias="amelaye_biophp.variants_vcf_record_mapper" />
     </services>
 
 </container>

@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Domain\Tools\Service;
+namespace Tests\Domain\Tools\Service\Codon;
 
 use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;
@@ -7,7 +7,7 @@ use Amelaye\BioPHP\Api\NucleotidApi;
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AminoAcidSequence;
-use Amelaye\BioPHP\Domain\Tools\Service\CodonOptimizer;
+use Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonOptimizer;
 use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
 use PHPUnit\Framework\TestCase;
 
@@ -17,9 +17,9 @@ class CodonOptimizerTest extends TestCase
 
     public function setUp(): void
     {
-        require 'samples/Aminos.php';
-        require 'samples/Nucleotids.php';
-        require 'samples/Elements.php';
+        require __DIR__ . '/../samples/Aminos.php';
+        require __DIR__ . '/../samples/Nucleotids.php';
+        require __DIR__ . '/../samples/Elements.php';
 
         $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
         $serializerMock = \JMS\Serializer\SerializerBuilder::create()->build();

@@ -1,7 +1,7 @@
 <?php
-namespace Tests\Domain\Cloning\Service;
+namespace Tests\Domain\Cloning\Service\Reader;
 
-use Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureReader;
+use Amelaye\BioPHP\Domain\Cloning\Service\Reader\BedFeatureReader;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 use PHPUnit\Framework\TestCase;

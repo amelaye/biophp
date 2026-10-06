@@ -1,8 +1,8 @@
 <?php
-namespace Tests\Domain\Tools\Service;
+namespace Tests\Domain\Tools\Service\Codon;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Tools\Service\CodonUsageTableBuilder;
+use Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonUsageTableBuilder;
 use PHPUnit\Framework\TestCase;
 
 class CodonUsageTableBuilderTest extends TestCase

@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Amelaye\BioPHP\Domain\Cloning\Service;
+namespace Amelaye\BioPHP\Domain\Cloning\Service\Reader;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureReaderInterface;
 use Amelaye\BioPHP\Domain\Cloning\Result\BedImportResult;

@@ -8,7 +8,7 @@
         <defaults public="false" />
 
         <!-- Tools -->
-        <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonAdaptationIndexCalculator" id="amelaye_biophp.tools_cai">
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonAdaptationIndexCalculator" id="amelaye_biophp.tools_cai">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
         <service class="Amelaye\BioPHP\Domain\Tools\Service\OrfFinder" id="amelaye_biophp.tools_orf_finder">
@@ -17,15 +17,15 @@
         <service class="Amelaye\BioPHP\Domain\Tools\Service\MeltingTemperatureCalculator" id="amelaye_biophp.tools_melting_temperature">
             <argument type="service" id="Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter" />
         </service>
-        <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonUsageTableBuilder" id="amelaye_biophp.tools_codon_usage_builder" />
-        <service class="Amelaye\BioPHP\Domain\Tools\Service\CodonOptimizer" id="amelaye_biophp.tools_codon_optimizer">
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonUsageTableBuilder" id="amelaye_biophp.tools_codon_usage_builder" />
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonOptimizer" id="amelaye_biophp.tools_codon_optimizer">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
         <service class="Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator" id="amelaye_biophp.tools_skew_calculator" />
         <service class="Amelaye\BioPHP\Domain\Tools\Service\CpGIslandFinder" id="amelaye_biophp.tools_cpg_island_finder">
             <argument type="service" id="amelaye_biophp.tools_skew_calculator" />
         </service>
-        <service class="Amelaye\BioPHP\Domain\Tools\Service\AlternateGeneticCodeTranslator" id="amelaye_biophp.tools_alt_genetic_code">
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\Codon\AlternateGeneticCodeTranslator" id="amelaye_biophp.tools_alt_genetic_code">
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
 

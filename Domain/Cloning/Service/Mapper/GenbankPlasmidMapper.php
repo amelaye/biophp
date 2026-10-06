@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Amelaye\BioPHP\Domain\Cloning\Service;
+namespace Amelaye\BioPHP\Domain\Cloning\Service\Mapper;
 
 use Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;

@@ -1,7 +1,7 @@
 <?php
-namespace Tests\Domain\Cloning\Service;
+namespace Tests\Domain\Cloning\Service\Mapper;
 
-use Amelaye\BioPHP\Domain\Cloning\Service\GenbankPlasmidMapper;
+use Amelaye\BioPHP\Domain\Cloning\Service\Mapper\GenbankPlasmidMapper;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
 use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;

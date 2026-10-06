@@ -39,7 +39,7 @@ class AmelayeBioPHPExtensionTest extends TestCase
         $em = $container->get('doctrine.orm.default_entity_manager');
         $metadata = $em->getMetadataFactory()->getAllMetadata();
 
-        static::assertCount(12, $metadata);
+        static::assertCount(15, $metadata);
     }
 
     private function buildContainer(): ContainerBuilder

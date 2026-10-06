@@ -1,8 +1,8 @@
 <?php
-namespace Tests\Domain\Cloning\Service;
+namespace Tests\Domain\Cloning\Service\Writer;
 
 use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
-use Amelaye\BioPHP\Domain\Cloning\Service\GenbankWriter;
+use Amelaye\BioPHP\Domain\Cloning\Service\Writer\GenbankWriter;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;

@@ -1,8 +1,8 @@
 <?php
-namespace Tests\Domain\Cloning\Service;
+namespace Tests\Domain\Cloning\Service\Writer;
 
-use Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureReader;
-use Amelaye\BioPHP\Domain\Cloning\Service\BedFeatureWriter;
+use Amelaye\BioPHP\Domain\Cloning\Service\Reader\BedFeatureReader;
+use Amelaye\BioPHP\Domain\Cloning\Service\Writer\BedFeatureWriter;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
