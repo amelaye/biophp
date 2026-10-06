@@ -160,4 +160,47 @@ class PlasmidFeatureTest extends TestCase
         $this->assertEquals(1, $oAtOrigin->getLength(20));
         $this->assertEquals(1, $oAtEnd->getLength(20));
     }
+
+    public function testHasNoPhaseByDefault()
+    {
+        $this->assertNull((new PlasmidFeature("cds", FeatureType::CDS, 1, 9))->getPhase());
+    }
+
+    #[DataProvider("validPhaseProvider")]
+    public function testACdsAcceptsPhaseZeroOneOrTwo(int $iPhase)
+    {
+        $oFeature = new PlasmidFeature("cds", FeatureType::CDS, 1, 9, Strand::FORWARD, null, null, null, null, $iPhase);
+
+        $this->assertSame($iPhase, $oFeature->getPhase());
+    }
+
+    public static function validPhaseProvider(): array
+    {
+        return [[0], [1], [2]];
+    }
+
+    #[DataProvider("invalidPhaseProvider")]
+    public function testRejectsAPhaseOutsideZeroToTwo(int $iPhase)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("expected 0, 1 or 2");
+
+        new PlasmidFeature("cds", FeatureType::CDS, 1, 9, Strand::FORWARD, null, null, null, null, $iPhase);
+    }
+
+    public static function invalidPhaseProvider(): array
+    {
+        return [[-1], [3]];
+    }
+
+    /**
+     * A phase is the reading frame of a coding feature ; GFF3 only defines it on a CDS.
+     */
+    public function testRejectsAPhaseOnANonCdsFeature()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("only a CDS can");
+
+        new PlasmidFeature("prom", FeatureType::PROMOTER, 1, 9, Strand::FORWARD, null, null, null, null, 0);
+    }
 }

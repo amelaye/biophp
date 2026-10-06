@@ -3,7 +3,7 @@
  * Translates a codon under a specific NCBI genetic code table
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -29,7 +29,7 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\GeneticCodeTable;
  * rather than encoded from a less certain recollection ; adding one later only means adding its own
  * overlay entry to self::OVERLAYS and its constant to GeneticCodeTable.
  * Class AlternateGeneticCodeTranslator
- * @package Amelaye\BioPHP\Domain\Tools\Service
+ * @package Amelaye\BioPHP\Domain\Tools\Service\Codon
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class AlternateGeneticCodeTranslator implements AlternateGeneticCodeTranslatorInterface

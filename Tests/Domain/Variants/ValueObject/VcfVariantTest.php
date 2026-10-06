@@ -48,12 +48,22 @@ class VcfVariantTest extends TestCase
         new VcfVariant("", 1, null, "A", [], null, null);
     }
 
-    public function testRejectsAPositionBelowOne()
+    /**
+     * VCF 4.3 : "Telomeres are indicated by using positions 0 or N+1".
+     */
+    public function testAcceptsTelomericPositionZero()
+    {
+        $oVariant = new VcfVariant("chr1", 0, "bnd_tel", "N", [".[chr1:1["], null, "PASS");
+
+        $this->assertSame(0, $oVariant->getPosition());
+    }
+
+    public function testRejectsANegativePosition()
     {
         $this->expectException(InvalidVcfRecordException::class);
-        $this->expectExceptionMessage("POS must be at least 1");
+        $this->expectExceptionMessage("POS must be at least 0");
 
-        new VcfVariant("chr1", 0, null, "A", [], null, null);
+        new VcfVariant("chr1", -1, null, "A", [], null, null);
     }
 
     public function testRejectsAnEmptyReference()

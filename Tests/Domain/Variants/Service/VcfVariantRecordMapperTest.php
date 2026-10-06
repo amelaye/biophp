@@ -54,13 +54,14 @@ class VcfVariantRecordMapperTest extends TestCase
             "no ALT, all optional columns missing" => [new VcfVariant("chrM", 1, null, "T", [], null, null)],
             "symbolic structural allele" => [new VcfVariant("2", 5000, null, "N", ["<DEL>"], null, "q10")],
             "breakend notation" => [new VcfVariant("2", 321682, "bnd_V", "T", ["]13:123456]T"], 6.0, "PASS")],
+            "telomeric breakend at POS 0" => [new VcfVariant("1", 0, "tel", "N", [".[1:1["], null, "PASS")],
         ];
     }
 
     public function testToVariantRevalidatesStoredData()
     {
         $oRecord = new VcfVariantRecord();
-        $oRecord->setChrom("chr1")->setPosition(0)->setReference("A");
+        $oRecord->setChrom("chr1")->setPosition(-1)->setReference("A");
 
         $this->expectException(InvalidVcfRecordException::class);
         (new VcfVariantRecordMapper())->toVariant($oRecord);

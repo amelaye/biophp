@@ -3,7 +3,7 @@
  * Immutable aggregate of a circular DNA sequence and its ordered, possibly overlapping features
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -257,7 +257,8 @@ final class Plasmid
                     $oFeature->getColor(),
                     $oFeature->getNote(),
                     $oFeature->getExternalId(),
-                    $oFeature->getMetadata()
+                    $oFeature->getMetadata(),
+                    $oFeature->getPhase()
                 );
             },
             $this->features

@@ -39,7 +39,7 @@ class VcfVariantRecord
     private string $chrom = "";
 
     /**
-     * @var int         1-based, VCF's own convention
+     * @var int         1-based, VCF's own convention ; 0 or length + 1 for a telomere
      */
     #[ORM\Column(type: Types::INTEGER)]
     private int $position = 1;

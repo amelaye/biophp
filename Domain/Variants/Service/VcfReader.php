@@ -3,7 +3,7 @@
  * Reads a VCF file into VcfVariant instances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -104,6 +104,35 @@ class VcfReader implements VcfReaderInterface
     }
 
     /**
+     * VCF 4.3 percent-encoded characters an INFO value may carry, decoded case-insensitively. %2C
+     * (",") is deliberately left encoded : a value is kept as one unsplit string, in which a literal
+     * comma is the list delimiter, so decoding it would merge an encoded comma into the delimiters.
+     */
+    private const INFO_PERCENT_CODES = [
+        "%3A" => ":", "%3B" => ";", "%3D" => "=", "%0D" => "\r", "%0A" => "\n", "%09" => "\t",
+    ];
+
+    /**
+     * @param   string      $sValue     A raw INFO value
+     * @return  string      The value with the VCF 4.3 percent codes decoded, %25 last
+     */
+    private function decodeInfoValue(string $sValue): string
+    {
+        if (!str_contains($sValue, "%")) {
+            return $sValue;
+        }
+
+        return (string) preg_replace_callback(
+            '/%(3A|3B|3D|0D|0A|09|25)/i',
+            function (array $aMatch) {
+                $sCode = "%" . strtoupper($aMatch[1]);
+                return $sCode === "%25" ? "%" : self::INFO_PERCENT_CODES[$sCode];
+            },
+            $sValue
+        );
+    }
+
+    /**
      * Parses the semicolon-separated INFO column into key/value pairs ; a flag-only key (no
      * "=value") maps to true.
      * @param   string      $sRaw
@@ -123,7 +152,7 @@ class VcfReader implements VcfReaderInterface
             }
 
             $aParts = explode("=", $sPair, 2);
-            $aInfo[$aParts[0]] = $aParts[1] ?? true;
+            $aInfo[$aParts[0]] = isset($aParts[1]) ? $this->decodeInfoValue($aParts[1]) : true;
         }
 
         return $aInfo;

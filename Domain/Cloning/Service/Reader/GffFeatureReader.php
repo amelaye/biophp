@@ -3,7 +3,7 @@
  * Reads a GFF3 annotation file into PlasmidFeature instances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -27,14 +27,19 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  * phase, attributes) is read directly ; comment and pragma lines ("#..."), including the
  * "##gff-version" header, are skipped, and reading stops at a "##FASTA" pragma without attempting to
  * parse the embedded sequence it introduces - a GFF3 file's sequence, when present at all, is not
- * this reader's concern. GFF3 does not support an origin-crossing feature directly (start must not
- * exceed end), so a line violating that, like any other malformed line, is skipped and reported in
- * GffImportResult::getWarnings() rather than thrown. A GFF3 feature split across several lines that
+ * this reader's concern. Start must never exceed end in GFF3 ; a feature crossing the origin of a
+ * circular landmark is instead written with end = its real end + the landmark length, the landmark
+ * itself carrying Is_circular=true (GFF3 specification, columns 4 and 5). Such a feature is folded
+ * back here into PlasmidFeature's own convention (start > end). The landmark length is taken from a
+ * line whose own seqid it is, starting at 1 and flagged Is_circular=true, wherever it appears in the
+ * file. A line with start > end, or one longer than the circular landmark itself, is malformed and, like any
+ * other malformed line, skipped and reported in GffImportResult::getWarnings() rather than thrown.
+ * The phase column is kept on CDS features only, the one type GFF3 requires it for. A GFF3 feature split across several lines that
  * share a Parent/ID relationship (a spliced gene's exons) is read as that many independent
  * PlasmidFeature instances, not reassembled into one ; this mirrors the equivalent, documented
  * limitation GenbankPlasmidMapper already accepts for a GenBank join() location.
  * Class GffFeatureReader
- * @package Amelaye\BioPHP\Domain\Cloning\Service
+ * @package Amelaye\BioPHP\Domain\Cloning\Service\Reader
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class GffFeatureReader implements GffFeatureReaderInterface
@@ -66,6 +71,7 @@ class GffFeatureReader implements GffFeatureReaderInterface
     {
         $aFeatures = [];
         $aWarnings = [];
+        $aCircularLengths = $this->findCircularLandmarkLengths($aLines);
 
         foreach (array_values($aLines) as $iIndex => $sRawLine) {
             $sLine = rtrim((string) $sRawLine, "\r\n");
@@ -95,7 +101,7 @@ class GffFeatureReader implements GffFeatureReaderInterface
             }
 
             try {
-                $aFeatures[] = $this->mapColumns($aColumns);
+                $aFeatures[] = $this->mapColumns($aColumns, $aCircularLengths);
             } catch (\InvalidArgumentException $ex) {
                 $aWarnings[] = sprintf('Skipped line %d: %s', $iLineNumber, $ex->getMessage());
             }
@@ -105,12 +111,49 @@ class GffFeatureReader implements GffFeatureReaderInterface
     }
 
     /**
-     * @param   string[]    $aColumns   Exactly the 9 standard GFF3 columns, in order
+     * Lengths of the landmarks declared circular : a line whose seqid is its own ID, starting at 1
+     * and flagged Is_circular=true (e.g. "p1  .  region  1  5000  .  +  .  ID=p1;Is_circular=true").
+     * @param   string[]    $aLines
+     * @return  array<string,int>   Landmark seqid => length
+     */
+    private function findCircularLandmarkLengths(array $aLines): array
+    {
+        $aLengths = [];
+
+        foreach ($aLines as $sRawLine) {
+            $sLine = rtrim((string) $sRawLine, "\r\n");
+            if ($sLine === self::FASTA_PRAGMA) {
+                break;
+            }
+            if ($sLine === "" || $sLine[0] === "#") {
+                continue;
+            }
+
+            $aColumns = explode("\t", $sLine);
+            if (count($aColumns) < self::EXPECTED_COLUMN_COUNT
+                || $aColumns[3] !== "1"
+                || !ctype_digit($aColumns[4])) {
+                continue;
+            }
+
+            $aAttributes = $this->parseAttributes($aColumns[8]);
+            if (($aAttributes["Is_circular"][0] ?? null) === "true"
+                && ($aAttributes["ID"][0] ?? null) === $aColumns[0]) {
+                $aLengths[$aColumns[0]] = (int) $aColumns[4];
+            }
+        }
+
+        return $aLengths;
+    }
+
+    /**
+     * @param   string[]            $aColumns           Exactly the 9 standard GFF3 columns, in order
+     * @param   array<string,int>   $aCircularLengths   From findCircularLandmarkLengths()
      * @return  PlasmidFeature
      */
-    private function mapColumns(array $aColumns): PlasmidFeature
+    private function mapColumns(array $aColumns, array $aCircularLengths): PlasmidFeature
     {
-        [$sSeqId, $sSource, $sType, $sStart, $sEnd, $sScore, $sStrandColumn, , $sAttributesRaw] = $aColumns;
+        [$sSeqId, $sSource, $sType, $sStart, $sEnd, $sScore, $sStrandColumn, $sPhase, $sAttributesRaw] = $aColumns;
 
         if (!ctype_digit($sStart) || !ctype_digit($sEnd)) {
             throw new \InvalidArgumentException(
@@ -124,11 +167,28 @@ class GffFeatureReader implements GffFeatureReaderInterface
         if ($iStart > $iEnd) {
             throw new \InvalidArgumentException(
                 sprintf(
-                    'start (%d) is after end (%d); GFF3 does not support an origin-crossing feature directly.',
+                    'start (%d) is after end (%d); GFF3 writes an origin-crossing feature as'
+                    . ' end + landmark length, never with start > end.',
                     $iStart,
                     $iEnd
                 )
             );
+        }
+
+        $iLandmarkLength = $aCircularLengths[$sSeqId] ?? null;
+        if ($iLandmarkLength !== null && $iEnd > $iLandmarkLength) {
+            if ($iStart > $iLandmarkLength || $iEnd - $iLandmarkLength >= $iStart) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        '%d..%d does not fit the circular landmark "%s" of length %d.',
+                        $iStart,
+                        $iEnd,
+                        $sSeqId,
+                        $iLandmarkLength
+                    )
+                );
+            }
+            $iEnd -= $iLandmarkLength;
         }
 
         $aAttributes = $this->parseAttributes($sAttributesRaw);
@@ -142,6 +202,14 @@ class GffFeatureReader implements GffFeatureReaderInterface
             $sStrand = Strand::REVERSE;
         } else {
             $sStrand = Strand::NONE;
+        }
+
+        $iPhase = null;
+        if ($sFeatureType === FeatureType::CDS && $sPhase !== ".") {
+            if (!in_array($sPhase, ["0", "1", "2"], true)) {
+                throw new \InvalidArgumentException(sprintf('invalid CDS phase "%s", expected 0, 1 or 2.', $sPhase));
+            }
+            $iPhase = (int) $sPhase;
         }
 
         return new PlasmidFeature(
@@ -158,7 +226,8 @@ class GffFeatureReader implements GffFeatureReaderInterface
                 "gffSource" => $sSource,
                 "gffType" => $sType,
                 "gffScore" => $sScore,
-            ]
+            ],
+            $iPhase
         );
     }
 

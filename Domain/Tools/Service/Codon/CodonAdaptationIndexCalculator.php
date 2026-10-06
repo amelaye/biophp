@@ -3,7 +3,7 @@
  * Codon Adaptation Index calculation
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -27,7 +27,7 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
  * the coding sequence, of that codon's count in the reference table divided by the highest count among
  * its synonyms in that same table.
  * Class CodonAdaptationIndexCalculator
- * @package Amelaye\BioPHP\Domain\Tools\Service
+ * @package Amelaye\BioPHP\Domain\Tools\Service\Codon
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface

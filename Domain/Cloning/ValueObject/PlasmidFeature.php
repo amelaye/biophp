@@ -3,7 +3,7 @@
  * Immutable value object describing one annotated region of a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -16,6 +16,9 @@ use Amelaye\BioPHP\Domain\Cloning\Exception\InvalidFeatureCoordinatesException;
  * and end are only validated to be at least 1 here : since a lone feature does not know the length
  * of the plasmid it will belong to, the upper bound is checked by Plasmid when the feature is
  * attached. A start strictly greater than end is valid and means the feature crosses the origin.
+ * The optional phase is GFF3's column 8 (0, 1 or 2 : how many bases to skip from the feature's 5'
+ * end, in its own orientation, to reach the first complete codon), equivalent to GenBank's
+ * /codon_start minus 1. It is only meaningful on a CDS, the only type that accepts one.
  * Class PlasmidFeature
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -68,6 +71,11 @@ final class PlasmidFeature
     private array $metadata;
 
     /**
+     * @var     int|null        0, 1 or 2 ; CDS only
+     */
+    private ?int $phase = null;
+
+    /**
      * PlasmidFeature constructor.
      * @param   string      $sName          Must not be empty
      * @param   string      $sType          One of FeatureType::VALID_TYPES
@@ -80,6 +88,7 @@ final class PlasmidFeature
      * @param   array|null  $aMetadata      Only scalars, null and arrays thereof ; a source format's
      * original type or attributes that don't map onto a dedicated property (e.g. a GenBank feature
      * key) belong here rather than being folded into $sNote
+     * @param   int|null    $iPhase         0, 1 or 2, only on a CDS ; null when unknown
      */
     public function __construct(
         string $sName,
@@ -90,7 +99,8 @@ final class PlasmidFeature
         ?string $sColor = null,
         ?string $sNote = null,
         ?string $sExternalId = null,
-        ?array $aMetadata = null
+        ?array $aMetadata = null,
+        ?int $iPhase = null
     ) {
         if (trim($sName) === "") {
             throw new \InvalidArgumentException("Plasmid feature name must not be empty.");
@@ -122,6 +132,19 @@ final class PlasmidFeature
             );
         }
 
+        if ($iPhase !== null) {
+            if ($sType !== FeatureType::CDS) {
+                throw new \InvalidArgumentException(
+                    sprintf('Feature "%s" of type "%s" cannot carry a phase ; only a CDS can.', $sName, $sType)
+                );
+            }
+            if ($iPhase < 0 || $iPhase > 2) {
+                throw new \InvalidArgumentException(
+                    sprintf('Feature "%s" has invalid phase %d, expected 0, 1 or 2.', $sName, $iPhase)
+                );
+            }
+        }
+
         $aMetadata = $aMetadata ?? [];
         $this->assertSerializableMetadata($sName, $aMetadata);
 
@@ -134,6 +157,7 @@ final class PlasmidFeature
         $this->note = $sNote;
         $this->externalId = $sExternalId;
         $this->metadata = $aMetadata;
+        $this->phase = $iPhase;
     }
 
     /**
@@ -206,6 +230,14 @@ final class PlasmidFeature
     public function getMetadata(): array
     {
         return $this->metadata;
+    }
+
+    /**
+     * @return  int|null    0, 1 or 2 ; null when unknown or not a CDS
+     */
+    public function getPhase(): ?int
+    {
+        return $this->phase;
     }
 
     /**

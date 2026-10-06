@@ -214,4 +214,21 @@ class PlasmidTest extends TestCase
             array_map(fn ($oFeature) => $oFeature->getName(), $oRotated->getFeatures())
         );
     }
+
+    /**
+     * The phase counts from the feature's own 5' end, which rotation leaves untouched.
+     */
+    public function testRotatingPreservesTheCdsPhase()
+    {
+        $oFeature = new PlasmidFeature("cds", FeatureType::CDS, 18, 4, Strand::REVERSE, null, null, null, null, 2);
+        $oPlasmid = new Plasmid("p1", $this->makeSequence(), [$oFeature]);
+
+        $oRotated = $oPlasmid->rotateToOrigin(10);
+
+        $this->assertSame(2, $oRotated->getFeatures()[0]->getPhase());
+        $this->assertEquals(
+            $oPlasmid->extractFeatureSequence($oFeature),
+            $oRotated->extractFeatureSequence($oRotated->getFeatures()[0])
+        );
+    }
 }

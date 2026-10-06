@@ -3,7 +3,7 @@
  * Chooses the highest-usage synonymous codon for each residue of a target protein
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -23,7 +23,7 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
  * enumeration order (A<C<G<T, most to least significant base) - an arbitrary but reproducible choice,
  * the same kind of tie-break already used elsewhere in this project (e.g. NeighborJoiningTreeBuilder).
  * Class CodonOptimizer
- * @package Amelaye\BioPHP\Domain\Tools\Service
+ * @package Amelaye\BioPHP\Domain\Tools\Service\Codon
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class CodonOptimizer implements CodonOptimizerInterface

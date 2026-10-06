@@ -232,4 +232,117 @@ class GenbankPlasmidMapperTest extends TestCase
 
         return $oGbSequence;
     }
+
+    private function mapLines(array $aLines)
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        return $this->mapper->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures());
+    }
+
+    private function makeFeature(string $sKey, int $iFrom, int $iTo, string $sQual, string $sValue): Feature
+    {
+        $oFeature = new Feature();
+        $oFeature->setFtKey($sKey);
+        $oFeature->setFtFrom($iFrom);
+        $oFeature->setFtTo($iTo);
+        $oFeature->setStrand("+");
+        $oFeature->setFtQual($sQual);
+        $oFeature->setFtValue($sValue);
+
+        return $oFeature;
+    }
+
+    /**
+     * INSDC : oriT is the "origin of transfer; region of a DNA molecule where transfer is initiated
+     * during the process of conjugation or mobilization", not an origin of replication.
+     */
+    public function testAnOriTIsNotMistakenForAnOriginOfReplication()
+    {
+        $oResult = $this->mapper->map($this->makeSequence(40), $this->makeGbSequence("CIRCULAR"), [
+            $this->makeFeature("oriT", 5, 25, "note", "transfer origin"),
+            $this->makeFeature("rep_origin", 28, 38, "note", "ColE1"),
+        ]);
+
+        $aFeatures = $oResult->getPlasmid()->getFeatures();
+        $this->assertSame(FeatureType::MISC_FEATURE, $aFeatures[0]->getType());
+        $this->assertSame("oriT", $aFeatures[0]->getMetadata()["genbankKey"]);
+        $this->assertSame(FeatureType::ORIGIN_OF_REPLICATION, $aFeatures[1]->getType());
+    }
+
+    public function testAnInvalidCodonStartIsSkippedAndWarnedAbout()
+    {
+        $oResult = $this->mapper->map($this->makeSequence(40), $this->makeGbSequence("CIRCULAR"), [
+            $this->makeFeature("CDS", 5, 25, "codon_start", "4"),
+        ]);
+
+        $this->assertCount(0, $oResult->getPlasmid()->getFeatures());
+        $this->assertStringContainsString('invalid /codon_start "4"', $oResult->getWarnings()[0]);
+    }
+
+    public function testConvertsCodonStartIntoThePhase()
+    {
+        $oResult = $this->mapLines([
+            "LOCUS       TESTPLAS                  40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     CDS             complement(5..25)\n",
+            "                     /gene=\"geneA\"\n",
+            "                     /codon_start=2\n",
+            "     CDS             28..38\n",
+            "                     /gene=\"geneB\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ]);
+
+        $aFeatures = $oResult->getPlasmid()->getFeatures();
+        $this->assertSame(1, $aFeatures[0]->getPhase());
+        $this->assertNull($aFeatures[1]->getPhase());
+    }
+
+    /**
+     * End to end through the real parser : the plasmid annotations it used to drop (rep_origin,
+     * oriT, promoter, terminator, the "regulatory" + /regulatory_class form INSDC has required since
+     * 15-DEC-2014) all reach the plasmid with the right type, and a qualifier-less feature is named
+     * after its key.
+     */
+    public function testMapsTypicalPlasmidAnnotationsReadByTheRealParser()
+    {
+        $oResult = $this->mapLines([
+            "LOCUS       TESTPLAS                  40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     regulatory      1..4\n",
+            "                     /regulatory_class=\"promoter\"\n",
+            "                     /label=\"lac promoter\"\n",
+            "     promoter        5..8\n",
+            "                     /label=\"T7 promoter\"\n",
+            "     regulatory      9..12\n",
+            "                     /regulatory_class=\"terminator\"\n",
+            "     terminator      13..16\n",
+            "     regulatory      17..20\n",
+            "                     /regulatory_class=\"ribosome_binding_site\"\n",
+            "     rep_origin      21..30\n",
+            "     oriT            31..35\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ]);
+
+        $this->assertSame([], $oResult->getWarnings());
+        $aActual = array_map(
+            fn($o) => [$o->getName(), $o->getType()],
+            $oResult->getPlasmid()->getFeatures()
+        );
+        $this->assertSame([
+            ["lac promoter", FeatureType::PROMOTER],
+            ["T7 promoter", FeatureType::PROMOTER],
+            ["regulatory", FeatureType::TERMINATOR],
+            ["terminator", FeatureType::TERMINATOR],
+            ["regulatory", FeatureType::MISC_FEATURE],
+            ["rep_origin", FeatureType::ORIGIN_OF_REPLICATION],
+            ["oriT", FeatureType::MISC_FEATURE],
+        ], $aActual);
+        $this->assertSame("ribosome_binding_site", $oResult->getPlasmid()->getFeatures()[4]->getMetadata()["regulatoryClass"]);
+    }
 }

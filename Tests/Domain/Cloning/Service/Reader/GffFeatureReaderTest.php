@@ -94,8 +94,8 @@ class GffFeatureReaderTest extends TestCase
     }
 
     /**
-     * GFF3 does not support an origin-crossing feature directly (start must never exceed end) ;
-     * this is a real, expected input shape to reject cleanly, not a bug.
+     * GFF3 never writes start > end, not even for an origin-crossing feature (that one is written as
+     * end + landmark length) ; this is a real, expected input shape to reject cleanly, not a bug.
      */
     public function testAStartAfterEndIsSkippedAndWarnedAboutRatherThanCrashing()
     {
@@ -144,5 +144,75 @@ class GffFeatureReaderTest extends TestCase
 
         $this->assertCount(2, $oResult->getFeatures());
         $this->assertCount(2, $oResult->getWarnings());
+    }
+
+    public function testKeepsTheCdsPhase()
+    {
+        $oResult = $this->reader->read(["TESTPLAS\t.\tCDS\t4\t30\t.\t-\t2\tID=cds1\n"]);
+
+        $this->assertSame(2, $oResult->getFeatures()[0]->getPhase());
+    }
+
+    public function testAMissingCdsPhaseIsReadAsUnknown()
+    {
+        $oResult = $this->reader->read(["TESTPLAS\t.\tCDS\t4\t30\t.\t+\t.\tID=cds1\n"]);
+
+        $this->assertCount(0, $oResult->getWarnings());
+        $this->assertNull($oResult->getFeatures()[0]->getPhase());
+    }
+
+    public function testIgnoresThePhaseColumnOfANonCdsFeature()
+    {
+        $oResult = $this->reader->read(["TESTPLAS\t.\texon\t4\t30\t.\t+\t1\tID=ex1\n"]);
+
+        $this->assertNull($oResult->getFeatures()[0]->getPhase());
+    }
+
+    public function testAnInvalidCdsPhaseIsSkippedAndWarnedAbout()
+    {
+        $oResult = $this->reader->read(["TESTPLAS\t.\tCDS\t4\t30\t.\t+\t3\tID=cds1\n"]);
+
+        $this->assertCount(0, $oResult->getFeatures());
+        $this->assertStringContainsString('invalid CDS phase "3"', $oResult->getWarnings()[0]);
+    }
+
+    /**
+     * GFF3 specification, columns 4 and 5 : a feature crossing the origin of a circular landmark is
+     * written with end = its real end + the landmark length ; on a 40 bp landmark, 35..45 is 35..5.
+     */
+    public function testFoldsAFeatureCrossingTheOriginOfACircularLandmarkBack()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\t.\tCDS\t35\t45\t.\t+\t0\tID=cds1\n",
+            "TESTPLAS\t.\tregion\t1\t40\t.\t.\t.\tID=TESTPLAS;Is_circular=true\n",
+        ]);
+
+        $this->assertCount(0, $oResult->getWarnings());
+        $oFeature = $oResult->getFeatures()[0];
+        $this->assertSame(35, $oFeature->getStart());
+        $this->assertSame(5, $oFeature->getEnd());
+        $this->assertTrue($oFeature->crossesOrigin());
+        $this->assertSame(11, $oFeature->getLength(40));
+    }
+
+    public function testDoesNotFoldAFeatureOnALinearLandmark()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\t.\tregion\t1\t40\t.\t.\t.\tID=TESTPLAS\n",
+            "TESTPLAS\t.\tCDS\t35\t45\t.\t+\t0\tID=cds1\n",
+        ]);
+
+        $this->assertSame(45, $oResult->getFeatures()[1]->getEnd());
+    }
+
+    public function testAFeatureLongerThanTheCircularLandmarkIsSkippedAndWarnedAbout()
+    {
+        $oResult = $this->reader->read([
+            "TESTPLAS\t.\tregion\t1\t40\t.\t.\t.\tID=TESTPLAS;Is_circular=true\n",
+            "TESTPLAS\t.\tCDS\t3\t43\t.\t+\t0\tID=cds1\n",
+        ]);
+
+        $this->assertCount(1, $oResult->getFeatures());
+        $this->assertStringContainsString("does not fit the circular landmark", $oResult->getWarnings()[0]);
     }
 }

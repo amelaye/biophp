@@ -3,7 +3,7 @@
  * Raised when a VCF data line cannot be turned into a VcfVariant
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -25,6 +25,21 @@ class InvalidVcfRecordException extends \InvalidArgumentException
     }
 
     /**
+     * @param   int     $iPosition
+     * @return  InvalidVcfRecordException
+     */
+    public static function negativePosition(int $iPosition): self
+    {
+        return new self(
+            sprintf(
+                'A VCF record\'s POS must be at least 0 (0 marks a telomere), got %d.',
+                $iPosition
+            )
+        );
+    }
+
+    /**
+     * @deprecated  POS 0 is valid VCF (a telomere) ; VcfVariant now throws negativePosition()
      * @param   int     $iPosition
      * @return  InvalidVcfRecordException
      */

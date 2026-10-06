@@ -66,7 +66,7 @@ class GffFeatureWriterTest extends TestCase
         $this->assertStringContainsString("\tsequence_feature\t", $sOutput);
     }
 
-    public function testRejectsAnOriginCrossingFeature()
+    public function testRejectsAnOriginCrossingFeatureWhenTheSequenceLengthIsUnknown()
     {
         $oFeature = new PlasmidFeature("crosser", FeatureType::MISC_FEATURE, 10, 5, Strand::NONE);
 
@@ -128,5 +128,73 @@ class GffFeatureWriterTest extends TestCase
         $this->assertEquals(FeatureType::CDS, $oResult->getFeatures()[1]->getType());
         $this->assertEquals(Strand::REVERSE, $oResult->getFeatures()[1]->getStrand());
         $this->assertEquals("beta-lactamase", $oResult->getFeatures()[1]->getNote());
+    }
+
+    public function testWritesTheCdsPhaseAndADotForOtherTypes()
+    {
+        $sOutput = $this->writer->write("TESTPLAS", [
+            new PlasmidFeature("cds1", FeatureType::CDS, 1, 9, Strand::FORWARD, null, null, null, null, 2),
+            new PlasmidFeature("prom", FeatureType::PROMOTER, 10, 20, Strand::FORWARD),
+        ]);
+
+        $aLines = explode("\n", trim($sOutput));
+        $this->assertSame("2", explode("\t", $aLines[1])[7]);
+        $this->assertSame(".", explode("\t", $aLines[2])[7]);
+    }
+
+    /**
+     * GFF3 : "The phase is REQUIRED for all CDS features" ; an unknown one is written as 0.
+     */
+    public function testWritesPhaseZeroForACdsWhosePhaseIsUnknown()
+    {
+        $sOutput = $this->writer->write("TESTPLAS", [new PlasmidFeature("cds1", FeatureType::CDS, 1, 9)]);
+
+        $this->assertSame("0", explode("\t", explode("\n", $sOutput)[1])[7]);
+    }
+
+    public function testWritesAnOriginCrossingFeatureAsEndPlusLengthOnACircularLandmark()
+    {
+        $oFeature = new PlasmidFeature("crosser", FeatureType::CDS, 35, 5, Strand::FORWARD, null, null, null, null, 0);
+
+        $sOutput = $this->writer->write("TESTPLAS", [$oFeature], 40);
+
+        $this->assertSame(
+            "##gff-version 3\n"
+            . "TESTPLAS\t.\tregion\t1\t40\t.\t.\t.\tID=TESTPLAS;Is_circular=true\n"
+            . "TESTPLAS\t.\tCDS\t35\t45\t.\t+\t0\tName=crosser\n",
+            $sOutput
+        );
+    }
+
+    public function testFlagsAnExistingRegionLandmarkInsteadOfAddingASecondOne()
+    {
+        $oRegion = new PlasmidFeature("TESTPLAS", FeatureType::MISC_FEATURE, 1, 40, Strand::NONE, null, null, null, ["gffType" => "region"]);
+
+        $sOutput = $this->writer->write("TESTPLAS", [$oRegion], 40);
+
+        $this->assertSame(1, substr_count($sOutput, "\tregion\t"));
+        $this->assertStringContainsString("ID=TESTPLAS;Is_circular=true;Name=TESTPLAS", $sOutput);
+    }
+
+    public function testAnOriginCrossingCdsSurvivesAWriteThenReadRoundTrip()
+    {
+        $oFeature = new PlasmidFeature("crosser", FeatureType::CDS, 35, 5, Strand::REVERSE, null, null, null, null, 1);
+
+        $oResult = (new GffFeatureReader())->read(explode("\n", $this->writer->write("TESTPLAS", [$oFeature], 40)));
+
+        $this->assertCount(0, $oResult->getWarnings());
+        $oRead = $oResult->getFeatures()[1];
+        $this->assertSame([35, 5, Strand::REVERSE, 1], [$oRead->getStart(), $oRead->getEnd(), $oRead->getStrand(), $oRead->getPhase()]);
+    }
+
+    /**
+     * Written as is, 35..45 on a 40 bp circular landmark would be read back as 35..5.
+     */
+    public function testRejectsAFeatureBeyondTheGivenSequenceLength()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("beyond the sequence length 40");
+
+        $this->writer->write("TESTPLAS", [new PlasmidFeature("far", FeatureType::MISC_FEATURE, 35, 45)], 40);
     }
 }

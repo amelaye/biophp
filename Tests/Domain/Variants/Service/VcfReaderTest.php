@@ -133,4 +133,33 @@ class VcfReaderTest extends TestCase
         $this->assertCount(2, $oResult->getVariants());
         $this->assertCount(2, $oResult->getWarnings());
     }
+
+    /**
+     * VCF 4.3 : "Telomeres are indicated by using positions 0 or N+1".
+     */
+    public function testReadsATelomericBreakendAtPositionZero()
+    {
+        $oResult = $this->reader->read(["chr1\t0\tbnd_tel\tN\t.[chr1:1[\t.\tPASS\tSVTYPE=BND\n"]);
+
+        $this->assertCount(0, $oResult->getWarnings());
+        $this->assertSame(0, $oResult->getVariants()[0]->getPosition());
+    }
+
+    public function testDecodesPercentEncodedInfoValues()
+    {
+        $oResult = $this->reader->read(["chr1\t10\t.\tA\tG\t.\t.\tNOTE=a%3Bb%3dc%3Ad%25e%253B\n"]);
+
+        $this->assertSame("a;b=c:d%e%3B", $oResult->getVariants()[0]->getInfo()["NOTE"]);
+    }
+
+    /**
+     * An INFO value stays one unsplit string in which a literal comma is the list delimiter, so an
+     * encoded comma must stay encoded to remain distinguishable from it.
+     */
+    public function testKeepsAnEncodedCommaEncodedInInfoValues()
+    {
+        $oResult = $this->reader->read(["chr1\t10\t.\tA\tG,T\t.\t.\tLIST=x%2Cy,z\n"]);
+
+        $this->assertSame("x%2Cy,z", $oResult->getVariants()[0]->getInfo()["LIST"]);
+    }
 }

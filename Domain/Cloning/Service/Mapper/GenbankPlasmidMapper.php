@@ -3,7 +3,7 @@
  * Transforms an already-parsed circular GenBank record into a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -39,7 +39,7 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
  * parser could not read) is skipped and reported in GenbankImportResult::getWarnings(), never
  * silently dropped or truncated.
  * Class GenbankPlasmidMapper
- * @package Amelaye\BioPHP\Domain\Cloning\Service
+ * @package Amelaye\BioPHP\Domain\Cloning\Service\Mapper
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
@@ -50,6 +50,8 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
      * GenBank feature keys that map unambiguously onto a FeatureType. Anything else (including
      * "gene", which names a broader region than any single FeatureType here) falls back to
      * FeatureType::MISC_FEATURE, with the original key preserved in metadata rather than guessed at.
+     * "oriT" in particular is the origin of transfer, where conjugative transfer starts, not an
+     * origin of replication : it is deliberately left out and stays a MISC_FEATURE.
      * @var     array<string,string>
      */
     private const FEATURE_TYPE_BY_GENBANK_KEY = [
@@ -57,8 +59,18 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
         "promoter" => FeatureType::PROMOTER,
         "terminator" => FeatureType::TERMINATOR,
         "rep_origin" => FeatureType::ORIGIN_OF_REPLICATION,
-        "oriT" => FeatureType::ORIGIN_OF_REPLICATION,
         "misc_feature" => FeatureType::MISC_FEATURE,
+    ];
+
+    /**
+     * Since 15-DEC-2014 INSDC annotates a promoter or a terminator as a "regulatory" feature with a
+     * /regulatory_class qualifier, the old "promoter"/"terminator" keys being deprecated ; any other
+     * class (enhancer, ribosome_binding_site...) has no FeatureType here and stays a MISC_FEATURE.
+     * @var     array<string,string>
+     */
+    private const FEATURE_TYPE_BY_REGULATORY_CLASS = [
+        "promoter" => FeatureType::PROMOTER,
+        "terminator" => FeatureType::TERMINATOR,
     ];
 
     /**
@@ -178,12 +190,40 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
         $sName = $sGene ?? $sLabel ?? $sProduct ?? $sKey;
         $sType = self::FEATURE_TYPE_BY_GENBANK_KEY[$sKey] ?? FeatureType::MISC_FEATURE;
 
+        $sRegulatoryClass = $aQualifiers["regulatory_class"][0] ?? null;
+        if ($sKey === "regulatory" && $sRegulatoryClass !== null) {
+            $sType = self::FEATURE_TYPE_BY_REGULATORY_CLASS[$sRegulatoryClass] ?? FeatureType::MISC_FEATURE;
+        }
+
         if ($aGroup["strand"] === "+") {
             $sStrand = Strand::FORWARD;
         } elseif ($aGroup["strand"] === "-") {
             $sStrand = Strand::REVERSE;
         } else {
             $sStrand = Strand::NONE;
+        }
+
+        $aMetadata = [
+            "genbankKey" => $sKey,
+            "gene" => $sGene,
+            "product" => $sProduct,
+            "label" => $sLabel,
+        ];
+        if ($sRegulatoryClass !== null) {
+            $aMetadata["regulatoryClass"] = $sRegulatoryClass;
+        }
+
+        // /codon_start (1, 2 or 3) counts from the feature's own 5' end, as GFF3's phase (0, 1 or 2)
+        // does, on either strand : phase = codon_start - 1.
+        $iPhase = null;
+        $sCodonStart = isset($aQualifiers["codon_start"][0]) ? trim($aQualifiers["codon_start"][0]) : null;
+        if ($sType === FeatureType::CDS && $sCodonStart !== null) {
+            if (!in_array($sCodonStart, ["1", "2", "3"], true)) {
+                throw new \InvalidArgumentException(
+                    sprintf('invalid /codon_start "%s", expected 1, 2 or 3.', $sCodonStart)
+                );
+            }
+            $iPhase = (int) $sCodonStart - 1;
         }
 
         return new PlasmidFeature(
@@ -195,12 +235,8 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
             null,
             $sNote,
             null,
-            [
-                "genbankKey" => $sKey,
-                "gene" => $sGene,
-                "product" => $sProduct,
-                "label" => $sLabel,
-            ]
+            $aMetadata,
+            $iPhase
         );
     }
 }

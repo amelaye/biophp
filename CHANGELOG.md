@@ -46,7 +46,33 @@ Changes on `develop` since `master`.
   the immutable `Plasmid` / `VcfVariant` domain objects, which stay independent of Doctrine.
   Rebuilding a domain object re-runs its validation.
 
+#### CDS phase
+- `PlasmidFeature` carries an optional CDS phase (0, 1 or 2), persisted in `plasmid_feature.phase`.
+  It is read from and written to GFF3 column 8 and GenBank `/codon_start` (phase + 1). GFF3 output
+  now always gives a CDS a phase, as the specification requires (0 when unknown).
+
+### Fixed
+- `ParseGenbankManager` only kept 5 feature keys (source, gene, exon, CDS, misc_feature) and
+  silently dropped every other annotation (rep_origin, oriT, promoter, terminator, primer_bind,
+  regulatory...). It now reads every INSDC feature key, the ones deprecated on 15-DEC-2014 included.
+- `ParseGenbankManager` qualifier values : a "/" or "=" inside a value is no longer stripped or cut
+  (`UniProtKB/Swiss-Prot`, `Km=2 mM`), a doubled `""` is unescaped, a flag qualifier (`/pseudo`) no
+  longer crashes the whole record, a feature with no qualifier no longer swallows the next one, and
+  a wrapped `/translation` no longer gains a space at each line break.
+- `GenbankPlasmidMapper` reads the INSDC `regulatory` + `/regulatory_class` form (promoter,
+  terminator) ; `GenbankWriter` writes a promoter or terminator that way instead of the deprecated
+  keys, and its LOCUS line now follows NCBI's fixed columns, so its output reads back.
+- GenBank `oriT` (origin of transfer) was imported as an origin of replication ; it now stays a
+  `MISC_FEATURE`, with its key kept in metadata.
+- GFF3 origin-crossing features : the reader folds a feature written as end + landmark length on an
+  `Is_circular=true` landmark back to start > end, and `GffFeatureWriter::write()` takes an optional
+  sequence length to write one (with its circular landmark) instead of rejecting it.
+- VCF : POS 0 is accepted (a telomere, per VCF 4.3), and percent-encoded INFO values are decoded
+  (`%2C` excepted, to keep list commas unambiguous).
+
 ### Changed
+- `GffFeatureWriterInterface::write()` gained an optional `$iSequenceLength` parameter ; custom
+  implementations of the interface must add it.
 - **Breaking:** classes moved into role-based sub-namespaces (update your `use` statements ; service
   IDs and interface aliases are unchanged) :
   - `Domain\Cloning\Service\Reader` : `BedFeatureReader`, `GffFeatureReader`.

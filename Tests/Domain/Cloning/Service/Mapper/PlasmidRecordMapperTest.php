@@ -22,7 +22,7 @@ class PlasmidRecordMapperTest extends TestCase
             "pTest",
             new CircularDnaSequence("ATGCATGCATGCATGCATGC"),
             [
-                new PlasmidFeature("lacZ", FeatureType::CDS, 3, 9, Strand::REVERSE, "#FF00AA", "a note", "ext-1", ["gb_key" => "gene", "tags" => ["a", "b"], "score" => 1.5, "flag" => true]),
+                new PlasmidFeature("lacZ", FeatureType::CDS, 3, 9, Strand::REVERSE, "#FF00AA", "a note", "ext-1", ["gb_key" => "gene", "tags" => ["a", "b"], "score" => 1.5, "flag" => true], 1),
                 new PlasmidFeature("ori", FeatureType::ORIGIN_OF_REPLICATION, 18, 4),
                 new PlasmidFeature("AmpR", FeatureType::MARKER, 10, 14, Strand::FORWARD),
             ],
@@ -49,6 +49,8 @@ class PlasmidRecordMapperTest extends TestCase
         $this->assertSame(3, $oFirst->getStartPosition());
         $this->assertSame(9, $oFirst->getEndPosition());
         $this->assertSame($oRecord, $oFirst->getPlasmid());
+        $this->assertSame(1, $oFirst->getPhase());
+        $this->assertNull($oRecord->getFeatures()->get(1)->getPhase());
     }
 
     public function testToPlasmidRestoresFeatureOrderFromPosition()
@@ -106,6 +108,8 @@ class PlasmidRecordMapperTest extends TestCase
         $this->assertSame($oOriginal->getMetadata(), $oRestored->getMetadata());
         $this->assertEquals($oOriginal->getFeatures(), $oRestored->getFeatures());
         $this->assertTrue($oRestored->getFeatures()[1]->crossesOrigin());
+        $this->assertSame(1, $oRestored->getFeatures()[0]->getPhase());
+        $this->assertNull($oRestored->getFeatures()[1]->getPhase());
     }
 
     public function testNullableFieldsAndEmptyMetadataRoundTrip()

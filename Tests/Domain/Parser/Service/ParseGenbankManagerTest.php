@@ -558,14 +558,14 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(94);
         $oFeature->setFtTo(1482);
         $oFeature->setFtQual("translation");
-        $translation = "MSSVKRSLKQEIVTQFHCSAAEGDIAKLTGILSHSPSLLNETSE ";
-        $translation.= "NGWTALMYAARNGHPEIVQFLLEKGCDRSIVNKSRQTALDIAVFWGYKHIANLLATAK ";
-        $translation.= "GGKKPWFLTNEVEECENYFSKTLLDRKSEKRNNSDWLLAKESHPATVFILFSDLNPLV ";
-        $translation.= "TLGGNKESFQQPEVRLCQLNYTDIKDYLAQPEKITLIFLGVELEIKDKLLNYAGEVPR ";
-        $translation.= "EEEDGLVAWFALGIDPIAAEEFKQRHENCYFLHPPMPALLQLKEKEAGVVAQARSVLA ";
-        $translation.= "WHSRYKFCPTCGNATKIEEGGYKRLCLKEDCPSLNGVHNTSYPRVDPVVIMQVIHPDG ";
-        $translation.= "TKCLLGRQKRFPPGMFTCLAGFIEPGETIEDAVRREVEEESGVKVGHVQYVACQPWPM ";
-        $translation.= "PSSLMIGCLALAVSTEIKVDKNEIEDARWFTREQVLDVLTKGKQQAFFVPPSRAIAHQ ";
+        $translation = "MSSVKRSLKQEIVTQFHCSAAEGDIAKLTGILSHSPSLLNETSE";
+        $translation.= "NGWTALMYAARNGHPEIVQFLLEKGCDRSIVNKSRQTALDIAVFWGYKHIANLLATAK";
+        $translation.= "GGKKPWFLTNEVEECENYFSKTLLDRKSEKRNNSDWLLAKESHPATVFILFSDLNPLV";
+        $translation.= "TLGGNKESFQQPEVRLCQLNYTDIKDYLAQPEKITLIFLGVELEIKDKLLNYAGEVPR";
+        $translation.= "EEEDGLVAWFALGIDPIAAEEFKQRHENCYFLHPPMPALLQLKEKEAGVVAQARSVLA";
+        $translation.= "WHSRYKFCPTCGNATKIEEGGYKRLCLKEDCPSLNGVHNTSYPRVDPVVIMQVIHPDG";
+        $translation.= "TKCLLGRQKRFPPGMFTCLAGFIEPGETIEDAVRREVEEESGVKVGHVQYVACQPWPM";
+        $translation.= "PSSLMIGCLALAVSTEIKVDKNEIEDARWFTREQVLDVLTKGKQQAFFVPPSRAIAHQ";
         $translation.= "LIKHWIRINPNL";
         $oFeature->setFtValue($translation);
         $oFeature->setStrand("+");
@@ -594,7 +594,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(124);
         $oFeature->setFtTo(213);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 1");
+        $oFeature->setFtValue("propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); Region: ANK 1");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -621,7 +621,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(226);
         $oFeature->setFtTo(315);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 2");
+        $oFeature->setFtValue("propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); Region: ANK 2");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -648,7 +648,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(325);
         $oFeature->setFtTo(387);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: ANK 3");
+        $oFeature->setFtValue("propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); Region: ANK 3");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -675,7 +675,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(646);
         $oFeature->setFtTo(648);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKBSwiss-Prot (Q9BQG2.1); modified site");
+        $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); modified site");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -702,7 +702,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(967);
         $oFeature->setFtTo(969);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKBSwiss-Prot (Q9BQG2.1); modified site");
+        $oFeature->setFtValue("N6-succinyllysine. {ECO:0000250|UniProtKB:Q9DCN1}; propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); modified site");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -729,7 +729,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(1156);
         $oFeature->setFtTo(1221);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: Nudix box");
+        $oFeature->setFtValue("propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); Region: Nudix box");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -756,7 +756,7 @@ class ParseGenbankManagerTest extends WebTestCase
         $oFeature->setFtFrom(1471);
         $oFeature->setFtTo(1479);
         $oFeature->setFtQual("note");
-        $oFeature->setFtValue("propagated from UniProtKBSwiss-Prot (Q9BQG2.1); Region: Microbody targeting signal. {ECO:0000305}");
+        $oFeature->setFtValue("propagated from UniProtKB/Swiss-Prot (Q9BQG2.1); Region: Microbody targeting signal. {ECO:0000305}");
         $oFeature->setStrand("+");
         $aExpectedFeatures[] = $oFeature;
         $oFeature = new Feature();
@@ -977,8 +977,8 @@ class ParseGenbankManagerTest extends WebTestCase
             fn(Feature $oFeature) => $oFeature->getFtKey(),
             $oParser->getFeatures()
         );
-        // "mRNA" is not in the parser's feature whitelist and must not stop the table from
-        // being read any further: "gene" and "CDS" both come after it in the file.
+        // "mRNA", a multi-line joined location, must not stop the table from being read any
+        // further: "gene" and "CDS" both come after it in the file.
         $this->assertContains("gene", $aFeatureKeys);
         $this->assertContains("CDS", $aFeatureKeys);
 
@@ -1048,5 +1048,119 @@ class ParseGenbankManagerTest extends WebTestCase
             ["X11111", "X22222"],
             array_map(fn($oAccession) => $oAccession->getAccession(), $oParser->getAccession())
         );
+    }
+
+    /**
+     * Wraps FEATURES lines into a minimal record and returns "key|from|to|strand|qualifier=value"
+     * strings, one per Feature row, in parse order.
+     */
+    private function parseFeatureRows(array $aFeatureLines): array
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(array_merge(
+            ["FEATURES             Location/Qualifiers\n"],
+            $aFeatureLines,
+            ["ORIGIN\n", "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n", "//\n"]
+        ));
+
+        return array_map(
+            fn(Feature $o) => sprintf(
+                "%s|%d|%d|%s|%s=%s",
+                $o->getFtKey(), $o->getFtFrom(), $o->getFtTo(), $o->getStrand(), $o->getFtQual(), $o->getFtValue()
+            ),
+            $oParser->getFeatures()
+        );
+    }
+
+    /**
+     * Every INSDC feature key is read, the ones deprecated on 15-DEC-2014 (promoter, terminator...)
+     * included since plasmid files still use them ; a key outside INSDC is skipped without
+     * stopping the table.
+     */
+    public function testReadsEveryInsdcFeatureKeyAndSkipsUnknownOnes()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     rep_origin      1..5\n",
+            "                     /note=\"ColE1\"\n",
+            "     oriT            6..8\n",
+            "                     /note=\"transfer\"\n",
+            "     LTR_custom      9..10\n",
+            "                     /note=\"not INSDC\"\n",
+            "     regulatory      11..15\n",
+            "                     /regulatory_class=\"promoter\"\n",
+            "     promoter        16..20\n",
+            "                     /label=lac\n",
+            "     3'UTR           21..25\n",
+            "                     /note=\"utr\"\n",
+            "     -10_signal      complement(26..30)\n",
+            "                     /note=\"box\"\n",
+        ]);
+
+        $this->assertSame([
+            "rep_origin|1|5|+|note=ColE1",
+            "oriT|6|8|+|note=transfer",
+            "regulatory|11|15|+|regulatory_class=promoter",
+            "promoter|16|20|+|label=lac",
+            "3'UTR|21|25|+|note=utr",
+            "-10_signal|26|30|-|note=box",
+        ], $aRows);
+    }
+
+    /**
+     * A "/" or "=" inside a qualifier value is data, and a doubled "" is an escaped quote.
+     */
+    public function testKeepsSlashesEqualSignsAndEscapedQuotesInQualifierValues()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     CDS             5..25\n",
+            "                     /note=\"5'/3' ends; Km=2 mM\"\n",
+            "                     /product=\"the \"\"best\"\" one\"\n",
+        ]);
+
+        $this->assertSame([
+            "CDS|5|25|+|note=5'/3' ends; Km=2 mM",
+            "CDS|5|25|+|product=the \"best\" one",
+        ], $aRows);
+    }
+
+    /**
+     * A flag qualifier such as /pseudo has no value ; it used to crash the whole record.
+     */
+    public function testReadsAFlagQualifierWithAnEmptyValue()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     gene            5..25\n",
+            "                     /gene=\"bla\"\n",
+            "                     /pseudo\n",
+        ]);
+
+        $this->assertSame(["gene|5|25|+|gene=bla", "gene|5|25|+|pseudo="], $aRows);
+    }
+
+    /**
+     * A feature with no qualifier keeps one row (empty qualifier) and must not swallow the next
+     * feature's key line, which used to lose that next feature.
+     */
+    public function testAFeatureWithNoQualifierKeepsItsRowAndDoesNotSwallowTheNextFeature()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     rep_origin      5..25\n",
+            "     CDS             28..38\n",
+            "                     /gene=\"x\"\n",
+            "     oriT            1..3\n",
+        ]);
+
+        $this->assertSame(["rep_origin|5|25|+|=", "CDS|28|38|+|gene=x", "oriT|1|3|+|="], $aRows);
+    }
+
+    public function testAWrappedTranslationGainsNoSpaceAtTheLineBreak()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     CDS             1..30\n",
+            "                     /translation=\"MSIQHFRVALIPFFAAFCLPVFAHPETLVK\n",
+            "                     VKDAEDQLGARVGYIELDLNSG\"\n",
+        ]);
+
+        $this->assertSame(["CDS|1|30|+|translation=MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSG"], $aRows);
     }
 }

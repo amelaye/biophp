@@ -100,6 +100,12 @@ class PlasmidFeatureRecord
     private array $metadata = [];
 
     /**
+     * @var int|null    GFF3 phase (0, 1 or 2), CDS only ; GenBank /codon_start minus 1
+     */
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $phase = null;
+
+    /**
      * @return  int|null    Null until the record has been flushed
      */
     public function getId(): ?int
@@ -302,6 +308,24 @@ class PlasmidFeatureRecord
     public function setMetadata(array $aMetadata): self
     {
         $this->metadata = $aMetadata;
+        return $this;
+    }
+
+    /**
+     * @return  int|null
+     */
+    public function getPhase(): ?int
+    {
+        return $this->phase;
+    }
+
+    /**
+     * @param   int|null    $iPhase
+     * @return  $this
+     */
+    public function setPhase(?int $iPhase): self
+    {
+        $this->phase = $iPhase;
         return $this;
     }
 }

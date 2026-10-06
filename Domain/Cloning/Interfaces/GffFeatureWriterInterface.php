@@ -3,7 +3,7 @@
  * GFF3 feature-file writing Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -22,7 +22,10 @@ interface GffFeatureWriterInterface
     /**
      * @param   string              $sSeqId         The GFF3 "seqid" column (e.g. the plasmid's name)
      * @param   PlasmidFeature[]    $aFeatures
+     * @param   int|null            $iSequenceLength    Length of the circular molecule the features lie
+     * on ; required to write an origin-crossing feature, which GFF3 encodes as end + this length on
+     * a landmark flagged Is_circular=true
      * @return  string      A complete GFF3 document, "##gff-version 3" pragma included
      */
-    public function write(string $sSeqId, array $aFeatures): string;
+    public function write(string $sSeqId, array $aFeatures, ?int $iSequenceLength = null): string;
 }

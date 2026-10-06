@@ -3,7 +3,7 @@
  * Serializes PlasmidFeature instances into BED text
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -20,7 +20,7 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  * BedFeatureReader already rejects one coming in with a warning, and this writer rejects one going
  * out by throwing, for the same reason GffFeatureWriter does.
  * Class BedFeatureWriter
- * @package Amelaye\BioPHP\Domain\Cloning\Service
+ * @package Amelaye\BioPHP\Domain\Cloning\Service\Writer
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class BedFeatureWriter implements BedFeatureWriterInterface

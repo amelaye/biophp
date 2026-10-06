@@ -21,7 +21,7 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
  * type, strand, colour, coordinates within the sequence length) is checked again on the way out of
  * the database. Features come back in their stored position order.
  * Class PlasmidRecordMapper
- * @package Amelaye\BioPHP\Domain\Cloning\Service
+ * @package Amelaye\BioPHP\Domain\Cloning\Service\Mapper
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class PlasmidRecordMapper implements PlasmidRecordMapperInterface
@@ -50,7 +50,8 @@ class PlasmidRecordMapper implements PlasmidRecordMapperInterface
                 ->setColor($oFeature->getColor())
                 ->setNote($oFeature->getNote())
                 ->setExternalId($oFeature->getExternalId())
-                ->setMetadata($oFeature->getMetadata());
+                ->setMetadata($oFeature->getMetadata())
+                ->setPhase($oFeature->getPhase());
 
             $oRecord->addFeature($oFeatureRecord);
         }
@@ -83,7 +84,8 @@ class PlasmidRecordMapper implements PlasmidRecordMapperInterface
                     $oFeatureRecord->getColor(),
                     $oFeatureRecord->getNote(),
                     $oFeatureRecord->getExternalId(),
-                    $oFeatureRecord->getMetadata()
+                    $oFeatureRecord->getMetadata(),
+                    $oFeatureRecord->getPhase()
                 );
             },
             $aFeatureRecords

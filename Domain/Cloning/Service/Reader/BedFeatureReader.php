@@ -3,7 +3,7 @@
  * Reads a BED annotation file into PlasmidFeature instances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -38,7 +38,7 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  * "chrom:chromStart-chromEnd" rather than being rejected, since BED's own spec treats name as
  * optional.
  * Class BedFeatureReader
- * @package Amelaye\BioPHP\Domain\Cloning\Service
+ * @package Amelaye\BioPHP\Domain\Cloning\Service\Reader
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
 class BedFeatureReader implements BedFeatureReaderInterface

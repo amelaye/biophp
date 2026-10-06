@@ -3,7 +3,7 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -24,6 +24,25 @@ use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 
 final class ParseGenbankManager extends ParseDbAbstractManager
 {
+    /**
+     * Every feature key of the INSDC Feature Table Definition (v11.4), followed by the keys it
+     * deprecated on 15-DEC-2014 in favour of "regulatory" + /regulatory_class, which plasmid files
+     * (SnapGene, Addgene...) still use widely. A key outside this list is skipped.
+     */
+    public const FEATURE_KEYS = [
+        "assembly_gap", "C_region", "CDS", "centromere", "D-loop", "D_segment", "exon", "gap",
+        "gene", "iDNA", "intron", "J_segment", "mat_peptide", "misc_binding", "misc_difference",
+        "misc_feature", "misc_recomb", "misc_RNA", "misc_structure", "mobile_element",
+        "modified_base", "mRNA", "ncRNA", "N_region", "old_sequence", "operon", "oriT",
+        "polyA_site", "precursor_RNA", "prim_transcript", "primer_bind", "propeptide",
+        "protein_bind", "regulatory", "repeat_region", "rep_origin", "rRNA", "S_region",
+        "sig_peptide", "source", "stem_loop", "STS", "telomere", "tmRNA", "transit_peptide",
+        "tRNA", "unsure", "V_region", "V_segment", "variation", "3'UTR", "5'UTR",
+        // Deprecated 15-DEC-2014
+        "enhancer", "promoter", "CAAT_signal", "TATA_signal", "-35_signal", "-10_signal", "RBS",
+        "GC_signal", "polyA_signal", "attenuator", "terminator", "misc_signal",
+    ];
+
     /**
      * @var \ArrayIterator|null
      */
@@ -115,8 +134,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                         }
                         $this->aLines->next();
                         $sHead = trim(substr($this->aLines->current(), 0, 20));
-                        $aFields = ["source", "gene", "exon", "CDS", "misc_feature"];
-                        if(in_array($sHead, $aFields)) {
+                        if(in_array($sHead, self::FEATURE_KEYS, true)) {
                             $this->parseFeatures($aFlines, $sHead);
                         }
                     }
@@ -398,6 +416,13 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $sLocation .= trim(substr($this->aLines->current(), 20));
         }
         $aBounds = $this->parseLocationBounds($sLocation);
+        // A feature with no qualifier at all is directly followed by the next feature key or
+        // section : that line must not be consumed as if it were this feature's qualifier.
+        $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
+        if (trim($sNextLine) === "" || trim(substr($sNextLine, 0, 12)) !== "") {
+            $this->buildFeature("", $sKey, $aBounds);
+            return;
+        }
         $this->aLines->next();
         $sLine = trim(substr($this->aLines->current(), 20));
         while (1) {
@@ -434,13 +459,25 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * parseLocationBounds().
      */
     private function buildFeature(string $sLine, string $sKey, array $aBounds) {
-        $sLine = str_replace("/","",trim($sLine));
-        $aLine = explode("=",str_replace('"',"",$sLine));
+        // Only the qualifier's own leading "/" and the value's enclosing quotes are syntax : a "/"
+        // or "=" inside the value is data (e.g. /note="5'/3' ends; Km=2 mM"), and a doubled ""
+        // inside a quoted value is an escaped quote. A flag qualifier (/pseudo) has no value, and a
+        // feature with no qualifier at all still gets one row, with an empty qualifier, so its key
+        // and location are not lost.
+        [$sQualifier, $sValue] = explode("=", ltrim(trim($sLine), "/"), 2) + [1 => ""];
+        if (strlen($sValue) >= 2 && $sValue[0] === '"' && substr($sValue, -1) === '"') {
+            $sValue = str_replace('""', '"', substr($sValue, 1, -1));
+        }
+        // Wrapped lines are joined with a space, right for free text but not for a protein
+        // sequence, which must not gain a space at every line break.
+        if ($sQualifier === "translation") {
+            $sValue = (string) preg_replace('/\s+/', "", $sValue);
+        }
         $oFeature = new Feature();
         $oFeature->setPrimAcc($this->sequence->getPrimAcc());
         $oFeature->setFtKey($sKey);
-        $oFeature->setFtQual($aLine[0]);
-        $oFeature->setFtValue($aLine[1]);
+        $oFeature->setFtQual($sQualifier);
+        $oFeature->setFtValue($sValue);
         $oFeature->setFtFrom($aBounds[0]);
         $oFeature->setFtTo($aBounds[1]);
         $oFeature->setStrand($aBounds[2] ?? null);

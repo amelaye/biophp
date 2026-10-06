@@ -2,10 +2,12 @@
 namespace Tests\Domain\Cloning\Service\Writer;
 
 use Amelaye\BioPHP\Domain\Cloning\Aggregate\Plasmid;
+use Amelaye\BioPHP\Domain\Cloning\Service\Mapper\GenbankPlasmidMapper;
 use Amelaye\BioPHP\Domain\Cloning\Service\Writer\GenbankWriter;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\FeatureType;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\PlasmidFeature;
 use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
+use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +22,8 @@ class GenbankWriterTest extends TestCase
 
     /**
      * Every line hand-derived against the format described in GenbankWriter's own docblock :
-     * - LOCUS : "LOCUS       " (12 chars) + name padded to 20 + "10 bp    DNA     circular"
+     * - LOCUS : NCBI's fixed columns - name padded to 16 from column 13, length right-justified in
+     *   columns 30-40, "bp" at 42, "DNA" at 48, "circular" at 56
      * - source : 5 spaces + "source" padded to 16 + "1..10"
      * - CDS : 5 spaces + "CDS" padded to 16 + "1..6" (FeatureType::CDS's fallback GenBank key,
      *   no "genbankKey" metadata here)
@@ -50,7 +53,7 @@ class GenbankWriterTest extends TestCase
             "ACC001"
         );
 
-        $sExpected = "LOCUS       pTest               10 bp    DNA     circular\n"
+        $sExpected = "LOCUS       pTest                     10 bp    DNA     circular\n"
             . "DEFINITION  Test plasmid.\n"
             . "ACCESSION   ACC001\n"
             . "FEATURES             Location/Qualifiers\n"
@@ -173,5 +176,82 @@ class GenbankWriterTest extends TestCase
         $sOutput = $this->writer->write($oPlasmid);
 
         $this->assertStringContainsString('/note="a ""quoted"" note"', $sOutput);
+    }
+
+    /**
+     * INSDC : "/codon_start has valid value of 1 or 2 or 3" ; it equals phase + 1, unquoted.
+     */
+    public function testWritesTheCdsPhaseAsCodonStart()
+    {
+        $oPlasmid = new Plasmid("pTest", new CircularDnaSequence("ACGTACGTAC"), [
+            new PlasmidFeature("geneA", FeatureType::CDS, 1, 9, Strand::FORWARD, null, null, null, null, 2),
+        ]);
+
+        $this->assertStringContainsString(str_repeat(" ", 21) . "/codon_start=3\n", $this->writer->write($oPlasmid));
+    }
+
+    public function testWritesNoCodonStartWhenThePhaseIsUnknown()
+    {
+        $oPlasmid = new Plasmid("pTest", new CircularDnaSequence("ACGTACGTAC"), [
+            new PlasmidFeature("geneA", FeatureType::CDS, 1, 9),
+        ]);
+
+        $this->assertStringNotContainsString("/codon_start", $this->writer->write($oPlasmid));
+    }
+
+    /**
+     * INSDC deprecated the "promoter" and "terminator" keys on 15-DEC-2014 : a hand-built promoter
+     * is written as "regulatory" with /regulatory_class="promoter".
+     */
+    public function testWritesAPromoterAsARegulatoryFeatureWithItsClass()
+    {
+        $oPlasmid = new Plasmid("pTest", new CircularDnaSequence("ACGTACGTAC"), [
+            new PlasmidFeature("lacP", FeatureType::PROMOTER, 1, 5, Strand::FORWARD),
+        ]);
+
+        $sOutput = $this->writer->write($oPlasmid);
+
+        $this->assertStringContainsString("     regulatory      1..5\n", $sOutput);
+        $this->assertStringContainsString(str_repeat(" ", 21) . "/regulatory_class=\"promoter\"\n", $sOutput);
+    }
+
+    /**
+     * Written by this writer, read back by the real parser and mapper : types, strand, coordinates
+     * and the CDS phase survive.
+     */
+    public function testAPlasmidSurvivesAWriteParseMapRoundTrip()
+    {
+        $oOriginal = new Plasmid("pRound", new CircularDnaSequence("ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"), [
+            new PlasmidFeature("lacP", FeatureType::PROMOTER, 1, 5, Strand::FORWARD),
+            new PlasmidFeature("bla", FeatureType::CDS, 6, 20, Strand::REVERSE, null, null, null, null, 1),
+            new PlasmidFeature("rrnB", FeatureType::TERMINATOR, 21, 25, Strand::FORWARD),
+            new PlasmidFeature("ori", FeatureType::ORIGIN_OF_REPLICATION, 26, 35, Strand::FORWARD),
+        ]);
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(explode("\n", $this->writer->write($oOriginal)));
+        $oRestored = (new GenbankPlasmidMapper())
+            ->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures())
+            ->getPlasmid();
+
+        $fSummary = fn($o) => [$o->getType(), $o->getStart(), $o->getEnd(), $o->getStrand(), $o->getPhase()];
+        $this->assertSame(
+            array_map($fSummary, $oOriginal->getFeatures()),
+            array_map($fSummary, $oRestored->getFeatures())
+        );
+        $this->assertTrue($oOriginal->getSequence()->equals($oRestored->getSequence()));
+    }
+
+    public function testTheLocusLineIsReadBackByTheColumnBasedParser()
+    {
+        $oPlasmid = new Plasmid("pUC19", new CircularDnaSequence(str_repeat("ACGT", 25)));
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(explode("\n", $this->writer->write($oPlasmid)));
+
+        $this->assertSame("pUC19", $oParser->getSequence()->getPrimAcc());
+        $this->assertSame(100, $oParser->getSequence()->getSeqlength());
+        $this->assertSame("DNA", $oParser->getSequence()->getMoltype());
+        $this->assertSame("CIRCULAR", $oParser->getGbSequence()->getTopology());
     }
 }

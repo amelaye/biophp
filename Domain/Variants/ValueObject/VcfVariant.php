@@ -3,7 +3,7 @@
  * Immutable value object describing one VCF variant record
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 6 October 2026
  */
 declare(strict_types=1);
 
@@ -12,7 +12,8 @@ namespace Amelaye\BioPHP\Domain\Variants\ValueObject;
 use Amelaye\BioPHP\Domain\Variants\Exception\InvalidVcfRecordException;
 
 /**
- * POS is 1-based, VCF's own convention (unlike BED). getReference()/getAlternates() are kept as raw
+ * POS is 1-based, VCF's own convention (unlike BED) ; 0 and length + 1 are valid too and mark a
+ * telomere (VCF 4.3, POS column), typically on a breakend record. getReference()/getAlternates() are kept as raw
  * strings, deliberately not wrapped in a DnaSequence : VCF's ALT column can legitimately hold a
  * symbolic allele ("<DEL>", "<INS>") or breakend notation ("]13:123456]T") for a structural variant,
  * neither of which is a valid DNA alphabet string, so forcing that validation here would wrongly
@@ -29,7 +30,7 @@ final class VcfVariant
     private string $chrom;
 
     /**
-     * @var     int         1-based
+     * @var     int         1-based ; 0 or length + 1 for a telomere
      */
     private int $position;
 
@@ -66,7 +67,7 @@ final class VcfVariant
     /**
      * VcfVariant constructor.
      * @param   string              $sChrom
-     * @param   int                 $iPosition      1-based
+     * @param   int                 $iPosition      1-based, 0 for a telomere
      * @param   string|null         $sId
      * @param   string              $sReference
      * @param   string[]            $aAlternates
@@ -89,8 +90,8 @@ final class VcfVariant
             throw InvalidVcfRecordException::emptyChrom();
         }
 
-        if ($iPosition < 1) {
-            throw InvalidVcfRecordException::nonPositivePosition($iPosition);
+        if ($iPosition < 0) {
+            throw InvalidVcfRecordException::negativePosition($iPosition);
         }
 
         if ($sReference === "") {
