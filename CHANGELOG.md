@@ -58,7 +58,8 @@ Changes on `develop` since `master`.
 - `ParseGenbankManager` qualifier values : a "/" or "=" inside a value is no longer stripped or cut
   (`UniProtKB/Swiss-Prot`, `Km=2 mM`), a doubled `""` is unescaped, a flag qualifier (`/pseudo`) no
   longer crashes the whole record, a feature with no qualifier no longer swallows the next one, and
-  a wrapped `/translation` no longer gains a space at each line break.
+  a wrapped `/translation` no longer gains a space at each line break. A quoted value wrapped onto a
+  line starting with "/" is no longer cut into a bogus extra qualifier.
 - `GenbankPlasmidMapper` reads the INSDC `regulatory` + `/regulatory_class` form (promoter,
   terminator) ; `GenbankWriter` writes a promoter or terminator that way instead of the deprecated
   keys, and its LOCUS line now follows NCBI's fixed columns, so its output reads back.

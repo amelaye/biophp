@@ -1163,4 +1163,19 @@ class ParseGenbankManagerTest extends WebTestCase
 
         $this->assertSame(["CDS|1|30|+|translation=MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSG"], $aRows);
     }
+
+    /**
+     * A quoted value may wrap onto a line starting with "/" : that line is still the value.
+     */
+    public function testAWrappedQuotedValueLineStartingWithASlashIsNotANewQualifier()
+    {
+        $aRows = $this->parseFeatureRows([
+            "     CDS             1..30\n",
+            "                     /note=\"cleaved at the 5'\n",
+            "                     /3' junction\"\n",
+            "                     /gene=\"x\"\n",
+        ]);
+
+        $this->assertSame(["CDS|1|30|+|note=cleaved at the 5' /3' junction", "CDS|1|30|+|gene=x"], $aRows);
+    }
 }

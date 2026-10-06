@@ -436,7 +436,11 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             // more of this feature's qualifier text.
             $sNextLine = $aFlines[$this->aLines->key()+1] ?? "";
             $sNextTrimmed = trim($sNextLine);
-            $bNextStartsQualifier = ($sNextTrimmed !== "") && ($sNextTrimmed[0] === "/");
+            // Inside a quoted value (an odd number of quotes so far, an escaped "" counting two), a
+            // wrapped line starting with "/" is more of the value, not a new qualifier.
+            $bInsideQuotedValue = substr_count($sLine, '"') % 2 === 1;
+            $bNextStartsQualifier = !$bInsideQuotedValue
+                && ($sNextTrimmed !== "") && ($sNextTrimmed[0] === "/");
             $bNextIsNewFeatureOrSection = trim(substr($sNextLine, 0, 12)) !== "";
 
             if ($bNextStartsQualifier || $bNextIsNewFeatureOrSection) {
