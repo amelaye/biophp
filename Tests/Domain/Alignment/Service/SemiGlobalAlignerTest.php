@@ -81,4 +81,27 @@ class SemiGlobalAlignerTest extends TestCase
 
         $this->aligner->align(new DnaSequence("AC"), new DnaSequence("AC"), $this->scoring, 0);
     }
+
+    /**
+     * "AAAA" and "TTTT" share nothing : every overlap scores below zero. The two corners of the last
+     * row and column, which align no column and score zero, used to win, leaving an empty alignment
+     * that PairwiseAlignmentResult rejects. The best real overlap is one column, the last A against
+     * the first T (cell 4,1), at -1 ; the later ties keep the last-row cell found first.
+     */
+    public function testReportsTheBestOverlapEvenWhenItsScoreIsNegative()
+    {
+        $oResult = $this->aligner->align(new DnaSequence("AAAA"), new DnaSequence("TTTT"), $this->scoring, -2);
+
+        $this->assertEquals("A", $oResult->getAlignedFirst());
+        $this->assertEquals("T", $oResult->getAlignedSecond());
+        $this->assertEquals(-1, $oResult->getScore());
+        $this->assertEquals([3, 3, 0, 0], [$oResult->getFirstStart(), $oResult->getFirstEnd(), $oResult->getSecondStart(), $oResult->getSecondEnd()]);
+    }
+
+    public function testRejectsAnEmptySequence()
+    {
+        $this->expectException(InvalidAlignmentInputException::class);
+
+        $this->aligner->align(new DnaSequence(""), new DnaSequence("ACGT"), $this->scoring, -2);
+    }
 }

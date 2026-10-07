@@ -3,7 +3,7 @@
  * Doctrine Entity persisting a VcfVariant
  * Freely inspired by BioPHP's project biophp.org
  * Created 6 October 2026
- * Last modified 6 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -39,9 +39,10 @@ class VcfVariantRecord
     private string $chrom = "";
 
     /**
-     * @var int         1-based, VCF's own convention ; 0 or length + 1 for a telomere
+     * @var int         1-based, VCF's own convention ; 0 or length + 1 for a telomere. A 64-bit
+     * column : some chromosomes (lungfish, axolotl) are longer than a signed 32-bit integer allows.
      */
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(type: Types::BIGINT)]
     private int $position = 1;
 
     /**

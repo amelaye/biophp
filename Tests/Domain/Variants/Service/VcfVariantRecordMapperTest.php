@@ -47,6 +47,17 @@ class VcfVariantRecordMapperTest extends TestCase
         $this->assertSame($oOriginal->isPass(), $oRestored->isPass());
     }
 
+    /**
+     * SQLite stores every integer on 64 bits whatever the declared type, so the round trip above
+     * cannot catch a 32-bit column : MySQL's INT and PostgreSQL's integer stop at 2^31 - 1.
+     */
+    public function testPositionIsMappedToA64BitColumn()
+    {
+        $oMetadata = $this->createEntityManager()->getClassMetadata(VcfVariantRecord::class);
+
+        $this->assertSame("bigint", $oMetadata->getTypeOfField("position"));
+    }
+
     public static function variantProvider(): array
     {
         return [
@@ -55,6 +66,8 @@ class VcfVariantRecordMapperTest extends TestCase
             "symbolic structural allele" => [new VcfVariant("2", 5000, null, "N", ["<DEL>"], null, "q10")],
             "breakend notation" => [new VcfVariant("2", 321682, "bnd_V", "T", ["]13:123456]T"], 6.0, "PASS")],
             "telomeric breakend at POS 0" => [new VcfVariant("1", 0, "tel", "N", [".[1:1["], null, "PASS")],
+            // Beyond a signed 32-bit integer : lungfish and axolotl chromosomes are this long.
+            "position past 2^31" => [new VcfVariant("chr1", 3000000001, null, "G", ["A"], null, "PASS")],
         ];
     }
 

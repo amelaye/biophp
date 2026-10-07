@@ -3,7 +3,7 @@
  * Immutable value object describing the outcome of a pairwise sequence alignment
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -163,8 +163,10 @@ final class PairwiseAlignmentResult
 
     /**
      * The fraction of columns, among those where neither side is a gap, where both symbols are
-     * identical. Gap columns are excluded from both the numerator and the denominator, which is the
-     * usual "percent identity over aligned positions" convention.
+     * identical. Gap columns are excluded from both the numerator and the denominator : the
+     * "percent identity over aligned positions" convention. It ignores how gapped the alignment is
+     * ("ACGT----" against "ACGTTTTT" gives 1) ; BLAST and EMBOSS divide by the whole alignment
+     * length instead, see getIdentityOverLength().
      * @return  float       Between 0 and 1 ; 0 when every column involves a gap
      */
     public function getIdentity(): float
@@ -188,5 +190,25 @@ final class PairwiseAlignmentResult
         }
 
         return $iCompared === 0 ? 0.0 : $iMatching / $iCompared;
+    }
+
+    /**
+     * The fraction of all the alignment's columns, gap columns included, where both symbols are
+     * identical : the "Identity" BLAST and EMBOSS (needle, water) report. "ACGT----" against
+     * "ACGTTTTT" gives 4 / 8.
+     * @return  float       Between 0 and 1
+     */
+    public function getIdentityOverLength(): float
+    {
+        $iMatching = 0;
+        $iLength = $this->getLength();
+
+        for ($i = 0; $i < $iLength; $i++) {
+            if ($this->alignedFirst[$i] !== "-" && $this->alignedFirst[$i] === $this->alignedSecond[$i]) {
+                $iMatching++;
+            }
+        }
+
+        return $iMatching / $iLength;
     }
 }

@@ -119,4 +119,70 @@ class NewickReaderTest extends TestCase
 
         $this->reader->read("(A,B))C;");
     }
+
+    /**
+     * Blanks and newlines may appear anywhere but inside a label or a branch length : they used
+     * to end up in the names (" A ").
+     */
+    public function testIgnoresBlanksAndNewlinesBetweenTokens()
+    {
+        $oRoot = $this->reader->read("( A : 0.1 ,\n  B:0.2 ) ;\n");
+
+        $this->assertEquals(["A", "B"], $oRoot->getLeafNames());
+        $this->assertEquals(0.1, $oRoot->getChildren()[0]->getBranchLength());
+    }
+
+    /**
+     * Comments in square brackets, NHX annotations included, may appear wherever a blank may.
+     */
+    public function testSkipsCommentsAndNhxAnnotations()
+    {
+        $oRoot = $this->reader->read("[a tree](A:0.1[&&NHX:S=human],B[bootstrap]:0.2)95[root];");
+
+        $this->assertEquals(["A", "B"], $oRoot->getLeafNames());
+        $this->assertEquals(0.2, $oRoot->getChildren()[1]->getBranchLength());
+        $this->assertEquals("95", $oRoot->getName());
+    }
+
+    /**
+     * A quoted label may hold blanks and structural characters ; a quote in it is written twice.
+     * Underscores are kept, quoted or not.
+     */
+    public function testReadsQuotedLabels()
+    {
+        $oRoot = $this->reader->read("('Homo sapiens (human)':1,'O''Brien, sp.':2,seq_1:3);");
+
+        $this->assertEquals(["Homo sapiens (human)", "O'Brien, sp.", "seq_1"], $oRoot->getLeafNames());
+        $this->assertEquals(2.0, $oRoot->getChildren()[1]->getBranchLength());
+    }
+
+    /**
+     * toNewick() used to write such names bare, giving a Newick string that cannot be read back.
+     */
+    public function testWritesAndReadsBackNamesNeedingQuotes()
+    {
+        $sNewick = $this->reader->read("('Homo sapiens (human)':1,'O''Brien, sp.':2,seq_1:3,D:4);")->toNewick();
+
+        $this->assertEquals("('Homo sapiens (human)':1,'O''Brien, sp.':2,'seq_1':3,D:4);", $sNewick);
+        $this->assertEquals(
+            ["Homo sapiens (human)", "O'Brien, sp.", "seq_1", "D"],
+            $this->reader->read($sNewick)->getLeafNames()
+        );
+    }
+
+    public function testRejectsAnUnterminatedQuotedLabel()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("Unterminated quoted label");
+
+        $this->reader->read("('A,B);");
+    }
+
+    public function testRejectsAnUnterminatedComment()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("Unterminated comment");
+
+        $this->reader->read("(A[comment,B);");
+    }
 }

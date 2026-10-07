@@ -3,7 +3,7 @@
  * Immutable value object describing one node of a phylogenetic tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -138,12 +138,28 @@ final class PhylogeneticNode
             $sFragment .= "(" . implode(",", $aChildFragments) . ")";
         }
 
-        $sFragment .= $this->name ?? "";
+        $sFragment .= $this->name === null ? "" : self::newickLabel($this->name);
 
         if ($this->branchLength !== null) {
             $sFragment .= ":" . $this->branchLength;
         }
 
         return $sFragment;
+    }
+
+    /**
+     * A name holding a blank, a quote or a character Newick uses for its structure is quoted, its
+     * quotes doubled : written bare, it would not read back as the same name. So is a name holding
+     * an underscore, which a reader following the specification turns into a blank.
+     * @param   string      $sName
+     * @return  string
+     */
+    private static function newickLabel(string $sName): string
+    {
+        if ($sName !== "" && !preg_match("/[\\s(),:;\\[\\]'_]/", $sName)) {
+            return $sName;
+        }
+
+        return "'" . str_replace("'", "''", $sName) . "'";
     }
 }

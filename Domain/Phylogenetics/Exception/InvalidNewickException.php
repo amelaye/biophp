@@ -3,7 +3,7 @@
  * Raised when a string cannot be parsed as a Newick tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -73,5 +73,25 @@ class InvalidNewickException extends \InvalidArgumentException
         return new self(
             sprintf('Invalid branch length "%s" at position %d.', $sValue, $iPosition)
         );
+    }
+
+    /**
+     * Builds the exception raised when a quoted label ('...') is never closed.
+     * @param   int         $iPosition  Where the label opens
+     * @return  InvalidNewickException
+     */
+    public static function unterminatedQuotedLabel(int $iPosition): self
+    {
+        return new self(sprintf('Unterminated quoted label opened at position %d.', $iPosition));
+    }
+
+    /**
+     * Builds the exception raised when a comment ([...]) is never closed.
+     * @param   int         $iPosition  Where the comment opens
+     * @return  InvalidNewickException
+     */
+    public static function unterminatedComment(int $iPosition): self
+    {
+        return new self(sprintf('Unterminated comment opened at position %d.', $iPosition));
     }
 }

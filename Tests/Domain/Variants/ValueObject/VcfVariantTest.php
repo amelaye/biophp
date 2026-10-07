@@ -73,4 +73,23 @@ class VcfVariantTest extends TestCase
 
         new VcfVariant("chr1", 1, null, "", [], null, null);
     }
+
+    /**
+     * REF only ever holds bases : a symbolic allele, a breakend or a "." belongs to ALT. The
+     * IUPAC codes some reference genomes hold (GRCh37) are tolerated, in either case.
+     */
+    public function testRejectsAReferenceThatIsNoBases()
+    {
+        foreach (["<DEL>", ".", "-", "A C"] as $sReference) {
+            try {
+                new VcfVariant("chr1", 1, null, $sReference, ["G"], null, null);
+                $this->fail("REF " . $sReference . " should have been rejected.");
+            } catch (InvalidVcfRecordException $ex) {
+                $this->assertStringContainsString("REF must be bases", $ex->getMessage());
+            }
+        }
+
+        $this->assertEquals("acgtn", (new VcfVariant("chr1", 1, null, "acgtn", [], null, null))->getReference());
+        $this->assertEquals("R", (new VcfVariant("chr3", 60830534, null, "R", ["A"], null, null))->getReference());
+    }
 }

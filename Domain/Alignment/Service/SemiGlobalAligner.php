@@ -3,7 +3,7 @@
  * Semi-global (overlap) pairwise sequence alignment by dynamic programming
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -58,6 +58,9 @@ class SemiGlobalAligner implements SemiGlobalAlignerInterface
         $sSecond = $oSecond->getValue();
         $iFirstLength = strlen($sFirst);
         $iSecondLength = strlen($sSecond);
+        if ($iFirstLength === 0 || $iSecondLength === 0) {
+            throw InvalidAlignmentInputException::emptyAlignedSequence();
+        }
 
         [$aMatrix, $iBestI, $iBestJ, $iBestScore] = $this->buildMatrix(
             $sFirst,
@@ -126,21 +129,24 @@ class SemiGlobalAligner implements SemiGlobalAlignerInterface
         }
 
         // The best endpoint is the highest score among the last row and the last column - the only
-        // cells where at least one of the two sequences has been fully consumed. Both (firstLength, 0)
-        // and (0, secondLength) always score exactly zero, so the best candidate is never negative.
-        $iBestScore = 0;
+        // cells where at least one of the two sequences has been fully consumed. The two corners
+        // (firstLength, 0) and (0, secondLength) are left out : they align no column at all, and
+        // always score zero. Leaving them in made two sequences whose best overlap scores zero or
+        // less give an empty alignment, which no result can hold ; such an overlap is now reported
+        // with its own score, negative or not.
+        $iBestScore = null;
         $iBestI = $iFirstLength;
-        $iBestJ = 0;
+        $iBestJ = 1;
 
-        for ($j = 0; $j <= $iSecondLength; $j++) {
-            if ($aMatrix[$iFirstLength][$j] > $iBestScore) {
+        for ($j = 1; $j <= $iSecondLength; $j++) {
+            if ($iBestScore === null || $aMatrix[$iFirstLength][$j] > $iBestScore) {
                 $iBestScore = $aMatrix[$iFirstLength][$j];
                 $iBestI = $iFirstLength;
                 $iBestJ = $j;
             }
         }
 
-        for ($i = 0; $i <= $iFirstLength; $i++) {
+        for ($i = 1; $i <= $iFirstLength; $i++) {
             if ($aMatrix[$i][$iSecondLength] > $iBestScore) {
                 $iBestScore = $aMatrix[$i][$iSecondLength];
                 $iBestI = $i;

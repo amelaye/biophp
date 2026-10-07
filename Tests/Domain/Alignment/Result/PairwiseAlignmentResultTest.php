@@ -56,4 +56,14 @@ class PairwiseAlignmentResultTest extends TestCase
 
         $this->assertEquals(0.0, $oResult->getIdentity());
     }
+
+    public function testIdentityOverLengthCountsTheGapColumnsAsBlastAndEmbossDo()
+    {
+        $oResult = new PairwiseAlignmentResult("ACGT----", "ACGTTTTT", 0, 0, 3, 0, 7);
+
+        // Over aligned positions only, the four gap columns vanish : 4 / 4.
+        $this->assertEquals(1.0, $oResult->getIdentity());
+        // Over the whole alignment, as BLAST and EMBOSS needle report it : 4 / 8.
+        $this->assertEquals(0.5, $oResult->getIdentityOverLength());
+    }
 }
