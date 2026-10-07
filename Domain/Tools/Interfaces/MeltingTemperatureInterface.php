@@ -3,7 +3,7 @@
  * Primer melting temperature and GC content calculation Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -43,14 +43,15 @@ interface MeltingTemperatureInterface
     public function calculateMaximumTm(string $sPrimer): float;
 
     /**
-     * Nearest-neighbor thermodynamics (SantaLucia 1998), with the von Ahsen (1999) salt/Mg
-     * correction.
-     * @param   string      $sPrimer                    Must contain only A, C, G, T - no degenerate
-     * symbol
-     * @param   float         $iPrimerConcentration
-     * @param   float         $iSaltConcentration
-     * @param   float         $iMagnesiumConcentration
+     * Nearest-neighbor thermodynamics (SantaLucia 1998), Mg2+ converted into its sodium equivalent
+     * (von Ahsen et al. 2001), a self-complementary primer handled as such.
+     * @param   string      $sPrimer                    Must contain only A, C, G, T (either case) - no
+     * degenerate symbol
+     * @param   float       $iPrimerConcentration       Total strand concentration, nM, positive
+     * @param   float       $iSaltConcentration         Monovalent cations (Na+, K+), mM
+     * @param   float       $iMagnesiumConcentration    Free Mg2+, mM
      * @return  NearestNeighborTmResult
+     * @throws  \InvalidArgumentException  For a degenerate primer or an impossible concentration
      */
     public function calculateNearestNeighborTm(
         string $sPrimer,

@@ -101,19 +101,69 @@ class MeltingTemperatureCalculatorTest extends TestCase
     }
 
     /**
-     * Independently re-derived with a standalone PHP script using the same published SantaLucia
-     * values before being written here (see the commit's own verification) :
-     * H=-22.80 kcal/mol, S=-67.11 cal/(mol*K), Tm=-42.1 degrees C, for primer "ACGT",
-     * 250 nM primer / 50 mM salt / 0 mM Mg2+. A very short 4-mer's nearest-neighbor Tm coming out
-     * negative is an expected edge case of the model (meant for much longer primers), not a bug.
+     * "ACGT" is self-complementary : its entropy carries the -1.4 e.u. symmetry term and its
+     * concentration term is ln(Ct), not ln(Ct/4). H=-22.80 kcal/mol, S=-68.51 cal/(mol*K) ;
+     * Biopython's Tm_NN (DNA_NN3, saltcorr=5, selfcomp) gives -42.18 degrees C, at 250 nM primer /
+     * 50 mM salt / 0 mM Mg2+. A 4-mer's Tm coming out negative is an expected edge case of the
+     * model (meant for much longer primers), not a bug.
      */
     public function testCalculatesNearestNeighborTmEnthalpyAndEntropy()
     {
         $oResult = $this->calculator->calculateNearestNeighborTm("ACGT", 250, 50, 0);
 
         $this->assertEqualsWithDelta(-22.80, $oResult->getEnthalpy(), 0.001);
-        $this->assertEqualsWithDelta(-67.11, $oResult->getEntropy(), 0.001);
-        $this->assertEqualsWithDelta(-42.1, $oResult->getTm(), 0.001);
+        $this->assertEqualsWithDelta(-68.51, $oResult->getEntropy(), 0.001);
+        $this->assertEqualsWithDelta(-42.2, $oResult->getTm(), 0.001);
+    }
+
+    /**
+     * A non-self-complementary 20-mer, against Biopython 1.88's Tm_NN (DNA_NN3, saltcorr=5, the two
+     * strands at Ct/2 each). The legacy code used ln(Ct/2) instead of ln(Ct/4) and 140 x [Mg2+]
+     * instead of 120 x sqrt([Mg2+]) : 1.5 mM Mg2+ then counted as 260 mM Na+, not 197 mM.
+     */
+    public static function biopythonReferences(): array
+    {
+        return [
+            "no magnesium"       => [250, 50, 0, 56.83],
+            "1.5 mM magnesium"   => [250, 50, 1.5, 63.59],
+            "500 nM, 2 mM Mg2+"  => [500, 50, 2, 65.13],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('biopythonReferences')]
+    public function testNearestNeighborTmMatchesBiopython(float $fPrimer, float $fSalt, float $fMagnesium, float $fExpected)
+    {
+        $oResult = $this->calculator->calculateNearestNeighborTm("AGCGTACGTTAGCCATGCAA", $fPrimer, $fSalt, $fMagnesium);
+
+        $this->assertEqualsWithDelta($fExpected, $oResult->getTm(), 0.051);
+    }
+
+    public function testALowerCasePrimerGivesTheSameResults()
+    {
+        // A lower-case primer used to count no base at all : Tm 0 and GC% 0.
+        $this->assertEquals(
+            $this->calculator->calculateNearestNeighborTm("AGCGTACGTTAGCCATGCAA", 250, 50, 1.5),
+            $this->calculator->calculateNearestNeighborTm("agcgtacgttagccatgcaa", 250, 50, 1.5)
+        );
+        // 10 G+C over 20 bases : 64.9 + 41 x (10 - 16.4) / 20 = 51.8
+        $this->assertEquals(51.8, $this->calculator->calculateMinimumTm("agcgtacgttagccatgcaa"));
+        $this->assertEquals(50.0, $this->calculator->calculateGcPercent("acgt"));
+        // A degenerate N says nothing about G/C : left out, like every GC content of the library.
+        $this->assertEquals(100.0, $this->calculator->calculateGcPercent("GCNN"));
+    }
+
+    public function testRejectsAnImpossibleConcentration()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->calculator->calculateNearestNeighborTm("AGCGTACGTTAGCCATGCAA", 0, 50, 0);
+    }
+
+    public function testRejectsAReactionWithNeitherSaltNorMagnesium()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->calculator->calculateNearestNeighborTm("AGCGTACGTTAGCCATGCAA", 250, 0, 0);
     }
 
     public function testRejectsADegeneratePrimerForNearestNeighborTm()

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractNucleicSequence;
 use Amelaye\BioPHP\Domain\Tools\Interfaces\SkewCalculatorInterface;
 use Amelaye\BioPHP\Domain\Tools\ValueObject\SkewResult;
 
@@ -50,7 +51,7 @@ class SkewCalculator implements SkewCalculatorInterface
             $iGcSum === 0 ? 0.0 : ($iG - $iC) / $iGcSum,
             $iAtSum === 0 ? 0.0 : ($iA - $iT) / $iAtSum,
             $iTotal === 0 ? 0.0 : ($iG + $iT - $iA - $iC) / $iTotal,
-            $iTotal === 0 ? 0.0 : $iGcSum / $iTotal
+            AbstractNucleicSequence::gcFraction($sUpper)
         );
     }
 

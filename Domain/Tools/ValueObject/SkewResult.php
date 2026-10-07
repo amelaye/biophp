@@ -35,7 +35,8 @@ final class SkewResult
     private float $ketoSkew;
 
     /**
-     * @var     float       (G+C)/(A+C+G+T) ; 0.0 for an empty window
+     * @var     float       AbstractNucleicSequence::gcFraction() : (G+C+S)/(A+C+G+T+S+W) ; 0.0 for
+     * a window with none of these bases
      */
     private float $gcContent;
 

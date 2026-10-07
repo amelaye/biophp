@@ -215,6 +215,10 @@ class SequenceManager
      * The IUPAC ambiguity codes are resolved here into the lightest and the heaviest base they
      * stand for : that is what makes the lower and the upper limit differ. On a sequence holding
      * only canonical bases, both limits are equal.
+     * The weight is that of a neutral single strand carrying a 5' phosphate and a 3' hydroxyl, as a
+     * fragment cut by an enzyme does : the sum of its nucleotide residues (each a nucleoside
+     * monophosphate less one water, dA 313.2) plus one water (18.015). A synthetic oligonucleotide,
+     * which has a 5' hydroxyl, weighs 79.98 (HPO3) less - OligoCalc's sum of residues - 61.96.
      * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string        $sSequence    The sequence
      * @param   string        $sMolType     DNA or RNA

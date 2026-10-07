@@ -3,13 +3,14 @@
  * Calculates a primer's GC content and melting temperature
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\TmBaseStackingApiAdapter;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractNucleicSequence;
 use Amelaye\BioPHP\Domain\Tools\Interfaces\MeltingTemperatureInterface;
 use Amelaye\BioPHP\Domain\Tools\Result\NearestNeighborTmResult;
 
@@ -20,10 +21,15 @@ use Amelaye\BioPHP\Domain\Tools\Result\NearestNeighborTmResult;
  * whether it could possibly BE an A/T or is guaranteed C/G/S - then apply the classic Wallace-style
  * count formula (2 degrees per weak base + 4 per strong base under 14 bases, the empirical long-
  * primer formula from 14 bases up). calculateNearestNeighborTm() is SantaLucia (1998)'s unified
- * nearest-neighbor thermodynamics, with von Ahsen et al. (1999)'s salt/Mg correction ; unlike the
- * legacy biotools version, which returned a sentinel array of nulls plus a message for a degenerate
- * primer, this throws - the nearest-neighbor method has no defined thermodynamic parameters for an
- * ambiguous base pair, so there is no result to return.
+ * nearest-neighbor thermodynamics : Tm = dH / (dS + R ln(Ct/x)), x = 4 for two complementary strands
+ * at equal concentration, x = 1 (plus a -1.4 e.u. symmetry term) for a self-complementary primer,
+ * whose two strands are the same molecule. Mg2+ is converted into its sodium equivalent,
+ * [Na+] + 120 x sqrt([Mg2+]) in mM (von Ahsen et al., Clin Chem 2001), then corrects the entropy by
+ * 0.368 x (N - 1) x ln[Na+] (SantaLucia 1998) ; the results agree with Biopython's Tm_NN (DNA_NN3,
+ * saltcorr=5). The legacy biotools version used Ct/2 and 140 x [Mg2+]. Unlike it, which returned a
+ * sentinel array of nulls plus a message for a degenerate primer, this throws - the nearest-neighbor
+ * method has no defined thermodynamic parameters for an ambiguous base pair, so there is no result
+ * to return. A primer may be written in lower case.
  * Class MeltingTemperatureCalculator
  * @package Amelaye\BioPHP\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -59,11 +65,7 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
      */
     public function calculateGcPercent(string $sPrimer): float
     {
-        if ($sPrimer === "") {
-            return 0.0;
-        }
-
-        return round(100 * GeneticsFunctions::CountCG($sPrimer) / strlen($sPrimer), 1);
+        return round(100 * AbstractNucleicSequence::gcFraction($sPrimer), 1);
     }
 
     /**
@@ -72,7 +74,7 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
      */
     public function calculateMinimumTm(string $sPrimer): float
     {
-        return $this->calculateBasicTm($this->toWeakestReading($sPrimer));
+        return $this->calculateBasicTm($this->toWeakestReading(strtoupper($sPrimer)));
     }
 
     /**
@@ -81,14 +83,14 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
      */
     public function calculateMaximumTm(string $sPrimer): float
     {
-        return $this->calculateBasicTm($this->toStrongestReading($sPrimer));
+        return $this->calculateBasicTm($this->toStrongestReading(strtoupper($sPrimer)));
     }
 
     /**
      * @param   string      $sPrimer
-     * @param   float         $iPrimerConcentration
-     * @param   float         $iSaltConcentration
-     * @param   float         $iMagnesiumConcentration
+     * @param   float       $iPrimerConcentration       Total strand concentration, nM
+     * @param   float       $iSaltConcentration         Monovalent cations (Na+, K+), mM
+     * @param   float       $iMagnesiumConcentration    Free Mg2+, mM
      * @return  NearestNeighborTmResult
      */
     public function calculateNearestNeighborTm(
@@ -97,18 +99,29 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
         float $iSaltConcentration,
         float $iMagnesiumConcentration
     ): NearestNeighborTmResult {
+        $sPrimer = strtoupper($sPrimer);
         if (GeneticsFunctions::CountACGT($sPrimer) !== strlen($sPrimer)) {
             throw new \InvalidArgumentException(
                 "Nearest-neighbor Tm cannot be computed on a primer containing degenerate nucleotides."
             );
         }
+        if ($iPrimerConcentration <= 0 || $iSaltConcentration < 0 || $iMagnesiumConcentration < 0) {
+            throw new \InvalidArgumentException(
+                "Primer concentration must be positive, salt and magnesium concentrations not negative."
+            );
+        }
+
+        // Sodium equivalent of the monovalent cations and Mg2+, in mM ; von Ahsen et al. 2001
+        $fSodiumEquivalent = $iSaltConcentration + 120 * sqrt($iMagnesiumConcentration);
+        if ($fSodiumEquivalent <= 0) {
+            throw new \InvalidArgumentException("Nearest-neighbor Tm needs some salt or magnesium.");
+        }
 
         $fEnthalpy = 0.0;
         $fEntropy = 0.0;
 
-        // Effect on entropy of salt concentration, and the added stabilization from Mg2+ ; von Ahsen et al. 1999
-        $fSaltEffect = ($iSaltConcentration / 1000) + (($iMagnesiumConcentration / 1000) * 140);
-        $fEntropy += 0.368 * (strlen($sPrimer) - 1) * log($fSaltEffect);
+        // Effect on entropy of the salt concentration ; SantaLucia 1998
+        $fEntropy += 0.368 * (strlen($sPrimer) - 1) * log($fSodiumEquivalent / 1000);
 
         // Terminal corrections ; SantaLucia 1998
         $sFirstBase = substr($sPrimer, 0, 1);
@@ -137,7 +150,16 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
             $fEntropy += $this->entropyValues[$sDinucleotide];
         }
 
-        $fTm = ((1000 * $fEnthalpy) / ($fEntropy + (1.987 * log($iPrimerConcentration / 2000000000)))) - 273.15;
+        // A self-complementary primer pairs with itself : its strand concentration is not shared
+        // between two species (x = 1 instead of 4) and its duplex has a twofold symmetry.
+        $bSelfComplementary = $sPrimer === strrev(strtr($sPrimer, "ACGT", "TGCA"));
+        $fConcentrationFactor = 4;
+        if ($bSelfComplementary) {
+            $fEntropy += -1.4;
+            $fConcentrationFactor = 1;
+        }
+
+        $fTm = ((1000 * $fEnthalpy) / ($fEntropy + (1.987 * log($iPrimerConcentration / ($fConcentrationFactor * 1000000000))))) - 273.15;
 
         return new NearestNeighborTmResult(round($fTm, 1), round($fEnthalpy, 2), round($fEntropy, 2));
     }

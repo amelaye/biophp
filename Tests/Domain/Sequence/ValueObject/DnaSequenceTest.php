@@ -104,6 +104,22 @@ class DnaSequenceTest extends TestCase
         $this->assertEquals(0.0, (new DnaSequence("AT"))->getGcContent());
     }
 
+    /**
+     * The library computed the GC content three ways : N counted in the length here, left out by
+     * the skew calculator, S counted here but not for primers. "GCNN" gave 50 % or 100 %, "GCSS"
+     * 100 % or 50 %. N tells nothing about G/C : it is left out, as Biopython's gc_fraction does.
+     */
+    public function testEveryGcContentUsesTheSameDefinition()
+    {
+        $this->assertEquals(100.0, (new DnaSequence("GCNN"))->getGcContent());
+        $this->assertEquals(75.0, (new DnaSequence("GCSW"))->getGcContent());
+        $this->assertEquals(0.0, (new DnaSequence("NNNN"))->getGcContent());
+        $this->assertEquals(0.5, DnaSequence::gcFraction("gcau"));
+
+        $oSkew = (new \Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator())->calculate("GCSWNN");
+        $this->assertEquals(0.75, $oSkew->getGcContent());
+    }
+
     public function testGcContentOfAnEmptySequenceIsZero()
     {
         $this->assertEquals(0.0, (new DnaSequence(""))->getGcContent());

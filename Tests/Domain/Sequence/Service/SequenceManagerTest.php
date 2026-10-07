@@ -263,6 +263,10 @@ class SequenceManagerTest extends TestCase
         // A + T + G + C + water, both limits equal since no symbol is degenerated
         $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 3));
         $this->assertEquals(1253.945, round($sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 3));
+        // The convention : a 5'-phosphate, 3'-OH strand. One dA weighs dAMP itself (331.2), and
+        // ATGC is OligoCalc's synthetic 5'-OH weight (1235.93 - 61.96 = 1173.97) plus HPO3 (79.98).
+        $this->assertEqualsWithDelta(331.22, $sequenceManager->molwt("upperlimit", "A", "DNA", 1), 0.05);
+        $this->assertEqualsWithDelta(1173.97 + 79.98, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.01);
     }
 
     /**

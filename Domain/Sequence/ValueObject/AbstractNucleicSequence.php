@@ -3,7 +3,7 @@
  * Immutable value object shared by the nucleic acid sequences
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -55,18 +55,29 @@ abstract class AbstractNucleicSequence extends AbstractMolecularSequence
     }
 
     /**
-     * Proportion of guanine and cytosine in the sequence, expressed as a percentage. The
-     * degenerated symbol S, which stands for G or C, is counted as well.
-     * @return  float                       0 when the sequence is empty
+     * Proportion of guanine and cytosine in the sequence, expressed as a percentage : see gcFraction().
+     * @return  float                       0 when the sequence holds no base telling G/C from A/T
      */
     public function getGcContent() : float
     {
-        if ($this->isEmpty()) {
-            return 0.0;
-        }
+        return self::gcFraction($this->getValue()) * 100;
+    }
 
-        $iGc = $this->countSymbol("G") + $this->countSymbol("C") + $this->countSymbol("S");
+    /**
+     * Proportion of strong bases (G, C, and S standing for either) among the bases known to be
+     * strong or weak (A, T, U, W and those) : an N, or any other ambiguity code mixing both, tells
+     * nothing about it and is left out of the count, as Biopython's gc_fraction does by default.
+     * "GCNN" gives 1, "GCSW" 0.75. The one definition every GC content of this library uses.
+     * @param   string      $sSequence      Either case
+     * @return  float                       Between 0 and 1 ; 0 when no base tells G/C from A/T
+     */
+    public static function gcFraction(string $sSequence) : float
+    {
+        $sUpper = strtoupper($sSequence);
+        $iStrong = substr_count($sUpper, "G") + substr_count($sUpper, "C") + substr_count($sUpper, "S");
+        $iWeak = substr_count($sUpper, "A") + substr_count($sUpper, "T") + substr_count($sUpper, "U")
+            + substr_count($sUpper, "W");
 
-        return ($iGc / $this->getLength()) * 100;
+        return $iStrong + $iWeak === 0 ? 0.0 : $iStrong / ($iStrong + $iWeak);
     }
 }
