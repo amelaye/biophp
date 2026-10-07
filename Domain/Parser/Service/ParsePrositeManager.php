@@ -3,7 +3,7 @@
  * PROSITE motif database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -274,7 +274,9 @@ final class ParsePrositeManager implements ParseDatabaseInterface
 
     /**
      * Turns the DR field into a list of PrositeDbRef.
-     * Format : DR   ACCESSION, ENTRY_NAME, T|F|N; ACCESSION, ENTRY_NAME, T|F|N; ...
+     * Format : DR   ACCESSION, ENTRY_NAME, CODE; ACCESSION, ENTRY_NAME, CODE; ...
+     * CODE is T (true positive), N (false negative : a member the motif misses), P (potential : a
+     * member known from a fragment lacking the motif's region), ? (unknown) or F (false positive).
      * @param   string      $sText
      * @return  PrositeDbRefInterface[]
      */
@@ -290,6 +292,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
             $oDbRef->setAccession($aFields[0]);
             $oDbRef->setEntryName($aFields[1]);
             $oDbRef->setTruePositive($aFields[2] == "T");
+            $oDbRef->setCategory($aFields[2]);
             $aResult[] = $oDbRef;
         }
         return $aResult;

@@ -3,7 +3,7 @@
  * One SWISS-PROT cross-reference (DR field) from a PROSITE motif entry
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -32,6 +32,14 @@ class PrositeDbRef implements PrositeDbRefInterface
      * @var bool
      */
     private bool $truePositive = false;
+
+    /**
+     * The PROSITE code of the match : T true positive, N false negative (a member of the family
+     * the motif misses), P potential (a member known from a fragment lacking the motif's region),
+     * ? unknown, F false positive.
+     * @var string
+     */
+    private string $category = "";
 
     /**
      * @return string
@@ -79,5 +87,31 @@ class PrositeDbRef implements PrositeDbRefInterface
     public function setTruePositive(bool $truePositive): void
     {
         $this->truePositive = $truePositive;
+    }
+
+    /**
+     * @return string   T, N, P, ? or F
+     */
+    public function getCategory(): string
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param string $category
+     */
+    public function setCategory(string $category): void
+    {
+        $this->category = $category;
+    }
+
+    /**
+     * Tells whether the sequence belongs to the family the motif describes, detected (T) or not
+     * (N, P) - unlike isTruePositive(), which a missed member fails too.
+     * @return bool
+     */
+    public function isFamilyMember(): bool
+    {
+        return in_array($this->category, ["T", "N", "P"], true);
     }
 }

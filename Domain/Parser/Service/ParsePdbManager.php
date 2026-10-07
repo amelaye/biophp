@@ -3,7 +3,7 @@
  * PDB (Protein Data Bank) database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -198,9 +198,14 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @throws  \Exception
      */
     public function parseDataFile(array $aFlines) {
+        // An NMR structure holds several models of the same atoms, each between MODEL n and ENDMDL.
+        $iModel = 1;
         foreach ($aFlines as $sLine) {
             $sRecord = trim(substr($sLine, 0, 6));
             switch ($sRecord) {
+                case "MODEL":
+                    $iModel = (int) trim(substr($sLine, 10, 4));
+                    break;
                 case "HEADER":
                     $this->parseHeader($sLine);
                     break;
@@ -235,10 +240,10 @@ final class ParsePdbManager implements ParseDatabaseInterface
                     $this->parseCryst1($sLine);
                     break;
                 case "ATOM":
-                    $this->atoms[] = $this->parseAtom($sLine);
+                    $this->atoms[] = $this->parseAtom($sLine, $iModel);
                     break;
                 case "HETATM":
-                    $this->hetAtoms[] = $this->parseAtom($sLine);
+                    $this->hetAtoms[] = $this->parseAtom($sLine, $iModel);
                     break;
             }
         }
@@ -386,11 +391,13 @@ final class ParsePdbManager implements ParseDatabaseInterface
     /**
      * Parses one ATOM or HETATM line.
      * Columns : 7-11 serial, 13-16 name, 17 altLoc, 18-20 resName, 22 chainID,
-     * 23-26 resSeq, 31-38 x, 39-46 y, 47-54 z, 55-60 occupancy, 61-66 tempFactor, 77-78 element.
+     * 23-26 resSeq, 27 iCode, 31-38 x, 39-46 y, 47-54 z, 55-60 occupancy, 61-66 tempFactor,
+     * 77-78 element.
      * @param   string      $sLine
+     * @param   int         $iModel     The MODEL the line belongs to
      * @return  PdbAtomInterface
      */
-    private function parseAtom(string $sLine) : PdbAtomInterface {
+    private function parseAtom(string $sLine, int $iModel) : PdbAtomInterface {
         $oAtom = new PdbAtom();
         $oAtom->setSerial((int) trim(substr($sLine, 6, 5)));
         $oAtom->setName(trim(substr($sLine, 12, 4)));
@@ -398,6 +405,8 @@ final class ParsePdbManager implements ParseDatabaseInterface
         $oAtom->setResName(trim(substr($sLine, 17, 3)));
         $oAtom->setChainId(trim(substr($sLine, 21, 1)));
         $oAtom->setResSeq((int) trim(substr($sLine, 22, 4)));
+        $oAtom->setICode(trim(substr($sLine, 26, 1)));
+        $oAtom->setModel($iModel);
         $oAtom->setX((float) trim(substr($sLine, 30, 8)));
         $oAtom->setY((float) trim(substr($sLine, 38, 8)));
         $oAtom->setZ((float) trim(substr($sLine, 46, 8)));

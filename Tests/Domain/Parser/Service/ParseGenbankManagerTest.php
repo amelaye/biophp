@@ -101,6 +101,10 @@ class ParseGenbankManagerTest extends WebTestCase
         $sSequence.= "ttttggatat ttaatcctta cttgggaaaa aatcagcatc taggtaaatt attattttaa taacaactct taaattgcca ";
         $sSequence.= "acctctgaga ggtgaaaagc tatgtaaata gaaggaatgg ccagttcaaa agaatagtag atgtgatagt gccgtgaatg ";
         $sSequence.= "tattctactg gaaatgaatg taataataca ttaaattttt aaaatcta";
+        // Written here in the file's blocks of ten for readability : the sequence itself holds
+        // only its 3488 bases, as LOCUS says, not the spaces between the blocks.
+        $sSequence = str_replace(" ", "", $sSequence);
+        $this->assertEquals(3488, strlen($sSequence));
         $oExpectedSequence->setSequence($sSequence);
         $oExpectedSequence->setDescription("Homo sapiens nudix hydrolase 12 (NUDT12), transcript variant 1, mRNA.");
         $organism = ['Homo sapiens','Eukaryota','Metazoa','Chordata', 'Craniata', 'Vertebrata', 'Euteleostomi', 'Mammalia',
@@ -265,6 +269,14 @@ class ParseGenbankManagerTest extends WebTestCase
         $oAuthor->setRefno("6");
         $oAuthor->setAuthor("Silverman EK");
         $aExpectedAuthors[] = $oAuthor;
+        // The CONSRTM line, which used to be skipped, names two consortia.
+        foreach (["COPDGene Investigators", "ECLIPSE Investigators"] as $sConsortium) {
+            $oAuthor = new Author();
+            $oAuthor->setPrimAcc("NM_031438");
+            $oAuthor->setRefno("6");
+            $oAuthor->setAuthor($sConsortium);
+            $aExpectedAuthors[] = $oAuthor;
+        }
         $oAuthor = new Author();
         $oAuthor->setPrimAcc("NM_031438");
         $oAuthor->setRefno("7");
@@ -1238,5 +1250,93 @@ class ParseGenbankManagerTest extends WebTestCase
         ]);
 
         $this->assertSame(["CDS|1|30|+|note=cleaved at the 5' /3' junction", "CDS|1|30|+|gene=x"], $aRows);
+    }
+
+    /**
+     * A reference ending with a JOURNAL wrapped onto a second line, as every NCBI direct
+     * submission does ("Submitted (...) Dept, City" / "Zip, Country"), used to leave the parser on
+     * the FEATURES line : the main loop then stepped over it and the record lost every feature.
+     * This is the start of NCBI's own sample record U49845.
+     */
+    public function testAReferenceEndingWithAWrappedJournalKeepsTheFeaturesAfterIt()
+    {
+        $aLines = [
+            "LOCUS       SCU49845                5028 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "ACCESSION   U49845\n",
+            "REFERENCE   1  (bases 1 to 5028)\n",
+            "  AUTHORS   Roemer,T., Madden,K., Chang,J. and Snyder,M.\n",
+            "  TITLE     Selection of axial growth sites in yeast requires Axl2p, a novel\n",
+            "            plasma membrane glycoprotein\n",
+            "  JOURNAL   Genes Dev. 10 (7), 777-793 (1996)\n",
+            "  PUBMED    8846915\n",
+            "REFERENCE   2  (bases 1 to 5028)\n",
+            "  AUTHORS   Roemer,T.\n",
+            "  TITLE     Direct Submission\n",
+            "  JOURNAL   Submitted (22-FEB-1996) Biology, Yale University, New Haven, CT\n",
+            "            06520, USA\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     source          1..5028\n",
+            "                     /organism=\"Saccharomyces cerevisiae\"\n",
+            "     CDS             <1..206\n",
+            "                     /codon_start=3\n",
+            "ORIGIN\n",
+            "        1 gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg\n",
+            "       61 ccgacatgag\n",
+            "//\n",
+        ];
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        $this->assertCount(2, $oParser->getFeatures());
+        $this->assertCount(2, $oParser->getReferences());
+        $this->assertEquals("Selection of axial growth sites in yeast requires Axl2p, a novel plasma membrane glycoprotein", $oParser->getReferences()[0]->getTitle());
+        $this->assertEquals("8846915", $oParser->getReferences()[0]->getPubmed());
+        $this->assertEquals("Submitted (22-FEB-1996) Biology, Yale University, New Haven, CT 06520, USA", $oParser->getReferences()[1]->getJournal());
+        // Classic style : a name keeps its comma and initials.
+        $this->assertEquals(
+            ["Roemer,T.", "Madden,K.", "Chang,J.", "Snyder,M.", "Roemer,T."],
+            array_map(fn(Author $oAuthor) => $oAuthor->getAuthor(), $oParser->getAuthors())
+        );
+        // The ORIGIN lines give the bases only : no position, no space between blocks of ten.
+        $this->assertEquals("gatcctccatatacaacggtatctccacctcaggtttagatctcaacaacggaaccattgccgacatgag", $oParser->getSequence()->getSequence());
+    }
+
+    /**
+     * order() and a segment of another entry used to give from = 0 (the text was cast to int),
+     * "102.110" (one base within 102..110) gave 102..102, and the other entry's coordinates were
+     * taken as this sequence's own.
+     */
+    public static function locations(): array
+    {
+        return [
+            "order()"                  => ["order(10..20,30..40)", 10, 40, "+"],
+            "segment of another entry" => ["join(J00194.1:100..202,1..50)", 1, 50, "+"],
+            "only another entry"       => ["J00194.1:100..202", null, null, "+"],
+            "one base within a range"  => ["102.110", 102, 110, "+"],
+            "site between two bases"   => ["123^124", 123, 124, "+"],
+            "partial ends"             => ["<1..>206", 1, 206, "+"],
+            "spliced, reverse"         => ["complement(join(2691..4571,4918..5163))", 2691, 5163, "-"],
+            "spliced, listed 3' first" => ["join(complement(4918..5163),complement(2691..4571))", 2691, 5163, "-"],
+            "join across the origin"   => ["join(4900..5000,1..100)", 4900, 100, "+"],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('locations')]
+    public function testLocationBounds(string $sLocation, ?int $iFrom, ?int $iTo, string $sStrand)
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "FEATURES             Location/Qualifiers\n",
+            "     misc_feature    " . $sLocation . "\n",
+            "                     /note=\"test\"\n",
+            "ORIGIN\n",
+            "//\n",
+        ]);
+        $oFeature = $oParser->getFeatures()[0];
+
+        $this->assertSame([$iFrom, $iTo, $sStrand], [$oFeature->getFtFrom(), $oFeature->getFtTo(), $oFeature->getStrand()]);
+        $this->assertEquals($sLocation, $oFeature->getFtLocation());
+        $this->assertSame(strpbrk($sLocation, "<>") !== false, $oFeature->isPartial());
     }
 }

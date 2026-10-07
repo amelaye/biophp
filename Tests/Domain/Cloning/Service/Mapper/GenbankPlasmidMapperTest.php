@@ -345,4 +345,37 @@ class GenbankPlasmidMapperTest extends TestCase
         ], $aActual);
         $this->assertSame("ribosome_binding_site", $oResult->getPlasmid()->getFeatures()[4]->getMetadata()["regulatoryClass"]);
     }
+
+    /**
+     * A join() crossing the origin of a circular record used to collapse into its lowest start and
+     * highest end (1..40 : the whole plasmid). Its segments, read in the order they are transcribed,
+     * give 35..5, crossing the origin, on either strand.
+     */
+    public function testAJoinCrossingTheOriginOfAGenbankRecordCrossesItInThePlasmid()
+    {
+        $aLines = [
+            "LOCUS       TESTPLAS                  40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     CDS             join(35..40,1..5)\n",
+            "                     /gene=\"wrap\"\n",
+            "     misc_feature    join(complement(1..5),complement(35..40))\n",
+            "                     /note=\"reverse wrap\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ];
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        $oResult = $this->mapper->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures());
+        $aFeatures = $oResult->getPlasmid()->getFeatures();
+
+        $this->assertCount(2, $aFeatures);
+        foreach ($aFeatures as $oFeature) {
+            $this->assertEquals([35, 5], [$oFeature->getStart(), $oFeature->getEnd()]);
+            $this->assertTrue($oFeature->crossesOrigin());
+        }
+        $this->assertEquals(Strand::FORWARD, $aFeatures[0]->getStrand());
+        $this->assertEquals(Strand::REVERSE, $aFeatures[1]->getStrand());
+    }
 }

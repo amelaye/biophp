@@ -3,13 +3,14 @@
  * Global database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\GbSequence;
 use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -223,10 +224,19 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
 
     /**
      * Parses an INSDC feature location (shared by GenBank and EMBL) into its outer bounds and
-     * strand. Strips the complement()/join() wrappers and the "<"/">" fuzzy-boundary markers.
-     * For a join() of several comma-separated segments (a spliced feature), Feature has no room
-     * to keep each exon separately, so this returns the lowest start and the highest end across
-     * every segment.
+     * strand, 1-based and inclusive. The location as written is kept apart (Feature::getFtLocation()) :
+     * these bounds only frame it.
+     * - complement(), join() and order() wrappers and the "<" / ">" partial marks are stripped ;
+     * - "a..b" spans a to b, "a" is one base, "a.b" one base somewhere in a..b and "a^b" the site
+     *   between two bases : both give a..b ;
+     * - a segment of another entry ("J00194.1:100..202") lies on another sequence and is left out ;
+     *   a location made of such segments only has no bounds here (null, null) ;
+     * - the segments of a join() are listed in the order they are transcribed. When all of them lie
+     *   on the same strand and that order goes back past the origin of a circular sequence
+     *   (join(4900..5000,1..100), or join(complement(1..100),complement(4900..5000)) on the other
+     *   strand), the bounds are from = 4900, to = 100 : from > to, the origin-crossing convention of
+     *   PlasmidFeature, as for a single segment written "4900..100". Otherwise they are the
+     *   lowest start and the highest end.
      * @param   string  $sLocation  The raw location text, e.g. "complement(join(<1..10,50..>60))".
      * @return  array   [$iFrom, $iTo, $sStrand] - $sStrand is "-" when the location was wrapped
      * in complement(...), "+" otherwise.
@@ -234,18 +244,152 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
     protected function parseLocationBounds(string $sLocation) : array
     {
         $sStrand = (strpos($sLocation, "complement(") !== false) ? "-" : "+";
-        $sLocation = str_replace(["complement(", "join(", ")", "<", ">"], "", $sLocation);
-        $aSegments = explode(",", $sLocation);
-        $iFrom = null;
-        $iTo   = null;
-        foreach ($aSegments as $sSegment) {
-            $aSegmentBounds = explode("..", trim($sSegment));
-            $iSegmentFrom = (int) ($aSegmentBounds[0] ?? 0);
-            $iSegmentTo   = (int) ($aSegmentBounds[1] ?? $iSegmentFrom);
-            $iFrom = ($iFrom === null) ? $iSegmentFrom : min($iFrom, $iSegmentFrom);
-            $iTo   = ($iTo === null) ? $iSegmentTo : max($iTo, $iSegmentTo);
+        $bOuterComplement = (bool) preg_match('/^\s*complement\(\s*(join|order)\(/', $sLocation);
+
+        $aSegments = [];
+        foreach (explode(",", preg_replace('/\s+/', "", $sLocation)) as $sRawSegment) {
+            $bComplement = strpos($sRawSegment, "complement(") !== false;
+            $sSegment = str_replace(["complement(", "join(", "order(", ")", "<", ">"], "", $sRawSegment);
+            if ($sSegment === "" || strpos($sSegment, ":") !== false) {
+                continue;
+            }
+            if (!preg_match('/^(\d+)(?:(?:\.\.|\.|\^)(\d+))?$/', $sSegment, $aMatch)) {
+                continue;
+            }
+            $iStart = (int) $aMatch[1];
+            $iEnd = isset($aMatch[2]) ? (int) $aMatch[2] : $iStart;
+            // Kept as written : a single "4900..100" segment already crosses the origin.
+            $aSegments[] = [$iStart, $iEnd, $bComplement || $bOuterComplement];
         }
-        return [$iFrom ?? 0, $iTo ?? 0, $sStrand];
+
+        if ($aSegments === []) {
+            return [null, null, $sStrand];
+        }
+
+        $aStrands = array_unique(array_column($aSegments, 2));
+        if (count($aSegments) > 1 && count($aStrands) === 1) {
+            // join(complement(c..d),complement(a..b)) is transcribed from the last base of the
+            // feature : listed from its 3' end, read back to front it runs like a direct one.
+            if ($aSegments[0][2] && !$bOuterComplement) {
+                $aSegments = array_reverse($aSegments);
+            }
+            for ($i = 1; $i < count($aSegments); $i++) {
+                if ($aSegments[$i][0] < $aSegments[$i - 1][0]) {
+                    return [$aSegments[0][0], $aSegments[count($aSegments) - 1][1], $sStrand];
+                }
+            }
+        }
+
+        if (count($aSegments) === 1) {
+            return [$aSegments[0][0], $aSegments[0][1], $sStrand];
+        }
+
+        return [min(array_column($aSegments, 0)), max(array_column($aSegments, 1)), $sStrand];
+    }
+
+    /**
+     * Parses one feature of an INSDC feature table, shared by GenBank and EMBL, whose columns are
+     * the same : the key from column 6, the location (possibly wrapped over several lines) and the
+     * /qualifier lines from column 22. $aFlines is read ahead to find where the feature ends : a
+     * line holding something in its first 12 columns starts another feature or section, so EMBL
+     * hands its lines with their "FT" tag blanked out.
+     * @param   \ArrayIterator  $oLines     The parser's line iterator, on the feature's key line
+     * @param   array           $aFlines    The lines, as read ahead
+     * @param   string          $sKey       The feature key
+     * @throws  \Exception
+     */
+    protected function parseInsdcFeature(\ArrayIterator $oLines, array $aFlines, string $sKey) {
+        $sLocation = trim(substr($oLines->current(), 20));
+        // A location can wrap across several physical lines (a spliced join() feature commonly
+        // does). Keep appending lines to it until the next one starts a qualifier ("/...") or a
+        // new feature/section begins.
+        while (true) {
+            $sNextLine = $aFlines[$oLines->key() + 1] ?? "";
+            $sNextTrimmed = trim($sNextLine);
+            if ($sNextTrimmed === "" || $sNextTrimmed[0] === "/") {
+                break;
+            }
+            if (trim(substr($sNextLine, 0, 12)) != "") {
+                break;
+            }
+            $oLines->next();
+            $sLocation .= trim(substr($oLines->current(), 20));
+        }
+        $aBounds = $this->parseLocationBounds($sLocation);
+        $aBounds[] = $sLocation;
+        // A feature with no qualifier at all is directly followed by the next feature key or
+        // section : that line must not be consumed as if it were this feature's qualifier.
+        $sNextLine = $aFlines[$oLines->key() + 1] ?? "";
+        if (trim($sNextLine) === "" || trim(substr($sNextLine, 0, 12)) !== "") {
+            $this->buildInsdcFeature("", $sKey, $aBounds);
+            return;
+        }
+        $oLines->next();
+        $sLine = trim(substr($oLines->current(), 20));
+        while (1) {
+            // Decide from the *next* line, before consuming it: a new "/qualifier=" line means
+            // the one just accumulated in $sLine is complete. A new feature key (or a top-level
+            // section like ORIGIN) occupies columns 0-11, same as the check that opens a
+            // feature's own key/location line; a qualifier's own wrapped continuation line never
+            // does, since its content starts only past column 20. Checking this on the line
+            // about to be consumed - not one line later, once it has already been swallowed - is
+            // what keeps the next feature's key/location line from being absorbed as if it were
+            // more of this feature's qualifier text.
+            $sNextLine = $aFlines[$oLines->key()+1] ?? "";
+            $sNextTrimmed = trim($sNextLine);
+            // Inside a quoted value (an odd number of quotes so far, an escaped "" counting two), a
+            // wrapped line starting with "/" is more of the value, not a new qualifier.
+            $bInsideQuotedValue = substr_count($sLine, '"') % 2 === 1;
+            $bNextStartsQualifier = !$bInsideQuotedValue
+                && ($sNextTrimmed !== "") && ($sNextTrimmed[0] === "/");
+            // The end of the lines ends the feature as well.
+            $bNextIsNewFeatureOrSection = trim(substr($sNextLine, 0, 12)) !== ""
+                || !array_key_exists($oLines->key() + 1, $aFlines);
+
+            if ($bNextStartsQualifier || $bNextIsNewFeatureOrSection) {
+                $this->buildInsdcFeature($sLine, $sKey, $aBounds);
+                $sLine = ""; // RAZ
+            }
+            if ($bNextIsNewFeatureOrSection) {
+                break;
+            }
+            $oLines->next();
+            $sLine .= " ".trim(substr($oLines->current(), 20));
+        }
+    }
+
+    /**
+     * Creates Feature object
+     * @param   string  $sLine
+     * @param   string  $sKey
+     * @param   array   $aBounds    [$iFtFrom, $iFtTo, $sStrand], as returned by
+     * parseLocationBounds(), followed by the location as written.
+     */
+    private function buildInsdcFeature(string $sLine, string $sKey, array $aBounds) {
+        // Only the qualifier's own leading "/" and the value's enclosing quotes are syntax : a "/"
+        // or "=" inside the value is data (e.g. /note="5'/3' ends; Km=2 mM"), and a doubled ""
+        // inside a quoted value is an escaped quote. A flag qualifier (/pseudo) has no value, and a
+        // feature with no qualifier at all still gets one row, with an empty qualifier, so its key
+        // and location are not lost.
+        [$sQualifier, $sValue] = explode("=", ltrim(trim($sLine), "/"), 2) + [1 => ""];
+        if (strlen($sValue) >= 2 && $sValue[0] === '"' && substr($sValue, -1) === '"') {
+            $sValue = str_replace('""', '"', substr($sValue, 1, -1));
+        }
+        // Wrapped lines are joined with a space, right for free text but not for a protein
+        // sequence, which must not gain a space at every line break.
+        if ($sQualifier === "translation") {
+            $sValue = (string) preg_replace('/\s+/', "", $sValue);
+        }
+        $oFeature = new Feature();
+        $oFeature->setPrimAcc($this->sequence->getPrimAcc());
+        $oFeature->setFtKey($sKey);
+        $oFeature->setFtQual($sQualifier);
+        $oFeature->setFtValue($sValue);
+        $oFeature->setFtFrom($aBounds[0]);
+        $oFeature->setFtTo($aBounds[1]);
+        $oFeature->setStrand($aBounds[2] ?? null);
+        $oFeature->setFtLocation($aBounds[3] ?? null);
+        $this->features[] = $oFeature;
     }
 
     /**

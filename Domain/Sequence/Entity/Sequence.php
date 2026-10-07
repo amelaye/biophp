@@ -3,7 +3,7 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -25,13 +25,13 @@ class Sequence
      * @var string
      */
     #[ORM\Id]
-    #[ORM\Column(type: "string", length: 8, nullable: false)]
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $primAcc = "";
 
     /**
      * @var string
      */
-    #[ORM\Column(type: "string", length: 8, nullable: false)]
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $entryName = "";
 
     /**
@@ -55,7 +55,7 @@ class Sequence
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 6, nullable: true)]
+    #[ORM\Column(type: "string", length: 20, nullable: true)]
     private ?string $molType = null;
 
     /**
@@ -82,7 +82,7 @@ class Sequence
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
     /**

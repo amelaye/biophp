@@ -170,4 +170,36 @@ class ParsePdbManagerTest extends TestCase
             $oParser->getCompounds()
         );
     }
+
+    /**
+     * Residues 52, 52A and 52B (Kabat numbering) used to all read as residue 52 : the insertion
+     * code, column 27, was not read. The models of an NMR ensemble, between MODEL and ENDMDL, used
+     * to be mixed together with nothing telling them apart.
+     */
+    public function testReadsInsertionCodesAndNmrModels()
+    {
+        $aLines = [
+            "HEADER    IMMUNE SYSTEM                           01-JAN-20   1TST              \n",
+            "MODEL        1                                                                  \n",
+            "ATOM      1  CA  SER H  52      11.104   6.134  -6.504  1.00  0.00           C  \n",
+            "ATOM      2  CA  ASN H  52A     12.104   7.134  -5.504  1.00  0.00           C  \n",
+            "ATOM      3  CA  GLY H  52B     13.104   8.134  -4.504  1.00  0.00           C  \n",
+            "ENDMDL                                                                          \n",
+            "MODEL        2                                                                  \n",
+            "ATOM      1  CA  SER H  52      11.204   6.034  -6.404  1.00  0.00           C  \n",
+            "ENDMDL                                                                          \n",
+            "END                                                                             \n",
+        ];
+        $oParser = new ParsePdbManager();
+        $oParser->parseDataFile($aLines);
+        $aAtoms = $oParser->getAtoms();
+
+        $this->assertCount(4, $aAtoms);
+        $this->assertEquals(
+            [[52, "", 1], [52, "A", 1], [52, "B", 1], [52, "", 2]],
+            array_map(fn ($oAtom) => [$oAtom->getResSeq(), $oAtom->getICode(), $oAtom->getModel()], $aAtoms)
+        );
+        $this->assertEquals("ASN", $aAtoms[1]->getResName());
+        $this->assertEquals(11.204, $aAtoms[3]->getX());
+    }
 }

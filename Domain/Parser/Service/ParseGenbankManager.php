@@ -12,7 +12,6 @@ namespace Amelaye\BioPHP\Domain\Parser\Service;
 use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
-use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 
@@ -135,7 +134,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                         $this->aLines->next();
                         $sHead = trim(substr($this->aLines->current(), 0, 20));
                         if(in_array($sHead, self::FEATURE_KEYS, true)) {
-                            $this->parseFeatures($aFlines, $sHead);
+                            $this->parseInsdcFeature($this->aLines, $aFlines, $sHead);
                         }
                     }
                     break;
@@ -146,16 +145,15 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                     $this->sequence->setSource(trim(substr($linestr, 12)));
                     break;
                 case "ORIGIN":
-                    $sWords = "";
-                    while(1) {
+                    // Every line holds its position and up to six blocks of ten bases : only the
+                    // bases make the sequence, not the numbers nor the spaces between the blocks.
+                    $sSequence = "";
+                    while (isset($aFlines[$this->aLines->key() + 1])
+                        && trim(substr($aFlines[$this->aLines->key() + 1], 0, 2)) !== "//") {
                         $this->aLines->next();
-                        $sWords .= trim(substr($this->aLines->current(),9))." ";
-                        $sHead = trim(substr($aFlines[$this->aLines->key()+1],0, 20));
-                        if($sHead == '//') {
-                            break;
-                        }
+                        $sSequence .= preg_replace('/[\s\d]+/', "", $this->aLines->current());
                     }
-                    $this->sequence->setSequence(trim($sWords));
+                    $this->sequence->setSequence($sSequence);
                     break;
             }
         }
@@ -163,6 +161,12 @@ final class ParseGenbankManager extends ParseDbAbstractManager
 
 
     /**
+     * Parses a REFERENCE and its AUTHORS, CONSRTM, TITLE, JOURNAL, MEDLINE, PUBMED and REMARK
+     * lines, each possibly continued on lines whose first 12 columns are blank. Lines are read
+     * ahead : the iterator is left on the reference's last line, so that the section following it
+     * (FEATURES, COMMENT, the next REFERENCE) is read by the main loop and not skipped.
+     * The authors are separated by ", " and the last one by " and " ; a name keeps its own comma
+     * and initials ("Roemer,T."). Each consortium of the CONSRTM line is kept as an author.
      * @param   array       $aFlines    The lines the script has to parse
      * @throws  \Exception
      */
@@ -176,88 +180,66 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         $sbaseRange = str_replace(["(bases ",")"], "", $sbaseRange);
         $oReference->setBaseRange($sbaseRange);
 
-        $sAuthors = $sTitle = $sJournal = $sMedline = $sPubmed = $sRemark = "";
-        $this->aLines->next();
-
-        if(trim(substr($this->aLines->current(),0,12)) == "AUTHORS") {
-            $this->seekReferences($sAuthors);
-            $sAuthors = trim($sAuthors);
-            $sAuthors = str_replace(" and ", ",", $sAuthors);
-            $sAuthors = str_replace(".", "", $sAuthors);
-            $aAuthors = explode(",",$sAuthors);
-            foreach($aAuthors as $sAuthor) {
-                $oAuthor = new Author();
-                $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
-                $oAuthor->setRefno($oReference->getRefno());
-                $oAuthor->setAuthor(trim($sAuthor));
-                $this->authors[] = $oAuthor;
-            }
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "CONSRTM") {
-            $this->aLines->next();
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "TITLE") {
-            $this->seekReferences($sTitle);
-            $oReference->setTitle(trim($sTitle));
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "JOURNAL") {
-            $this->seekReferences($sJournal);
-            $oReference->setJournal(trim($sJournal));
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "MEDLINE") {
-            $this->seekReferences($sMedline);
-            $oReference->setMedline($sMedline);
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "PUBMED") {
-            $aPubmed = preg_split("/\s+/", trim(substr($this->aLines->current(), 12)));
-            $sPubmed = trim($sPubmed." ".implode(" ", $aPubmed));
-            $oReference->setPubmed($sPubmed);
-            // If reference following, don't jump line
-            if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
-                $this->aLines->next();
-            }
-        }
-
-        if(trim(substr($this->aLines->current(),0,12)) == "REMARK") {
-            while(1) {
-                $sRemark .= " ".trim(substr($this->aLines->current(), 12));
-                // If reference following, don't jump line
-                if(trim(substr($aFlines[$this->aLines->key()+1],0, 12)) != "REFERENCE") {
-                    $this->aLines->next();
-                    $sHead = trim(substr($this->aLines->current(), 0, 12));
-                    if ($sHead != "") {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            $oReference->setRemark(trim($sRemark));
-        }
-           $this->references[] = $oReference;
-    }
-
-    /**
-     * Parse every multi-line fields from REFERENCES
-     * @param   string          $sReferenceProperty     The references part
-     * @return  string
-     * @throws  \Exception
-     */
-    private function seekReferences(&$sReferenceProperty) : string {
-        while(1) {
-            $sReferenceProperty .= " ".trim(substr($this->aLines->current(), 12));
-            $this->aLines->next();
-            $head = trim(substr($this->aLines->current(), 0, 12));
-            if ($head != "") {
+        $aFields = [];
+        $sField = null;
+        while (isset($aFlines[$this->aLines->key() + 1])) {
+            $sNextLine = $aFlines[$this->aLines->key() + 1];
+            $sHead = trim(substr($sNextLine, 0, 12));
+            if ($sHead === "" && $sField !== null && trim($sNextLine) !== "") {
+                $aFields[$sField] .= " " . trim(substr($sNextLine, 12));
+            } elseif (in_array($sHead, ["AUTHORS", "CONSRTM", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK"], true)) {
+                $sField = $sHead;
+                $aFields[$sField] = trim(substr($sNextLine, 12));
+            } else {
                 break;
             }
+            $this->aLines->next();
         }
-        return $sReferenceProperty;
+
+        $aAuthors = [];
+        if (isset($aFields["AUTHORS"])) {
+            // Classic style "Roemer,T., Madden,K. and Snyder,M." : the comma inside a name is
+            // followed by an initial and its period, only ", " and " and " separate the authors.
+            // PubMed style of RefSeq records "Sahni N, Yi S,Taipale M and Soria JM." : initials
+            // carry no period, every comma separates two authors and the final period ends the list.
+            $sAuthors = $aFields["AUTHORS"];
+            $bPubmedStyle = !preg_match('/,[A-Z][A-Za-z]?\./', $sAuthors);
+            if ($bPubmedStyle) {
+                $aAuthors = preg_split('/\s*,\s*|\s+and\s+/', rtrim($sAuthors, "."));
+            } else {
+                $aAuthors = preg_split('/,\s+|\s+and\s+/', $sAuthors);
+            }
+        }
+        if (isset($aFields["CONSRTM"])) {
+            $aAuthors = array_merge($aAuthors, explode(";", $aFields["CONSRTM"]));
+        }
+        foreach ($aAuthors as $sAuthor) {
+            if (trim($sAuthor) === "") {
+                continue;
+            }
+            $oAuthor = new Author();
+            $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
+            $oAuthor->setRefno($oReference->getRefno());
+            $oAuthor->setAuthor(trim($sAuthor));
+            $this->authors[] = $oAuthor;
+        }
+
+        if (isset($aFields["TITLE"])) {
+            $oReference->setTitle($aFields["TITLE"]);
+        }
+        if (isset($aFields["JOURNAL"])) {
+            $oReference->setJournal($aFields["JOURNAL"]);
+        }
+        if (isset($aFields["MEDLINE"])) {
+            $oReference->setMedline($aFields["MEDLINE"]);
+        }
+        if (isset($aFields["PUBMED"])) {
+            $oReference->setPubmed($aFields["PUBMED"]);
+        }
+        if (isset($aFields["REMARK"])) {
+            $oReference->setRemark($aFields["REMARK"]);
+        }
+        $this->references[] = $oReference;
     }
 
     /**
@@ -388,105 +370,5 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $oAccession->setAccession($word);
             $this->accession[] = $oAccession;
         }
-    }
-
-
-    /**
-     * Parses each fields for FEATURES
-     * @param   array   $aFlines
-     * @param   string  $sField
-     * @throws  \Exception
-     */
-    private function parseFeatures(array $aFlines, string $sField) {
-        $sKey = $sField;
-        $sLocation = trim(substr($this->aLines->current(), 20));
-        // A location can wrap across several physical lines (a spliced join() feature commonly
-        // does). Keep appending lines to it until the next one starts a qualifier ("/...") or a
-        // new feature/section begins.
-        while (true) {
-            $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
-            $sNextTrimmed = trim($sNextLine);
-            if ($sNextTrimmed === "" || $sNextTrimmed[0] === "/") {
-                break;
-            }
-            if (trim(substr($sNextLine, 0, 12)) != "") {
-                break;
-            }
-            $this->aLines->next();
-            $sLocation .= trim(substr($this->aLines->current(), 20));
-        }
-        $aBounds = $this->parseLocationBounds($sLocation);
-        $aBounds[] = $sLocation;
-        // A feature with no qualifier at all is directly followed by the next feature key or
-        // section : that line must not be consumed as if it were this feature's qualifier.
-        $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
-        if (trim($sNextLine) === "" || trim(substr($sNextLine, 0, 12)) !== "") {
-            $this->buildFeature("", $sKey, $aBounds);
-            return;
-        }
-        $this->aLines->next();
-        $sLine = trim(substr($this->aLines->current(), 20));
-        while (1) {
-            // Decide from the *next* line, before consuming it: a new "/qualifier=" line means
-            // the one just accumulated in $sLine is complete. A new feature key (or a top-level
-            // section like ORIGIN) occupies columns 0-11, same as the check that opens a
-            // feature's own key/location line; a qualifier's own wrapped continuation line never
-            // does, since its content starts only past column 20. Checking this on the line
-            // about to be consumed - not one line later, once it has already been swallowed - is
-            // what keeps the next feature's key/location line from being absorbed as if it were
-            // more of this feature's qualifier text.
-            $sNextLine = $aFlines[$this->aLines->key()+1] ?? "";
-            $sNextTrimmed = trim($sNextLine);
-            // Inside a quoted value (an odd number of quotes so far, an escaped "" counting two), a
-            // wrapped line starting with "/" is more of the value, not a new qualifier.
-            $bInsideQuotedValue = substr_count($sLine, '"') % 2 === 1;
-            $bNextStartsQualifier = !$bInsideQuotedValue
-                && ($sNextTrimmed !== "") && ($sNextTrimmed[0] === "/");
-            $bNextIsNewFeatureOrSection = trim(substr($sNextLine, 0, 12)) !== "";
-
-            if ($bNextStartsQualifier || $bNextIsNewFeatureOrSection) {
-                $this->buildFeature($sLine, $sKey, $aBounds);
-                $sLine = ""; // RAZ
-            }
-            if ($bNextIsNewFeatureOrSection) {
-                break;
-            }
-            $this->aLines->next();
-            $sLine .= " ".trim(substr($this->aLines->current(), 20));
-        }
-    }
-
-    /**
-     * Creates Feature object
-     * @param   string  $sLine
-     * @param   string  $sKey
-     * @param   array   $aBounds    [$iFtFrom, $iFtTo, $sStrand], as returned by
-     * parseLocationBounds(), followed by the location as written.
-     */
-    private function buildFeature(string $sLine, string $sKey, array $aBounds) {
-        // Only the qualifier's own leading "/" and the value's enclosing quotes are syntax : a "/"
-        // or "=" inside the value is data (e.g. /note="5'/3' ends; Km=2 mM"), and a doubled ""
-        // inside a quoted value is an escaped quote. A flag qualifier (/pseudo) has no value, and a
-        // feature with no qualifier at all still gets one row, with an empty qualifier, so its key
-        // and location are not lost.
-        [$sQualifier, $sValue] = explode("=", ltrim(trim($sLine), "/"), 2) + [1 => ""];
-        if (strlen($sValue) >= 2 && $sValue[0] === '"' && substr($sValue, -1) === '"') {
-            $sValue = str_replace('""', '"', substr($sValue, 1, -1));
-        }
-        // Wrapped lines are joined with a space, right for free text but not for a protein
-        // sequence, which must not gain a space at every line break.
-        if ($sQualifier === "translation") {
-            $sValue = (string) preg_replace('/\s+/', "", $sValue);
-        }
-        $oFeature = new Feature();
-        $oFeature->setPrimAcc($this->sequence->getPrimAcc());
-        $oFeature->setFtKey($sKey);
-        $oFeature->setFtQual($sQualifier);
-        $oFeature->setFtValue($sValue);
-        $oFeature->setFtFrom($aBounds[0]);
-        $oFeature->setFtTo($aBounds[1]);
-        $oFeature->setStrand($aBounds[2] ?? null);
-        $oFeature->setFtLocation($aBounds[3] ?? null);
-        $this->features[] = $oFeature;
     }
 }

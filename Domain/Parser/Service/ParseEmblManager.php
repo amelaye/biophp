@@ -3,7 +3,7 @@
  * EMBL database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -12,7 +12,6 @@ namespace Amelaye\BioPHP\Domain\Parser\Service;
 use Amelaye\BioPHP\Domain\Database\Service\ParseDbAbstractManager;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Accession;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Author;
-use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Keyword;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Reference;
 
@@ -91,6 +90,11 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     public function parseDataFile(array $aFlines) {
         $this->aLines = new \ArrayIterator($aFlines);
+        // The feature table has GenBank's columns behind an "FT" tag : with the tag blanked out,
+        // the lines read ahead look like GenBank's, and its feature parsing applies as is.
+        $aFeatureLines = array_map(function ($sLine) {
+            return substr($sLine, 0, 2) === "FT" ? "  " . substr($sLine, 2) : $sLine;
+        }, $aFlines);
 
         foreach ($this->aLines as $lineno => $linestr) {
             switch (substr($this->aLines->current(), 0, 2)) {
@@ -116,8 +120,9 @@ final class ParseEmblManager extends ParseDbAbstractManager
                     $this->parseReferences($aFlines);
                     break;
                 case "FT":
-                    if (trim(substr($this->aLines->current(), 5, 15)) != "") {
-                        $this->parseFeatures($aFlines);
+                    $sKey = trim(substr($this->aLines->current(), 5, 15));
+                    if (in_array($sKey, ParseGenbankManager::FEATURE_KEYS, true)) {
+                        $this->parseInsdcFeature($this->aLines, $aFeatureLines, $sKey);
                     }
                     break;
                 case "SQ":
@@ -130,11 +135,16 @@ final class ParseEmblManager extends ParseDbAbstractManager
     /**
      * Parses the ID line.
      * Format : ID   ENTRYNAME; SV VERSION; TOPOLOGY; MOLTYPE; DATACLASS; DIVISION; LENGTH BP.
+     * Before release 87 (2006) : ID   ENTRYNAME  DATACLASS; [circular] MOLTYPE; DIVISION; LENGTH BP.
      * @throws  \Exception
      */
     private function parseId()
     {
         $aParts = array_map('trim', explode(";", trim(substr($this->aLines->current(), 5))));
+        if (count($aParts) === 4) {
+            $this->parseOldId($aParts);
+            return;
+        }
 
         $sEntryName = $aParts[0];
         $sVersion   = trim(str_replace("SV", "", $aParts[1]));
@@ -151,6 +161,26 @@ final class ParseEmblManager extends ParseDbAbstractManager
         $this->gbSequence->setTopology(strtoupper($sTopology));
         $this->gbSequence->setDivision(strtoupper($sDivision));
         $this->gbSequence->setVersion($sEntryName . "." . $sVersion);
+    }
+
+    /**
+     * Parses the ID line of the layout used before release 87, which has no sequence version.
+     * @param   string[]    $aParts     "ENTRYNAME DATACLASS", "[circular ]MOLTYPE", "DIVISION",
+     * "LENGTH BP."
+     */
+    private function parseOldId(array $aParts)
+    {
+        $sEntryName = preg_split('/\s+/', $aParts[0])[0];
+        $aMolecule = preg_split('/\s+/', $aParts[1]);
+        $bCircular = count($aMolecule) > 1 && strtolower($aMolecule[0]) === "circular";
+
+        $this->sequence->setPrimAcc($sEntryName);
+        $this->sequence->setSeqLength((int) preg_replace("/\D/", "", $aParts[3]));
+        $this->sequence->setMolType(end($aMolecule));
+
+        $this->gbSequence->setPrimAcc($sEntryName);
+        $this->gbSequence->setTopology($bCircular ? "CIRCULAR" : "LINEAR");
+        $this->gbSequence->setDivision(strtoupper($aParts[2]));
     }
 
     /**
@@ -263,7 +293,19 @@ final class ParseEmblManager extends ParseDbAbstractManager
     }
 
     /**
-     * Parses a reference block: RN, then optionally RP, RX, RA, RT, RL.
+     * Parses a reference block : the RN line, then RC, RP, RX, RG, RA, RT and RL lines, in that
+     * order and each optional, any of them but RN possibly continued on several lines.
+     * Example :
+     * RN   [1]
+     * RC   Comment.
+     * RP   1-120
+     * RX   DOI; 10.1016/0022-2836(89)90226-7.
+     * RX   PUBMED; 12345678.
+     * RG   The Consortium
+     * RA   Smith J., Doe A.;
+     * RT   "A test reference";
+     * RL   J. Test Biol. 1(1):1-10(2020).
+     * The author names keep their initials as written ("Smith J."), as GenBank's do.
      * @param   array       $aFlines
      * @throws  \Exception
      */
@@ -272,91 +314,62 @@ final class ParseEmblManager extends ParseDbAbstractManager
         $oReference->setPrimAcc($this->sequence->getPrimAcc());
         $oReference->setRefno((int) trim(trim(substr($this->aLines->current(), 5)), "[]"));
 
-        $this->aLines->next();
-
-        if (substr($this->aLines->current(), 0, 2) == "RP") {
-            $oReference->setBaseRange(trim(substr($this->aLines->current(), 5)));
-            $this->aLines->next();
-        }
-
-        while (substr($this->aLines->current(), 0, 2) == "RX") {
-            $sRx = rtrim(trim(substr($this->aLines->current(), 5)), ".");
-            $aRx = array_map('trim', explode(";", $sRx));
-            if (strtoupper($aRx[0]) == "PUBMED" && isset($aRx[1])) {
-                $oReference->setPubmed($aRx[1]);
-            }
-            $this->aLines->next();
-        }
-
-        if (substr($this->aLines->current(), 0, 2) == "RA") {
-            $sAuthors = rtrim(trim(substr($this->aLines->current(), 5)), ";");
-            $sAuthors = str_replace(".", "", $sAuthors);
-            $aAuthors = explode(",", $sAuthors);
-            foreach ($aAuthors as $sAuthor) {
-                $oAuthor = new Author();
-                $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
-                $oAuthor->setRefno($oReference->getRefno());
-                $oAuthor->setAuthor(trim($sAuthor));
-                $this->authors[] = $oAuthor;
-            }
-            $this->aLines->next();
-        }
-
-        if (substr($this->aLines->current(), 0, 2) == "RT") {
-            $sTitle = trim(substr($this->aLines->current(), 5));
-            while (true) {
-                $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
-                if ($sHead != "RT") {
-                    break;
-                }
-                $this->aLines->next();
-                $sTitle .= " " . trim(substr($this->aLines->current(), 5));
-            }
-            $sTitle = trim($sTitle, " \";");
-            $oReference->setTitle($sTitle);
-            $this->aLines->next();
-        }
-
-        if (substr($this->aLines->current(), 0, 2) == "RL") {
-            $oReference->setJournal(trim(substr($this->aLines->current(), 5)));
-        }
-
-        $this->references[] = $oReference;
-    }
-
-    /**
-     * Parses one feature: the FT key/location line, then every /qualifier="value" line
-     * that follows it until the next feature key or the end of the feature table.
-     * @param   array       $aFlines
-     * @throws  \Exception
-     */
-    private function parseFeatures(array $aFlines) {
-        $sKey = trim(substr($this->aLines->current(), 5, 15));
-        [$iFtFrom, $iFtTo, $sStrand] = $this->parseLocationBounds(trim(substr($this->aLines->current(), 21)));
-
-        $sQualifiers = "";
+        $aBlocks = [];
         while (true) {
-            $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
-            if (substr($sNextLine, 0, 2) != "FT" || trim(substr($sNextLine, 5, 15)) != "") {
+            $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
+            if (!in_array($sHead, ["RC", "RP", "RX", "RG", "RA", "RT", "RL"], true)) {
                 break;
             }
             $this->aLines->next();
-            $sQualifiers .= " " . trim(substr($this->aLines->current(), 21));
+            $aBlocks[$sHead][] = trim(substr($this->aLines->current(), 5));
         }
 
-        $aQualifiers = array_filter(preg_split("/\s+\//", trim($sQualifiers)));
-        foreach ($aQualifiers as $sQualifier) {
-            $aQualifier = explode("=", str_replace('"', "", ltrim($sQualifier, "/")), 2);
-            $oFeature = new Feature();
-            $oFeature->setPrimAcc($this->sequence->getPrimAcc());
-            $oFeature->setFtKey($sKey);
-            $oFeature->setFtQual($aQualifier[0]);
-            $oFeature->setFtValue($aQualifier[1] ?? "");
-            $oFeature->setFtFrom($iFtFrom ?? 0);
-            $oFeature->setFtTo($iFtTo ?? 0);
-            $oFeature->setStrand($sStrand);
-            $this->features[] = $oFeature;
+        if (isset($aBlocks["RC"])) {
+            $oReference->setComments(implode(" ", $aBlocks["RC"]));
         }
+        if (isset($aBlocks["RP"])) {
+            $oReference->setBaseRange(implode(" ", $aBlocks["RP"]));
+        }
+        foreach ($aBlocks["RX"] ?? [] as $sRx) {
+            $aRx = array_map('trim', explode(";", rtrim($sRx, "."), 2));
+            if (strtoupper($aRx[0]) == "PUBMED" && isset($aRx[1])) {
+                $oReference->setPubmed($aRx[1]);
+            }
+            if (strtoupper($aRx[0]) == "MEDLINE" && isset($aRx[1])) {
+                $oReference->setMedline($aRx[1]);
+            }
+        }
+
+        $aAuthors = [];
+        if (isset($aBlocks["RG"])) {
+            $aAuthors[] = implode(" ", $aBlocks["RG"]);
+        }
+        if (isset($aBlocks["RA"])) {
+            foreach (explode(",", rtrim(implode(" ", $aBlocks["RA"]), "; ")) as $sAuthor) {
+                if (trim($sAuthor) !== "") {
+                    $aAuthors[] = trim($sAuthor);
+                }
+            }
+        }
+        foreach ($aAuthors as $sAuthor) {
+            $oAuthor = new Author();
+            $oAuthor->setPrimAcc($this->sequence->getPrimAcc());
+            $oAuthor->setRefno($oReference->getRefno());
+            $oAuthor->setAuthor($sAuthor);
+            $this->authors[] = $oAuthor;
+        }
+
+        if (isset($aBlocks["RT"])) {
+            $sTitle = trim(implode(" ", $aBlocks["RT"]), " \";");
+            if ($sTitle !== "") {
+                $oReference->setTitle($sTitle);
+            }
+        }
+        if (isset($aBlocks["RL"])) {
+            $oReference->setJournal(implode(" ", $aBlocks["RL"]));
+        }
+
+        $this->references[] = $oReference;
     }
 
     /**

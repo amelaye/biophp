@@ -3,7 +3,7 @@
  * Transforms an already-parsed circular GenBank record into a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 6 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -28,16 +28,11 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
  * comes through as `from > to`, matching PlasmidFeature's own origin-crossing convention : both pass
  * straight through with no conversion.
  *
- * Known, documented limitation : `ParseDbAbstractManager::parseLocationBounds()` (shared by the
- * GenBank and EMBL parsers) discards the raw location text and takes the min/max across every
- * `join(...)` segment. A `join()` location that crosses the origin therefore collapses into a
- * plain, non-crossing range that is silently wrong rather than absent - nothing on `Feature`
- * distinguishes it from a genuine simple feature, so this mapper cannot detect or warn about that
- * specific case without changes to the shared parser, which is out of scope here. A single-segment
- * `complement(high..low)` origin crossing is unaffected and handled correctly. Any feature that does
- * come through with missing or non-representable coordinates (e.g. from a location segment the
- * parser could not read) is skipped and reported in GenbankImportResult::getWarnings(), never
- * silently dropped or truncated.
+ * A `join()` crossing the origin (`join(4900..5000,1..100)`, or its complement) comes through as
+ * from > to as well : `ParseDbAbstractManager::parseLocationBounds()` follows the order in which the
+ * segments are transcribed. Any feature that comes through with missing or non-representable
+ * coordinates (e.g. a location made only of segments of another entry) is skipped and reported in
+ * GenbankImportResult::getWarnings(), never silently dropped or truncated.
  * Class GenbankPlasmidMapper
  * @package Amelaye\BioPHP\Domain\Cloning\Service\Mapper
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>

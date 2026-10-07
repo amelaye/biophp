@@ -3,7 +3,7 @@
  * Contract for one ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -75,6 +75,28 @@ interface PdbAtomInterface
      * @param int $resSeq
      */
     public function setResSeq(int $resSeq): void;
+
+    /**
+     * Insertion code (column 27), empty for most residues.
+     * @return string
+     */
+    public function getICode(): string;
+
+    /**
+     * @param string $iCode
+     */
+    public function setICode(string $iCode): void;
+
+    /**
+     * The MODEL the atom belongs to, 1 when the file has none.
+     * @return int
+     */
+    public function getModel(): int;
+
+    /**
+     * @param int $model
+     */
+    public function setModel(int $model): void;
 
     /**
      * @return float

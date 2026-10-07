@@ -57,7 +57,7 @@ class ParseSwissprotManagerTest extends TestCase
         $oExpectedSequence->setPrimAcc("P01375");
         $oExpectedSequence->setEntryName("TNFA");
         $oExpectedSequence->setSeqLength(233);
-        $oExpectedSequence->setMolType("PRT;");
+        $oExpectedSequence->setMolType("PRT");
         $oExpectedSequence->setDate("21-JUL-1986");
         $oExpectedSequence->setSource("HOMO SAPIENS (HUMAN)");
         $sSequence = "MSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVAN";
@@ -113,7 +113,8 @@ class ParseSwissprotManagerTest extends TestCase
             foreach($aNames as $sName) {
                 $author = new Author();
                 $author->setPrimAcc("P01375");
-                $author->setRefno($iRefno);
+                // References are numbered as their RN line numbers them, from 1.
+                $author->setRefno($iRefno + 1);
                 $author->setAuthor($sName);
                 $aExpectedAuthors[] = $author;
             }
@@ -375,82 +376,73 @@ class ParseSwissprotManagerTest extends TestCase
         $this->assertEquals($aExpectedKeywords, $oParseSwisprotManager->getKeywords());
 
         $aExpectedReferences = [];
+        // This layout has no RT line : no title, the RL line is the journal only.
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(0);
-        $oReference->setTitle("COLD SPRING HARB. SYMP. QUANT. BIOL. 51:611-624(1986).");
+        $oReference->setRefno(1);
         $oReference->setMedline("87217060");
         $oReference->setRemark("SEQUENCE FROM N.A.");
         $oReference->setJournal("COLD SPRING HARB. SYMP. QUANT. BIOL. 51:611-624(1986).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(1);
-        $oReference->setTitle("NATURE 312:724-729(1984).");
+        $oReference->setRefno(2);
         $oReference->setMedline("85086244");
         $oReference->setRemark("SEQUENCE FROM N.A.");
         $oReference->setJournal("NATURE 312:724-729(1984).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(2);
-        $oReference->setTitle("NATURE 313:803-806(1985).");
+        $oReference->setRefno(3);
         $oReference->setMedline("85137898");
         $oReference->setRemark("SEQUENCE FROM N.A.");
         $oReference->setJournal("NATURE 313:803-806(1985).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(3);
-        $oReference->setTitle("NUCLEIC ACIDS RES. 13:6361-6373(1985).");
+        $oReference->setRefno(4);
         $oReference->setMedline("86016093");
         $oReference->setRemark("SEQUENCE FROM N.A.");
         $oReference->setJournal("NUCLEIC ACIDS RES. 13:6361-6373(1985).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(4);
-        $oReference->setTitle("SCIENCE 228:149-154(1985).");
+        $oReference->setRefno(5);
         $oReference->setMedline("85142190");
         $oReference->setRemark("SEQUENCE FROM N.A.");
         $oReference->setJournal("SCIENCE 228:149-154(1985).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(5);
-        $oReference->setTitle("J. BIOL. CHEM. 264:17595-17605(1989).");
+        $oReference->setRefno(6);
         $oReference->setMedline("90008932");
         $oReference->setRemark("X-RAY CRYSTALLOGRAPHY (2.6 ANGSTROMS).");
         $oReference->setJournal("J. BIOL. CHEM. 264:17595-17605(1989).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(6);
-        $oReference->setTitle("J. CELL SCI. SUPPL. 13:11-18(1990).");
+        $oReference->setRefno(7);
         $oReference->setMedline("91193276");
         $oReference->setRemark("X-RAY CRYSTALLOGRAPHY (2.9 ANGSTROMS).");
         $oReference->setJournal("J. CELL SCI. SUPPL. 13:11-18(1990).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(7);
-        $oReference->setTitle("J. BIOL. CHEM. 264:17595-17605(1989).");
+        $oReference->setRefno(8);
         $oReference->setMedline("90008932");
         $oReference->setRemark("X-RAY CRYSTALLOGRAPHY (2.6 ANGSTROMS).");
         $oReference->setJournal("J. BIOL. CHEM. 264:17595-17605(1989).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(8);
-        $oReference->setTitle("EMBO J. 10:827-836(1991).");
+        $oReference->setRefno(9);
         $oReference->setMedline("91184128");
         $oReference->setRemark("MUTAGENESIS.");
         $oReference->setJournal("EMBO J. 10:827-836(1991).");
         $aExpectedReferences[] = $oReference;
         $oReference = new Reference();
         $oReference->setPrimAcc("P01375");
-        $oReference->setRefno(9);
-        $oReference->setTitle("J. EXP. MED. 176:1053-1062(1992).");
+        $oReference->setRefno(10);
         $oReference->setMedline("93018820");
         $oReference->setRemark("MYRISTOYLATION.");
         $oReference->setJournal("J. EXP. MED. 176:1053-1062(1992).");
@@ -703,5 +695,143 @@ class ParseSwissprotManagerTest extends TestCase
 
             $this->assertEquals($aExpected, $oParser->getGeneNames(), $sGnLine);
         }
+    }
+
+    /**
+     * data/Q5K4E3.txt is a real UniProtKB entry (POLS2_HUMAN, release 2019_02). It used to crash
+     * the parser with a TypeError on its first "DT   15-MAR-2005, integrated into ..." line.
+     */
+    public function testReadsACurrentUniProtEntry()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile(file('data/Q5K4E3.txt'));
+        $oSequence = $oParser->getSequence();
+
+        $this->assertEquals("Q5K4E3", $oSequence->getPrimAcc());
+        $this->assertEquals("POLS2", $oSequence->getEntryName());
+        $this->assertEquals(855, $oSequence->getSeqLength());
+        $this->assertEquals(855, strlen($oSequence->getSequence()));
+        $this->assertEquals("PRT", $oSequence->getMolType());
+        $this->assertStringStartsWith("MARHLLLPLVMLVISPIPGAFQDSALSPTQ", $oSequence->getSequence());
+        $this->assertEquals("15-MAR-2005", $oSequence->getDate());
+        $this->assertEquals("14-OCT-2008", $oParser->getSequpdDate());
+        $this->assertEquals("13-FEB-2019", $oParser->getNotupdDate());
+        $this->assertEquals("Homo sapiens (Human)", $oSequence->getSource());
+        $this->assertEquals(0, $oSequence->getFragment());
+        $this->assertEquals([["PRSS36"]], $oParser->getGeneNames());
+        $this->assertCount(5, $oParser->getAccession());
+        $this->assertCount(13, $oParser->getKeywords());
+    }
+
+    public function testReadsTheReferencesOfACurrentUniProtEntry()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile(file('data/Q5K4E3.txt'));
+        $aReferences = $oParser->getReferences();
+
+        $this->assertCount(4, $aReferences);
+        $oFirst = $aReferences[0];
+        $this->assertEquals(1, $oFirst->getRefno());
+        // RX "PubMed=15536082; DOI=...;" : the PubMed identifier used to be lost.
+        $this->assertEquals("15536082", $oFirst->getPubmed());
+        // RT is the title, RL the journal ; RP spans three lines.
+        $this->assertEquals(
+            "Human polyserase-2, a novel enzyme with three tandem serine protease domains in a single polypeptide chain.",
+            $oFirst->getTitle()
+        );
+        $this->assertEquals("J. Biol. Chem. 280:1953-1961(2005).", $oFirst->getJournal());
+        $this->assertStringEndsWith("TISSUE SPECIFICITY, AND GLYCOSYLATION.", $oFirst->getRemark());
+        $this->assertEquals("TISSUE=Liver", $oFirst->getComments());
+
+        $aAuthorsByRef = [];
+        foreach ($oParser->getAuthors() as $oAuthor) {
+            $aAuthorsByRef[$oAuthor->getRefno()][] = $oAuthor->getAuthor();
+        }
+        $this->assertEquals(["Cal S.", "Quesada V.", "Llamazares M.", "Diaz-Perales A.", "Garabaya C.", "Lopez-Otin C."], $aAuthorsByRef[1]);
+        $this->assertCount(157, $aAuthorsByRef[2]);
+        // Reference 4 has a consortium (RG) and no RA line.
+        $this->assertEquals(["The MGC Project Team"], $aAuthorsByRef[4]);
+    }
+
+    public function testReadsTheColumnFeatureTableWithItsContinuationLines()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile(file('data/Q5K4E3.txt'));
+        $aFeatures = $oParser->getFeatures();
+
+        // 32 features : the "/FTId=..." and "{ECO:...}" continuation lines are not features.
+        $this->assertCount(32, $aFeatures);
+        $this->assertEquals(["CHAIN", 47, 855, "Polyserase-2"], [$aFeatures[2]->getFtKey(), $aFeatures[2]->getFtFrom(), $aFeatures[2]->getFtTo(), $aFeatures[2]->getFtDesc()]);
+        $this->assertEquals("Peptidase S1 1", $aFeatures[3]->getFtDesc());
+        $this->assertEquals("N-linked (GlcNAc...) asparagine", $aFeatures[9]->getFtDesc());
+        $this->assertEquals("E -> K (in Ref. 2; BAG62942)", $aFeatures[30]->getFtDesc());
+
+        $aDatabanks = $oParser->getSpDatabank();
+        $this->assertEquals(["EMBL", "AJ627034", "CAF25303.1"], [$aDatabanks[0]->getDbName(), $aDatabanks[0]->getPid1(), $aDatabanks[0]->getPid2()]);
+        // "DR   CCDS; CCDS32436.1; -. [Q5K4E3-1]" : the isoform is not part of the identifiers.
+        $this->assertEquals(["CCDS", "CCDS32436.1", "-"], [$aDatabanks[7]->getDbName(), $aDatabanks[7]->getPid1(), $aDatabanks[7]->getPid2()]);
+    }
+
+    /**
+     * Since release 2019_11 a feature location is written "FROM..TO" and its description is a
+     * /note qualifier ; "<", ">" mark a position beyond the sequence shown, "?" an unknown one.
+     */
+    public function testReadsTheFeatureTableLayoutOfRelease2019_11()
+    {
+        $aFlines = [
+            "ID   POLS2_HUMAN             Reviewed;         855 AA.",
+            "AC   Q5K4E3;",
+            "FT   CHAIN           47..855",
+            "FT                   /note=\"Polyserase-2\"",
+            "FT                   /id=\"PRO_0000027880\"",
+            "FT   DOMAIN          <1..>60",
+            "FT                   /note=\"Peptidase S1 1\"",
+            "FT                   /evidence=\"ECO:0000255|PROSITE-ProRule:PRU00274\"",
+            "FT   DISULFID        72..?",
+            "SQ   SEQUENCE   4 AA;  500 MW;  0 CRC64;",
+            "     MARH",
+            "//",
+        ];
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+        $aFeatures = $oParser->getFeatures();
+
+        $this->assertCount(3, $aFeatures);
+        $this->assertEquals(["CHAIN", 47, 855, "Polyserase-2"], [$aFeatures[0]->getFtKey(), $aFeatures[0]->getFtFrom(), $aFeatures[0]->getFtTo(), $aFeatures[0]->getFtDesc()]);
+        $this->assertEquals(["DOMAIN", 1, 60, "Peptidase S1 1"], [$aFeatures[1]->getFtKey(), $aFeatures[1]->getFtFrom(), $aFeatures[1]->getFtTo(), $aFeatures[1]->getFtDesc()]);
+        $this->assertEquals([72, null], [$aFeatures[2]->getFtFrom(), $aFeatures[2]->getFtTo()]);
+    }
+
+    /**
+     * The fragment test compared the end of the description with both "(FRAGMENT)." AND
+     * "(FRAGMENTS).", which no string can end with at once : the flag was always 0.
+     */
+    public function testFlagsAFragmentInEitherLayout()
+    {
+        $aCases = [
+            "original, one fragment"  => ["DE   TUMOR NECROSIS FACTOR (FRAGMENT)."],
+            "original, fragments"     => ["DE   TUMOR NECROSIS FACTOR (FRAGMENTS)."],
+            "UniProt flags"           => ["DE   RecName: Full=Polyserase-2;", "DE   Flags: Precursor; Fragment;"],
+        ];
+        foreach ($aCases as $sCase => $aDeLines) {
+            $oParser = new ParseSwissprotManager();
+            $oParser->parseDataFile(array_merge(["ID   TNFA_HUMAN  STANDARD;  PRT;  233 AA.", "AC   P01375;"], $aDeLines, ["//"]));
+            $this->assertEquals(1, $oParser->getSequence()->getFragment(), $sCase);
+        }
+    }
+
+    public function testReadsTheGeneNamesOfTheUniProtLayout()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile([
+            "ID   HBA_HUMAN  Reviewed;  142 AA.",
+            "AC   P69905;",
+            "GN   Name=HBA1 {ECO:0000312|HGNC:4823};",
+            "GN   and",
+            "GN   Name=HBA2; Synonyms=HBA-T2, HBAT2; ORFNames=hCG_1983332;",
+            "//",
+        ]);
+
+        $this->assertEquals([["HBA1"], ["HBA2", "HBA-T2", "HBAT2", "hCG_1983332"]], $oParser->getGeneNames());
     }
 }

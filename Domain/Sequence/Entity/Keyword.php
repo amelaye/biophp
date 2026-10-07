@@ -3,7 +3,7 @@
  * Doctrine Entity Keywords
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -22,19 +22,34 @@ use Doctrine\ORM\Mapping as ORM;
 class Keyword
 {
     /**
-     * @var string
+     * @var int|null
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+    private ?int $id = null;
+
+    /**
+     * The primary accession of the sequence this row belongs to : a plain column, so that a
+     * parsed record can be stored as the parser builds it, with its accession as a string.
+     * @var string
+     */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $primAcc = "";
 
     /**
      * @var string
      */
-    #[ORM\Id]
-    #[ORM\Column(type: "string", length: 80, nullable: false)]
+    #[ORM\Column(type: "string", length: 255, nullable: false)]
     private string $keywords = "";
+
+    /**
+     * @return int|null     Null until the row is stored
+     */
+    public function getId() : ?int
+    {
+        return $this->id;
+    }
 
     /**
      * @return string

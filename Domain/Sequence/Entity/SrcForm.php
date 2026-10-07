@@ -3,7 +3,7 @@
  * Doctrine Entity SrcForm
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -18,15 +18,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "src_form")]
-#[ORM\UniqueConstraint(name: "uniq_src_form", columns: ["prim_acc"])]
 class SrcForm
 {
     /**
      * @var string
      */
     #[ORM\Id]
-    #[ORM\OneToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $primAcc = "";
 
     /**

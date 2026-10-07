@@ -71,6 +71,9 @@ class ParsePrositeManagerTest extends TestCase
         $this->assertTrue($aDbRefs[1]->isTruePositive());
         $this->assertEquals("P00003", $aDbRefs[2]->getAccession());
         $this->assertFalse($aDbRefs[2]->isTruePositive());
+        // N is a false negative : a member of the family the motif misses, not a stranger to it.
+        $this->assertEquals(["T", "T", "N"], array_map(fn ($oDbRef) => $oDbRef->getCategory(), $aDbRefs));
+        $this->assertTrue($aDbRefs[2]->isFamilyMember());
     }
 
     /**
@@ -99,5 +102,25 @@ class ParsePrositeManagerTest extends TestCase
         $this->assertEquals("PROSITE", ParsePrositeManager::getFormat());
         $this->assertTrue(ParsePrositeManager::isEntryStart("ID   TEST_PATTERN; PATTERN."));
         $this->assertFalse(ParsePrositeManager::isEntryStart("DE   Something."));
+    }
+
+    /**
+     * The five codes a DR line may give : only F marks a sequence outside the family.
+     */
+    public function testKeepsEveryDrCode()
+    {
+        $oParser = new ParsePrositeManager();
+        $oParser->parseDataFile([
+            "ID   TEST_MOTIF; PATTERN.\n",
+            "AC   PS90001;\n",
+            "DR   P00001, A_HUMAN, T; P00002, B_HUMAN, N; P00003, C_HUMAN, P;\n",
+            "DR   P00004, D_HUMAN, ?; P00005, E_HUMAN, F;\n",
+            "//\n",
+        ]);
+
+        $aDbRefs = $oParser->getDbRefs();
+        $this->assertEquals(["T", "N", "P", "?", "F"], array_map(fn ($oDbRef) => $oDbRef->getCategory(), $aDbRefs));
+        $this->assertEquals([true, true, true, false, false], array_map(fn ($oDbRef) => $oDbRef->isFamilyMember(), $aDbRefs));
+        $this->assertEquals([true, false, false, false, false], array_map(fn ($oDbRef) => $oDbRef->isTruePositive(), $aDbRefs));
     }
 }

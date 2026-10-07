@@ -18,22 +18,29 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "feature")]
-#[ORM\UniqueConstraint(name: "uniq_feature", columns: ["prim_acc", "ft_key", "ft_qual"])]
+#[ORM\Index(name: "feature_prim_acc", columns: ["prim_acc"])]
 class Feature
 {
     /**
-     * @var string
+     * @var int|null
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+    private ?int $id = null;
+
+    /**
+     * The primary accession of the sequence this row belongs to : a plain column, so that a
+     * parsed record can be stored as the parser builds it, with its accession as a string.
+     * @var string
+     */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $primAcc = "";
 
     /**
      * @var string
      */
-    #[ORM\Id]
-    #[ORM\Column(type: "string", length: 15, nullable: false)]
+    #[ORM\Column(type: "string", length: 20, nullable: false)]
     private string $ftKey = "";
 
     /**
@@ -51,7 +58,6 @@ class Feature
     /**
      * @var string
      */
-    #[ORM\Id]
     #[ORM\Column(type: "string", length: 60, nullable: false)]
     private string $ftQual = "";
 
@@ -84,6 +90,14 @@ class Feature
      */
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $ftLocation = null;
+
+    /**
+     * @return int|null     Null until the row is stored
+     */
+    public function getId() : ?int
+    {
+        return $this->id;
+    }
 
     /**
      * @return string
@@ -227,5 +241,15 @@ class Feature
     public function setFtLocation(?string $ftLocation) : void
     {
         $this->ftLocation = $ftLocation;
+    }
+
+    /**
+     * Tells whether the feature extends beyond the bases its location gives ("<1..206", the start
+     * lies before base 1 ; "1..>888", the end lies after base 888), as the location was written.
+     * @return bool     False as well when no location was recorded
+     */
+    public function isPartial() : bool
+    {
+        return $this->ftLocation !== null && strpbrk($this->ftLocation, "<>") !== false;
     }
 }

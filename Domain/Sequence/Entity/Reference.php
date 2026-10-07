@@ -3,7 +3,7 @@
  * Doctrine Entity Reference
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -18,39 +18,47 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "reference")]
+#[ORM\UniqueConstraint(name: "uniq_reference", columns: ["prim_acc", "refno"])]
 class Reference
 {
     /**
-     * @var string
+     * @var int|null
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+    private ?int $id = null;
+
+    /**
+     * The primary accession of the sequence this row belongs to : a plain column, so that a
+     * parsed record can be stored as the parser builds it, with its accession as a string.
+     * @var string
+     */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
     private string $primAcc = "";
 
     /**
      * @var int
      */
-    #[ORM\Id]
-    #[ORM\Column(type: "integer", length: 11, nullable: false, options: ["default" => 0])]
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private int $refno = 0;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 80, nullable: true)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $baseRange = null;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $title = null;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 8, nullable: true)]
+    #[ORM\Column(type: "string", length: 20, nullable: true)]
     private ?string $medline = null;
 
     /**
@@ -62,7 +70,7 @@ class Reference
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $remark = null;
 
     /**
@@ -74,8 +82,16 @@ class Reference
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $comments = null;
+
+    /**
+     * @return int|null     Null until the row is stored
+     */
+    public function getId() : ?int
+    {
+        return $this->id;
+    }
 
     /**
      * @return string

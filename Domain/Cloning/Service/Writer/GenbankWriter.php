@@ -3,7 +3,7 @@
  * Serializes a Plasmid into GenBank flat-file text
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 6 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -26,11 +26,7 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  *
  * A REVERSE-strand feature is written as "complement(start..end)" with start <= end, the standard
  * GenBank convention - a feature crossing the origin (start > end) has no such representation and is
- * rejected by throwing, same as GffFeatureWriter and BedFeatureWriter. This is spec-correct output ;
- * it is a separate, pre-existing limitation of this project's own GenBank parser
- * (`ParseDbAbstractManager::parseLocationBounds()`, not touched here) that reading a complement()
- * location back does not fully restore the original coordinates, documented on
- * GenbankPlasmidMapper's own class docblock.
+ * rejected by throwing, same as GffFeatureWriter and BedFeatureWriter.
  *
  * A CDS phase is written as /codon_start = phase + 1, a bare number as INSDC specifies. A PROMOTER or
  * TERMINATOR with no GenBank key of its own is written as "regulatory" with the matching

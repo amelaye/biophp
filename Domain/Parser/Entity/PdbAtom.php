@@ -3,7 +3,7 @@
  * One ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -47,6 +47,19 @@ class PdbAtom implements PdbAtomInterface
      * @var int
      */
     private int $resSeq = 0;
+
+    /**
+     * Insertion code (column 27) : with the chain and resSeq, it names the residue ("52A" follows
+     * "52" in Kabat-numbered antibodies). Empty for most residues.
+     * @var string
+     */
+    private string $iCode = "";
+
+    /**
+     * The MODEL the atom belongs to (an NMR ensemble holds several) ; 1 when the file has none.
+     * @var int
+     */
+    private int $model = 1;
 
     /**
      * @var float
@@ -172,6 +185,38 @@ class PdbAtom implements PdbAtomInterface
     public function setResSeq(int $resSeq): void
     {
         $this->resSeq = $resSeq;
+    }
+
+    /**
+     * @return string
+     */
+    public function getICode(): string
+    {
+        return $this->iCode;
+    }
+
+    /**
+     * @param string $iCode
+     */
+    public function setICode(string $iCode): void
+    {
+        $this->iCode = $iCode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getModel(): int
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param int $model
+     */
+    public function setModel(int $model): void
+    {
+        $this->model = $model;
     }
 
     /**

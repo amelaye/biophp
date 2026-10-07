@@ -3,7 +3,7 @@
  * Contract for one SWISS-PROT cross-reference (DR field) from a PROSITE motif entry
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -45,4 +45,22 @@ interface PrositeDbRefInterface
      * @param bool $truePositive
      */
     public function setTruePositive(bool $truePositive): void;
+
+    /**
+     * The PROSITE code of the match : T true positive, N false negative, P potential, ? unknown,
+     * F false positive.
+     * @return string
+     */
+    public function getCategory(): string;
+
+    /**
+     * @param string $category
+     */
+    public function setCategory(string $category): void;
+
+    /**
+     * Tells whether the sequence belongs to the motif's family : T, N or P.
+     * @return bool
+     */
+    public function isFamilyMember(): bool;
 }
