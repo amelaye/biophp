@@ -76,4 +76,56 @@ class MathematicsFunctionsTest extends TestCase
     {
         $this->assertEquals(2, MathematicsFunctions::Variance([1, 3]));
     }
+
+    public function testPearsonDistanceOfIdenticalSeriesIsZero()
+    {
+        $this->assertSame(0.0, MathematicsFunctions::PearsonDistance([1, 2, 3, 4], [1, 2, 3, 4]));
+    }
+
+    public function testPearsonDistanceOfPerfectlyAnticorrelatedSeriesIsTwo()
+    {
+        $this->assertEqualsWithDelta(2.0, MathematicsFunctions::PearsonDistance([1, 2, 3], [3, 2, 1]), 1e-12);
+    }
+
+    public function testPearsonDistanceHandComputed()
+    {
+        // x = 1,2,3,4 ; y = 1,3,2,4 : Sxy - SxSy/n = 29 - 25 = 4, Sxx = Syy = 30 - 25 = 5 => r = 4/5 = 0.8, distance 0.2
+        $this->assertEqualsWithDelta(0.2, MathematicsFunctions::PearsonDistance([1, 2, 3, 4], [1, 3, 2, 4]), 1e-12);
+    }
+
+    public function testPearsonDistanceRefusesDifferentSizes()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        MathematicsFunctions::PearsonDistance([1, 2, 3], [1, 2]);
+    }
+
+    public function testEuclideanDistance()
+    {
+        // length 1: scale = sqrt(2)/4 ; sqrt((3-0)^2 + (0-4)^2) = 5
+        $this->assertEqualsWithDelta(
+            sqrt(2) / 4 * 5,
+            MathematicsFunctions::EuclideanDistance(['A' => 3, 'C' => 0], ['A' => 0, 'C' => 4], 1),
+            1e-12
+        );
+    }
+
+    public function testEuclideanDistanceOfIdenticalTablesIsZero()
+    {
+        $this->assertSame(0.0, MathematicsFunctions::EuclideanDistance(['A' => 2, 'C' => 5], ['A' => 2, 'C' => 5], 2));
+    }
+
+    public function testAlmeidaDistanceOfIdenticalTablesIsZero()
+    {
+        $this->assertEqualsWithDelta(
+            0.0,
+            MathematicsFunctions::AlmeidaDistance(['AA' => 1, 'AC' => 3, 'AG' => 2], ['AA' => 1, 'AC' => 3, 'AG' => 2]),
+            1e-8
+        );
+    }
+
+    public function testAlmeidaDistanceRefusesDifferentSizes()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        MathematicsFunctions::AlmeidaDistance(['A' => 1, 'C' => 2], ['A' => 1]);
+    }
 }

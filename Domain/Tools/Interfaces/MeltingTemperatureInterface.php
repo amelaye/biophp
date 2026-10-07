@@ -47,15 +47,15 @@ interface MeltingTemperatureInterface
      * correction.
      * @param   string      $sPrimer                    Must contain only A, C, G, T - no degenerate
      * symbol
-     * @param   int         $iPrimerConcentration
-     * @param   int         $iSaltConcentration
-     * @param   int         $iMagnesiumConcentration
+     * @param   float         $iPrimerConcentration
+     * @param   float         $iSaltConcentration
+     * @param   float         $iMagnesiumConcentration
      * @return  NearestNeighborTmResult
      */
     public function calculateNearestNeighborTm(
         string $sPrimer,
-        int $iPrimerConcentration,
-        int $iSaltConcentration,
-        int $iMagnesiumConcentration
+        float $iPrimerConcentration,
+        float $iSaltConcentration,
+        float $iMagnesiumConcentration
     ): NearestNeighborTmResult;
 }
