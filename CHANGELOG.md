@@ -52,6 +52,22 @@ Changes on `develop` since `master`.
   now always gives a CDS a phase, as the specification requires (0 when unknown).
 
 ### Fixed
+- Reference data checked against REBASE (emboss files v404) and Dayhoff 1978, corrected in the test
+  samples mirroring bioapi's DataFixtures (bioapi itself must be corrected and reloaded the same way):
+  - PAM250 W/H was +3 instead of -3.
+  - Wrong cut fields or sites : Psp124BI/SacI (overhang -44 -> -4), BstKTI (GAT^C, 3' overhang),
+    AbsI (CC^TCGAGG), AcoI (Y^GGCCR, was YCCGGR), HpyAV (CCTTC(6/5), pattern was SapI/HgaI),
+    AbaSI (C(11/9), off by one), AjuI (extra cut mark), BauI (bottom-strand site never searched).
+  - Neoschizomers listed as isoschizomers, so a lookup by those names returned another enzyme's
+    cut : BspOI, BlsI, BssKI/BstSCI/StyD4I, FaeI/Hin1II/Hsp92II/NlaIII, Mly113I/NarI, SspDI and
+    BtsCI now have their own entries, and CviAII, BmrFI and DinI their own cut.
+  - Type IIS PleI had no forward entry (PpsI added as isoschizomer); ArsI, which cuts on both sides
+    of its site, moved from Type IIS to Type IIB.
+  - Type IIB AlfI was a copy of BcgI, CspCI's reverse orientation was wrong and Hin4I missed
+    GAGNNNNNGTC.
+- `Tests/Api/ReferenceDataConsistencyTest` guards this data : every entry must agree with its own
+  annotated site, every search pattern must cover both orientations and every IUPAC expansion, and
+  the corrected entries are checked against REBASE.
 - `ParseGenbankManager` only kept 5 feature keys (source, gene, exon, CDS, misc_feature) and
   silently dropped every other annotation (rep_origin, oriT, promoter, terminator, primer_bind,
   regulatory...). It now reads every INSDC feature key, the ones deprecated on 15-DEC-2014 included.

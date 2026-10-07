@@ -59,7 +59,7 @@ class TypeIIbEndonucleaseTest extends WebTestCase
         $aEnzymesExpected = [
           "AjuI#" =>  [
             0 => "AjuI",
-            1 => "_NNNNN'NNNNNNNGAANNNNNNNTTGGNNNNNN_NNNNN_'",
+            1 => "_NNNNN'NNNNNNNGAANNNNNNNTTGGNNNNNN_NNNNN'",
             2 => "(............GAA.......TTGG...........|...........CCAA.......TTC............)",
             3 => 37,
             4 => 5,
@@ -67,9 +67,9 @@ class TypeIIbEndonucleaseTest extends WebTestCase
             6 => 7,
           ],
           "AlfI#" =>  [
-            0 => "AjuI",
-            1 => "_NN'NNNNNNNNNNCGANNNNNNTGCNNNNNNNNNN_NN'",
-            2 => "(............CGA......TGC............|............GCA......TCG............)",
+            0 => "AlfI",
+            1 => "_NN'NNNNNNNNNNGCANNNNNNTGCNNNNNNNNNN_NN'",
+            2 => "(............GCA......TGC............)",
             3 => 36,
             4 => 2,
             5 => -2,
@@ -79,6 +79,15 @@ class TypeIIbEndonucleaseTest extends WebTestCase
             0 => "AloI",
             1 => "_NNNNN'NNNNNNNGAACNNNNNNTCCNNNNNNN_NNNNN'",
             2 => "(............GAAC......TCC............|............GGA......GTTC............)",
+            3 => 37,
+            4 => 5,
+            5 => -5,
+            6 => 7,
+          ],
+          "ArsI#" =>  [
+            0 => "ArsI",
+            1 => "_NNNNN'NNNNNNNNGACNNNNNNTTYGNNNNNN_NNNNN'",
+            2 => "(.............GAC......TTCG...........|.............GAC......TTTG...........|...........CGAA......GTC.............|...........CAAA......GTC.............)",
             3 => 37,
             4 => 5,
             5 => -5,
@@ -141,7 +150,7 @@ class TypeIIbEndonucleaseTest extends WebTestCase
           "CspCI#" =>  [
             0 => "CspCI",
             1 => "_NN'NNNNNNNNNNNCAANNNNNGTGGNNNNNNNNNN_NN'",
-            2 => "(.............CAA.....GTGG............|............GCA.....TCG.............)",
+            2 => "(.............CAA.....GTGG............|............CCAC.....TTG.............)",
             3 => 37,
             4 => 2,
             5 => -2,
@@ -159,7 +168,7 @@ class TypeIIbEndonucleaseTest extends WebTestCase
           "Hin4I#" =>  [
             0 => "Hin4I",
             1 => "_NNNNN'NNNNNNNNGAYNNNNNVTCNNNNNNNN_NNNNN'",
-            2 => "(.............GAC.....ATC.............|.............GAC.....CTC.............|.............GAC.....GTC.............|.............GAT.....ATC.............|.............GAT.....CTC.............|.............GAT.....GTC.............|.............GAG.....ATC.............|.............GAG.....ATC.............)",
+            2 => "(.............GAC.....ATC.............|.............GAC.....CTC.............|.............GAC.....GTC.............|.............GAT.....ATC.............|.............GAT.....CTC.............|.............GAT.....GTC.............|.............GAG.....ATC.............|.............GAG.....GTC.............)",
             3 => 37,
             4 => 5,
             5 => -5,
