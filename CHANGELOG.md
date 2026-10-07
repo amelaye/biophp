@@ -68,6 +68,19 @@ Changes on `develop` since `master`.
   other entry's coordinates were taken as this sequence's, and "102.110" gave 102..102. A join()
   crossing the origin of a circular sequence (join(4900..5000,1..100)) came through as 1..5000, the
   whole plasmid ; it now gives 4900..100, crossing the origin, as GenbankPlasmidMapper expects.
+  Only on a record whose LOCUS/ID line says circular : on a linear one, a join() listed out of
+  order (trans-spliced plant organelle genes) keeps its lowest start and highest end. A location
+  lying on both strands (join(complement(a..b),c..d)) has a null strand rather than "-", and a
+  complement() around another entry's segment no longer makes the feature "-".
+- GenBank writer : a feature crossing the origin made the whole write throw ; it is written as
+  join(start..length,1..end), or its complement(), and reads back as the same feature.
+- Restriction digest : a custom enzyme (`parseEnzyme(..., "custom")`), described by its upper-strand
+  cut only, was also searched on the other strand and cut there at the same offset, wrong for a
+  Type IIS enzyme such as BsaI. Its site is now only searched as written ; reference enzymes, whose
+  cuts are symmetric within their site, are still searched on both strands.
+- EMBL : with the ID line of the layout before release 87, the entry name (HSERPG) was stored as
+  the primary accession and the AC line's accession was lost. The accession is now the primary
+  accession and the name the entry name.
   `Feature::isPartial()` tells a location marked "<" or ">".
 - PDB : the insertion code (column 27, "52A") and the MODEL of each atom (NMR ensembles) are read.
 - PROSITE : a DR line's code is kept (`getCategory()` : T, N, P, ? or F) ; `isFamilyMember()` no

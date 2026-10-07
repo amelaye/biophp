@@ -147,4 +147,22 @@ class ParseEntrezManagerTest extends TestCase
         $this->assertEquals("CIRCULAR", $oParser->getTopology());
         $this->assertEquals(5386, $oParser->getLength());
     }
+
+    /**
+     * A name longer than 16 characters shifts every LOCUS field : the fixed columns read the
+     * length as 1 and lost the rest.
+     */
+    public function testALocusLineWithALongNameIsReadWordByWord()
+    {
+        $oParser = new ParseEntrezManager();
+        $oParser->parseDataFile([
+            "LOCUS       NZ_JAAXYZ010000001     123456 bp    DNA     linear   CON 01-JAN-2020\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals("NZ_JAAXYZ010000001", $oParser->getEntryName());
+        $this->assertEquals(123456, $oParser->getLength());
+        $this->assertEquals("LINEAR", $oParser->getTopology());
+        $this->assertEquals("CON", $oParser->getDivision());
+    }
 }

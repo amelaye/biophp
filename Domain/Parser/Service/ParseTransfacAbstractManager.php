@@ -3,7 +3,7 @@
  * Shared reading of the TRANSFAC flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -168,6 +168,17 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
      */
     protected function append(string $sBuffer, string $sData) : string {
         return trim($sBuffer . " " . $sData);
+    }
+
+    /**
+     * Appends the data of an SQ line to a sequence written over several of them : the residues
+     * join with no blank between them, and the period closing the sequence is not a residue.
+     * @param   string      $sBuffer
+     * @param   string      $sData
+     * @return  string
+     */
+    protected function appendSequence(string $sBuffer, string $sData) : string {
+        return $sBuffer . rtrim(preg_replace('/\s+/', "", $sData), ".");
     }
 
     /**

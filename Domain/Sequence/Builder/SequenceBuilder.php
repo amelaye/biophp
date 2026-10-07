@@ -3,7 +3,7 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -139,6 +139,9 @@ class SequenceBuilder implements SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * With no molecule type given, the record's own is read : GenBank writes it "mRNA", "ss-DNA",
+     * "rRNA"... and always spells the sequence with T, so any RNA type is weighed as RNA, its T
+     * read as U, and any DNA type as DNA.
      * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string|null   $sSequence    The sequence
      * @param   string|null   $sMolType     DNA or RNA
@@ -153,6 +156,12 @@ class SequenceBuilder implements SequenceInterface
 
         if($sMolType == null) {
             $sMolType  = $this->sequence->getMoltype();
+            if ($sMolType !== null && stripos($sMolType, "RNA") !== false) {
+                $sMolType = "RNA";
+                $sSequence = $sSequence !== null ? str_ireplace("T", "U", $sSequence) : null;
+            } elseif ($sMolType !== null && stripos($sMolType, "DNA") !== false) {
+                $sMolType = "DNA";
+            }
         }
 
         if($iNALen == null) {

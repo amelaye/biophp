@@ -232,22 +232,26 @@ final class ParsePrositeManager implements ParseDatabaseInterface
     }
 
     /**
-     * Parses the DT line.
-     * Format : DT   MMM-YEAR (CREATED); MMM-YEAR (DATA UPDATE); MMM-YEAR (INFO UPDATE).
+     * Parses the DT line, in either of its layouts.
+     * Format : DT   01-APR-1990 CREATED; 01-NOV-1997 DATA UPDATE; 01-MAY-2017 INFO UPDATE.
+     *          DT   MMM-YEAR (CREATED); MMM-YEAR (DATA UPDATE); MMM-YEAR (INFO UPDATE).   (older)
      * @param   string      $sLine
      */
     private function parseDate(string $sLine) {
         $sData = rtrim(trim(substr($sLine, 5)), ".");
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sData))));
         foreach ($aItems as $sItem) {
-            if (preg_match('/^(.*)\s+\((.*)\)$/', $sItem, $aMatches)) {
+            if (preg_match('/^(.*)\s+\((.*)\)$/', $sItem, $aMatches)
+                || preg_match('/^(\S+)\s+(.+)$/', $sItem, $aMatches)) {
                 $this->dates[trim($aMatches[2])] = trim($aMatches[1]);
             }
         }
     }
 
     /**
-     * Turns a "/qualifier=value; /qualifier=value;" string into an associative array.
+     * Turns a "/qualifier=value; /qualifier=value;" string into an associative array. A qualifier
+     * written several times (/SITE, one per site of the pattern) keeps all its values, as a list
+     * in the order given ; one written once keeps its value as a string.
      * @param   string      $sText
      * @return  array
      */
@@ -256,8 +260,14 @@ final class ParsePrositeManager implements ParseDatabaseInterface
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {
             $aKeyValue = explode("=", ltrim($sItem, "/"), 2);
-            if (isset($aKeyValue[1])) {
-                $aResult[$aKeyValue[0]] = $aKeyValue[1];
+            if (!isset($aKeyValue[1])) {
+                continue;
+            }
+            [$sKey, $sValue] = $aKeyValue;
+            if (!array_key_exists($sKey, $aResult)) {
+                $aResult[$sKey] = $sValue;
+            } else {
+                $aResult[$sKey] = array_merge((array) $aResult[$sKey], [$sValue]);
             }
         }
         return $aResult;

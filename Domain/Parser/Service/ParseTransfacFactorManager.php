@@ -3,7 +3,7 @@
  * TRANSFAC factor.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -131,7 +131,7 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
                     $this->parseClass($sData);
                     break;
                 case "SQ":
-                    $this->sequence = $this->append($this->sequence, $sData);
+                    $this->sequence = $this->appendSequence($this->sequence, $sData);
                     break;
             }
         }

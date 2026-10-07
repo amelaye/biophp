@@ -831,6 +831,26 @@ class SequenceAlignmentManagerTest extends TestCase
     }
 
     /**
+     * A column of gaps only : the zero-count letters every column starts with were taken as
+     * residues, so the column gave "A" at threshold 0 and "?" above it, and was reported variant.
+     */
+    public function testAColumnOfGapsOnlyIsAGapAndInvariant()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["A-C", "A-C"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(3);
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("A-C", $sequenceAlignmentManager->consensus());
+        $this->assertEquals("A-C", $sequenceAlignmentManager->consensus(0));
+        $this->assertEquals(["INVARIANT" => [0, 1, 2], "VARIANT" => []], $sequenceAlignmentManager->resVar());
+    }
+
+    /**
      * ClustalW closes each line with the count of residues written so far, where Clustal Omega
      * writes none. Both forms have to read the same, and the count must not end up inside the
      * sequence : here the two haemoglobin alpha chains, human and mouse, over two blocks.

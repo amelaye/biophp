@@ -101,4 +101,25 @@ class ProteinManagerTest extends TestCase
 
         $this->assertEquals([75.07, 75.07], $proteinManager->molwt());
     }
+
+    /**
+     * U and O, which the weight table holds, lower case and the stop ending a translated ORF all
+     * made molwt() return FALSE. An internal stop still does.
+     */
+    public function testMolwtOfSelenocysteineLowerCaseAndATerminalStop()
+    {
+        $proteinManager = new ProteinManager($this->apiAminoMock);
+        $oProtein = new Protein();
+        $oProtein->setName("translated");
+        $oProtein->setSequence("gU*");
+        $proteinManager->setProtein($oProtein);
+
+        // 75.07 (G) + 168.05 (U) - one water, 18.015
+        $aMolwt = $proteinManager->molwt();
+        $this->assertEqualsWithDelta(225.105, $aMolwt[0], 0.0001);
+        $this->assertEqualsWithDelta(225.105, $aMolwt[1], 0.0001);
+
+        $oProtein->setSequence("G*G");
+        $this->assertFalse($proteinManager->molwt());
+    }
 }

@@ -352,7 +352,8 @@ class ParseEmblManagerTest extends TestCase
 
     /**
      * Before release 87 (2006), the ID line had no sequence version : "ID   entryname  dataclass;
-     * [circular] molecule; division; length BP."
+     * [circular] molecule; division; length BP." Its first word is the entry name, not the
+     * accession : HSERPG used to be stored as the primary accession and X01234 was lost.
      */
     public function testEmblIdLineOfTheLayoutBeforeRelease87()
     {
@@ -363,10 +364,27 @@ class ParseEmblManagerTest extends TestCase
             "//\n",
         ]);
 
-        $this->assertEquals("HSERPG", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals("X01234", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals("X01234", $oParser->getGbSequence()->getPrimAcc());
+        $this->assertEquals("HSERPG", $oParser->getSequence()->getEntryName());
         $this->assertEquals(3398, $oParser->getSequence()->getSeqLength());
         $this->assertEquals("DNA", $oParser->getSequence()->getMolType());
         $this->assertEquals("CIRCULAR", $oParser->getGbSequence()->getTopology());
         $this->assertEquals("HUM", $oParser->getGbSequence()->getDivision());
+    }
+
+    /**
+     * A record cut short after its SQ line, with no "//", used to crash on a null line.
+     */
+    public function testARecordCutShortInItsSequenceIsReadAsFarAsItGoes()
+    {
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile([
+            "ID   X56734; SV 1; linear; mRNA; STD; PLN; 20 BP.\n",
+            "SQ   Sequence 20 BP; 5 A; 5 C; 5 G; 5 T; 0 other;\n",
+            "     acgtacgtac gtacgtacgt                                              20\n",
+        ]);
+
+        $this->assertEquals("acgtacgtacgtacgtacgt", $oParser->getSequence()->getSequence());
     }
 }

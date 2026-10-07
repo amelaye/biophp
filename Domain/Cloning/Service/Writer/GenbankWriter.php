@@ -25,8 +25,9 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  * characters, written in full rather than truncated.
  *
  * A REVERSE-strand feature is written as "complement(start..end)" with start <= end, the standard
- * GenBank convention - a feature crossing the origin (start > end) has no such representation and is
- * rejected by throwing, same as GffFeatureWriter and BedFeatureWriter.
+ * GenBank convention. A feature crossing the origin (start > end) is written as INSDC does on a
+ * circular molecule, "join(start..length,1..end)", wrapped in complement() on the REVERSE strand -
+ * the form GenbankPlasmidMapper reads back as the same origin-crossing feature.
  *
  * A CDS phase is written as /codon_start = phase + 1, a bare number as INSDC specifies. A PROMOTER or
  * TERMINATOR with no GenBank key of its own is written as "regulatory" with the matching
@@ -88,7 +89,7 @@ class GenbankWriter implements GenbankWriterInterface
         $sOutput .= sprintf("%-5s%-16s%s\n", "", "source", "1.." . $iLength);
 
         foreach ($oPlasmid->getFeatures() as $oFeature) {
-            $sOutput .= $this->writeFeature($oFeature);
+            $sOutput .= $this->writeFeature($oFeature, $iLength);
         }
 
         $sOutput .= $this->writeOriginBlock($oPlasmid->getSequence()->getValue());
@@ -98,10 +99,9 @@ class GenbankWriter implements GenbankWriterInterface
 
     /**
      * NCBI's fixed LOCUS columns (1-based) : name 13-28, length right-justified 30-40, "bp" 42-43,
-     * molecule type 48-53, topology 56-63 - the columns ParseGenbankManager::parseLocus() reads
-     * back. A name longer than the 16 columns it is given is written in full, the remaining fields
-     * separated by spaces, as NCBI itself does for long locus names ; a column-based reader such as
-     * ParseGenbankManager then cannot read that line back.
+     * molecule type 48-53, topology 56-63. A name longer than the 16 columns it is given is written
+     * in full, the remaining fields separated by spaces, as NCBI itself does for long locus names ;
+     * ParseGenbankManager::parseLocus() reads both back, word by word.
      * @param   string      $sName
      * @param   int         $iLength
      * @return  string
@@ -117,28 +117,20 @@ class GenbankWriter implements GenbankWriterInterface
 
     /**
      * @param   PlasmidFeature  $oFeature
+     * @param   int             $iLength    The plasmid length, where an origin-crossing feature wraps
      * @return  string
      */
-    private function writeFeature(PlasmidFeature $oFeature): string
+    private function writeFeature(PlasmidFeature $oFeature, int $iLength): string
     {
-        if ($oFeature->crossesOrigin()) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Feature "%s" crosses the origin (start %d > end %d) ; this GenBank writer has'
-                    . ' no way to represent that.',
-                    $oFeature->getName(),
-                    $oFeature->getStart(),
-                    $oFeature->getEnd()
-                )
-            );
-        }
-
         $aMetadata = $oFeature->getMetadata();
         $sKey = $aMetadata["genbankKey"]
             ?? self::GENBANK_KEY_BY_FEATURE_TYPE[$oFeature->getType()]
             ?? "misc_feature";
 
         $sLocation = $oFeature->getStart() . ".." . $oFeature->getEnd();
+        if ($oFeature->crossesOrigin()) {
+            $sLocation = "join(" . $oFeature->getStart() . ".." . $iLength . ",1.." . $oFeature->getEnd() . ")";
+        }
         if ($oFeature->getStrand() === Strand::REVERSE) {
             $sLocation = "complement(" . $sLocation . ")";
         }

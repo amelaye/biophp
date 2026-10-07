@@ -40,6 +40,13 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     private ?SequenceInterface $sequenceManager = null;
 
     /**
+     * True when the current enzyme was described by parseEnzyme(..., "custom") rather than read from
+     * the reference data
+     * @var bool
+     */
+    private bool $bCustomEnzyme = false;
+
+    /**
      * RestrictionEnzymeManager constructor.
      * @param Enzyme                        $oEnzyme
      * @param TypeIIEndonucleaseApiAdapter  $typeIIEndonucleaseApi
@@ -81,9 +88,10 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * If passed with make = 'custom', object will be added to aRestEnzimDB.
      * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
-     * An enzyme is described here by its upper-strand cut only, so its site read on the other strand
-     * is cut at the same offset : that holds for a Type II enzyme, whose cuts are placed symmetrically
-     * within its site, not for a Type IIS one cutting outside an asymmetric site.
+     * An enzyme is described here by its upper-strand cut only. A reference entry places its two cuts
+     * symmetrically within its site, so its site read on the other strand is cut at the same offset.
+     * A custom enzyme may not (a Type IIS one such as BsaI cuts outside an asymmetric site), and
+     * nothing tells where its lower-strand cut lies : its site is only searched as written.
      * @param   string      $sName
      * @param   string      $sPattern
      * @param   string      $sCutpos
@@ -92,6 +100,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      */
     public function parseEnzyme(string $sName, ?string $sPattern = null, ?string $sCutpos = null, string $sMake = "custom")
     {
+        $this->bCustomEnzyme = ($sMake == "custom");
         if ($sMake == "custom") {
             $iCutpos = (int) $sCutpos;
             $this->enzyme->setName($sName);
@@ -233,15 +242,18 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * enzyme binds double-stranded DNA and a non-palindromic site (AccBSI, CCGCTC) also lies on the
      * other strand (GAGCGG). A palindromic site is its own reverse complement and is listed once.
      * @param   string      $sPattern
+     * @param   bool        $bBothStrands   False to list the sites as written only
      * @return  string[]
      */
-    private function sitesOf(string $sPattern) : array
+    private function sitesOf(string $sPattern, bool $bBothStrands = true) : array
     {
         $aSites = [];
         foreach (preg_split('/\s+or\s+/i', trim($sPattern)) as $sSite) {
             $oSite = new DnaSequence(strtoupper(trim($sSite)));
             $aSites[] = $oSite->getValue();
-            $aSites[] = $oSite->reverseComplement()->getValue();
+            if ($bBothStrands) {
+                $aSites[] = $oSite->reverseComplement()->getValue();
+            }
         }
         return array_values(array_unique($aSites));
     }
@@ -262,7 +274,8 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * enzyme cuts the upper strand of a linear sequence. A site found on the other strand is cut at
      * the same offset from its start : every Type II entry places its two cuts symmetrically within
      * its site (length = 2 x upper cut + lower cut offset), so the upper-strand cut of a reversed
-     * site stays at that offset. A cut at either end of the sequence splits nothing and is dropped.
+     * site stays at that offset. A custom enzyme is only searched on the strand its site is written
+     * for (see parseEnzyme()). A cut at either end of the sequence splits nothing and is dropped.
      * @param   string      $sSequence
      * @param   bool        $bOverlapping   True to also find sites overlapping one another
      * @return  int[]
@@ -271,7 +284,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     {
         $aExpandedSites = array_map(function (string $sSite) {
             return $this->sequenceManager->expandNa($sSite);
-        }, $this->sitesOf($this->enzyme->getPattern()));
+        }, $this->sitesOf($this->enzyme->getPattern(), !$this->bCustomEnzyme));
 
         $sRegex = '(' . implode('|', $aExpandedSites) . ')';
         if ($bOverlapping) {

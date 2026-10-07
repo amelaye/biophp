@@ -231,15 +231,17 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
      *   between two bases : both give a..b ;
      * - a segment of another entry ("J00194.1:100..202") lies on another sequence and is left out ;
      *   a location made of such segments only has no bounds here (null, null) ;
-     * - the segments of a join() are listed in the order they are transcribed. When all of them lie
-     *   on the same strand and that order goes back past the origin of a circular sequence
+     * - the segments of a join() are listed in the order they are transcribed. When the record is
+     *   circular, all of them lie on the same strand and that order goes back past the origin
      *   (join(4900..5000,1..100), or join(complement(1..100),complement(4900..5000)) on the other
      *   strand), the bounds are from = 4900, to = 100 : from > to, the origin-crossing convention of
-     *   PlasmidFeature, as for a single segment written "4900..100". Otherwise they are the
-     *   lowest start and the highest end.
+     *   PlasmidFeature, as for a single segment written "4900..100". Otherwise - a linear record,
+     *   whose trans-spliced genes (plant organelle nad1, rps12) list their segments out of order -
+     *   they are the lowest start and the highest end.
      * @param   string  $sLocation  The raw location text, e.g. "complement(join(<1..10,50..>60))".
-     * @return  array   [$iFrom, $iTo, $sStrand] - $sStrand is "-" when the location was wrapped
-     * in complement(...), "+" otherwise.
+     * @return  array   [$iFrom, $iTo, $sStrand] - $sStrand is "-" when every segment of this entry
+     * is complemented, "+" when none is, null when the location lies on both strands (a trans-spliced
+     * join(complement(a..b),c..d)).
      */
     protected function parseLocationBounds(string $sLocation) : array
     {
@@ -267,7 +269,15 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
         }
 
         $aStrands = array_unique(array_column($aSegments, 2));
-        if (count($aSegments) > 1 && count($aStrands) === 1) {
+        if (count($aStrands) > 1) {
+            $sStrand = null;
+        } else {
+            // Read from this entry's segments only : a complement() around a remote segment says
+            // nothing about this sequence.
+            $sStrand = $aSegments[0][2] ? "-" : "+";
+        }
+        $bCircular = $this->gbSequence !== null && $this->gbSequence->getTopology() === "CIRCULAR";
+        if ($bCircular && count($aSegments) > 1 && count($aStrands) === 1) {
             // join(complement(c..d),complement(a..b)) is transcribed from the last base of the
             // feature : listed from its 3' end, read back to front it runs like a direct one.
             if ($aSegments[0][2] && !$bOuterComplement) {

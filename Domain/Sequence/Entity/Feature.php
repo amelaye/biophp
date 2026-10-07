@@ -76,7 +76,8 @@ class Feature
     /**
      * The strand the feature was read from : "+" (direct/sense) or "-" (the location was wrapped
      * in "complement(...)"). Null when the format has no strand concept (e.g. Swiss-Prot, whose
-     * features are positions on a protein sequence) or none was recorded.
+     * features are positions on a protein sequence), when the feature lies on both strands (a
+     * trans-spliced join(complement(a..b),c..d)) or when none was recorded.
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 1, nullable: true)]

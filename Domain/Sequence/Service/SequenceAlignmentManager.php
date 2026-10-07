@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -800,8 +800,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         // A gap is not a residue: it must not win a column as "the" consensus symbol while any
         // sequence still carries a real character there. Only when every sequence has a gap at
         // this column is there nothing else to report, and "-" is kept as that (unanimous) result.
+        // $aGlobFreq lists every letter at a zero count : those letters are not in the column.
         $iGapCount = $aFrequences["-"] ?? 0;
         unset($aFrequences["-"]);
+        $aFrequences = array_filter($aFrequences);
         if (empty($aFrequences)) {
             $aKeys = ["-"];
             return ($iGapCount / $this->aSeqSet->count()) * 100;

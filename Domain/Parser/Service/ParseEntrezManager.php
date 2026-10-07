@@ -3,7 +3,7 @@
  * Entrez genome record parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -281,31 +281,22 @@ final class ParseEntrezManager implements ParseDatabaseInterface
     }
 
     /**
-     * Parses the LOCUS line, whose fields sit at fixed columns.
-     * Columns : 13-28 entry name, 30-40 length, 45-47 strands, 48-53 molecule type,
-     * 56-63 topology, 65-67 division, 69-79 date.
+     * Parses the LOCUS line, GenBank's : its fixed columns shift when the name is longer than 16
+     * characters, so it is read word by word (see ParseGenbankManager::readLocusLine()).
      * @param   string      $sLine
      */
     private function parseLocus(string $sLine) {
-        $this->entryName = trim(substr($sLine, 12, 16));
-        $this->length    = (int) trim(substr($sLine, 29, 11));
-        $this->molType   = trim(substr($sLine, 47, 6));
+        $aLocus = ParseGenbankManager::readLocusLine($sLine);
 
-        switch (substr($sLine, 44, 3)) {
-            case "ss-":
-                $this->strands = "SINGLE";
-                break;
-            case "ds-":
-                $this->strands = "DOUBLE";
-                break;
-            case "ms-":
-                $this->strands = "MIXED";
-                break;
+        $this->entryName = $aLocus["name"];
+        $this->length    = $aLocus["length"];
+        $this->molType   = $aLocus["molType"];
+        if ($aLocus["strands"] !== null) {
+            $this->strands = $aLocus["strands"];
         }
-
-        $this->topology  = strtoupper(trim(substr($sLine, 55, 8)));
-        $this->division  = strtoupper(trim(substr($sLine, 64, 3)));
-        $this->entryDate = strtoupper(trim(substr($sLine, 68, 11)));
+        $this->topology  = $aLocus["topology"];
+        $this->division  = $aLocus["division"];
+        $this->entryDate = $aLocus["date"];
     }
 
     /**

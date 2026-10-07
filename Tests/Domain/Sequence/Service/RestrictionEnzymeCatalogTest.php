@@ -153,6 +153,21 @@ class RestrictionEnzymeCatalogTest extends TestCase
         }
     }
 
+    /**
+     * The recognition sequence was only compared whole and as written : the other strand of a
+     * non-palindromic site (GAGCGG for AccBSI) and either side of an "X or Y" site (CCGC for AciI)
+     * found nothing, where RestrictionEnzymeManager::findRestEn() finds both.
+     */
+    public function testFindByRecognitionSequenceReadsBothStrandsAndEitherAlternative()
+    {
+        $fNames = fn(array $aDefinitions) => array_map(fn($o) => $o->getName(), $aDefinitions);
+
+        $this->assertContains("AccBSI", $fNames($this->catalog->findByRecognitionSequence("GAGCGG")));
+        $this->assertContains("AccBSI", $fNames($this->catalog->findByRecognitionSequence("ccgctc")));
+        $this->assertContains("AciI", $fNames($this->catalog->findByRecognitionSequence("CCGC")));
+        $this->assertContains("AciI", $fNames($this->catalog->findByRecognitionSequence("GCGG")));
+    }
+
     public function testDeduplicatesByCanonicalNameKeepingTheFirstRegisteredFamily()
     {
         $oTypeIIDto = new TypeIIEndonucleaseDTO();

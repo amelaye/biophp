@@ -281,6 +281,29 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "N", "DNA", 1), 3));
     }
 
+    /**
+     * With no molecule type given, the record's own was passed on as is : "mRNA" was rejected
+     * ("Unrecognized MRNA symbol"), and a GenBank mRNA, spelt with T, would have failed as RNA.
+     */
+    public function testMolWtOfAParsedMrnaRecord()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $oSequence = new Sequence();
+        $oSequence->setMoltype("mRNA");
+        $oSequence->setSequence("acgt");
+        $oSequence->setSeqlength(4);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($oSequence);
+
+        $this->assertEquals(
+            $sequenceManager->molwt("upperlimit", "ACGU", "RNA", 4),
+            $sequenceBuilder->molwt("upperlimit")
+        );
+
+        $oSequence->setMoltype("ss-DNA");
+        $this->assertEquals($sequenceManager->molwt("upperlimit", "ACGT", "DNA", 4), $sequenceBuilder->molwt("upperlimit"));
+    }
+
     public function testMolWtResolvesDegeneratedSymbolsForRna()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -520,6 +543,26 @@ class SequenceManagerTest extends TestCase
         $translate = $sequenceBuilder->translate();
 
         $this->assertEquals($translate, $sExpected);
+    }
+
+    /**
+     * An ambiguous codon whose every reading codes for one same residue gave X : TAR, a common
+     * degenerate stop, left a translated ORF without its end.
+     */
+    public function testAnAmbiguousCodonOfACertainResidueIsTranslated()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals("*", $sequenceManager->translateCodon("TAR", 1));   // TAA, TAG
+        $this->assertEquals("*", $sequenceManager->translateCodon("TRA", 1));   // TAA, TGA
+        $this->assertEquals("E", $sequenceManager->translateCodon("GAR", 1));
+        $this->assertEquals("N", $sequenceManager->translateCodon("AAY", 1));
+        $this->assertEquals("I", $sequenceManager->translateCodon("AUH", 1));
+        $this->assertEquals("L", $sequenceManager->translateCodon("YTR", 1));   // CTA/CTG/TTA/TTG
+        $this->assertEquals("Arg", $sequenceManager->translateCodon("MGR", 3)); // AGA/AGG/CGA/CGG
+        $this->assertEquals("G", $sequenceManager->translateCodon("GGN", 1));
+        $this->assertEquals("X", $sequenceManager->translateCodon("GAN", 1));   // Asp or Glu
+        $this->assertEquals("X", $sequenceManager->translateCodon("AUN", 1));   // Ile or Met
     }
 
     /**
@@ -1268,6 +1311,34 @@ class SequenceManagerTest extends TestCase
 
         $this->assertEquals([["GAATTC", 0]], $aWithoutFlank);
         $this->assertEquals([["GAATTC", 0]], $aWithFlank);
+    }
+
+    /**
+     * Only the input was left in its case : a GenBank or EMBL record, in lower case, never held a
+     * palindrome. isPalindrome() also ignored the ambiguity codes findPalindrome() handles.
+     */
+    public function testPalindromesIgnoreCaseAndPairAmbiguousSymbols()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $this->assertTrue($sequenceBuilder->isPalindrome("gaattc"));
+        $this->assertTrue($sequenceBuilder->isPalindrome("ACRYGT"));
+        $this->assertFalse($sequenceBuilder->isPalindrome("ACRRGT"));
+        $this->assertEquals([["gaattc", 2]], $sequenceBuilder->findPalindrome("aagaattcaa", 6, 3));
+    }
+
+    /**
+     * complement() threw on X, which cleanSequence() and DnaSequence accept ; symFreq("a") counted
+     * nothing, the sequence alone being upper-cased.
+     */
+    public function testComplementOfXAndSymbolFrequencyIgnoringCase()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals("TXGC", $sequenceManager->complement("AXCG", "DNA"));
+        $this->assertEquals(2, $sequenceManager->symFreq("a", "AaGT"));
+        $this->assertEquals(2, $sequenceManager->symFreq("A", "aAGT"));
     }
 
     public function testFindPalindromeWitPalenAndLen()

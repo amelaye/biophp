@@ -32,8 +32,11 @@ use Amelaye\BioPHP\Domain\Parser\Interfaces\PdbSheetInterface;
 final class ParsePdbManager implements ParseDatabaseInterface
 {
     /**
-     * 3-letter to 1-letter amino acid code table, for turning SEQRES residues into
-     * a usable protein sequence. Unknown residues (including HETATM-only ones) map to "X".
+     * Residue name to one-letter code table, for turning SEQRES residues into a usable sequence.
+     * Besides the twenty amino acids : selenocysteine (SEC, U) and pyrrolysine (PYL, O), the
+     * ambiguous ASX (B) and GLX (Z), selenomethionine (MSE), the methionine substitute of
+     * SAD/MAD-phased structures, read as its parent M, and the nucleotides of a DNA (DA, DC, DG,
+     * DT) or RNA (A, C, G, U) chain. Other residues (a modified one, a ligand) map to "X".
      * @var array
      */
     private static $aminoAcidCodes = [
@@ -41,6 +44,9 @@ final class ParsePdbManager implements ParseDatabaseInterface
         "GLN" => "Q", "GLU" => "E", "GLY" => "G", "HIS" => "H", "ILE" => "I",
         "LEU" => "L", "LYS" => "K", "MET" => "M", "PHE" => "F", "PRO" => "P",
         "SER" => "S", "THR" => "T", "TRP" => "W", "TYR" => "Y", "VAL" => "V",
+        "SEC" => "U", "PYL" => "O", "ASX" => "B", "GLX" => "Z", "MSE" => "M",
+        "DA" => "A", "DC" => "C", "DG" => "G", "DT" => "T",
+        "A" => "A", "C" => "C", "G" => "G", "U" => "U",
     ];
 
     /**

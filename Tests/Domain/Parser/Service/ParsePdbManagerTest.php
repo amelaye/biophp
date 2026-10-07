@@ -202,4 +202,21 @@ class ParsePdbManagerTest extends TestCase
         $this->assertEquals("ASN", $aAtoms[1]->getResName());
         $this->assertEquals(11.204, $aAtoms[3]->getX());
     }
+
+    /**
+     * Only the twenty amino acids were known : a DNA or RNA chain, selenomethionine and
+     * selenocysteine all came out as "X".
+     */
+    public function testSeqResReadsNucleicAcidAndSelenoResidues()
+    {
+        $oParser = new ParsePdbManager();
+        $oParser->parseDataFile([
+            "SEQRES   1 A    5  MET MSE SEC GLY UNK                                          \n",
+            "SEQRES   1 B    4   DC  DG  DA  DT                                              \n",
+            "SEQRES   1 C    4    G   C   U   A                                              \n",
+            "END\n",
+        ]);
+
+        $this->assertEquals(["A" => "MMUGX", "B" => "CGAT", "C" => "GCUA"], $oParser->getSeqRes());
+    }
 }

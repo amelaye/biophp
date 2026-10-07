@@ -3,7 +3,7 @@
  * NCBI biomedical literature parsing (journal list)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -135,10 +135,14 @@ final class ParseNcbiLitManager implements ParseDatabaseInterface
                 case "MedAbbr":
                     $this->medAbbr = $sValue;
                     break;
+                // ISSN/ESSN in the older files, "ISSN (Print)"/"ISSN (Online)" in J_Entrez.txt and
+                // J_Medline.txt today.
                 case "ISSN":
+                case "ISSN (Print)":
                     $this->issn = $sValue;
                     break;
                 case "ESSN":
+                case "ISSN (Online)":
                     $this->essn = $sValue;
                     break;
                 case "IsoAbbr":

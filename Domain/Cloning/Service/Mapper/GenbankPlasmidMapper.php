@@ -28,9 +28,10 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
  * comes through as `from > to`, matching PlasmidFeature's own origin-crossing convention : both pass
  * straight through with no conversion.
  *
- * A `join()` crossing the origin (`join(4900..5000,1..100)`, or its complement) comes through as
- * from > to as well : `ParseDbAbstractManager::parseLocationBounds()` follows the order in which the
- * segments are transcribed. Any feature that comes through with missing or non-representable
+ * A `join()` crossing the origin (`join(4900..5000,1..100)`, or its complement) of a record whose
+ * LOCUS line says "circular" comes through as from > to as well :
+ * `ParseDbAbstractManager::parseLocationBounds()` follows the order in which the segments are
+ * transcribed. GenbankWriter writes such a feature back as that join(). Any feature that comes through with missing or non-representable
  * coordinates (e.g. a location made only of segments of another entry) is skipped and reported in
  * GenbankImportResult::getWarnings(), never silently dropped or truncated.
  * Class GenbankPlasmidMapper

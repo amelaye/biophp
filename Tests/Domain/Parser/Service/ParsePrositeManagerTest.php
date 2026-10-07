@@ -123,4 +123,30 @@ class ParsePrositeManagerTest extends TestCase
         $this->assertEquals([true, true, true, false, false], array_map(fn ($oDbRef) => $oDbRef->isFamilyMember(), $aDbRefs));
         $this->assertEquals([true, false, false, false, false], array_map(fn ($oDbRef) => $oDbRef->isTruePositive(), $aDbRefs));
     }
+
+    /**
+     * The current DT layout has no parentheses ("01-APR-1990 CREATED") : no date was read. A
+     * qualifier written several times, as /SITE is for each site of a pattern, kept only its last
+     * value.
+     */
+    public function testCurrentDateLayoutAndRepeatedQualifiers()
+    {
+        $oParser = new ParsePrositeManager();
+        $oParser->parseDataFile([
+            "ID   ASN_GLYCOSYLATION; PATTERN.\n",
+            "AC   PS00001;\n",
+            "DT   01-APR-1990 CREATED; 01-NOV-1997 DATA UPDATE; 01-MAY-2017 INFO UPDATE.\n",
+            "CC   /TAXO-RANGE=??E?V; /SITE=1,carbohydrate; /SITE=3,active_site;\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals(
+            ["CREATED" => "01-APR-1990", "DATA UPDATE" => "01-NOV-1997", "INFO UPDATE" => "01-MAY-2017"],
+            $oParser->getDates()
+        );
+        $this->assertEquals(
+            ["TAXO-RANGE" => "??E?V", "SITE" => ["1,carbohydrate", "3,active_site"]],
+            $oParser->getComments()
+        );
+    }
 }

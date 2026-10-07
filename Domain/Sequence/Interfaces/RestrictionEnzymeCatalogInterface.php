@@ -3,7 +3,7 @@
  * Typed restriction enzyme catalog Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -45,7 +45,9 @@ interface RestrictionEnzymeCatalogInterface
 
     /**
      * Returns every enzyme whose recognition sequence, cleavage marks stripped, matches $sSequence
-     * case-insensitively. Several enzymes (isoschizomers) may share the same recognition sequence.
+     * case-insensitively : either alternative of a "SITE1 or SITE2" sequence, read on either strand
+     * (GAGCGG finds AccBSI, CCGCTC). Several enzymes (isoschizomers) may share the same recognition
+     * sequence.
      * @param   string      $sSequence  The recognition sequence to search for, without cleavage marks
      * @return  RestrictionEnzymeDefinition[]   Sorted by canonical name, empty when nothing matches
      */

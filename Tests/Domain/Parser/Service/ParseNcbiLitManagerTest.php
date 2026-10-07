@@ -100,4 +100,21 @@ class ParseNcbiLitManagerTest extends TestCase
         $this->assertEquals("1", $oParser->getId());
         $this->assertEquals("First.", $oParser->getTitle());
     }
+
+    /**
+     * J_Entrez.txt and J_Medline.txt now write "ISSN (Print)" and "ISSN (Online)" : neither was
+     * read.
+     */
+    public function testTheCurrentIssnLabelsAreRead()
+    {
+        $oParser = new ParseNcbiLitManager();
+        $oParser->parseDataFile([
+            "JrId: 1\n",
+            "ISSN (Print): 0160-6999\n",
+            "ISSN (Online): 1234-5678\n",
+        ]);
+
+        $this->assertEquals("0160-6999", $oParser->getIssn());
+        $this->assertEquals("1234-5678", $oParser->getEssn());
+    }
 }

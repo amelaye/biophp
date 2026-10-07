@@ -3,7 +3,7 @@
  * KEGG ENZYME parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -104,28 +104,17 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
         $this->classification = isset($aFields["CLASS"]) ? $this->splitClasses($aFields["CLASS"]) : [];
         $this->sysname        = isset($aFields["SYSNAME"]) ? $this->joinLines($aFields["SYSNAME"]) : "";
         $this->comment        = isset($aFields["COMMENT"]) ? $this->joinLines($aFields["COMMENT"]) : "";
-        $this->reactions      = isset($aFields["REACTION"]) ? $this->splitLines($aFields["REACTION"]) : [];
-        $this->substrates     = isset($aFields["SUBSTRATE"]) ? $this->splitLines($aFields["SUBSTRATE"]) : [];
-        $this->products       = isset($aFields["PRODUCT"]) ? $this->splitLines($aFields["PRODUCT"]) : [];
-        $this->genes          = isset($aFields["GENES"]) ? $this->splitLines($aFields["GENES"]) : [];
-        $this->diseases       = isset($aFields["DISEASE"]) ? $this->splitLines($aFields["DISEASE"]) : [];
-        $this->orthologs      = isset($aFields["ORTHOLOG"]) ? $this->splitLines($aFields["ORTHOLOG"]) : [];
-        $this->motifs         = isset($aFields["MOTIF"]) ? $this->splitLines($aFields["MOTIF"]) : [];
+        $this->reactions      = $this->readItems("REACTION");
+        $this->substrates     = $this->readItems("SUBSTRATE");
+        $this->products       = $this->readItems("PRODUCT");
+        $this->genes          = $this->readItems("GENES");
+        $this->diseases       = $this->readItems("DISEASE");
+        // ORTHOLOGY since the 2008 format, ORTHOLOG before it.
+        $this->orthologs      = isset($aFields["ORTHOLOGY"]) ? $this->readItems("ORTHOLOGY") : $this->readItems("ORTHOLOG");
+        $this->motifs         = $this->readItems("MOTIF");
         $this->structures     = isset($aFields["STRUCTURES"]) ? $this->splitStructures($aFields["STRUCTURES"]) : [];
         $this->pathways       = isset($aFields["PATHWAY"]) ? $this->parsePathways($aFields["PATHWAY"]) : [];
         $this->dbLinks        = isset($aFields["DBLINKS"]) ? $this->parseDbLinks($aFields["DBLINKS"]) : [];
-    }
-
-    /**
-     * Reads a field listing one item per line, a long item wrapping onto the next : a wrapped
-     * line is indented past the column the items start at.
-     * @param   array       $aLines
-     * @return  array
-     */
-    private function splitLines(array $aLines) : array {
-        return array_values(array_filter(array_map(function ($sLine) {
-            return rtrim(trim($sLine), ";");
-        }, $aLines)));
     }
 
     /**

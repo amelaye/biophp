@@ -15,7 +15,6 @@ use Amelaye\BioPHP\Api\Interfaces\ElementApiAdapter;
 use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Amelaye\BioPHP\Domain\Sequence\Traits\SequenceTrait;
-use Amelaye\BioPHP\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
@@ -128,7 +127,7 @@ class SequenceManager
         $aIupacComplements = [
             "Y" => "R", "R" => "Y", "W" => "W", "S" => "S",
             "K" => "M", "M" => "K", "D" => "H", "V" => "B",
-            "H" => "D", "B" => "V", "N" => "N",
+            "H" => "D", "B" => "V", "N" => "N", "X" => "X",
         ];
 
         $iSeqLength = strlen($sSequence);
@@ -319,13 +318,13 @@ class SequenceManager
 
 
     /**
-     * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
-     * parsed record.
+     * Counts the number of codons (a trio of nucleotide base-pairs) in the first CDS feature of
+     * a parsed record.
      * @param   array     $aFeatures    The record's Feature objects, as returned by a database
-     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). Every row sharing the
-     * "CDS" key is expected to carry the same location - one per /qualifier read off the CDS
-     * feature - and, when present, a "codon_start" qualifier row gives the 1-based offset
-     * (1, 2 or 3) of the first complete codon within it. When the parser kept the location as
+     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). A feature comes as one row
+     * per /qualifier, sharing its key and location : the rows of the first CDS are those with the
+     * location of the first "CDS" row, and, when present, their "codon_start" qualifier gives the
+     * 1-based offset (1, 2 or 3) of the first complete codon within it - another CDS's is not. When the parser kept the location as
      * written, only the bases of its segments are counted, not the introns between the exons of a
      * join() ; otherwise the ftFrom..ftTo span is.
      * @return  int       The number of complete codons within the CDS, expressed as a
@@ -336,15 +335,21 @@ class SequenceManager
     {
         $iCdsLength = null;
         $iCodonStart = 1;
+        $aFirstCds = null;
 
         foreach ($aFeatures as $oFeature) {
             if ($oFeature->getFtKey() !== "CDS") {
                 continue;
             }
+            $aLocation = [$oFeature->getFtFrom(), $oFeature->getFtTo(), $oFeature->getStrand(), $oFeature->getFtLocation()];
             if ($iCdsLength === null) {
+                $aFirstCds = $aLocation;
                 $iCdsLength = $oFeature->getFtLocation() !== null
                     ? $this->locationLength($oFeature->getFtLocation())
                     : $oFeature->getFtTo() - $oFeature->getFtFrom() + 1;
+            }
+            if ($aLocation !== $aFirstCds) {
+                continue;
             }
             if ($oFeature->getFtQual() === "codon_start") {
                 $iCodonStart = (int) $oFeature->getFtValue();
@@ -549,11 +554,13 @@ class SequenceManager
      */
     public function symFreq(string $sSymbol, string $sSequence) : int
     {
+        // Both sides upper-cased : symFreq("a", ...) used to count nothing.
         $iSymTally = count_chars(strtoupper($sSequence), 1);
-        if (!isset($iSymTally[ord($sSymbol)])) {
+        $iOrd = ord(strtoupper($sSymbol));
+        if (!isset($iSymTally[$iOrd])) {
             return 0;
         } else {
-            return $iSymTally[ord($sSymbol)];
+            return $iSymTally[$iOrd];
         }
     }
 
@@ -704,7 +711,10 @@ class SequenceManager
      * the output string. When omitted, $format is set to 3 by default.
      * @return  string                  When $format is passed a value of 1, the function returns a single letter.
      * When $format is passed a value of 3, the function returns a string of three letters. The return value
-     * represents a single amino acid residue.
+     * represents a single amino acid residue. A codon holding an ambiguous base (IUPAC R, Y, N...)
+     * translates into the residue every codon it stands for codes for - TAR (TAA, TAG) is a stop,
+     * YTR (CTA, CTG, TTA, TTG) a leucine - and into X (or XXX) only when they disagree, as
+     * Biopython does.
      * @throws  \Exception
      */
     public function translateCodon(string $sCodon, int $iFormat = 3) : string
@@ -723,6 +733,19 @@ class SequenceManager
 
         $sUpperCodon = strtoupper($sCodon);
         $sFormtdCodon = str_replace("T", "U", $sUpperCodon);
+
+        if (preg_match('/^[ACGU]{3}$/', $sFormtdCodon) !== 1
+            && preg_match('/^[ACGURYSWKMBDHVN]{3}$/', $sFormtdCodon) === 1) {
+            $aTranslations = [];
+            foreach ($this->expandCodon($sFormtdCodon) as $sExpandedCodon) {
+                $aTranslations[$this->translateCodon($sExpandedCodon, $iFormat)] = true;
+            }
+            if (count($aTranslations) === 1) {
+                return (string) array_key_first($aTranslations);
+            }
+            return ($iFormat == 3) ? "XXX" : "X";
+        }
+
         $sLetter1 = substr($sFormtdCodon, 0, 1);
         $sLetter2 = substr($sFormtdCodon, 1, 1);
         $sLetter3 = substr($sFormtdCodon, 2, 1);
@@ -745,6 +768,31 @@ class SequenceManager
                 $sTranslation = ($iFormat == 3) ? "XXX" : "X";
         }
         return $sTranslation;
+    }
+
+    /**
+     * Lists the codons an ambiguous codon stands for, its IUPAC symbols expanded (RNA alphabet).
+     * @param   string      $sCodon     Three symbols among ACGU and the IUPAC ambiguity codes
+     * @return  string[]
+     */
+    private function expandCodon(string $sCodon) : array
+    {
+        $aBases = [
+            "A" => "A", "C" => "C", "G" => "G", "U" => "U",
+            "R" => "AG", "Y" => "CU", "S" => "CG", "W" => "AU", "K" => "GU", "M" => "AC",
+            "B" => "CGU", "D" => "AGU", "H" => "ACU", "V" => "ACG", "N" => "ACGU",
+        ];
+        $aCodons = [""];
+        foreach (str_split($sCodon) as $sSymbol) {
+            $aNext = [];
+            foreach ($aCodons as $sPrefix) {
+                foreach (str_split($aBases[$sSymbol]) as $sBase) {
+                    $aNext[] = $sPrefix . $sBase;
+                }
+            }
+            $aCodons = $aNext;
+        }
+        return $aCodons;
     }
 
     /**
@@ -823,6 +871,8 @@ class SequenceManager
      * palindrome"). A "genetic palindrome" is one where the ends of a sequence are
      * reverse complements of each other.
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
+     * The comparison ignores case (a GenBank or EMBL record is in lower case) and an ambiguous
+     * symbol pairs with its IUPAC complement (R with Y, K with M...), as findPalindrome() does.
      * @param   string      $sSequence    A sequence which we want to test if it is a genetic palindrome or not.
      * @return  bool                      TRUE if the given string is a genetic palindrome, FALSE otherwise.
      * @throws  \Exception
@@ -833,17 +883,11 @@ class SequenceManager
         if (strlen($sSequence) % 2 != 0) {
             return false;
         }
+        $sSequence = strtoupper($sSequence);
         $sHalf1 = $this->halfSequence($sSequence, 0);
         $sHalf2 = $this->halfSequence($sSequence, 1);
 
-        $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
-        $sInverted = GeneticsFunctions::CreateInversion($sHalf2, $aComplements);
-
-        if ($sHalf1 == $sInverted) {
-            return true;
-        } else {
-            return false;
-        }
+        return $sHalf1 == $this->complement(strrev($sHalf2), "DNA");
     }
 
     /**
@@ -871,19 +915,24 @@ class SequenceManager
         if ($iPalLen == 0 && $iSeqLen == 0) {
             return FALSE;
         }
+        // Searched in upper case, a GenBank or EMBL record being in lower case, but each
+        // palindrome is returned as the sequence writes it.
+        $sUpperSequence = strtoupper($sSequence);
         // CASE 2) seqlen is set, pallen is set.
         if ($iSeqLen != 0 && $iPalLen != 0) {
-            $aOuter = $this->palindrSeqSetAndPallenSet($sSequence, $iSeqLen, $iPalLen);
+            $aOuter = $this->palindrSeqSetAndPallenSet($sUpperSequence, $iSeqLen, $iPalLen);
         }
         // CASE 3) seqlen is set, pallen is not set.
         elseif ($iSeqLen != 0 && $iPalLen == 0) {
-            $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqLen);
+            $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sUpperSequence, $iSeqLen);
         }
         // CASE 4) seqlen is not set, pallen is set.
         elseif ($iSeqLen == 0 && $iPalLen != 0) {
-            $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLen);
+            $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sUpperSequence, $iPalLen);
         }
-        return $aOuter;
+        return array_map(function (array $aFound) use ($sSequence) {
+            return [substr($sSequence, $aFound[1], strlen($aFound[0])), $aFound[1]];
+        }, $aOuter);
     }
 
     /**

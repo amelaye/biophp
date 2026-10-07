@@ -3,7 +3,7 @@
  * ExPASy ENZYME database parsing (EC nomenclature)
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -131,6 +131,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
     public function parseDataFile(array $aFlines) {
         $aLines = new \ArrayIterator($aFlines);
         $sComments = "";
+        $sAlternateName = "";
 
         foreach ($aLines as $lineno => $linestr) {
             switch (trim(substr($aLines->current(), 0, 2))) {
@@ -141,9 +142,13 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
                     $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
                     break;
                 case "AN":
-                    // One synonym per line: unlike DE, CA or CF, consecutive AN lines are
-                    // separate names, not one name wrapped over several lines.
-                    $this->alternateNames[] = rtrim(trim(substr($aLines->current(), 5)), ".");
+                    // Each synonym ends with a period : consecutive AN lines are separate names,
+                    // but a name too long for one line goes on over the next AN line(s).
+                    $sAlternateName = trim($sAlternateName . " " . trim(substr($aLines->current(), 5)));
+                    if (substr($sAlternateName, -1) === ".") {
+                        $this->alternateNames[] = rtrim($sAlternateName, ".");
+                        $sAlternateName = "";
+                    }
                     break;
                 case "CA":
                     $this->aCaLines[] = trim(substr($aLines->current(), 5));
@@ -169,6 +174,9 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
             }
         }
 
+        if ($sAlternateName !== "") {
+            $this->alternateNames[] = $sAlternateName;
+        }
         $this->comments = rtrim($sComments, "\n");
         $this->catalyticActivities = $this->parseCatalyticActivities($this->aCaLines);
     }

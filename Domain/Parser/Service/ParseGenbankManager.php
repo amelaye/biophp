@@ -126,8 +126,9 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                         // (the next top-level section, or the "//" record terminator) means the
                         // FEATURES table is over. A feature key we don't parse (e.g. "mRNA") must
                         // not stop the loop, or every feature after it in the record is lost.
-                        $sNextLine = $aFlines[$this->aLines->key()+1] ?? "";
-                        $bStillInFeatureTable = ($sNextLine === "") || ctype_space(substr($sNextLine, 0, 1));
+                        // The end of the lines, in a record cut short, ends it as well.
+                        $sNextLine = $aFlines[$this->aLines->key()+1] ?? null;
+                        $bStillInFeatureTable = $sNextLine !== null && ctype_space(substr($sNextLine, 0, 1));
                         if(!$bStillInFeatureTable) {
                             break;
                         }
@@ -251,8 +252,8 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         $organism = array();
         $organism[] = trim(substr($this->aLines->current(),12));
         while(1) {
-            $head = trim(substr($flines[$this->aLines->key()+1],0, 12));
-            if($head != "") {
+            $sNextLine = $flines[$this->aLines->key()+1] ?? null;
+            if($sNextLine === null || trim(substr($sNextLine, 0, 12)) != "") {
                 break;
             }
             $this->aLines->next();
@@ -264,37 +265,84 @@ final class ParseGenbankManager extends ParseDbAbstractManager
                 }
             }
         }
+        // The lineage is closed by a period, which is not part of its last rank ("Homo.").
+        if (count($organism) > 1) {
+            $organism[count($organism) - 1] = rtrim($organism[count($organism) - 1], ".");
+        }
         $this->sequence->setOrganism($organism);
     }
 
     /**
-     * Parses line LOCUS
-     * @return      mixed
+     * Parses line LOCUS. NCBI writes its fields in fixed columns - name 13-28, length 30-40,
+     * strandedness 45-47, molecule type 48-53, topology 56-63, division 65-67, date 69-79 - but
+     * shifts them all right when the name is longer than its 16 columns (a WGS contig such as
+     * NZ_JAAXYZ010000001), so they are read as words : the name, the length before its unit (bp or
+     * aa), then the molecule type (absent from a protein record), topology, division and date,
+     * any of which may be missing.
      * @throws      \Exception
      */
     private function parseLocus()
     {
-        $this->sequence->setPrimAcc(trim(substr($this->aLines->current(), 12, 16)));
+        $aLocus = self::readLocusLine($this->aLines->current());
+
+        $this->sequence->setPrimAcc($aLocus["name"]);
         $this->gbSequence->setPrimAcc($this->sequence->getPrimAcc());
+        $this->sequence->setSeqlength($aLocus["length"]);
+        $this->sequence->setMoltype($aLocus["molType"]);
+        if ($aLocus["strands"] !== null) {
+            $this->gbSequence->setStrands($aLocus["strands"]);
+        }
+        $this->gbSequence->setTopology($aLocus["topology"]);
+        $this->gbSequence->setDivision($aLocus["division"]);
+        $this->sequence->setDate($aLocus["date"]);
+    }
 
-        $this->sequence->setSeqlength(trim(substr($this->aLines->current(), 29, 11)) * 1);
-        $this->sequence->setMoltype(trim(substr($this->aLines->current(), 47, 6)));
+    /**
+     * Reads the fields of a LOCUS line, word by word (see parseLocus()). Shared with
+     * ParseEntrezManager, whose records open on the same line.
+     * @param   string      $sLine
+     * @return  array       ["name" => string, "length" => int, "molType" => string,
+     * "strands" => ?string (SINGLE, DOUBLE, MIXED), "topology" => string, "division" => string,
+     * "date" => string], the last three upper-cased, "" when absent
+     */
+    public static function readLocusLine(string $sLine) : array
+    {
+        $aWords = preg_split('/\s+/', trim(substr($sLine, 12)), -1, PREG_SPLIT_NO_EMPTY);
+        $aLocus = ["name" => $aWords[0] ?? "", "length" => 0, "molType" => "", "strands" => null,
+            "topology" => "", "division" => "", "date" => ""];
 
-        switch(substr($this->aLines->current(), 44, 3)) {
-            case "ss-":
-                $this->gbSequence->setStrands("SINGLE");
+        $iUnit = null;
+        for ($i = 2; $i < count($aWords); $i++) {
+            if (in_array(strtolower($aWords[$i]), ["bp", "aa"], true)) {
+                $iUnit = $i;
                 break;
-            case "ds-":
-                $this->gbSequence->setStrands("DOUBLE");
-                break;
-            case "ms-":
-                $this->gbSequence->setStrands("MIXED");
-                break;
+            }
+        }
+        if ($iUnit === null) {
+            return $aLocus;
+        }
+        $aLocus["length"] = (int) $aWords[$iUnit - 1];
+        $aRest = array_slice($aWords, $iUnit + 1);
+
+        if (strtolower($aWords[$iUnit]) === "bp" && isset($aRest[0]) && stripos($aRest[0], "NA") !== false) {
+            $aLocus["molType"] = array_shift($aRest);
+        }
+        if (preg_match('/^(ss|ds|ms)-(.*)$/i', $aLocus["molType"], $aMatch)) {
+            $aLocus["strands"] = ["ss" => "SINGLE", "ds" => "DOUBLE", "ms" => "MIXED"][strtolower($aMatch[1])];
+            $aLocus["molType"] = $aMatch[2];
         }
 
-        $this->gbSequence->setTopology(strtoupper(trim(substr($this->aLines->current(), 55, 8))));
-        $this->gbSequence->setDivision(strtoupper(trim(substr($this->aLines->current(), 64, 3))));
-        $this->sequence->setDate(strtoupper(trim(substr($this->aLines->current(), 68, 11))));
+        foreach ($aRest as $sWord) {
+            if (in_array(strtolower($sWord), ["linear", "circular"], true)) {
+                $aLocus["topology"] = strtoupper($sWord);
+            } elseif (preg_match('/^\d{1,2}-[A-Za-z]{3}-\d{4}$/', $sWord)) {
+                $aLocus["date"] = strtoupper($sWord);
+            } elseif (preg_match('/^[A-Za-z]{3}$/', $sWord)) {
+                $aLocus["division"] = strtoupper($sWord);
+            }
+        }
+
+        return $aLocus;
     }
 
 
@@ -309,8 +357,8 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         array_shift($wordarray);
         $sDefinition = trim(implode(" ", $wordarray));
         while(1) {
-            $head = trim(substr($flines[$this->aLines->key()+1],0, 12));
-            if($head != "") {
+            $sNextLine = $flines[$this->aLines->key()+1] ?? null;
+            if($sNextLine === null || trim(substr($sNextLine, 0, 12)) != "") {
                 break;
             }
             $this->aLines->next();
@@ -335,34 +383,39 @@ final class ParseGenbankManager extends ParseDbAbstractManager
 
 
     /**
-     * Parses KEYWORDS field
+     * Parses KEYWORDS field, possibly continued on lines whose first 12 columns are blank : the
+     * keywords are separated by ";" and the field closed by a period, alone when there is none.
+     * Format : KEYWORDS    RefSeq; MANE Select.
      * @throws      \Exception
      */
     private function parseKeywords()
     {
-        $wordarray = preg_split("/\s+/", trim($this->aLines->current()));
-        array_shift($wordarray);
-        $wordarray = preg_split("/;+/", implode(" ", $wordarray));
-        if ($wordarray[0] != ".") {
-            foreach($wordarray as $word) {
-                $oKeyword = new Keyword();
-                $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
-                $oKeyword->setKeywords($word);
-                $this->keywords[] = $oKeyword;
+        $sKeywords = rtrim(trim(implode(" ", $this->readContinuedField())), ".");
+        foreach (preg_split("/;+/", $sKeywords) as $sWord) {
+            $sWord = trim($sWord);
+            if ($sWord === "") {
+                continue;
             }
+            $oKeyword = new Keyword();
+            $oKeyword->setPrimAcc($this->sequence->getPrimAcc());
+            $oKeyword->setKeywords($sWord);
+            $this->keywords[] = $oKeyword;
         }
     }
 
 
     /**
-     * Parses ACCESSION field
+     * Parses ACCESSION field : the primary accession, then the secondary ones, possibly continued
+     * on lines whose first 12 columns are blank. A record cut out of a larger one (a CON or
+     * contig sub-range) follows them with "REGION: from..to", which is not an accession.
+     * Format : ACCESSION   NC_000913 REGION: 1..1000
      * @throws      \Exception
      */
     private function parseAccession()
     {
-        $wordarray = preg_split("/\s+/", trim($this->aLines->current()));
-        $this->sequence->setPrimAcc($wordarray[1]);
-        array_shift($wordarray);
+        $sAccessions = preg_replace('/\bREGION:\s*\S+/', "", implode(" ", $this->readContinuedField()));
+        $wordarray = preg_split("/\s+/", trim($sAccessions), -1, PREG_SPLIT_NO_EMPTY);
+        $this->sequence->setPrimAcc($wordarray[0] ?? "");
         array_shift($wordarray);
         foreach($wordarray as $word) {
             $oAccession = new Accession();
@@ -370,5 +423,25 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $oAccession->setAccession($word);
             $this->accession[] = $oAccession;
         }
+    }
+
+    /**
+     * Returns the data of the current line, past its 12 label columns, and of the lines continuing
+     * it (first 12 columns blank), leaving the iterator on the last of them.
+     * @return  string[]
+     */
+    private function readContinuedField() : array
+    {
+        $aFlines = $this->aLines->getArrayCopy();
+        $aData = [trim(substr($this->aLines->current(), 12))];
+        while (true) {
+            $sNextLine = $aFlines[$this->aLines->key() + 1] ?? null;
+            if ($sNextLine === null || trim($sNextLine) === "" || trim(substr($sNextLine, 0, 12)) !== "") {
+                break;
+            }
+            $this->aLines->next();
+            $aData[] = trim(substr($this->aLines->current(), 12));
+        }
+        return $aData;
     }
 }

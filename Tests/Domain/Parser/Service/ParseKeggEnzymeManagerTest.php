@@ -120,4 +120,32 @@ class ParseKeggEnzymeManagerTest extends TestCase
     {
         $this->assertEquals(["1HKB", "1HKC", "1IG8"], $this->fetch()->getStructures());
     }
+
+    /**
+     * The 2008 format: no "PATH:" tag, ec/ko pathway identifiers of seven characters, ORTHOLOGY
+     * for ORTHOLOG, and a GENES line wrapped onto an indented one. The pathway was cut ten
+     * characters in ("ec00010  G", "lycolysis..."), the orthologs were lost, and the wrapped genes
+     * came out as an item with no organism.
+     */
+    public function testTheCurrentFormatWithWrappedGenes()
+    {
+        $oParser = new ParseKeggEnzymeManager();
+        $oParser->parseDataFile([
+            "ENTRY       EC 2.7.1.1                  Enzyme\n",
+            "ORTHOLOGY   K00844  hexokinase\n",
+            "PATHWAY     ec00010  Glycolysis / Gluconeogenesis\n",
+            "            ec00052  Galactose metabolism\n",
+            "GENES       HSA: 3098(HK1) 3099(HK2)\n",
+            "            ECO: b1234 b2345\n",
+            "                 b3456\n",
+            "///\n",
+        ]);
+
+        $this->assertEquals(
+            [["ec00010", "Glycolysis / Gluconeogenesis"], ["ec00052", "Galactose metabolism"]],
+            $oParser->getPathways()
+        );
+        $this->assertEquals(["K00844  hexokinase"], $oParser->getOrthologs());
+        $this->assertEquals(["HSA: 3098(HK1) 3099(HK2)", "ECO: b1234 b2345 b3456"], $oParser->getGenes());
+    }
 }

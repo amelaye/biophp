@@ -14,6 +14,7 @@ use Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use Amelaye\BioPHP\Api\Interfaces\TypeIIsEndonucleaseApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Exception\UnknownRestrictionEnzymeException;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeCatalogInterface;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RestrictionEnzymeDefinition;
 
 /**
@@ -105,11 +106,31 @@ class RestrictionEnzymeCatalog implements RestrictionEnzymeCatalogInterface
         $aResult = array_values(array_filter(
             $this->aDefinitionsByName,
             function (RestrictionEnzymeDefinition $oDefinition) use ($sNormalized) {
-                return strtoupper($oDefinition->getCleanRecognitionSequence()) === $sNormalized;
+                return in_array($sNormalized, $this->sitesOf($oDefinition), true);
             }
         ));
 
         return $this->sortedByName($aResult);
+    }
+
+    /**
+     * Lists the sites an enzyme binds, upper-cased : each alternative of a "SITE1 or SITE2"
+     * recognition sequence (AciI CCGC or GCGG), and the reverse complement of each, the same site
+     * read on the other strand (AccBSI CCGCTC, GAGCGG).
+     * @param   RestrictionEnzymeDefinition     $oDefinition
+     * @return  string[]
+     */
+    private function sitesOf(RestrictionEnzymeDefinition $oDefinition): array
+    {
+        $aSites = [];
+        foreach (preg_split('/\s+or\s+/i', trim($oDefinition->getCleanRecognitionSequence())) as $sSite) {
+            $sSite = strtoupper(trim($sSite));
+            $aSites[] = $sSite;
+            if (preg_match('/^[ACGTRYSWKMBDHVN]+$/', $sSite) === 1) {
+                $aSites[] = (new DnaSequence($sSite))->reverseComplement()->getValue();
+            }
+        }
+        return $aSites;
     }
 
     /**

@@ -88,4 +88,21 @@ class ParseTransfacFactorManagerTest extends TestCase
         $this->assertEquals("bHLH", $oParser->getClassId());
         $this->assertEquals("1.2.3.0.1", $oParser->getClassDecimalNo());
     }
+
+    /**
+     * A protein written over several SQ lines gained a blank at every line break, which is not a
+     * residue ; the period closing it is not one either.
+     */
+    public function testASequenceOverSeveralLinesIsJoinedWithoutBlanks()
+    {
+        $oParser = new ParseTransfacFactorManager();
+        $oParser->parseDataFile([
+            "AC  T00001",
+            "SQ  MSEEPLAVHP",
+            "SQ  KLLQ.",
+            "//"
+        ]);
+
+        $this->assertEquals("MSEEPLAVHPKLLQ", $oParser->getSequence());
+    }
 }

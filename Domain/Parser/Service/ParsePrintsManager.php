@@ -3,7 +3,7 @@
  * PRINTS database parsing (protein fingerprints)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -75,9 +75,9 @@ final class ParsePrintsManager implements ParseDatabaseInterface
     }
 
     /**
-     * PRINTS entries carry no end-of-entry marker, so a stream holding several of them cannot be
-     * split : reading stops at the end of the file. This mirrors the original BioPHP parser,
-     * which had the same limitation.
+     * PRINTS entries carry no end-of-entry marker : a record fetched from a file holding several
+     * of them runs to the end of the file, and parseDataFile() stops at the gc; line opening the
+     * next one.
      * @param   string      $sLine          The line to analyze
      * @return  bool
      */
@@ -98,12 +98,15 @@ final class ParsePrintsManager implements ParseDatabaseInterface
     }
 
     /**
-     * Parses a PRINTS data file and populates this manager's fields.
+     * Parses a PRINTS data file and populates this manager's fields. Only the first entry is read :
+     * the lines handed may run on into the entries after it (see isEntryEnd()), whose fields used
+     * to overwrite or extend its own.
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
     public function parseDataFile(array $aFlines) {
         $sDescription = "";
+        $bEntryStarted = false;
 
         foreach($aFlines as $sLine) {
             $sLabel = substr($sLine, 0, 3);
@@ -111,6 +114,10 @@ final class ParsePrintsManager implements ParseDatabaseInterface
 
             switch($sLabel) {
                 case "gc;":
+                    if ($bEntryStarted) {
+                        break 2;
+                    }
+                    $bEntryStarted = true;
                     $this->entryName = $sData;
                     break;
                 case "gn;":

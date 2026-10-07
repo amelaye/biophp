@@ -164,7 +164,9 @@ final class ParseEmblManager extends ParseDbAbstractManager
     }
 
     /**
-     * Parses the ID line of the layout used before release 87, which has no sequence version.
+     * Parses the ID line of the layout used before release 87, which has no sequence version. Its
+     * first word is the entry name (HSERPG), a mnemonic, not the accession : the primary accession
+     * is the first one of the AC line (see parseAccession()).
      * @param   string[]    $aParts     "ENTRYNAME DATACLASS", "[circular ]MOLTYPE", "DIVISION",
      * "LENGTH BP."
      */
@@ -174,11 +176,10 @@ final class ParseEmblManager extends ParseDbAbstractManager
         $aMolecule = preg_split('/\s+/', $aParts[1]);
         $bCircular = count($aMolecule) > 1 && strtolower($aMolecule[0]) === "circular";
 
-        $this->sequence->setPrimAcc($sEntryName);
+        $this->sequence->setEntryName($sEntryName);
         $this->sequence->setSeqLength((int) preg_replace("/\D/", "", $aParts[3]));
         $this->sequence->setMolType(end($aMolecule));
 
-        $this->gbSequence->setPrimAcc($sEntryName);
         $this->gbSequence->setTopology($bCircular ? "CIRCULAR" : "LINEAR");
         $this->gbSequence->setDivision(strtoupper($aParts[2]));
     }
@@ -197,6 +198,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
         if (!$this->bAccessionLineSeen) {
             if ($this->sequence->getPrimAcc() == "") {
                 $this->sequence->setPrimAcc($aAccessions[0]);
+                $this->gbSequence->setPrimAcc($aAccessions[0]);
             }
             $aAccessions = array_slice($aAccessions, 1);
             $this->bAccessionLineSeen = true;
@@ -373,14 +375,15 @@ final class ParseEmblManager extends ParseDbAbstractManager
     }
 
     /**
-     * Parses the SQ header line and every sequence data line that follows it, up to "//".
+     * Parses the SQ header line and every sequence data line that follows it, up to "//" or the
+     * end of the lines, a record cut short having none.
      * @throws  \Exception
      */
     private function parseSequence()
     {
         $sSequence = "";
         $this->aLines->next();
-        while (substr($this->aLines->current(), 0, 2) != "//") {
+        while ($this->aLines->valid() && substr($this->aLines->current(), 0, 2) != "//") {
             $sLine = preg_replace("/\d+\s*$/", "", $this->aLines->current());
             $sSequence .= str_replace(" ", "", $sLine);
             $this->aLines->next();

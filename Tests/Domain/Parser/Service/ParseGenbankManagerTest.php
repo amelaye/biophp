@@ -107,8 +107,9 @@ class ParseGenbankManagerTest extends WebTestCase
         $this->assertEquals(3488, strlen($sSequence));
         $oExpectedSequence->setSequence($sSequence);
         $oExpectedSequence->setDescription("Homo sapiens nudix hydrolase 12 (NUDT12), transcript variant 1, mRNA.");
+        // The period closing the lineage is not part of its last rank.
         $organism = ['Homo sapiens','Eukaryota','Metazoa','Chordata', 'Craniata', 'Vertebrata', 'Euteleostomi', 'Mammalia',
-            'Eutheria','Euarchontoglires','Primates','Haplorrhini','Catarrhini','Hominidae','Homo.'];
+            'Eutheria','Euarchontoglires','Primates','Haplorrhini','Catarrhini','Hominidae','Homo'];
 
         $oExpectedSequence->setOrganism($organism);
         $this->assertEquals($oExpectedSequence, $oParseGenbankManager->getSequence());
@@ -922,7 +923,8 @@ class ParseGenbankManagerTest extends WebTestCase
         $aExpectedKeywords = [];
         $oKeywords = new Keyword();
         $oKeywords->setPrimAcc("NM_031438");
-        $oKeywords->setKeywords("RefSeq.");
+        // "KEYWORDS    RefSeq." : the period closes the field, it is not part of the keyword.
+        $oKeywords->setKeywords("RefSeq");
         $aExpectedKeywords[] = $oKeywords;
         $this->assertEquals($aExpectedKeywords, $oParseGenbankManager->getKeywords());
 
@@ -1305,7 +1307,9 @@ class ParseGenbankManagerTest extends WebTestCase
     /**
      * order() and a segment of another entry used to give from = 0 (the text was cast to int),
      * "102.110" (one base within 102..110) gave 102..102, and the other entry's coordinates were
-     * taken as this sequence's own.
+     * taken as this sequence's own. A join() going back past the origin crosses it on a circular
+     * record only : on a linear one it used to give from > to, impossible there. A location on both
+     * strands, or complemented only inside another entry's segment, used to be read "-".
      */
     public static function locations(): array
     {
@@ -1318,15 +1322,21 @@ class ParseGenbankManagerTest extends WebTestCase
             "partial ends"             => ["<1..>206", 1, 206, "+"],
             "spliced, reverse"         => ["complement(join(2691..4571,4918..5163))", 2691, 5163, "-"],
             "spliced, listed 3' first" => ["join(complement(4918..5163),complement(2691..4571))", 2691, 5163, "-"],
-            "join across the origin"   => ["join(4900..5000,1..100)", 4900, 100, "+"],
+            "join across the origin"   => ["join(4900..5000,1..100)", 4900, 100, "+", "circular"],
+            "join out of order, linear" => ["join(4900..5000,1..100)", 1, 5000, "+"],
+            "reverse across the origin" => ["join(complement(1..100),complement(4900..5000))", 4900, 100, "-", "circular"],
+            "reverse out of order, linear" => ["join(complement(1..100),complement(4900..5000))", 1, 5000, "-"],
+            "trans-spliced, both strands" => ["join(complement(69611..69724),139856..139881,140400..140631)", 69611, 140631, null],
+            "complement of another entry only" => ["join(complement(J00194.1:100..202),1..50)", 1, 50, "+"],
         ];
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('locations')]
-    public function testLocationBounds(string $sLocation, ?int $iFrom, ?int $iTo, string $sStrand)
+    public function testLocationBounds(string $sLocation, ?int $iFrom, ?int $iTo, ?string $sStrand, string $sTopology = "linear")
     {
         $oParser = new ParseGenbankManager();
         $oParser->parseDataFile([
+            sprintf("LOCUS       %-16s %11d bp    %-6s  %-8s PLN 21-JUN-1999\n", "TEST", 150000, "DNA", $sTopology),
             "FEATURES             Location/Qualifiers\n",
             "     misc_feature    " . $sLocation . "\n",
             "                     /note=\"test\"\n",
@@ -1338,5 +1348,87 @@ class ParseGenbankManagerTest extends WebTestCase
         $this->assertSame([$iFrom, $iTo, $sStrand], [$oFeature->getFtFrom(), $oFeature->getFtTo(), $oFeature->getStrand()]);
         $this->assertEquals($sLocation, $oFeature->getFtLocation());
         $this->assertSame(strpbrk($sLocation, "<>") !== false, $oFeature->isPartial());
+    }
+
+    /**
+     * NCBI shifts every LOCUS field right when the name is longer than its 16 columns : the
+     * fixed columns read the length as 1 and lost the molecule type, topology, division and date.
+     */
+    public function testALocusLineWithALongNameIsReadWordByWord()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       NZ_JAAXYZ010000001     123456 bp    DNA     linear   CON 01-JAN-2020\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals("NZ_JAAXYZ010000001", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals(123456, $oParser->getSequence()->getSeqlength());
+        $this->assertEquals("DNA", $oParser->getSequence()->getMoltype());
+        $this->assertEquals("LINEAR", $oParser->getGbSequence()->getTopology());
+        $this->assertEquals("CON", $oParser->getGbSequence()->getDivision());
+        $this->assertEquals("01-JAN-2020", $oParser->getSequence()->getDate());
+    }
+
+    public function testALocusLineOfAProteinOrASingleStrandedMolecule()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(["LOCUS       AAA12345                 123 aa            linear   PRI 05-MAR-2001\n", "//\n"]);
+        $this->assertEquals(123, $oParser->getSequence()->getSeqlength());
+        $this->assertEquals("", $oParser->getSequence()->getMoltype());
+        $this->assertEquals("PRI", $oParser->getGbSequence()->getDivision());
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(["LOCUS       AB000001                1500 bp ss-RNA     linear   VRL 05-MAR-2001\n", "//\n"]);
+        $this->assertEquals("RNA", $oParser->getSequence()->getMoltype());
+        $this->assertEquals("SINGLE", $oParser->getGbSequence()->getStrands());
+        $this->assertEquals("VRL", $oParser->getGbSequence()->getDivision());
+    }
+
+    /**
+     * A record cut short, ending inside its FEATURES table or its DEFINITION, used to crash on a
+     * null line (TypeError under strict types).
+     */
+    public function testARecordCutShortIsReadAsFarAsItGoes()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TEST                      10 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     gene            1..10\n",
+            "                     /gene=\"abc\"\n",
+        ]);
+        $this->assertEquals("abc", $oParser->getFeatures()[0]->getFtValue());
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(["LOCUS       TEST                      10 bp    DNA     linear   PLN 21-JUN-1999\n", "DEFINITION  A test\n"]);
+        $this->assertEquals("A test", $oParser->getSequence()->getDescription());
+    }
+
+    /**
+     * KEYWORDS and ACCESSION read their first line only : a keyword or secondary accession on a
+     * continuation line was lost, the period closing KEYWORDS was kept on the last keyword with
+     * the blank after each ";", and "REGION: 1..1000" gave two secondary accessions.
+     */
+    public function testKeywordsAndAccessionsOverSeveralLines()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TEST                      10 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "ACCESSION   AB000001 AB000002\n",
+            "            AB000003\n",
+            "KEYWORDS    RefSeq; MANE Select;\n",
+            "            bacteriophage.\n",
+            "//\n",
+        ]);
+        $this->assertEquals("AB000001", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals(["AB000002", "AB000003"], array_map(fn($o) => $o->getAccession(), $oParser->getAccession()));
+        $this->assertEquals(["RefSeq", "MANE Select", "bacteriophage"], array_map(fn($o) => $o->getKeywords(), $oParser->getKeywords()));
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(["ACCESSION   NC_000913 REGION: 1..1000\n", "KEYWORDS    .\n", "//\n"]);
+        $this->assertEquals("NC_000913", $oParser->getSequence()->getPrimAcc());
+        $this->assertSame([], $oParser->getAccession());
+        $this->assertSame([], $oParser->getKeywords());
     }
 }

@@ -517,6 +517,20 @@ class RestrictionEnzymeManagerTest extends TestCase
         $this->assertEquals(["AAAGAG", "CGGAAA"], $this->managerCutting("AAAGAGCGGAAA", "AccBSI")->cutSeq());
     }
 
+    public function testCutSeqSearchesACustomEnzymeOnlyAsWritten()
+    {
+        // BsaI GGTCTC(1/5) described by its upper cut alone : read on the other strand (GAGACC at p),
+        // its upper cut lies at p - 5, not p + 7, and nothing tells it. That site used to be cut at
+        // the wrong place.
+        $oManager = $this->managerCutting("AAAGAGACCAAAAAAAAA", "AvaII");
+        $oManager->parseEnzyme("BsaI", "GGTCTC", "7", "custom");
+        $this->assertEquals(["AAAGAGACCAAAAAAAAA"], $oManager->cutSeq());
+
+        $oManager = $this->managerCutting("AAAGGTCTCAAAAAAAAA", "AvaII");
+        $oManager->parseEnzyme("BsaI", "GGTCTC", "7", "custom");
+        $this->assertEquals(["AAAGGTCTCA", "AAAAAAAA"], $oManager->cutSeq());
+    }
+
     public function testCutSeqWithOverlappingSitesCutsEachOfThem()
     {
         // AspLEI (HhaI) G_CG'C : GCGCGC holds two overlapping GCGC sites.

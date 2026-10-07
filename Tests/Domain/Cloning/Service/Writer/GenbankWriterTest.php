@@ -100,18 +100,25 @@ class GenbankWriterTest extends TestCase
         $this->assertStringContainsString("complement(2..8)", $sOutput);
     }
 
-    public function testRejectsAnOriginCrossingFeature()
+    /**
+     * A feature crossing the origin used to make the whole write throw, though INSDC writes it as a
+     * join() on a circular molecule - and GenbankPlasmidMapper imports such joins.
+     */
+    public function testWritesAnOriginCrossingFeatureAsAJoin()
     {
         $oPlasmid = new Plasmid(
             "pTest",
             new CircularDnaSequence("ACGTACGTAC"),
-            [new PlasmidFeature("crosser", FeatureType::MISC_FEATURE, 8, 2, Strand::NONE)]
+            [
+                new PlasmidFeature("crosser", FeatureType::MISC_FEATURE, 8, 2, Strand::FORWARD),
+                new PlasmidFeature("back", FeatureType::MISC_FEATURE, 9, 3, Strand::REVERSE),
+            ]
         );
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("crosses the origin");
+        $sOutput = $this->writer->write($oPlasmid);
 
-        $this->writer->write($oPlasmid);
+        $this->assertStringContainsString("misc_feature    join(8..10,1..2)\n", $sOutput);
+        $this->assertStringContainsString("misc_feature    complement(join(9..10,1..3))\n", $sOutput);
     }
 
     /**
@@ -217,7 +224,7 @@ class GenbankWriterTest extends TestCase
 
     /**
      * Written by this writer, read back by the real parser and mapper : types, strand, coordinates
-     * and the CDS phase survive.
+     * and the CDS phase survive, a feature crossing the origin on either strand included.
      */
     public function testAPlasmidSurvivesAWriteParseMapRoundTrip()
     {
@@ -226,6 +233,8 @@ class GenbankWriterTest extends TestCase
             new PlasmidFeature("bla", FeatureType::CDS, 6, 20, Strand::REVERSE, null, null, null, null, 1),
             new PlasmidFeature("rrnB", FeatureType::TERMINATOR, 21, 25, Strand::FORWARD),
             new PlasmidFeature("ori", FeatureType::ORIGIN_OF_REPLICATION, 26, 35, Strand::FORWARD),
+            new PlasmidFeature("lacZ", FeatureType::CDS, 36, 3, Strand::FORWARD, null, null, null, null, 0),
+            new PlasmidFeature("rop", FeatureType::MISC_FEATURE, 38, 2, Strand::REVERSE),
         ]);
 
         $oParser = new ParseGenbankManager();

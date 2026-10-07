@@ -3,7 +3,7 @@
  * KEGG ORTHOLOG parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -59,10 +59,7 @@ final class ParseKeggOrthologManager extends ParseKeggAbstractManager
 
         $this->definition = isset($aFields["DEFINITION"]) ? $this->joinLines($aFields["DEFINITION"]) : "";
         $this->dbLinks    = isset($aFields["DBLINKS"]) ? $this->parseDbLinks($aFields["DBLINKS"]) : [];
-        $this->genes      = isset($aFields["GENES"]) ? array_values(array_filter(array_map(
-            'trim',
-            $aFields["GENES"]
-        ))) : [];
+        $this->genes      = $this->readItems("GENES");
         $this->classification = isset($aFields["CLASS"]) ? array_values(array_filter(array_map(
             'trim',
             explode(";", $this->joinLines($aFields["CLASS"]))

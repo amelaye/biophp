@@ -3,7 +3,7 @@
  * TRANSFAC site.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -105,7 +105,7 @@ final class ParseTransfacSiteManager extends ParseTransfacAbstractManager
                     $this->geneRegion = $this->append($this->geneRegion, $sData);
                     break;
                 case "SQ":
-                    $this->sequence = $this->append($this->sequence, $sData);
+                    $this->sequence = $this->appendSequence($this->sequence, $sData);
                     break;
                 case "SF":
                     $this->firstPosition = $sData;

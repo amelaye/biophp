@@ -87,4 +87,17 @@ class ParseKeggGenomeManagerTest extends TestCase
         $this->assertContains("Primates", $aLineage);
         $this->assertCount(14, $aLineage);
     }
+
+    /**
+     * A current GENOME entry is followed by two words, "Complete  Genome" : only the last was
+     * dropped and the identifier read "T01001 Complete".
+     */
+    public function testTheIdentifierOfACurrentGenomeEntry()
+    {
+        $oParser = new ParseKeggGenomeManager();
+        $oParser->parseDataFile(["ENTRY       T01001            Complete  Genome\n", "///\n"]);
+
+        $this->assertEquals("T01001", $oParser->getEntry());
+        $this->assertEquals("T01001", ParseKeggGenomeManager::getEntryId(["ENTRY       T01001            Complete  Genome\n"], ""));
+    }
 }
