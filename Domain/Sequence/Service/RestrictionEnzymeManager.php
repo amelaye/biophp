@@ -3,7 +3,7 @@
  * Enzyme restriction manager
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -11,9 +11,9 @@ namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\TypeIIEndonucleaseApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Enzyme;
-use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\RestrictionEnzymeInterface;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 
 /**
  * Class RestrictionEnzymeManager - substances that can "cut" a DNA strand
@@ -81,6 +81,9 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
      * If passed with make = 'custom', object will be added to aRestEnzimDB.
      * If not, the function will attemp to retrieve data from aRestEnzimDB.
      * If unsuccessful in retrieving data, it will return an error flag.
+     * An enzyme is described here by its upper-strand cut only, so its site read on the other strand
+     * is cut at the same offset : that holds for a Type II enzyme, whose cuts are placed symmetrically
+     * within its site, not for a Type IIS one cutting outside an asymmetric site.
      * @param   string      $sName
      * @param   string      $sPattern
      * @param   string      $sCutpos
@@ -94,7 +97,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
             $this->enzyme->setName($sName);
             $this->enzyme->setPattern($sPattern);
             $this->enzyme->setCutpos($iCutpos);
-            $this->enzyme->setLength(strlen($this->enzyme->getPattern()));
+            $this->enzyme->setLength($this->patternLength($this->enzyme->getPattern()));
 
             $inner = array();
             $inner[] = $sPattern;
@@ -109,27 +112,39 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
             } else {
                 $this->enzyme->setPattern($temp);
                 $this->enzyme->setCutpos($this->getCutPos($this->enzyme->getName()));
-                $this->enzyme->setLength(strlen($this->enzyme->getPattern()));
+                $this->enzyme->setLength($this->patternLength($this->enzyme->getPattern()));
             }
         }
     }
 
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
-     * @param   string             $options            May be "N" or "O".  If "N", the sequence is cut using the patpos() group
-     * of methods (no overlapping patterns).  If "O", the sequence is cut using the patposo() group
-     * of methods (with overlapping patterns). If omitted, this defaults to "N".
-     * @return  array       An array of fragments (substrings of the parameter sequence)
-     * @throws  \Exception
+     * Sites are searched on both strands, a degenerate (IUPAC) site is matched by every sequence it
+     * stands for, and each upper-strand cut position splits the sequence once, however many sites
+     * or alternatives lead to it.
+     * @param   string             $options            May be "N" or "O".  If "N", sites overlapping a
+     * site already found are ignored. If "O", overlapping sites are cut as well. If omitted, this
+     * defaults to "N".
+     * @return  array       The fragments, in sequence order : the whole sequence when it holds no site
+     * @throws  \InvalidArgumentException  When $options is neither "N" nor "O"
      */
     public function cutSeq(string $options = "N") : array
     {
-        if ($options == "N") {
-            return $this->nTreatment();
-        } elseif ($options == "O") {
-            return $this->oTreatment();
+        if ($options !== "N" && $options !== "O") {
+            throw new \InvalidArgumentException(sprintf('cutSeq() option must be "N" or "O", "%s" given.', $options));
         }
-    } 
+
+        $sSequence = $this->sequenceManager->getSequence()->getSequence();
+        $aFragments = [];
+        $iStart = 0;
+        foreach ($this->findCutPositions($sSequence, $options === "O") as $iCut) {
+            $aFragments[] = substr($sSequence, $iStart, $iCut - $iStart);
+            $iStart = $iCut;
+        }
+        // The last (right-most) fragment, or the whole sequence when the enzyme does not cut it.
+        $aFragments[] = substr($sSequence, $iStart);
+        return $aFragments;
+    }
 
     /**
      * Returns the pattern associated with a given restriction endonuclease.
@@ -159,9 +174,9 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     public function getLength(string $RestEn_Name = "") : int
     {
         if ($RestEn_Name == "") {
-            return strlen($this->enzyme->getPattern());
+            return $this->patternLength($this->enzyme->getPattern());
         } else {
-            return strlen($this->aRestEnzimDB[$RestEn_Name][0]);
+            return $this->patternLength($this->aRestEnzimDB[$RestEn_Name][0]);
         }
     }
 
@@ -213,60 +228,67 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     }
 
     /**
-     * Cuts the sequence with option "O"
-     * @return  array
-     * @throws  \Exception
+     * Returns every site an enzyme pattern stands for, upper-cased : each alternative of a pattern
+     * written "SITE1 or SITE2" (AciI, BbvCI, BssSI), and the reverse complement of each, since the
+     * enzyme binds double-stranded DNA and a non-palindromic site (AccBSI, CCGCTC) also lies on the
+     * other strand (GAGCGG). A palindromic site is its own reverse complement and is listed once.
+     * @param   string      $sPattern
+     * @return  string[]
      */
-    private function oTreatment() : array {
-        $oSequence  = $this->sequenceManager->getSequence();
-        $aFragment  = array();
-        $aPos = $this->sequenceManager->patposo($this->enzyme->getPattern(),"I", $this->enzyme->getCutpos());
-        $this->posTraitment($aFragment, $aPos, $oSequence);
-        return $aFragment;
+    private function sitesOf(string $sPattern) : array
+    {
+        $aSites = [];
+        foreach (preg_split('/\s+or\s+/i', trim($sPattern)) as $sSite) {
+            $oSite = new DnaSequence(strtoupper(trim($sSite)));
+            $aSites[] = $oSite->getValue();
+            $aSites[] = $oSite->reverseComplement()->getValue();
+        }
+        return array_values(array_unique($aSites));
     }
 
     /**
-     * Cuts the sequence with option "N"
-     * @return array
-     * @throws \Exception
+     * Returns the length of the site a pattern stands for, the alternatives of a "SITE1 or SITE2"
+     * pattern having the same length.
+     * @param   string      $sPattern
+     * @return  int
      */
-    private function nTreatment() : array {
-        $oSequence  = $this->sequenceManager->getSequence();
-        $aFragment  = array();
-        // patpos() returns: ( "PAT1" => (0, 12), "PAT2" => (7, 29, 53) )
-        $aPatPos = $this->sequenceManager->patpos($this->enzyme->getPattern(), "I");
-        foreach($aPatPos as $aPos) {
-            $this->posTraitment($aFragment, $aPos, $oSequence);
-        }
-        return $aFragment;
+    private function patternLength(string $sPattern) : int
+    {
+        return strlen(trim(preg_split('/\s+or\s+/i', trim($sPattern))[0]));
     }
 
     /**
-     * Fetchs insite a Patpos array
-     * @param   array         $aFragment
-     * @param   array         $aPos
-     * @param   Sequence      $oSequence
+     * Returns the zero-based positions, in ascending order and each listed once, at which the
+     * enzyme cuts the upper strand of a linear sequence. A site found on the other strand is cut at
+     * the same offset from its start : every Type II entry places its two cuts symmetrically within
+     * its site (length = 2 x upper cut + lower cut offset), so the upper-strand cut of a reversed
+     * site stays at that offset. A cut at either end of the sequence splits nothing and is dropped.
+     * @param   string      $sSequence
+     * @param   bool        $bOverlapping   True to also find sites overlapping one another
+     * @return  int[]
      */
-    private function posTraitment(&$aFragment, array $aPos, Sequence $oSequence) {
-        $iPrevIndex = 0;
-        $iCtr = 0;
-        foreach($aPos as $iCurrIndex) {
-            $iCtr++;
-            if ($iCtr == 1) {
-                $aFragment[] = substr($oSequence->getSequence(), 0, $iCurrIndex + $this->enzyme->getCutpos());
-                $iPrevIndex = $iCurrIndex;
-                continue;
-            }
-            if (($iCurrIndex - $iPrevIndex) >= $this->enzyme->getCutpos()) {
-                $iNewCount = $iCurrIndex - $iPrevIndex;
-                $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos(), $iNewCount);
-                $iPrevIndex = $iCurrIndex;
-            } else {
-                continue;
+    private function findCutPositions(string $sSequence, bool $bOverlapping) : array
+    {
+        $aExpandedSites = array_map(function (string $sSite) {
+            return $this->sequenceManager->expandNa($sSite);
+        }, $this->sitesOf($this->enzyme->getPattern()));
+
+        $sRegex = '(' . implode('|', $aExpandedSites) . ')';
+        if ($bOverlapping) {
+            $sRegex = '(?=' . $sRegex . ')';
+        }
+        preg_match_all('/' . $sRegex . '/i', $sSequence, $aMatches, PREG_OFFSET_CAPTURE);
+
+        $iLength = strlen($sSequence);
+        $aCutPositions = [];
+        foreach ($aMatches[0] as $aMatch) {
+            $iCut = $aMatch[1] + $this->enzyme->getCutpos();
+            if ($iCut > 0 && $iCut < $iLength) {
+                $aCutPositions[$iCut] = $iCut;
             }
         }
-        // The last (right-most) fragment.
-        $aFragment[] = substr($oSequence->getSequence(), $iPrevIndex + $this->enzyme->getCutpos());
+        sort($aCutPositions, SORT_NUMERIC);
+        return $aCutPositions;
     }
 
     /**
@@ -276,7 +298,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     private function fetchPatternOnly(string $sPattern) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
-            if ($aEnzyme[0] == $sPattern) {
+            if (in_array(strtoupper($sPattern), $this->sitesOf($aEnzyme[0]), true)) {
                 $aEnzymes[] = $sName;
             }
         }
@@ -291,7 +313,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     private function fetchPatternAndCutpos(string $sPattern, int $iCutpos) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
-            if (($aEnzyme[0] == $sPattern) && ($aEnzyme[1] == $iCutpos)) {
+            if (in_array(strtoupper($sPattern), $this->sitesOf($aEnzyme[0]), true) && ($aEnzyme[1] == $iCutpos)) {
                 $aEnzymes[] = $sName;
             }
         }
@@ -356,7 +378,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     private function fetchLength(int $iPlen) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
-            if (strlen($aEnzyme[0]) == $iPlen) {
+            if ($this->patternLength($aEnzyme[0]) == $iPlen) {
                 $aEnzymes[] = $sName;
             }
         }
@@ -371,7 +393,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
     private function fetchCutposAndPlen(int $iCutpos, int $iPlen) : array {
         $aEnzymes = [];
         foreach($this->aRestEnzimDB as $sName => $aEnzyme) {
-            if (($aEnzyme[1] == $iCutpos) && (strlen($aEnzyme[0]) == $iPlen)) {
+            if (($aEnzyme[1] == $iCutpos) && ($this->patternLength($aEnzyme[0]) == $iPlen)) {
                 $aEnzymes[] = $sName;
             }
         }

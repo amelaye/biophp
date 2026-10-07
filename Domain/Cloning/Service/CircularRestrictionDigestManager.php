@@ -3,7 +3,7 @@
  * Computes restriction enzyme cuts and fragments on a circular Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -146,7 +146,8 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
 
     /**
      * Finds every zero-based position $oEnzyme's recognition pattern starts at within $sValue itself,
-     * including one that crosses the origin, without ever finding the same circular occurrence twice.
+     * including one that crosses the origin or overlaps another one, without ever finding the same
+     * circular occurrence twice.
      * @param   string      $sValue     The strand to search, read left to right
      * @param   int         $iLength    The plasmid's length
      * @param   RestrictionEnzymeDefinition     $oEnzyme
@@ -156,7 +157,9 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
     {
         $sHaystack = $sValue . substr($sValue, 0, min($oEnzyme->getRecognitionLength() - 1, $iLength));
 
-        if (!preg_match_all('/' . $oEnzyme->getComputingPattern() . '/i', $sHaystack, $aMatches, PREG_OFFSET_CAPTURE)) {
+        // A lookahead matches nothing itself, so the search resumes on the very next base and finds
+        // overlapping sites too (HhaI GCGC twice in GCGCGC), as REBASE-based tools report them.
+        if (!preg_match_all('/(?=' . $oEnzyme->getComputingPattern() . ')/i', $sHaystack, $aMatches, PREG_OFFSET_CAPTURE)) {
             return [];
         }
 

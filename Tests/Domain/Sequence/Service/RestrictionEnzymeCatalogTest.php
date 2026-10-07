@@ -197,4 +197,14 @@ class RestrictionEnzymeCatalogTest extends TestCase
 
         $this->assertEquals(RestrictionEnzymeDefinition::TYPE_II, $oCatalog->getByName("DupX")->getFamily());
     }
+
+    public function testDoesNotRegisterTheReverseOrientationRowsOfTypeIisSites()
+    {
+        // FokI@ is FokI's site read on the other strand, not an enzyme of its own.
+        $this->assertNotNull($this->catalog->findByName("FokI"));
+        $this->assertNull($this->catalog->findByName("FokI@"));
+
+        $aTypeIIsNames = array_map(fn ($oDef) => $oDef->getName(), $this->catalog->findByFamily(RestrictionEnzymeDefinition::TYPE_IIS));
+        $this->assertEquals([], array_values(array_filter($aTypeIIsNames, fn ($sName) => str_ends_with($sName, "@"))));
+    }
 }

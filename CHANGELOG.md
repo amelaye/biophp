@@ -68,6 +68,24 @@ Changes on `develop` since `master`.
 - `Tests/Api/ReferenceDataConsistencyTest` guards this data : every entry must agree with its own
   annotated site, every search pattern must cover both orientations and every IUPAC expansion, and
   the corrected entries are checked against REBASE.
+- `RestrictionEnzymeManager::cutSeq()` :
+  - a degenerate site (AvaII, GGWCC) no longer yields every fragment twice ;
+  - a pattern with alternatives (AciI, BbvCI, BssSI : "SITE1 or SITE2") now cuts ;
+  - a non-palindromic site is also found on the other strand (AccBSI cuts GAGCGG) ;
+  - option "O" now cuts every overlapping site and no longer loops forever on an enzyme cutting
+    before its site (MboI, Sau3AI) ;
+  - a sequence holding no site now gives one fragment, the whole sequence (option "N" gave none,
+    option "O" a truncated one), and an option other than "N" or "O" is rejected.
+- `findRestEn()` finds an enzyme by either alternative of its pattern or by its site read on the
+  other strand, and `getLength()` gives the site length of a pattern with alternatives (4 for AciI,
+  not 12). BssSI now appears among the 6 bp sites.
+- `SequenceManager::patPoso()` rejects a cut position below 1, which never advanced the search.
+- `CircularRestrictionDigestManager` finds overlapping sites : HhaI cuts GCGCGCGC three times, not
+  twice.
+- `RestrictionEnzymeCatalog` no longer registers the `@` rows of the Type IIS data (FokI@...),
+  which are the reverse orientation of an enzyme's site, not enzymes.
+- `RestrictionEndCompatibilityManager` reports two overhangs holding an ambiguous base (NNNN) as
+  indeterminate instead of compatible.
 - `ParseGenbankManager` only kept 5 feature keys (source, gene, exon, CDS, misc_feature) and
   silently dropped every other annotation (rep_origin, oriT, promoter, terminator, primer_bind,
   regulatory...). It now reads every INSDC feature key, the ones deprecated on 15-DEC-2014 included.

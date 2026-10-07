@@ -3,7 +3,7 @@
  * Decides whether two restriction ends can be ligated together
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -34,7 +34,8 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\RestrictionEnd;
  * invariant for any non-palindromic overhang, while literal equality satisfies it unconditionally.
  *
  * A blunt end never ligates to a sticky one, a 5' overhang never ligates to a 3' one, and anything
- * involving an UNKNOWN end is reported indeterminate rather than guessed at.
+ * involving an UNKNOWN end, or an overhang holding an ambiguous base, is reported indeterminate
+ * rather than guessed at.
  *
  * Comparing two ends that are both in the SAME role (two LeftEnds, or two RightEnds - e.g. to check
  * whether a fragment could be inserted flipped) is a different question this method does not answer
@@ -67,6 +68,12 @@ class RestrictionEndCompatibilityManager implements RestrictionEndCompatibilityI
 
         $sFirstOverhang = $oFirst->getOverhangSequence();
         $sSecondOverhang = $oSecond->getOverhangSequence();
+
+        // An overhang read from a sequence holding an ambiguous base (NNNN) may or may not pair :
+        // equal strings would only mean the same uncertainty, not complementary bases.
+        if (!preg_match('/^[ACGT]+$/i', $sFirstOverhang) || !preg_match('/^[ACGT]+$/i', $sSecondOverhang)) {
+            return self::INDETERMINATE;
+        }
 
         return $sFirstOverhang === $sSecondOverhang ? self::COMPATIBLE : self::INCOMPATIBLE;
     }

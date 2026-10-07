@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET aka Amelaye
  * Freely inspired by BioPHP's project biophp.org
  * Created 14 november 2019
- * Last modified 14 november 2019
+ * Last modified 7 October 2026
  */
 namespace Tests\Domain\Sequence\Service;
 
@@ -337,49 +337,50 @@ class RestrictionEnzymeManagerTest extends TestCase
           59 => "BspMAI",
           60 => "BspOI",
           61 => "BssNAI",
-          62 => "BssT1I",
-          63 => "BstC8I",
-          64 => "BstDSI",
-          65 => "BstNSI",
-          66 => "BstSNI",
-          67 => "BstX2I",
-          68 => "Cfr42I",
-          69 => "Cfr9I",
-          70 => "CfrI",
-          71 => "DinI",
-          72 => "DraI",
-          73 => "Ecl136II",
-          74 => "Eco32I",
-          75 => "EcoRI",
-          76 => "EcoT22I",
-          77 => "EgeI",
-          78 => "FauNDI",
-          79 => "GsaI",
-          80 => "HincII",
-          81 => "HindIII",
-          82 => "HpaI",
-          83 => "Hpy166II",
-          84 => "Hpy188III",
-          85 => "KasI",
-          86 => "KpnI",
-          87 => "KroI",
-          88 => "MfeI",
-          89 => "MluI",
-          90 => "Mly113I",
-          91 => "MspA1I",
-          92 => "NaeI",
-          93 => "PaeR7I",
-          94 => "PsiI",
-          95 => "Psp124BI",
-          96 => "PvuII",
-          97 => "SalI",
-          98 => "SmaI",
-          99 => "SmlI",
-          100 => "SspDI",
-          101 => "SspI",
-          102 => "TatI",
-          103 => "XbaI",
-          104 => "ZraI",
+          62 => "BssSI",
+          63 => "BssT1I",
+          64 => "BstC8I",
+          65 => "BstDSI",
+          66 => "BstNSI",
+          67 => "BstSNI",
+          68 => "BstX2I",
+          69 => "Cfr42I",
+          70 => "Cfr9I",
+          71 => "CfrI",
+          72 => "DinI",
+          73 => "DraI",
+          74 => "Ecl136II",
+          75 => "Eco32I",
+          76 => "EcoRI",
+          77 => "EcoT22I",
+          78 => "EgeI",
+          79 => "FauNDI",
+          80 => "GsaI",
+          81 => "HincII",
+          82 => "HindIII",
+          83 => "HpaI",
+          84 => "Hpy166II",
+          85 => "Hpy188III",
+          86 => "KasI",
+          87 => "KpnI",
+          88 => "KroI",
+          89 => "MfeI",
+          90 => "MluI",
+          91 => "Mly113I",
+          92 => "MspA1I",
+          93 => "NaeI",
+          94 => "PaeR7I",
+          95 => "PsiI",
+          96 => "Psp124BI",
+          97 => "PvuII",
+          98 => "SalI",
+          99 => "SmaI",
+          100 => "SmlI",
+          101 => "SspDI",
+          102 => "SspI",
+          103 => "TatI",
+          104 => "XbaI",
+          105 => "ZraI",
         ];
         $this->assertEquals($aExpected, $list4);
     }
@@ -470,5 +471,86 @@ class RestrictionEnzymeManagerTest extends TestCase
             0 => "AatI"
         ];
         $this->assertEquals($aExpected, $list);
+    }
+
+    /**
+     * Builds a manager holding the named enzyme of the Type II samples, ready to cut $sSequence.
+     */
+    private function managerCutting(string $sSequence, string $sEnzyme) : RestrictionEnzymeManager
+    {
+        $oSequence = new Sequence();
+        $oSequence->setMoltype("DNA");
+        $oSequence->setSequence($sSequence);
+        $oSequence->setSeqlength(strlen($sSequence));
+
+        $sequenceBuilder = new SequenceBuilder(new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock));
+        $sequenceBuilder->setSequence($oSequence);
+
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
+        $restrictionEnzymeManager->setEnzyme();
+        $restrictionEnzymeManager->setSequenceManager($sequenceBuilder);
+        $restrictionEnzymeManager->parseEnzyme($sEnzyme, null, null, "inner");
+
+        return $restrictionEnzymeManager;
+    }
+
+    public function testCutSeqCutsEachSequenceADegenerateSiteStandsForOnce()
+    {
+        // AvaII G'GWC_C : GGACC and GGTCC are both its site. Each used to be cut on its own, every
+        // fragment of the first pass then repeated by the second.
+        $sSequence = "AAAGGACCAAAAGGTCCAAA";
+        $aFragments = $this->managerCutting($sSequence, "AvaII")->cutSeq();
+
+        $this->assertEquals(["AAAG", "GACCAAAAG", "GTCCAAA"], $aFragments);
+        $this->assertEquals($sSequence, implode("", $aFragments));
+    }
+
+    public function testCutSeqCutsEitherAlternativeOfAnOrPattern()
+    {
+        // AciI "C'CG_C or G'CG_G" : the literal " or " was searched for and nothing was ever cut.
+        $this->assertEquals(["AAC", "CGCAAAG", "CGGAAA"], $this->managerCutting("AACCGCAAAGCGGAAA", "AciI")->cutSeq());
+    }
+
+    public function testCutSeqFindsANonPalindromicSiteOnTheOtherStrand()
+    {
+        // AccBSI CCG'CTC, blunt : GAGCGG is the same site read on the other strand, cut after GAG.
+        $this->assertEquals(["AAAGAG", "CGGAAA"], $this->managerCutting("AAAGAGCGGAAA", "AccBSI")->cutSeq());
+    }
+
+    public function testCutSeqWithOverlappingSitesCutsEachOfThem()
+    {
+        // AspLEI (HhaI) G_CG'C : GCGCGC holds two overlapping GCGC sites.
+        $this->assertEquals(["AAGCG", "CGCAA"], $this->managerCutting("AAGCGCGCAA", "AspLEI")->cutSeq("N"));
+        $this->assertEquals(["AAGCG", "CG", "CAA"], $this->managerCutting("AAGCGCGCAA", "AspLEI")->cutSeq("O"));
+    }
+
+    public function testCutSeqOverlappingWithACutBeforeTheSiteTerminates()
+    {
+        // BfuCI (MboI, Sau3AI) 'GATC_ cuts before its site : option "O" used to resume the search on
+        // the match it had just found, forever.
+        $this->assertEquals(["AA", "GATCAA", "GATCA"], $this->managerCutting("AAGATCAAGATCA", "BfuCI")->cutSeq("O"));
+    }
+
+    public function testCutSeqReturnsTheWholeSequenceWhenItHoldsNoSite()
+    {
+        $this->assertEquals(["AAAAAAAAAA"], $this->managerCutting("AAAAAAAAAA", "AvaII")->cutSeq());
+        $this->assertEquals(["AAAAAAAAAA"], $this->managerCutting("AAAAAAAAAA", "AvaII")->cutSeq("O"));
+    }
+
+    public function testCutSeqRejectsAnUnknownOption()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->managerCutting("AAGGACCAA", "AvaII")->cutSeq("X");
+    }
+
+    public function testFindRestEnMatchesAnAlternativeOrTheOtherStrandOfASite()
+    {
+        $restrictionEnzymeManager = $this->managerCutting("AAAA", "AciI");
+
+        $this->assertContains("AciI", $restrictionEnzymeManager->findRestEn("GCGG"));
+        $this->assertContains("AccBSI", $restrictionEnzymeManager->findRestEn("GAGCGG"));
+        $this->assertEquals(4, $restrictionEnzymeManager->getLength("AciI"));
+        $this->assertEquals(4, $restrictionEnzymeManager->getEnzyme()->getLength());
     }
 }

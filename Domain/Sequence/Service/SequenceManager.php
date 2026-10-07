@@ -3,7 +3,7 @@
  * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -405,16 +405,20 @@ class SequenceManager
      * @param       string     $sPattern        The pattern to locate
      * @param       string     $sOptions        If set to "I", pattern-matching will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
-     * @param       int        $iCutPos         A non-negative integer specifying where search for the
+     * @param       int        $iCutPos         A positive integer specifying where search for the
      * next pattern will resume, relative to the current matching substring.
      * @return      array                       One-dimensional array of the form:
      * ( position1, position2, position3, ... )
      * where position is a zero-based index indicating the location of the substring within the
      * larger sequence.  Thus, if substring is found at the very beginning of sequence, its
      * position is equal to zero (0).
-     * @throws      \Exception
+     * @throws      \InvalidArgumentException   When $iCutPos is lower than 1
      */
     public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null) : array {
+        if ($iCutPos < 1) {
+            // Resuming the search at the match itself would find that same match forever.
+            throw new \InvalidArgumentException(sprintf("patPoso() needs a cut position of at least 1, %d given.", $iCutPos));
+        }
         $aAbsPos = [];
         if (strtoupper($sOptions) == "I") {
             $sSequence = strtoupper($sSequence);

@@ -339,4 +339,25 @@ class CircularRestrictionDigestManagerTest extends TestCase
 
         $this->manager->digest($this->makePlasmid("AAAAAAAAAA"), ["not an enzyme"]);
     }
+
+    public function testOverlappingSitesAreAllCut()
+    {
+        // HhaI G_CG'C : GCGCGCGC holds three GCGC sites, at 4, 6 and 8, each overlapping the next.
+        // A non-overlapping search found the outer two on either strand and missed the middle one.
+        $oHhaI = new RestrictionEnzymeDefinition("HhaI", [], RestrictionEnzymeDefinition::TYPE_II, "G_CG'C", "(GCGC)", 4, 3, -2, 4);
+        $oPlasmid = $this->makePlasmid("TTTTGCGCGCGCTTTT");
+
+        $oResult = $this->manager->digest($oPlasmid, [$oHhaI]);
+
+        $aUpperCuts = array_map(function ($oCut) {
+            return $oCut->getUpperCutPosition();
+        }, $oResult->getCuts());
+        $this->assertEquals([7, 9, 11], $aUpperCuts);
+        foreach ($oResult->getCuts() as $oCut) {
+            $this->assertEquals(RestrictionEnd::THREE_PRIME, $oCut->getEnd()->getType());
+            $this->assertEquals("CG", $oCut->getEnd()->getOverhangSequence());
+        }
+        $this->assertCount(3, $oResult->getFragments());
+        $this->assertEquals(16, $this->totalFragmentLength($oResult->getFragments()));
+    }
 }

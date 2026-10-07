@@ -4,7 +4,7 @@
  * @author Amélie DUVERNET akka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 10 january 2020
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -53,11 +53,13 @@ interface RestrictionEnzymeInterface
 
     /**
      * Cuts a DNA sequence into fragments using the restriction enzyme object.
-     * @param   string             $options            May be "N" or "O".  If "N", the sequence is cut using the patpos() group
-     * of methods (no overlapping patterns).  If "O", the sequence is cut using the patposo() group
-     * of methods (with overlapping patterns). If omitted, this defaults to "N".
-     * @return  array       An array of fragments (substrings of the parameter sequence)
-     * @throws  \Exception
+     * Sites are searched on both strands, a degenerate (IUPAC) site is matched by every sequence it
+     * stands for, and each upper-strand cut position splits the sequence once.
+     * @param   string             $options            May be "N" or "O".  If "N", sites overlapping a
+     * site already found are ignored. If "O", overlapping sites are cut as well. If omitted, this
+     * defaults to "N".
+     * @return  array       The fragments, in sequence order : the whole sequence when it holds no site
+     * @throws  \InvalidArgumentException  When $options is neither "N" nor "O"
      */
     public function cutSeq(string $options = "N") : array;
 

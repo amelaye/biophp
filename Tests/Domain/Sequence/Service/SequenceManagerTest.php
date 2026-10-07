@@ -413,6 +413,16 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals($aExpected, $aPattern);
     }
 
+    public function testPatposoRejectsACutPositionThatWouldNeverAdvance()
+    {
+        // Resuming at offset 0 of the match just found used to find it again, forever.
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $sequenceManager->patPoso("GATC", "I", 0, "AAGATCAA");
+    }
+
     public function testPatposo()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);

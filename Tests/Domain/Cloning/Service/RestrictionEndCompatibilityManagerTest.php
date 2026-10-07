@@ -190,4 +190,17 @@ class RestrictionEndCompatibilityManagerTest extends TestCase
             $this->manager->checkCompatibility($oFragment->getRightEnd(), $oFragment->getLeftEnd())
         );
     }
+
+    public function testAnOverhangHoldingAnAmbiguousBaseMakesCompatibilityIndeterminate()
+    {
+        // Read from a sequence with N at the cut : the same string is not the same bases.
+        $this->assertEquals(
+            RestrictionEndCompatibilityManager::INDETERMINATE,
+            $this->manager->checkCompatibility(RestrictionEnd::fivePrime("NNNN"), RestrictionEnd::fivePrime("NNNN"))
+        );
+        $this->assertEquals(
+            RestrictionEndCompatibilityManager::INDETERMINATE,
+            $this->manager->checkCompatibility(RestrictionEnd::threePrime("ACGT"), RestrictionEnd::threePrime("ACNT"))
+        );
+    }
 }

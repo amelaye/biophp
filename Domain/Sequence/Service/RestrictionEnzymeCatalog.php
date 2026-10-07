@@ -3,7 +3,7 @@
  * Typed restriction enzyme catalog, merging Type II, Type IIb and Type IIs endonuclease sources
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -115,12 +115,19 @@ class RestrictionEnzymeCatalog implements RestrictionEnzymeCatalogInterface
     /**
      * Maps every DTO of a collection to a RestrictionEnzymeDefinition and registers it, keeping the
      * first-registered definition whenever the same canonical name is found in more than one source.
+     * An entry whose name ends with "@" (FokI@) is not an enzyme : it is the reverse orientation of
+     * the Type IIS site of the enzyme it follows, kept for pattern searches. A digest already finds
+     * that orientation by searching both strands, so it is not registered.
      * @param   array       $aDtos      TypeIIEndonucleaseDTO[]|TypeIIbEndonucleaseDTO[]|TypeIIsEndonucleaseDTO[]
      * @param   string      $sFamily    One of RestrictionEnzymeDefinition::VALID_FAMILIES
      */
     private function registerDtoCollection(array $aDtos, string $sFamily): void
     {
         foreach ($aDtos as $oDto) {
+            if (substr($oDto->getId(), -1) === "@") {
+                continue;
+            }
+
             $oDefinition = $this->mapDtoToDefinition($oDto, $sFamily);
             $sKey = strtoupper($oDefinition->getName());
 
