@@ -12,7 +12,7 @@
     "type": "library",
     "description": "Enjoy my BioPHP version !",
     "keywords": ["symfony", "biology", "php", "bioinformatics"],
-    "homepage": "http://www.amelayes-biophp.net",
+    "homepage": "https://www.amelayes-biophp.net",
     "autoload": {
         "psr-4": {
             "Amelaye\\BioPHP\\": ""

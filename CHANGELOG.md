@@ -102,6 +102,8 @@ Changes on `develop` since `master`.
 - `strict_types` and native PHP 8 typing added across `Domain`, `Api` and
   `DependencyInjection`. Callers passing loosely typed values may need updating.
 - `Domain/Tools` services are wired into the dependency injection container.
+- The bioapi client now calls `https://api.amelayes-biophp.net` directly instead of being
+  redirected from `http://`.
 
 ### CI
 - Codecov project and patch coverage checks are now informational.
