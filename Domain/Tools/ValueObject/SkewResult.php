@@ -3,7 +3,7 @@
  * Immutable value object holding the base-composition skew metrics of a sequence window
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -30,7 +30,7 @@ final class SkewResult
     private float $atSkew;
 
     /**
-     * @var     float       (G+C-A-T)/(A+C+G+T) ; 0.0 for an empty window
+     * @var     float       (G+T-A-C)/(A+C+G+T), keto (K) minus amino (M) bases ; 0.0 for an empty window
      */
     private float $ketoSkew;
 

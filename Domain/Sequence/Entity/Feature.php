@@ -3,7 +3,7 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -75,6 +75,15 @@ class Feature
      */
     #[ORM\Column(type: "string", length: 1, nullable: true)]
     private ?string $strand = null;
+
+    /**
+     * The location exactly as the record wrote it (INSDC syntax, e.g. "join(94..300,401..1482)").
+     * ftFrom and ftTo only keep its outer bounds : this keeps the exons of a spliced feature, and
+     * any partial ("<", ">") mark. Null when the format has no such syntax or none was recorded.
+     * @var string|null
+     */
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $ftLocation = null;
 
     /**
      * @return string
@@ -202,5 +211,21 @@ class Feature
     public function setStrand(?string $strand) : void
     {
         $this->strand = $strand;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFtLocation() : ?string
+    {
+        return $this->ftLocation;
+    }
+
+    /**
+     * @param string|null $ftLocation
+     */
+    public function setFtLocation(?string $ftLocation) : void
+    {
+        $this->ftLocation = $ftLocation;
     }
 }

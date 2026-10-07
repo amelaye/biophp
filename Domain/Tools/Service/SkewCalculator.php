@@ -3,7 +3,7 @@
  * Calculates GC-skew, AT-skew, KETO-skew and GC content of a sequence window
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -20,6 +20,9 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\SkewResult;
  * zero - under PHP 8, int/int division by a zero denominator throws a DivisionByZeroError, which the
  * legacy code would actually have hit for such a window ; this is a real, not hypothetical, edge
  * case a sliding window can land on at a sequence's A/T-only stretch.
+ * The keto skew opposes the keto bases (G, T : IUPAC K) to the amino ones (A, C : IUPAC M), as
+ * (G+T-A-C)/(A+C+G+T). The legacy formula, (G+C-A-T)/(A+C+G+T), opposed strong bases to weak ones
+ * instead : that is only 2 x GC content - 1, and no keto skew at all.
  * Class SkewCalculator
  * @package Amelaye\BioPHP\Domain\Tools\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -46,7 +49,7 @@ class SkewCalculator implements SkewCalculatorInterface
         return new SkewResult(
             $iGcSum === 0 ? 0.0 : ($iG - $iC) / $iGcSum,
             $iAtSum === 0 ? 0.0 : ($iA - $iT) / $iAtSum,
-            $iTotal === 0 ? 0.0 : ($iG + $iC - $iA - $iT) / $iTotal,
+            $iTotal === 0 ? 0.0 : ($iG + $iT - $iA - $iC) / $iTotal,
             $iTotal === 0 ? 0.0 : $iGcSum / $iTotal
         );
     }

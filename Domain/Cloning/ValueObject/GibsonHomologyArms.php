@@ -3,7 +3,7 @@
  * Immutable value object describing the primer tails needed to create a Gibson junction
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -14,8 +14,10 @@ namespace Amelaye\BioPHP\Domain\Cloning\ValueObject;
  * class only designs the homology arm, not the annealing portion itself, which needs its own melting
  * temperature calculation). downstreamForwardPrimerTail goes on the forward primer that amplifies the
  * downstream fragment ; upstreamReversePrimerTail goes on the reverse primer that amplifies the
- * upstream fragment. After PCR, the two products share this same sequence at the junction, which is
- * what lets Gibson assembly's exonuclease chew-back and annealing join them.
+ * upstream fragment. Each tail carries one share of the overlap : after PCR, the two products share
+ * the downstream forward tail followed by the reverse complement of the upstream reverse tail, which
+ * is what lets Gibson assembly's exonuclease chew-back and annealing join them. A 1-base overlap
+ * leaves the upstream reverse tail empty.
  * Class GibsonHomologyArms
  * @package Amelaye\BioPHP\Domain\Cloning\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -34,12 +36,12 @@ final class GibsonHomologyArms
 
     /**
      * GibsonHomologyArms constructor.
-     * @param   string      $sDownstreamForwardPrimerTail   5' -> 3', must not be empty
-     * @param   string      $sUpstreamReversePrimerTail     5' -> 3', must not be empty
+     * @param   string      $sDownstreamForwardPrimerTail   5' -> 3'
+     * @param   string      $sUpstreamReversePrimerTail     5' -> 3', may be empty, not both tails
      */
     public function __construct(string $sDownstreamForwardPrimerTail, string $sUpstreamReversePrimerTail)
     {
-        if ($sDownstreamForwardPrimerTail === "" || $sUpstreamReversePrimerTail === "") {
+        if ($sDownstreamForwardPrimerTail === "" && $sUpstreamReversePrimerTail === "") {
             throw new \InvalidArgumentException("Gibson homology arm tails must not be empty.");
         }
 
@@ -68,6 +70,6 @@ final class GibsonHomologyArms
      */
     public function getOverlapLength(): int
     {
-        return strlen($this->downstreamForwardPrimerTail);
+        return strlen($this->downstreamForwardPrimerTail) + strlen($this->upstreamReversePrimerTail);
     }
 }

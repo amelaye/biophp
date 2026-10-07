@@ -81,9 +81,35 @@ class GibsonAssemblyManagerTest extends TestCase
 
         $oArms = $this->manager->designHomologyArms($oUpstream, $oDownstream, 8);
 
-        $this->assertEquals("AGCTTGGA", $oArms->getDownstreamForwardPrimerTail());
-        $this->assertEquals("TCCAAGCT", $oArms->getUpstreamReversePrimerTail());
+        // 8 bases split between the two primers : the upstream's last 4 (TGGA) and the reverse
+        // complement of the downstream's first 4 (AGCT, its own reverse complement).
+        $this->assertEquals("TGGA", $oArms->getDownstreamForwardPrimerTail());
+        $this->assertEquals("AGCT", $oArms->getUpstreamReversePrimerTail());
         $this->assertEquals(8, $oArms->getOverlapLength());
+    }
+
+    /**
+     * Each tail used to carry the whole overlap : the two PCR products then shared 2k bases, not k.
+     * Simulating the PCR (upstream gains the reverse primer tail, read on the top strand, at its 3'
+     * end ; downstream gains the forward primer tail at its 5' end) must give exactly k.
+     */
+    public function testThePcrProductsShareExactlyTheRequestedOverlap()
+    {
+        $oUpstream = new DnaSequence("ATGCATGCATGCAAAACCCC");
+        $oDownstream = new DnaSequence("GGGGTTTTACGTACGTACGT");
+
+        foreach ([1, 7, 10] as $iOverlap) {
+            $oArms = $this->manager->designHomologyArms($oUpstream, $oDownstream, $iOverlap);
+
+            $sUpstreamTail = $oArms->getUpstreamReversePrimerTail();
+            $sAddedToUpstream = $sUpstreamTail === "" ? "" : (new DnaSequence($sUpstreamTail))->reverseComplement()->getValue();
+            $oUpstreamProduct = new DnaSequence($oUpstream->getValue() . $sAddedToUpstream);
+            $oDownstreamProduct = new DnaSequence($oArms->getDownstreamForwardPrimerTail() . $oDownstream->getValue());
+
+            $oJunction = $this->manager->checkJunction($oUpstreamProduct, $oDownstreamProduct, 1, 40);
+            $this->assertEquals($iOverlap, $oJunction->getOverlapLength());
+            $this->assertEquals($iOverlap, $oArms->getOverlapLength());
+        }
     }
 
     public function testRejectsAnOverlapLengthExceedingTheUpstreamFragment()

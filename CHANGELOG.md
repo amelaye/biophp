@@ -51,9 +51,28 @@ Changes on `develop` since `master`.
   It is read from and written to GFF3 column 8 and GenBank `/codon_start` (phase + 1). GFF3 output
   now always gives a CDS a phase, as the specification requires (0 when unknown).
 
+#### Feature locations
+- `Feature::getFtLocation()` keeps a feature's location exactly as the record wrote it
+  (`join(265..402,673..781,...)`), in a new nullable `feature.ft_location` column : `ftFrom` and
+  `ftTo` only keep its outer bounds. Filled by the GenBank parser ; EMBL does not fill it yet.
+
 ### Fixed
+- Vertebrate mitochondrial code : an RNA codon (AUA, UGA, AGA, AGG) was translated with the
+  standard code, as if the table did not apply to an mRNA.
+- Keto skew is now (G+T-A-C)/N, keto bases (G, T) against amino ones (A, C). The formula taken from
+  the legacy skews tool, (G+C-A-T)/N, opposed strong bases to weak ones : that is only
+  2 x GC content - 1. biotools' skew plot still uses it.
+- `countCodons()` counted the introns of a spliced CDS : data/demo.seq's 8-exon CDS now gives 484
+  codons (its 483 residues plus the stop), not 863.
+- Proteins accept selenocysteine (U), pyrrolysine (O) and the ambiguity codes B, Z and J, so a
+  selenoprotein is no longer rejected ; `charge()` and `chemicalGroup()` classify them (J as I/L, O
+  as neutral, the others as undetermined X).
+- `translate()` no longer turns one or two bases left over at the end into a trailing "X".
+- Gibson : each primer tail carried the whole overlap, so the two PCR products shared 2k bases for
+  an overlap of k. The overlap is now split between the two tails, and `getOverlapLength()` is their
+  sum.
 - Reference data checked against REBASE (emboss files v404) and Dayhoff 1978, corrected in the test
-  samples mirroring bioapi's DataFixtures (bioapi itself must be corrected and reloaded the same way):
+  samples mirroring bioapi's DataFixtures (bioapi was corrected and reloaded the same way):
   - PAM250 W/H was +3 instead of -3.
   - Wrong cut fields or sites : Psp124BI/SacI (overhang -44 -> -4), BstKTI (GAT^C, 3' overhang),
     AbsI (CC^TCGAGG), AcoI (Y^GGCCR, was YCCGGR), HpyAV (CCTTC(6/5), pattern was SapI/HgaI),

@@ -3,7 +3,7 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 6 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -416,6 +416,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
             $sLocation .= trim(substr($this->aLines->current(), 20));
         }
         $aBounds = $this->parseLocationBounds($sLocation);
+        $aBounds[] = $sLocation;
         // A feature with no qualifier at all is directly followed by the next feature key or
         // section : that line must not be consumed as if it were this feature's qualifier.
         $sNextLine = $aFlines[$this->aLines->key() + 1] ?? "";
@@ -460,7 +461,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
      * @param   string  $sLine
      * @param   string  $sKey
      * @param   array   $aBounds    [$iFtFrom, $iFtTo, $sStrand], as returned by
-     * parseLocationBounds().
+     * parseLocationBounds(), followed by the location as written.
      */
     private function buildFeature(string $sLine, string $sKey, array $aBounds) {
         // Only the qualifier's own leading "/" and the value's enclosing quotes are syntax : a "/"
@@ -485,6 +486,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         $oFeature->setFtFrom($aBounds[0]);
         $oFeature->setFtTo($aBounds[1]);
         $oFeature->setStrand($aBounds[2] ?? null);
+        $oFeature->setFtLocation($aBounds[3] ?? null);
         $this->features[] = $oFeature;
     }
 }

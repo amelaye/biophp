@@ -5,6 +5,7 @@ use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;
 use Amelaye\BioPHP\Api\NucleotidApi;
 use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
@@ -509,7 +510,8 @@ class SequenceManagerTest extends TestCase
         $sExpected.= "HGPPLLTPLAGSPFAV*PPCCRLNPFAPALPLQRERREEQAARDAGEGG*GPWG*AGVNQAPFPLQVRSPAVQSPAKVQV*GWT*WVPGPS";
         $sExpected.= "PLTLVPQSHSPTPATSCLAIRKASLLPT*SSQTQSHLMPAPLLHSLCVQAGGQRGSEETQALPVSMAGVREKAELGQGPASPGWSVGELQQ";
         $sExpected.= "GVASLGCGGGTGSLPWWAPWSPMCRERRDGHFARGLMPPRRVSQSPSPLPGSPGAQEGGV*AQSGL*RVG*PHRLSGGLSALLRPGLGCRS";
-        $sExpected.= "AGLAGNPSSAPLQAPFFPLPLALALTSQPYGCGVPIIPAAPK*TPEX";
+        // 1231 bases : the last one is no codon and translates to nothing, not to "X".
+        $sExpected.= "AGLAGNPSSAPLQAPFFPLPLALALTSQPYGCGVPIIPAAPK*TPE";
 
         $translate = $sequenceBuilder->translate();
 
@@ -562,6 +564,43 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals(463, $sequenceManager->countCodons($oParser->getFeatures()));
     }
 
+    /**
+     * A spliced CDS used to be counted over its outer bounds, introns included : data/demo.seq's
+     * join() of 8 exons spans 265..2855 (2591 bases, 863 codons) but holds 1452 coding bases,
+     * 484 codons - its 483-residue /translation plus the stop codon.
+     */
+    public function testCountCodonsCountsOnlyTheExonsOfAJoinedCds()
+    {
+        $oParser = new ParseGenbankManager();
+        $aLines = file('data/demo.seq');
+        $iFeatures = 0;
+        foreach ($aLines as $i => $sLine) {
+            if (str_starts_with($sLine, "FEATURES")) {
+                $iFeatures = $i;
+                break;
+            }
+        }
+        $oParser->parseDataFile(array_slice($aLines, $iFeatures));
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $this->assertEquals(484, $sequenceManager->countCodons($oParser->getFeatures()));
+    }
+
+    public function testCountCodonsOfAJoinedCdsHonoursCodonStartAndPartialMarks()
+    {
+        $oCds = new Feature();
+        $oCds->setFtKey("CDS");
+        $oCds->setFtQual("codon_start");
+        $oCds->setFtValue("2");
+        $oCds->setFtFrom(1);
+        $oCds->setFtTo(130);
+        $oCds->setFtLocation("complement(join(<1..31,101..>130))");
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        // 31 + 30 = 61 coding bases, the first one skipped : 60 / 3 = 20, not (130 - 1) / 3 = 43.
+        $this->assertEquals(20, $sequenceManager->countCodons([$oCds]));
+    }
+
     public function testCountCodonsRequiresACdsFeature()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -579,6 +618,16 @@ class SequenceManagerTest extends TestCase
         $sExpected = "NNNNNNNNCCC";
 
         $this->assertEquals($charge, $sExpected);
+    }
+
+    public function testChargeAndChemicalGroupOfSelenocysteinePyrrolysineAndAmbiguityCodes()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // J (I or L) and O (pyrrolysine) are neutral ; B (D or N), Z (E or Q) and U undetermined.
+        $this->assertEquals("NNXXX", $sequenceManager->charge("JOBZU"));
+        // J (I or L) is aliphatic ; B, Z, U and O belong to no single group.
+        $this->assertEquals("LXXXX", $sequenceManager->chemicalGroup("JBZUO"));
     }
 
     public function testFindPalindrome()

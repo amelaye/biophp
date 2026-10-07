@@ -3,7 +3,7 @@
  * Gibson assembly junction analysis and primer design
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -22,10 +22,12 @@ use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
  * exact-match search - does upstream's very last k bases equal downstream's very first k bases,
  * for the longest k in range - is both the scientifically appropriate check here and simpler than
  * configuring an aligner strictly enough to approximate one.
- * designHomologyArms() follows the standard convention (as used by tools such as NEBuilder) : the
- * upstream fragment's own 3' end becomes the tail added to the DOWNSTREAM fragment's forward primer,
- * and the downstream fragment's own 5' start, reverse-complemented, becomes the tail added to the
- * UPSTREAM fragment's reverse primer. Only the homology arm itself is designed here ; the primer's own
+ * designHomologyArms() splits the requested overlap between the two primers : the upstream
+ * fragment's last ceil(k/2) bases become the tail added to the DOWNSTREAM fragment's forward primer,
+ * and the downstream fragment's first floor(k/2) bases, reverse-complemented, become the tail added
+ * to the UPSTREAM fragment's reverse primer. Each PCR product then ends, or starts, with the
+ * other's half, so the two products share exactly k bases. Carrying k bases on each primer would
+ * give a 2k overlap instead. Only the homology arm itself is designed here ; the primer's own
  * annealing portion (with its own melting-temperature requirement) is a separate concern this class
  * does not address.
  * Class GibsonAssemblyManager
@@ -113,12 +115,15 @@ class GibsonAssemblyManager implements GibsonAssemblyInterface
             );
         }
 
+        $iDownstreamShare = intdiv($iOverlapLength, 2);
+        $iUpstreamShare = $iOverlapLength - $iDownstreamShare;
+
         $sDownstreamForwardPrimerTail = $oUpstream
-            ->subSequence($oUpstream->getLength() - $iOverlapLength, $iOverlapLength)
+            ->subSequence($oUpstream->getLength() - $iUpstreamShare, $iUpstreamShare)
             ->getValue();
 
         $sUpstreamReversePrimerTail = $oDownstream
-            ->subSequence(0, $iOverlapLength)
+            ->subSequence(0, $iDownstreamShare)
             ->reverseComplement()
             ->getValue();
 

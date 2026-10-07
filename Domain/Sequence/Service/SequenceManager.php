@@ -41,7 +41,14 @@ class SequenceManager
         'R'=>'C',
         'H'=>'C',
         '*'=>'*',
-        'X'=>'X'
+        'X'=>'X',
+        // J is I or L, both aliphatic ; B (D or N) and Z (E or Q) straddle two groups ; U
+        // (selenocysteine) and O (pyrrolysine) belong to none of the eight.
+        'J'=>'L',
+        'B'=>'X',
+        'Z'=>'X',
+        'U'=>'X',
+        'O'=>'X'
     ];
 
     /**
@@ -312,39 +319,62 @@ class SequenceManager
      * parsed record.
      * @param   array     $aFeatures    The record's Feature objects, as returned by a database
      * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). Every row sharing the
-     * "CDS" key is expected to carry the same ftFrom/ftTo span - one per /qualifier read off the
-     * CDS feature - and, when present, a "codon_start" qualifier row gives the 1-based offset
-     * (1, 2 or 3) of the first complete codon within that span.
+     * "CDS" key is expected to carry the same location - one per /qualifier read off the CDS
+     * feature - and, when present, a "codon_start" qualifier row gives the 1-based offset
+     * (1, 2 or 3) of the first complete codon within it. When the parser kept the location as
+     * written, only the bases of its segments are counted, not the introns between the exons of a
+     * join() ; otherwise the ftFrom..ftTo span is.
      * @return  int       The number of complete codons within the CDS, expressed as a
      * non-negative integer.
      * @throws  \Exception  When $aFeatures holds no "CDS" feature.
      */
     public function countCodons(array $aFeatures) : int
     {
-        $iCdsFrom = null;
-        $iCdsTo = null;
+        $iCdsLength = null;
         $iCodonStart = 1;
 
         foreach ($aFeatures as $oFeature) {
             if ($oFeature->getFtKey() !== "CDS") {
                 continue;
             }
-            if ($iCdsFrom === null) {
-                $iCdsFrom = $oFeature->getFtFrom();
-                $iCdsTo = $oFeature->getFtTo();
+            if ($iCdsLength === null) {
+                $iCdsLength = $oFeature->getFtLocation() !== null
+                    ? $this->locationLength($oFeature->getFtLocation())
+                    : $oFeature->getFtTo() - $oFeature->getFtFrom() + 1;
             }
             if ($oFeature->getFtQual() === "codon_start") {
                 $iCodonStart = (int) $oFeature->getFtValue();
             }
         }
 
-        if ($iCdsFrom === null) {
+        if ($iCdsLength === null) {
             throw new \Exception("No CDS feature found : cannot count codons.");
         }
 
-        $iCdsLength = $iCdsTo - $iCdsFrom + 1;
-        $codcount = (int) (($iCdsLength - $iCodonStart + 1) / 3);
-        return $codcount;
+        return max(0, intdiv($iCdsLength - $iCodonStart + 1, 3));
+    }
+
+    /**
+     * Returns the number of bases an INSDC location covers : the sum of its segments, a "a..b"
+     * range counting b - a + 1, a single base "a" or "a.b" (one base within a..b) one, and a
+     * "a^b" site between two bases none. complement(), join(), order() and the partial marks
+     * "<" and ">" change no length, and a segment of another entry ("J00194.1:100..202") counts.
+     * @param   string      $sLocation
+     * @return  int
+     */
+    private function locationLength(string $sLocation) : int
+    {
+        $sSegments = preg_replace('/complement\(|join\(|order\(|\)|<|>|\s/', "", $sLocation);
+        $iLength = 0;
+        foreach (explode(",", $sSegments) as $sSegment) {
+            $sSegment = preg_replace('/^[^:]*:/', "", $sSegment);
+            if (preg_match('/^(\d+)\.\.(\d+)$/', $sSegment, $aRange)) {
+                $iLength += abs((int) $aRange[2] - (int) $aRange[1]) + 1;
+            } elseif (preg_match('/^\d+(\.\d+)?$/', $sSegment)) {
+                $iLength += 1;
+            }
+        }
+        return $iLength;
     }
 
     /**
@@ -562,7 +592,8 @@ class SequenceManager
         $sResult = "";
         while(1) {
             $sCodon = $this->getCodon($iCodonIndex, $sSequence, $iReadFrame);
-            if ($sCodon == "") {
+            // One or two bases left over at the end are no codon : they code for nothing.
+            if (strlen($sCodon) < 3) {
                 break;
             }
             if ($iFormat == 1) {
@@ -610,10 +641,16 @@ class SequenceManager
                     $sChargedSequence .= "*";
                     break;
                 case "X":
+                // B (D or N) and Z (E or Q) may or may not be acidic ; selenocysteine's selenol
+                // (pKa about 5.2) is not classed with the acidic side chains here.
+                case "B":
+                case "Z":
+                case "U":
                     $sChargedSequence .= "X";
                     break;
                 default:
-                    if (substr_count("GAVLISTNQFYWCMP", $sAminoLetter) >= 1) {
+                    // J is I or L ; pyrrolysine's side chain amine is engaged in an amide bond.
+                    if (substr_count("GAVLISTNQFYWCMPJO", $sAminoLetter) >= 1) {
                         $sChargedSequence .= "N";
                     } else {
                         throw new \Exception("Invalid amino acid symbol in input sequence.");
@@ -625,7 +662,8 @@ class SequenceManager
 
     /**
      * Returns a string of symbols from an 8-letter alphabet: A, L, M, R, C, H, I, S.
-     * Chemical groups: L - GAVLI, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *, X - X
+     * Chemical groups: L - GAVLIJ, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *,
+     * X - X and the residues of no single group (B, Z, U, O)
      * @param   string      $sAminoSeq      A string representing an amino acid chain (e.g. GAVLI).
      * If omitted, this is set to the sequence property of the "calling" Seq object. If the
      * latter is not set either, the function returns the boolean value of FALSE.

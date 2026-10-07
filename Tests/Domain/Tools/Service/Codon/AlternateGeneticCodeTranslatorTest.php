@@ -92,4 +92,14 @@ class AlternateGeneticCodeTranslatorTest extends TestCase
 
         $this->translator->translateCodon("ATG", 99);
     }
+
+    public function testVertebrateMitochondrialReadsRnaCodonsTheSameWay()
+    {
+        // The overlay is keyed on DNA codons : AUA, UGA and AGA used to fall through to the
+        // standard code (Ile, Stop, Arg) as if the table did not apply to an mRNA.
+        $this->assertEquals("M", $this->translator->translateCodon("AUA", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
+        $this->assertEquals("W", $this->translator->translateCodon("UGA", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
+        $this->assertEquals("*", $this->translator->translateCodon("aga", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
+        $this->assertEquals("*", $this->translator->translateCodon("AGG", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
+    }
 }

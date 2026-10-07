@@ -3,7 +3,7 @@
  * Translates a codon under a specific NCBI genetic code table
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 6 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -72,7 +72,8 @@ class AlternateGeneticCodeTranslator implements AlternateGeneticCodeTranslatorIn
         }
 
         $aOverlay = self::OVERLAYS[$iTableId] ?? [];
-        $sNormalizedCodon = strtoupper($sCodon);
+        // The overlays are keyed on DNA codons : an RNA codon (AUA, UGA, AGA) must read the same.
+        $sNormalizedCodon = str_replace("U", "T", strtoupper($sCodon));
 
         return $aOverlay[$sNormalizedCodon] ?? $this->sequenceManager->translateCodon($sCodon, 1);
     }

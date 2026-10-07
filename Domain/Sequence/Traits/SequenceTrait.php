@@ -3,7 +3,7 @@
  * Traits for sequences formatting
  * Freely inspired by BioPHP's project biophp.org
  * Created 22 july 2019
- * Last modified 2 October 2026
+ * Last modified 7 October 2026
  */
 declare(strict_types=1);
 
@@ -56,7 +56,7 @@ trait SequenceTrait
         $aAlphabets = [
             "DNA"     => "/[^ACGTMRWSYKVHDBXN]/",
             "RNA"     => "/[^ACGUMRWSYKVHDBXN]/",
-            "PROTEIN" => "/[^ACDEFGHIKLMNPQRSTVWYX*]/"
+            "PROTEIN" => "/[^ACDEFGHIKLMNPQRSTVWYBZJUOX*]/"
         ];
 
         $sMolType = strtoupper((string) $sMolType);

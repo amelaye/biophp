@@ -15,7 +15,7 @@ class SkewCalculatorTest extends TestCase
 
     /**
      * "GGGGCC" : A=0,C=2,G=4,T=0. gcSkew=(4-2)/6=1/3. atSkew=0 (guarded, A+T=0).
-     * ketoSkew=(4+2-0-0)/6=1.0. gcContent=6/6=1.0.
+     * ketoSkew=(G+T-A-C)/N=(4+0-0-2)/6=1/3 (keto G, T against amino A, C). gcContent=6/6=1.0.
      */
     public function testCalculatesAllFourMetricsForAGcRichWindow()
     {
@@ -23,7 +23,7 @@ class SkewCalculatorTest extends TestCase
 
         $this->assertEqualsWithDelta(1 / 3, $oResult->getGcSkew(), 0.0000001);
         $this->assertEquals(0.0, $oResult->getAtSkew());
-        $this->assertEquals(1.0, $oResult->getKetoSkew());
+        $this->assertEqualsWithDelta(1 / 3, $oResult->getKetoSkew(), 0.0000001);
         $this->assertEquals(1.0, $oResult->getGcContent());
     }
 
@@ -38,6 +38,17 @@ class SkewCalculatorTest extends TestCase
         $this->assertEquals(0.0, $oResult->getGcSkew());
         $this->assertEqualsWithDelta(0.0, $oResult->getAtSkew(), 0.0000001);
         $this->assertEquals(0.0, $oResult->getGcContent());
+    }
+
+    /**
+     * The keto skew is not 2 x GC content - 1 : "GTGT" and "ACAC" share the same GC content (0.5)
+     * but are all keto (G, T) and all amino (A, C) bases respectively.
+     */
+    public function testKetoSkewOpposesKetoToAminoBases()
+    {
+        $this->assertEquals(1.0, $this->calculator->calculate("GTGT")->getKetoSkew());
+        $this->assertEquals(-1.0, $this->calculator->calculate("ACAC")->getKetoSkew());
+        $this->assertEquals(0.0, $this->calculator->calculate("GC")->getKetoSkew());
     }
 
     public function testAnEmptyWindowIsAllZeroesRatherThanDividingByZero()
