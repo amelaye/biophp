@@ -162,4 +162,26 @@ class VcfReaderTest extends TestCase
 
         $this->assertSame("x%2Cy,z", $oResult->getVariants()[0]->getInfo()["LIST"]);
     }
+
+    /**
+     * Every form VCF 4.3 gives an ALT allele is read : bases, "*" (allele missing under an
+     * overlapping deletion), symbolic alleles, breakends and single breakends. An empty ALT column
+     * gave the allele "" ; it is now reported, the record skipped.
+     */
+    public function testReadsEveryAlternateFormAndRejectsAnEmptyOne()
+    {
+        $oResult = $this->reader->read([
+            "chr1\t100\t.\tA\tG,*,<DEL>\t.\t.\t.",
+            "chr2\t321681\tbnd_W\tG\tG]17:198982]\t6\tPASS\tSVTYPE=BND",
+            "chr2\t321682\tbnd_V\tT\t]13:123456]T,.T\t6\tPASS\tSVTYPE=BND",
+            "chr3\t5\t.\tC\t\t.\t.\t.",
+        ]);
+
+        $this->assertCount(3, $oResult->getVariants());
+        $this->assertEquals(["G", "*", "<DEL>"], $oResult->getVariants()[0]->getAlternates());
+        $this->assertEquals(["G]17:198982]"], $oResult->getVariants()[1]->getAlternates());
+        $this->assertEquals(["]13:123456]T", ".T"], $oResult->getVariants()[2]->getAlternates());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("ALT", $oResult->getWarnings()[0]);
+    }
 }

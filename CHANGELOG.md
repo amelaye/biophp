@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Changes on `develop` since `master`.
 
 ### Added
+- AAINDEX : the correlated entries (C, `getCorrelations()`) and the index values themselves (I,
+  `getIndex()`, one per amino acid, null for "NA") are read ; they used to be left aside.
+- Swiss-Prot : `getTaxonomyId()`, the NCBI taxonomy identifier of the OX line.
+- PDB : HELIX and SHEET keep the insertion codes of their first and last residues
+  (`getInitICode()`, `getEndICode()`).
+- GenBank import keeps the /organism and /mol_type of the source feature in the plasmid's metadata,
+  and the writer writes them back.
 
 #### Plasmids and cloning
 - `CircularDnaSequence` for origin-crossing rotation and slicing.
@@ -72,6 +79,7 @@ Changes on `develop` since `master`.
   order (trans-spliced plant organelle genes) keeps its lowest start and highest end. A location
   lying on both strands (join(complement(a..b),c..d)) has a null strand rather than "-", and a
   complement() around another entry's segment no longer makes the feature "-".
+  `Feature::isPartial()` tells a location marked "<" or ">".
 - GenBank writer : a feature crossing the origin made the whole write throw ; it is written as
   join(start..length,1..end), or its complement(), and reads back as the same feature.
 - Restriction digest : a custom enzyme (`parseEnzyme(..., "custom")`), described by its upper-strand
@@ -81,7 +89,65 @@ Changes on `develop` since `master`.
 - EMBL : with the ID line of the layout before release 87, the entry name (HSERPG) was stored as
   the primary accession and the AC line's accession was lost. The accession is now the primary
   accession and the name the entry name.
-  `Feature::isPartial()` tells a location marked "<" or ">".
+- GenBank and Entrez LOCUS lines are read word by word : NCBI shifts every field when the name is
+  longer than 16 characters (WGS contigs), and the fixed columns read the length as 1. ACCESSION and
+  KEYWORDS are read over their continuation lines ; "REGION: 1..1000" is no secondary accession ;
+  the period closing KEYWORDS and the lineage of ORGANISM is no longer kept on the last keyword or
+  rank ("RefSeq", "Homo"). A GenBank or EMBL record cut short (no "//") no longer crashes.
+- PRINTS : a record fetched from a file of several entries ran into the next ones, whose name and
+  description replaced or extended its own.
+- KEGG : PATHWAY lines are read one by one, whatever the identifier length (ec00010, ko00010) and
+  with or without "PATH:" ; a GENES, REACTION... line wrapped onto an indented one continues its
+  item ; ORTHOLOGY (the 2008 format) is read as ORTHOLOG ; a GENOME ENTRY "T01001  Complete  Genome"
+  gives T01001.
+- TRANSFAC : a sequence over several SQ lines gained a blank at each line, and its closing period ;
+  a frequency matrix (0.25) was cast to integers, all zeros.
+- ExPASy ENZYME : an alternate name (AN) wrapped over two lines is one name, not two.
+- PDB : SEQRES reads DNA (DA, DC, DG, DT) and RNA chains, selenomethionine (MSE, as M),
+  selenocysteine (U), pyrrolysine (O), ASX and GLX ; all gave X.
+- PROSITE : the current DT layout ("01-APR-1990 CREATED;") is read, and a qualifier written several
+  times in CC (/SITE) keeps all its values, as a list.
+- NCBI journals : "ISSN (Print)" and "ISSN (Online)", the labels of today's J_Entrez.txt, are read.
+- `isPalindrome()` and `findPalindrome()` found nothing in a lower-case sequence (any GenBank or
+  EMBL record) ; `isPalindrome()` now pairs ambiguous symbols as `findPalindrome()` does (ACRYGT).
+- Translation : a codon with an ambiguous base translates into the residue all its readings code
+  for (TAR, a stop ; GAR, E ; YTR, L) and into X only when they disagree.
+- `SequenceBuilder::molwt()` with no molecule type failed on a parsed record ("mRNA", "ss-DNA") :
+  any RNA type is weighed as RNA, its T read as U, any DNA type as DNA.
+- `ProteinManager::molwt()` returned FALSE for U, O, lower case and the stop ending a translated ORF.
+- Alignment consensus : a column of gaps only gave "A" or "?" and was reported variant.
+- `RestrictionEnzymeCatalog::findByRecognitionSequence()` reads both strands and either side of an
+  "X or Y" site, as `RestrictionEnzymeManager::findRestEn()` does.
+- `complement()` accepts X ; `symFreq()` ignores the case of the symbol ; `countCodons()` reads the
+  codon_start of the first CDS only, not of the last one.
+- GenBank writer : a feature with no metadata is written with its name as /label, which was lost ;
+  the DEFINITION no longer gains a period at each round trip. GenBank import : features sharing a
+  location are no longer merged, and a spliced feature (join of separate exons), imported as one
+  span, is warned about.
+- Circular digest : the N spacer of a Type IIS site (GGTCTCN'NNNN_) no longer flags every BsaI digest
+  as matched by an ambiguous pattern. Overhangs are compared whatever their case.
+- FASTQ : a record cut short no longer takes the next one with it, and a quality line too long is
+  reported with its length.
+- Codon usage tables leave out a codon with an ambiguous base (one N made the build throw) ;
+  skews read U as T ; nearest-neighbor Tm refuses a primer under two bases ; `Median([])` and an
+  undefined Almeida distance throw instead of warnings and a DivisionByZeroError.
+- `CircularDnaSequence::subSequence()` returns a linear DnaSequence, which may be empty : a piece
+  was a circular molecule of its own, and an empty one threw - a one-base Gibson overlap with a
+  circular vector failed on it.
+- BLOCKS : a sequence line whose protein name begins like a label (IDHP_HUMAN, ACON_YEAST) was read
+  as an ID or AC line, opening a new entry.
+- GenBank writer : DEFINITION and qualifier lines wrap at 79 characters. A Strand::NONE feature,
+  which INSDC cannot write, came back on the direct strand : it is marked with /biophp_strand="none",
+  a qualifier of this library's own that GenbankPlasmidMapper reads back (any other reader takes the
+  plain range as the direct strand, as INSDC defines it). Two features sharing a location are also
+  kept apart when a qualifier held once (/gene, /label, /codon_start...) comes again.
+- Newick : an internal node named "" reads back as "" (written ''), not as a node with no name.
+- Circular digest : two cuts at one upper-strand position but different lower-strand ones kept the
+  first enzyme's end ; the end is UNKNOWN, with a warning.
+- FASTQ : a file that looks Phred+64 encoded is warned about rather than read silently 31 too high.
+- Newick : an unnamed leaf raises InvalidNewickException, not InvalidPhylogeneticTreeException ; a
+  comment may follow ";" ; a label holding a blank is reported as such ; branch lengths are written
+  in full (17 digits) and non-finite ones refused. `DistanceMatrix` reads rows keyed by label.
 - PDB : the insertion code (column 27, "52A") and the MODEL of each atom (NMR ensembles) are read.
 - PROSITE : a DR line's code is kept (`getCategory()` : T, N, P, ? or F) ; `isFamilyMember()` no
   longer counts a false negative (N), a member of the family, as a stranger to it.
@@ -187,10 +253,23 @@ Changes on `develop` since `master`.
   (`%2C` excepted, to keep list commas unambiguous).
 
 ### Changed
+- **Schema upgrade scripts :** `migrations/20261008_parsed_records_schema.{mysql,postgresql,sqlite}.sql`
+  take an existing database from the former mapping of the parsed-record tables to the current one ;
+  copy them into a migration of the application using the bundle. The SQLite script is checked (a
+  migrated database matches a fresh one) ; the MySQL and PostgreSQL ones were not run on a server.
+- ExPASy ENZYME : the description (DE) no longer keeps the period closing it, as AN and CA did not.
+- VCF : each ALT allele is validated (bases, "*", <symbolic>, breakend, single breakend) ; an empty
+  ALT column, which gave the allele "", is reported and the record skipped. A record stored before
+  this check with that empty allele still reads back (`VcfVariantRecordMapper::toVariant()` drops it).
+- `DistanceMatrix` refuses an infinite or NaN distance, from which UPGMA built NaN branch lengths.
 - **Breaking (schema) :** the parsed-record tables (feature, reference, author, accession, keyword,
   sp_databank) gain an `id` primary key, `prim_acc` is a 50-character indexed column without foreign
   key, and several columns are widened ; generate a migration. No row could be stored before.
-- `PdbAtomInterface` and `PrositeDbRefInterface` gained methods (insertion code, model, DR code).
+- `PdbAtomInterface` and `PrositeDbRefInterface` gained methods (insertion code, model, DR code),
+  `PdbHelixInterface` and `PdbSheetInterface` the insertion codes of their ends.
+- `AbstractMolecularSequence::subSequence()` declares `AbstractMolecularSequence` instead of
+  `static`, so that `CircularDnaSequence` can return a linear piece ; every other class still
+  returns its own kind. A subclass overriding it with `static` is unaffected.
 - `molwt()` documents its convention : a 5'-phosphate, 3'-OH strand, 79.98 above a synthetic
   5'-OH oligonucleotide.
 - `GffFeatureWriterInterface::write()` gained an optional `$iSequenceLength` parameter ; custom

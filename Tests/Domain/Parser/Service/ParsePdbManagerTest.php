@@ -219,4 +219,23 @@ class ParsePdbManagerTest extends TestCase
 
         $this->assertEquals(["A" => "MMUGX", "B" => "CGAT", "C" => "GCUA"], $oParser->getSeqRes());
     }
+
+    /**
+     * HELIX and SHEET dropped the insertion codes of their first and last residues, so a helix
+     * from 52A to 60B could not be told from one from 52 to 60.
+     */
+    public function testHelixAndSheetKeepTheirInsertionCodes()
+    {
+        $oParser = new ParsePdbManager();
+        $oParser->parseDataFile([
+            "HELIX    1   1 ALA A   52A LEU A   60B 1                                   9    \n",
+            "SHEET    1   A 2 VAL B  10C ILE B  15D 0                                        \n",
+            "END\n",
+        ]);
+
+        $oHelix = $oParser->getHelices()[0];
+        $this->assertEquals([52, "A", 60, "B"], [$oHelix->getInitSeqNum(), $oHelix->getInitICode(), $oHelix->getEndSeqNum(), $oHelix->getEndICode()]);
+        $oSheet = $oParser->getSheets()[0];
+        $this->assertEquals([10, "C", 15, "D"], [$oSheet->getInitSeqNum(), $oSheet->getInitICode(), $oSheet->getEndSeqNum(), $oSheet->getEndICode()]);
+    }
 }

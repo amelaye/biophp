@@ -3,7 +3,7 @@
  * Raised when a DistanceMatrix is built from inconsistent labels or distances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -112,6 +112,21 @@ class InvalidDistanceMatrixException extends \InvalidArgumentException
     {
         return new self(
             sprintf('Distance D[%d][%d]=%s must not be negative.', $iRow, $iColumn, $fValue)
+        );
+    }
+
+    /**
+     * Builds the exception raised when a distance is infinite or not a number : the tree built from
+     * it would carry branch lengths no Newick string can hold.
+     * @param   int         $iRow
+     * @param   int         $iColumn
+     * @param   float       $fValue
+     * @return  InvalidDistanceMatrixException
+     */
+    public static function nonFiniteDistance(int $iRow, int $iColumn, float $fValue): self
+    {
+        return new self(
+            sprintf('Distance D[%d][%d]=%s must be a finite number.', $iRow, $iColumn, var_export($fValue, true))
         );
     }
 }

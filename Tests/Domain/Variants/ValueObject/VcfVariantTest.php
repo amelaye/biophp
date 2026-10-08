@@ -92,4 +92,19 @@ class VcfVariantTest extends TestCase
         $this->assertEquals("acgtn", (new VcfVariant("chr1", 1, null, "acgtn", [], null, null))->getReference());
         $this->assertEquals("R", (new VcfVariant("chr3", 60830534, null, "R", ["A"], null, null))->getReference());
     }
+
+    /**
+     * ALT was never checked : an empty allele or a word passed for one was accepted.
+     */
+    public function testRejectsAnAlternateThatIsNoAllele()
+    {
+        foreach (["", "G T", "<DEL", "chr1:100"] as $sAlternate) {
+            try {
+                new VcfVariant("chr1", 1, null, "A", [$sAlternate], null, null);
+                $this->fail('"' . $sAlternate . '" was accepted as an ALT allele.');
+            } catch (InvalidVcfRecordException $oException) {
+                $this->assertStringContainsString("ALT", $oException->getMessage());
+            }
+        }
+    }
 }

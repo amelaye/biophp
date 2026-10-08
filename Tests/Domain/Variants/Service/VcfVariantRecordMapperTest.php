@@ -79,4 +79,16 @@ class VcfVariantRecordMapperTest extends TestCase
         $this->expectException(InvalidVcfRecordException::class);
         (new VcfVariantRecordMapper())->toVariant($oRecord);
     }
+
+    /**
+     * A record stored before ALT was validated may hold the empty allele an empty ALT column gave :
+     * it must still read back, the empty allele dropped, now that VcfVariant refuses it.
+     */
+    public function testARecordStoredWithAnEmptyAlleleStillReadsBack()
+    {
+        $oRecord = new VcfVariantRecord();
+        $oRecord->setChrom("chr1")->setPosition(10)->setReference("A")->setAlternates([""]);
+
+        $this->assertSame([], (new VcfVariantRecordMapper())->toVariant($oRecord)->getAlternates());
+    }
 }

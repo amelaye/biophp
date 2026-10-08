@@ -3,7 +3,7 @@
  * Immutable value object describing one VCF variant record
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -17,7 +17,8 @@ use Amelaye\BioPHP\Domain\Variants\Exception\InvalidVcfRecordException;
  * strings, deliberately not wrapped in a DnaSequence : VCF's ALT column can legitimately hold a
  * symbolic allele ("<DEL>", "<INS>") or breakend notation ("]13:123456]T") for a structural variant,
  * neither of which is a valid DNA alphabet string, so forcing that validation here would wrongly
- * reject real VCF input. REF, on the other hand, only ever holds bases, and is checked as such.
+ * reject real VCF input. Each ALT allele is checked against those forms ; REF, on the other hand,
+ * only ever holds bases, and is checked as such.
  * Class VcfVariant
  * @package Amelaye\BioPHP\Domain\Variants\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -105,6 +106,12 @@ final class VcfVariant
             throw InvalidVcfRecordException::invalidReference($sReference);
         }
 
+        foreach ($aAlternates as $sAlternate) {
+            if (!is_string($sAlternate) || !self::isValidAlternate($sAlternate)) {
+                throw InvalidVcfRecordException::invalidAlternate(is_string($sAlternate) ? $sAlternate : gettype($sAlternate));
+            }
+        }
+
         $this->chrom = $sChrom;
         $this->position = $iPosition;
         $this->id = $sId;
@@ -113,6 +120,26 @@ final class VcfVariant
         $this->quality = $fQuality;
         $this->filter = $sFilter;
         $this->info = $aInfo;
+    }
+
+    /**
+     * Tells whether a string is an ALT allele as VCF 4.3 writes one (section 1.6.1, ALT) : bases
+     * (the IUPAC codes tolerated as for REF), "*" for an allele missing because of an overlapping
+     * deletion, a symbolic allele in angle brackets (<DEL>, <INS:ME:ALU>, <*>, <NON_REF>), a
+     * breakend joining this position to a mate (G]17:198982], ]13:123456]T, C[<ctg1>:7[, .[13:123457[
+     * at a telomere) or a single breakend (.A, G.). An empty allele, which an empty ALT column used to give, is none.
+     * @param   string      $sAlternate
+     * @return  bool
+     */
+    private static function isValidAlternate(string $sAlternate): bool
+    {
+        $sBases = '[ACGTNRYSWKMBDHV]+';
+        $sMate = '[\[\]][^\[\]\s,]+[\[\]]';
+        // At a telomere (POS 0 or length + 1), "." stands for the bases next to a mate : .[13:123457[
+        $sMateSide = '(' . $sBases . '|\.)';
+
+        return preg_match('/^(' . $sBases . '|\*|<[^<>,\s]+>|' . $sMateSide . $sMate . '|' . $sMate . $sMateSide
+            . '|\.' . $sBases . '|' . $sBases . '\.)$/i', $sAlternate) === 1;
     }
 
     /**

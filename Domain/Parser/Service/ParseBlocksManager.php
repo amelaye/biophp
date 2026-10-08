@@ -3,7 +3,7 @@
  * BLOCKS database parsing (conserved protein family motifs)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -74,7 +74,19 @@ final class ParseBlocksManager implements ParseDatabaseInterface
      */
     public static function isEntryStart(string $sLine) : bool
     {
-        return substr($sLine, 0, 2) == "ID";
+        return self::readLabel($sLine) == "ID";
+    }
+
+    /**
+     * Reads the label of a field line : two letters followed by three blanks. A sequence line of a
+     * block opens on its protein name in the first column, which may begin like a label
+     * (IDHP_HUMAN, ACON_YEAST, BLAC_ECOLX) and is no field.
+     * @param   string      $sLine          The line to analyze
+     * @return  string      The label, "" for a line holding none
+     */
+    private static function readLabel(string $sLine) : string
+    {
+        return substr($sLine, 2, 3) === "   " ? substr($sLine, 0, 2) : "";
     }
 
     /**
@@ -96,7 +108,7 @@ final class ParseBlocksManager implements ParseDatabaseInterface
     public static function getEntryId(array $aFlines, string $sLine) : string
     {
         foreach($aFlines as $sCurrent) {
-            if (substr($sCurrent, 0, 2) == "AC") {
+            if (self::readLabel($sCurrent) == "AC") {
                 $aTokens = preg_split("/;/", trim(substr($sCurrent, 5)), -1, PREG_SPLIT_NO_EMPTY);
 
                 return isset($aTokens[0]) ? trim($aTokens[0]) : "";
@@ -115,7 +127,7 @@ final class ParseBlocksManager implements ParseDatabaseInterface
         $sDescription = "";
 
         foreach($aFlines as $sLine) {
-            $sLabel = substr($sLine, 0, 2);
+            $sLabel = substr($sLine, 0, 2) == "//" ? "//" : self::readLabel($sLine);
             $sData  = trim(substr($sLine, 5));
 
             switch($sLabel) {

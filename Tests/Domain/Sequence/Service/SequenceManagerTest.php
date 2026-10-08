@@ -633,6 +633,32 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals(484, $sequenceManager->countCodons($oParser->getFeatures()));
     }
 
+    /**
+     * The length came from the first CDS but the codon_start from the last one read : a record
+     * holding several CDS mixed the two.
+     */
+    public function testCountCodonsReadsTheCodonStartOfTheFirstCdsOnly()
+    {
+        $fCds = function (int $iFrom, int $iTo, string $sQual, string $sValue) {
+            $oCds = new Feature();
+            $oCds->setFtKey("CDS");
+            $oCds->setFtQual($sQual);
+            $oCds->setFtValue($sValue);
+            $oCds->setFtFrom($iFrom);
+            $oCds->setFtTo($iTo);
+            $oCds->setFtLocation($iFrom . ".." . $iTo);
+            return $oCds;
+        };
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        // First CDS : 1..30, codon_start 1, ten codons. The second's codon_start 3 is not its own.
+        $this->assertEquals(10, $sequenceManager->countCodons([
+            $fCds(1, 30, "codon_start", "1"),
+            $fCds(1, 30, "product", "first"),
+            $fCds(101, 160, "codon_start", "3"),
+        ]));
+    }
+
     public function testCountCodonsOfAJoinedCdsHonoursCodonStartAndPartialMarks()
     {
         $oCds = new Feature();

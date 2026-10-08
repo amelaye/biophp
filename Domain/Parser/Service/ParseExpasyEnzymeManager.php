@@ -3,7 +3,7 @@
  * ExPASy ENZYME database parsing (EC nomenclature)
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -139,7 +139,8 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
                     $this->id = trim(substr($aLines->current(), 5));
                     break;
                 case "DE":
-                    $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
+                    // The period closing the name is no part of it, as for AN and CA.
+                    $this->description = rtrim($this->accumulate($aLines, $aFlines, "DE", " "), ".");
                     break;
                 case "AN":
                     // Each synonym ends with a period : consecutive AN lines are separate names,

@@ -2,6 +2,7 @@
 namespace Tests\Domain\Cloning\Service;
 
 use Amelaye\BioPHP\Domain\Cloning\Service\GibsonAssemblyManager;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\CircularDnaSequence;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 use PHPUnit\Framework\TestCase;
 
@@ -126,5 +127,17 @@ class GibsonAssemblyManagerTest extends TestCase
         $this->expectExceptionMessage("downstream");
 
         $this->manager->designHomologyArms(new DnaSequence("ACGTACGTACGT"), new DnaSequence("ACGT"), 5);
+    }
+
+    /**
+     * A one-base overlap gives the downstream fragment no share : subSequence(0, 0) of a circular
+     * vector threw, a circular sequence being never empty.
+     */
+    public function testHomologyArmsOfAOneBaseOverlapWithACircularVector()
+    {
+        $oArms = $this->manager->designHomologyArms(new DnaSequence("AAAACCCG"), new CircularDnaSequence("TTTTGGGG"), 1);
+
+        $this->assertEquals("G", $oArms->getDownstreamForwardPrimerTail());
+        $this->assertEquals("", $oArms->getUpstreamReversePrimerTail());
     }
 }

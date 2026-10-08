@@ -153,4 +153,17 @@ class CircularDnaSequenceTest extends TestCase
         $this->assertEquals("MRWSYKVHDBXNACGT", $oCircular->rotateTo(4)->getValue());
         $this->assertEquals("XNACGT", $oCircular->sliceCircular(14, 6)->getValue());
     }
+
+    /**
+     * A piece of a circular molecule was a CircularDnaSequence of its own, and an empty piece threw.
+     */
+    public function testSubSequenceIsALinearFragment()
+    {
+        $oPlasmid = new CircularDnaSequence("ACGTACGT");
+
+        $oPiece = $oPlasmid->subSequence(2, 3);
+        $this->assertSame(DnaSequence::class, get_class($oPiece));
+        $this->assertEquals("GTA", $oPiece->getValue());
+        $this->assertEquals("", $oPlasmid->subSequence(0, 0)->getValue());
+    }
 }

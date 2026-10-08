@@ -3,7 +3,7 @@
  * Reads a FASTQ file into FastqRecord instances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -28,6 +28,10 @@ use Amelaye\BioPHP\Domain\Sequencing\ValueObject\FastqRecord;
  * validation, is skipped and reported in FastqImportResult::getWarnings() rather than thrown,
  * exactly like GffFeatureReader treats a malformed GFF3 line. Blank lines between records are
  * ignored.
+ * Qualities are read as Phred+33 (see FastqRecord). A file whose every quality symbol is "@" (ASCII
+ * 64) or above, some of them past "J" (Phred 41, the top of Illumina 1.8+), looks like the older
+ * Phred+64 encoding (Illumina 1.3 to 1.7) : its records are still read, but a warning says their
+ * scores would be 31 too high.
  * Class FastqReader
  * @package Amelaye\BioPHP\Domain\Sequencing\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -78,7 +82,9 @@ class FastqReader implements FastqReaderInterface
                         $iRecordNumber,
                         $i + 1
                     );
-                    $i = $this->nextHeader($aLines, $i + 1);
+                    // A line opening on "@" is no sequence : it is the header of the next
+                    // record, the current one being cut short, and is read again as such.
+                    $i = $this->nextHeader($aLines, $i);
                     continue 2;
                 }
                 $sSequence .= $aLines[$i];
@@ -93,10 +99,12 @@ class FastqReader implements FastqReaderInterface
             }
             $i++;
 
-            // The quality, possibly wrapped, runs until it is as long as the sequence.
+            // The quality, possibly wrapped, runs until it is as long as the sequence. Its first
+            // line always belongs to the record, even too long : the record is then reported with
+            // its real quality length, and that line is not read as the next record.
             $sQuality = "";
             while ($i < $iTotalLines && strlen($sQuality) < strlen($sSequence)
-                && strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence)) {
+                && ($sQuality === "" || strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence))) {
                 $sQuality .= $aLines[$i];
                 $i++;
             }
@@ -113,6 +121,13 @@ class FastqReader implements FastqReaderInterface
             } catch (\InvalidArgumentException $ex) {
                 $aWarnings[] = sprintf('Skipped record %d: %s', $iRecordNumber, $ex->getMessage());
             }
+        }
+
+        $sQualities = implode("", array_map(fn(FastqRecord $oRecord) => $oRecord->getQuality(), $aRecords));
+        if ($sQualities !== "" && min(array_map('ord', str_split($sQualities))) >= ord("@")
+            && max(array_map('ord', str_split($sQualities))) > ord("J")) {
+            $aWarnings[] = 'Every quality symbol is "@" or above, some past "J" : the file looks Phred+64'
+                . ' encoded (Illumina 1.3 to 1.7). Its qualities were read as Phred+33, 31 too high.';
         }
 
         return new FastqImportResult($aRecords, $aWarnings);

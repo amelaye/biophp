@@ -3,6 +3,7 @@ namespace Tests\Domain\Phylogenetics\Service;
 
 use Amelaye\BioPHP\Domain\Phylogenetics\Exception\InvalidNewickException;
 use Amelaye\BioPHP\Domain\Phylogenetics\Service\NewickReader;
+use Amelaye\BioPHP\Domain\Phylogenetics\ValueObject\PhylogeneticNode;
 use PHPUnit\Framework\TestCase;
 
 class NewickReaderTest extends TestCase
@@ -184,5 +185,71 @@ class NewickReaderTest extends TestCase
         $this->expectExceptionMessage("Unterminated comment");
 
         $this->reader->read("(A[comment,B);");
+    }
+
+    /**
+     * An unnamed leaf, valid Newick, escaped as an InvalidPhylogeneticTreeException that a caller
+     * catching InvalidNewickException around read() missed.
+     */
+    public function testAnUnnamedLeafIsAnInvalidNewickString()
+    {
+        foreach (["(,A);", "(A,B,);", "('',A);"] as $sNewick) {
+            try {
+                $this->reader->read($sNewick);
+                $this->fail($sNewick . " was read.");
+            } catch (InvalidNewickException $oException) {
+                $this->assertStringContainsString("Unnamed leaf", $oException->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Comments are skipped everywhere : after the ";" as well, which used to be refused.
+     */
+    public function testACommentMayFollowTheTerminator()
+    {
+        $this->assertCount(2, $this->reader->read("(A,B);[comment]")->getChildren());
+        $this->assertCount(2, $this->reader->read("(A,B); [&W 1]\n")->getChildren());
+    }
+
+    /**
+     * An unquoted label holding a blank was reported as unbalanced parentheses.
+     */
+    public function testAnUnquotedLabelWithABlankIsReportedAsSuch()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("must be quoted");
+
+        $this->reader->read("(Homo sapiens:1,B:2);");
+    }
+
+    /**
+     * Branch lengths were written with 14 significant digits : a tree did not read back to the same
+     * lengths.
+     */
+    public function testBranchLengthsSurviveAWriteReadRoundTrip()
+    {
+        $oTree = $this->reader->read("(A:0.12345678901234567,B:1e-20,C:2);");
+        $oRead = $this->reader->read($oTree->toNewick());
+
+        $this->assertSame(
+            [0.12345678901234567, 1e-20, 2.0],
+            array_map(fn($o) => $o->getBranchLength(), $oRead->getChildren())
+        );
+        $this->assertStringContainsString("C:2)", $oTree->toNewick());
+    }
+
+    /**
+     * An internal node named "" was written '' but read back with no name (null).
+     */
+    public function testAnEmptyInternalNameSurvivesARoundTrip()
+    {
+        $oTree = new PhylogeneticNode("", null, [
+            new PhylogeneticNode("A", 1.0),
+            new PhylogeneticNode("B", 2.0),
+        ]);
+
+        $this->assertSame("", $this->reader->read($oTree->toNewick())->getName());
+        $this->assertNull($this->reader->read("(A,B);")->getName());
     }
 }

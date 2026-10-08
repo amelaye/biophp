@@ -3,7 +3,7 @@
  * Serializes a Plasmid into GenBank flat-file text
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -29,6 +29,18 @@ use Amelaye\BioPHP\Domain\Cloning\ValueObject\Strand;
  * circular molecule, "join(start..length,1..end)", wrapped in complement() on the REVERSE strand -
  * the form GenbankPlasmidMapper reads back as the same origin-crossing feature.
  *
+ * DEFINITION and qualifier lines wrap at 79 characters, as NCBI writes them. The source feature
+ * carries /organism and /mol_type when the plasmid's metadata gives them (GenbankPlasmidMapper keeps
+ * those of the record it read).
+ *
+ * A feature with no /gene, /label or /product metadata is written with its name as /label.
+ *
+ * INSDC has no notation for an unstranded feature : a location without complement() lies on the
+ * direct strand. A Strand::NONE feature is therefore written as a plain range followed by
+ * /biophp_strand="none" (UNSTRANDED_QUALIFIER), a qualifier of this library's own, which
+ * GenbankPlasmidMapper reads back as Strand::NONE. Any other reader ignores it and, as INSDC says,
+ * reads the feature on the direct strand.
+ *
  * A CDS phase is written as /codon_start = phase + 1, a bare number as INSDC specifies. A PROMOTER or
  * TERMINATOR with no GenBank key of its own is written as "regulatory" with the matching
  * /regulatory_class, the "promoter" and "terminator" keys being deprecated since 15-DEC-2014.
@@ -48,6 +60,13 @@ class GenbankWriter implements GenbankWriterInterface
     private const BASES_PER_LINE = 60;
 
     private const BASES_PER_GROUP = 10;
+
+    private const MAX_LINE_LENGTH = 79;
+
+    /**
+     * The qualifier marking a feature on no particular strand, which INSDC cannot write
+     */
+    public const UNSTRANDED_QUALIFIER = "biophp_strand";
 
     /**
      * @var     array<string,string>
@@ -80,13 +99,24 @@ class GenbankWriter implements GenbankWriterInterface
         $sOutput = $this->writeLocusLine($oPlasmid->getName(), $iLength);
 
         if ($oPlasmid->getDescription() !== null && $oPlasmid->getDescription() !== "") {
-            $sOutput .= "DEFINITION  " . $oPlasmid->getDescription() . ".\n";
+            // A DEFINITION ends with a period ; ParseGenbankManager keeps it in the description it
+            // reads, which must not gain a second one at each round trip.
+            $sOutput .= $this->wrap("DEFINITION  ", rtrim($oPlasmid->getDescription(), ".") . ".");
         }
 
         $sOutput .= "ACCESSION   " . ($oPlasmid->getExternalId() ?? $oPlasmid->getName()) . "\n";
 
         $sOutput .= "FEATURES             Location/Qualifiers\n";
         $sOutput .= sprintf("%-5s%-16s%s\n", "", "source", "1.." . $iLength);
+        // INSDC wants both on every source feature, but a Plasmid has them only when it was read
+        // from a record giving them : they are not made up.
+        $aPlasmidMetadata = $oPlasmid->getMetadata();
+        if (!empty($aPlasmidMetadata["organism"]) && is_string($aPlasmidMetadata["organism"])) {
+            $sOutput .= $this->writeQualifier("organism", $aPlasmidMetadata["organism"]);
+        }
+        if (!empty($aPlasmidMetadata["molType"]) && is_string($aPlasmidMetadata["molType"])) {
+            $sOutput .= $this->writeQualifier("mol_type", $aPlasmidMetadata["molType"]);
+        }
 
         foreach ($oPlasmid->getFeatures() as $oFeature) {
             $sOutput .= $this->writeFeature($oFeature, $iLength);
@@ -137,6 +167,10 @@ class GenbankWriter implements GenbankWriterInterface
 
         $sOutput = sprintf("%-5s%-16s%s\n", "", $sKey, $sLocation);
 
+        if ($oFeature->getStrand() === Strand::NONE) {
+            $sOutput .= $this->writeQualifier(self::UNSTRANDED_QUALIFIER, "none");
+        }
+
         if ($sKey === "regulatory") {
             $sRegulatoryClass = $aMetadata["regulatoryClass"]
                 ?? self::REGULATORY_CLASS_BY_FEATURE_TYPE[$oFeature->getType()]
@@ -155,6 +189,12 @@ class GenbankWriter implements GenbankWriterInterface
         if (!empty($aMetadata["product"])) {
             $sOutput .= $this->writeQualifier("product", $aMetadata["product"]);
         }
+        // A feature built by hand or read from GFF3/BED carries its name alone : without a
+        // /label it would come back named after its key.
+        if (empty($aMetadata["gene"]) && empty($aMetadata["label"]) && empty($aMetadata["product"])
+            && $oFeature->getName() !== $sKey) {
+            $sOutput .= $this->writeQualifier("label", $oFeature->getName());
+        }
         if ($oFeature->getPhase() !== null) {
             $sOutput .= sprintf("%-21s/codon_start=%d\n", "", $oFeature->getPhase() + 1);
         }
@@ -172,7 +212,25 @@ class GenbankWriter implements GenbankWriterInterface
      */
     private function writeQualifier(string $sQualifier, string $sValue): string
     {
-        return sprintf("%-21s/%s=\"%s\"\n", "", $sQualifier, str_replace('"', '""', $sValue));
+        return $this->wrap(str_repeat(" ", 21), "/" . $sQualifier . "=\"" . str_replace('"', '""', $sValue) . "\"");
+    }
+
+    /**
+     * Writes a text over as many lines of at most 79 characters as it needs, the first opening on
+     * $sPrefix, the next ones indented as deep. Lines break at blanks ; a word longer than a whole
+     * line is cut.
+     * @param   string      $sPrefix    The label or indentation opening the first line
+     * @param   string      $sText
+     * @return  string
+     */
+    private function wrap(string $sPrefix, string $sText): string
+    {
+        $iWidth = self::MAX_LINE_LENGTH - strlen($sPrefix);
+        $sIndent = str_repeat(" ", strlen($sPrefix));
+
+        $aLines = explode("\n", wordwrap($sText, $iWidth, "\n", true));
+
+        return $sPrefix . implode("\n" . $sIndent, $aLines) . "\n";
     }
 
     /**

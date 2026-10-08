@@ -3,7 +3,7 @@
  * Calculates a primer's GC content and melting temperature
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -104,6 +104,10 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
             throw new \InvalidArgumentException(
                 "Nearest-neighbor Tm cannot be computed on a primer containing degenerate nucleotides."
             );
+        }
+        // The model sums nearest-neighbour stacks : it needs one at least, so two bases.
+        if (strlen($sPrimer) < 2) {
+            throw new \InvalidArgumentException("Nearest-neighbor Tm needs a primer of two bases at least.");
         }
         if ($iPrimerConcentration <= 0 || $iSaltConcentration < 0 || $iMagnesiumConcentration < 0) {
             throw new \InvalidArgumentException(

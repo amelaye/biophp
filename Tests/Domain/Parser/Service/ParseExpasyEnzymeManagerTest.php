@@ -40,7 +40,7 @@ class ParseExpasyEnzymeManagerTest extends TestCase
         $oParseExpasyEnzymeManager = $databaseManager->fetch("1.1.1.2");
 
         $this->assertEquals("1.1.1.2", $oParseExpasyEnzymeManager->getId());
-        $this->assertEquals("Alcohol dehydrogenase (NADP+).", $oParseExpasyEnzymeManager->getDescription());
+        $this->assertEquals("Alcohol dehydrogenase (NADP+)", $oParseExpasyEnzymeManager->getDescription());
         $this->assertEquals(["Aldehyde reductase (NADPH)"], $oParseExpasyEnzymeManager->getAlternateNames());
         $this->assertEquals(
             ["An alcohol + NADP(+) = an aldehyde + NADPH"],
@@ -113,7 +113,8 @@ class ParseExpasyEnzymeManagerTest extends TestCase
             ["Constitutive NOS", "Endothelial NOS", "NOS"],
             $oParser->getAlternateNames()
         );
-        $this->assertEquals("Nitric-oxide synthase (NADPH).", $oParser->getDescription());
+        // The period closing DE is no part of the name, as for AN : it used to be kept on DE alone.
+        $this->assertEquals("Nitric-oxide synthase (NADPH)", $oParser->getDescription());
     }
 
     /**

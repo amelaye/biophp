@@ -3,7 +3,7 @@
  * Computes restriction enzyme cuts and fragments on a circular Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -79,7 +79,7 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
 
             $aSites = $this->findSites($sValue, $iLength, $oEnzyme);
 
-            if ($oEnzyme->hasAmbiguousBases() && count($aSites) > 0) {
+            if ($this->hasAmbiguousSiteBases($oEnzyme) && count($aSites) > 0) {
                 $aWarnings[] = sprintf(
                     'Enzyme "%s" has an ambiguous IUPAC recognition pattern; %d site(s) matched by expansion.',
                     $oEnzyme->getName(),
@@ -105,7 +105,7 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
             return $oLeft->getRecognitionPosition() <=> $oRight->getRecognitionPosition();
         });
 
-        $aFragments = $this->buildFragments($oPlasmid, $aCuts);
+        $aFragments = $this->buildFragments($oPlasmid, $aCuts, $aWarnings);
 
         return new RestrictionDigestResult(
             $oPlasmid,
@@ -242,13 +242,18 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
     /**
      * Builds the linear fragments a digest actually produces : one per distinct upper cut position,
      * none when there is no cut at all, exactly one spanning the whole plasmid when there is a single
-     * one. Several cuts sharing the same upper cut position (isoschizomers) collapse into one
-     * boundary, keeping the first one's RestrictionEnd.
+     * one. Several cuts sharing the same upper cut position collapse into one boundary. When they
+     * leave the same end (isoschizomers), that end is kept ; when they nick the lower strand at
+     * different places (neoschizomers such as SmaI/XmaI, or two unrelated enzymes), the lower strand
+     * is cut twice : a short piece between the two nicks may or may not stay paired, so the end is
+     * UNKNOWN, and a warning says so. It used to be the first enzyme's end, the second one's being
+     * misreported.
      * @param   Plasmid             $oPlasmid
      * @param   RestrictionCut[]    $aCuts      Already sorted by recognition position
+     * @param   string[]            $aWarnings  Added to
      * @return  RestrictionFragment[]
      */
-    private function buildFragments(Plasmid $oPlasmid, array $aCuts): array
+    private function buildFragments(Plasmid $oPlasmid, array $aCuts, array &$aWarnings): array
     {
         if (count($aCuts) === 0) {
             return [];
@@ -259,6 +264,16 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
             $iPosition = $oCut->getUpperCutPosition();
             if (!array_key_exists($iPosition, $aEndsByPosition)) {
                 $aEndsByPosition[$iPosition] = $oCut->getEnd();
+            } elseif ($aEndsByPosition[$iPosition]->getType() !== $oCut->getEnd()->getType()
+                || $aEndsByPosition[$iPosition]->getOverhangSequence() !== $oCut->getEnd()->getOverhangSequence()) {
+                if ($aEndsByPosition[$iPosition]->isDeterminate()) {
+                    $aWarnings[] = sprintf(
+                        'Two cuts at upper strand position %d nick the lower strand at different places :'
+                        . ' the end they leave is unknown.',
+                        $iPosition
+                    );
+                }
+                $aEndsByPosition[$iPosition] = RestrictionEnd::unknown();
             }
         }
 
@@ -282,5 +297,22 @@ class CircularRestrictionDigestManager implements RestrictionDigestInterface
         }
 
         return $aFragments;
+    }
+
+    /**
+     * Tells whether the bases an enzyme actually reads are ambiguous (AvaII GGWCC). The N a Type
+     * IIS site is padded with up to its cut (BsaI GGTCTCN'NNNN_) are no recognized bases : they
+     * would flag every BsaI or BsmBI digest as matched by expansion.
+     * @param   RestrictionEnzymeDefinition     $oEnzyme
+     * @return  bool
+     */
+    private function hasAmbiguousSiteBases(RestrictionEnzymeDefinition $oEnzyme): bool
+    {
+        foreach (preg_split('/\s+or\s+/i', $oEnzyme->getCleanRecognitionSequence()) as $sSite) {
+            if (preg_match('/[^ACGTU]/', trim(strtoupper($sSite), " N")) === 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

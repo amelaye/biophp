@@ -51,4 +51,17 @@ class CodonUsageTableBuilderTest extends TestCase
         /** @noinspection PhpParamsInspection */
         $this->builder->build(["not a sequence"]);
     }
+
+    /**
+     * DnaSequence accepts IUPAC symbols : one N in a reference CDS made the whole build throw,
+     * the table refusing "NNN" as a codon.
+     */
+    public function testACodonHoldingAnAmbiguousBaseIsLeftOut()
+    {
+        $oTable = (new CodonUsageTableBuilder())->build([new DnaSequence("ATGNNNTAA")]);
+
+        $this->assertEquals(1, $oTable->getCount("ATG"));
+        $this->assertEquals(1, $oTable->getCount("TAA"));
+        $this->assertNotContains("NNN", $oTable->getCodons());
+    }
 }

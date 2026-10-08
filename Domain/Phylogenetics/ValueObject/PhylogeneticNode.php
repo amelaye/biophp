@@ -3,7 +3,7 @@
  * Immutable value object describing one node of a phylogenetic tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -56,6 +56,10 @@ final class PhylogeneticNode
 
         if ($aChildren === [] && ($sName === null || $sName === "")) {
             throw InvalidPhylogeneticTreeException::unnamedLeaf();
+        }
+
+        if ($fBranchLength !== null && !is_finite($fBranchLength)) {
+            throw InvalidPhylogeneticTreeException::nonFiniteBranchLength($fBranchLength);
         }
 
         $this->name = $sName;
@@ -141,7 +145,9 @@ final class PhylogeneticNode
         $sFragment .= $this->name === null ? "" : self::newickLabel($this->name);
 
         if ($this->branchLength !== null) {
-            $sFragment .= ":" . $this->branchLength;
+            // The shortest text reading back as the same float : a string cast keeps 14 significant
+            // digits only, so a written tree did not read back to the same lengths.
+            $sFragment .= ":" . preg_replace('/\.0$/', "", var_export($this->branchLength, true));
         }
 
         return $sFragment;

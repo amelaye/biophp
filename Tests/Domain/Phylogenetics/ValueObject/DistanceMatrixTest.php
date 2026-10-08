@@ -90,4 +90,31 @@ class DistanceMatrixTest extends TestCase
 
         new DistanceMatrix(["A", "B"], [[0, -1], [-1, 0]]);
     }
+
+    /**
+     * Rows keyed by label left [$i][$j] undefined : read as 0, the diagonal check passed and the
+     * matrix held zeros instead of its distances.
+     */
+    public function testRowsKeyedByLabelAreReadInOrder()
+    {
+        $oMatrix = new DistanceMatrix(["A", "B"], [
+            "A" => ["A" => 0, "B" => 3],
+            "B" => ["A" => 3, "B" => 0],
+        ]);
+
+        $this->assertEquals(3.0, $oMatrix->getDistance(0, 1));
+        $this->assertEquals(3.0, $oMatrix->getDistance(1, 0));
+    }
+
+    /**
+     * An infinite distance was accepted : UPGMA then built branches of INF - INF, which
+     * PhylogeneticNode refuses, so the tree builder failed far from the cause.
+     */
+    public function testRejectsAnInfiniteDistance()
+    {
+        $this->expectException(InvalidDistanceMatrixException::class);
+        $this->expectExceptionMessage("finite");
+
+        new DistanceMatrix(["A", "B"], [[0, INF], [INF, 0]]);
+    }
 }

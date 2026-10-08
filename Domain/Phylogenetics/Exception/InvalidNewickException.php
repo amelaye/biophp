@@ -3,7 +3,7 @@
  * Raised when a string cannot be parsed as a Newick tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -93,5 +93,32 @@ class InvalidNewickException extends \InvalidArgumentException
     public static function unterminatedComment(int $iPosition): self
     {
         return new self(sprintf('Unterminated comment opened at position %d.', $iPosition));
+    }
+
+    /**
+     * Builds the exception raised when a leaf has no name : valid Newick ("(,A);"), but a
+     * PhylogeneticNode leaf is named.
+     * @param   int         $iPosition  Where the leaf ends
+     * @return  InvalidNewickException
+     */
+    public static function unnamedLeaf(int $iPosition): self
+    {
+        return new self(sprintf('Unnamed leaf at position %d : every leaf must have a name.', $iPosition));
+    }
+
+    /**
+     * Builds the exception raised when a character can follow neither a node nor its branch length,
+     * most often the second word of an unquoted label holding a blank.
+     * @param   string      $sCharacter
+     * @param   int         $iPosition
+     * @return  InvalidNewickException
+     */
+    public static function unexpectedCharacter(string $sCharacter, int $iPosition): self
+    {
+        return new self(sprintf(
+            'Unexpected character "%s" at position %d ; a label holding blanks must be quoted.',
+            $sCharacter,
+            $iPosition
+        ));
     }
 }

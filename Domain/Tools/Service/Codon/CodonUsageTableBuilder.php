@@ -3,7 +3,7 @@
  * Builds a CodonUsageTable by counting codons across real coding sequences
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 6 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -46,7 +46,12 @@ class CodonUsageTableBuilder implements CodonUsageTableBuilderInterface
             $iCodonCount = intdiv(strlen($sValue), 3);
 
             for ($i = 0; $i < $iCodonCount; $i++) {
-                $sCodon = substr($sValue, $i * 3, 3);
+                $sCodon = strtoupper(substr($sValue, $i * 3, 3));
+                // A codon holding an ambiguous base (NNN, ATR) is no codon of the table : it is
+                // left out, as the CAI leaves out what translates to X.
+                if (preg_match('/^[ACGT]{3}$/', $sCodon) !== 1) {
+                    continue;
+                }
                 $aCounts[$sCodon] = ($aCounts[$sCodon] ?? 0) + 1;
             }
         }

@@ -3,7 +3,7 @@
  * One SHEET secondary-structure strand record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -57,6 +57,18 @@ class PdbSheet implements PdbSheetInterface
      * @var int
      */
     private int $endSeqNum = 0;
+
+    /**
+     * Insertion code of the first residue (column 27), empty for most residues.
+     * @var string
+     */
+    private string $initICode = "";
+
+    /**
+     * Insertion code of the last residue (column 38), empty for most residues.
+     * @var string
+     */
+    private string $endICode = "";
 
     /**
      * @return string
@@ -184,5 +196,37 @@ class PdbSheet implements PdbSheetInterface
     public function setEndSeqNum(int $endSeqNum): void
     {
         $this->endSeqNum = $endSeqNum;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInitICode(): string
+    {
+        return $this->initICode;
+    }
+
+    /**
+     * @param string $initICode
+     */
+    public function setInitICode(string $initICode): void
+    {
+        $this->initICode = $initICode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndICode(): string
+    {
+        return $this->endICode;
+    }
+
+    /**
+     * @param string $endICode
+     */
+    public function setEndICode(string $endICode): void
+    {
+        $this->endICode = $endICode;
     }
 }

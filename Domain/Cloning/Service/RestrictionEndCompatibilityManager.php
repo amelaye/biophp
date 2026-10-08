@@ -3,7 +3,7 @@
  * Decides whether two restriction ends can be ligated together
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -75,6 +75,6 @@ class RestrictionEndCompatibilityManager implements RestrictionEndCompatibilityI
             return self::INDETERMINATE;
         }
 
-        return $sFirstOverhang === $sSecondOverhang ? self::COMPATIBLE : self::INCOMPATIBLE;
+        return strtoupper($sFirstOverhang) === strtoupper($sSecondOverhang) ? self::COMPATIBLE : self::INCOMPATIBLE;
     }
 }

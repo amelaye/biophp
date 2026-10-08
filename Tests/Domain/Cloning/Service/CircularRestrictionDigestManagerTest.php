@@ -322,6 +322,51 @@ class CircularRestrictionDigestManagerTest extends TestCase
         $this->assertEquals(40, $this->totalFragmentLength($oResult->getFragments()));
     }
 
+    /**
+     * The N a Type IIS site is written with up to its cut (GGTCTCN'NNNN_) are no recognized bases :
+     * every BsaI digest was warned about as matched by an ambiguous pattern.
+     */
+    public function testTheSpacerOfATypeIisSiteIsNotAnAmbiguousBase()
+    {
+        $oBsaI = new RestrictionEnzymeDefinition(
+            "Syn-BsaI-padded", [], RestrictionEnzymeDefinition::TYPE_IIS,
+            "GGTCTCN'NNNN_", "(GGTCTC)", 6, 7, 4, 6
+        );
+
+        $oResult = $this->manager->digest($this->makePlasmid("AAAAGGTCTC" . str_repeat("T", 20)), [$oBsaI]);
+
+        $this->assertCount(1, $oResult->getCuts());
+        $this->assertSame([], $oResult->getWarnings());
+    }
+
+    /**
+     * Two enzymes cutting the upper strand at one place but nicking the lower strand at two
+     * collapsed into one boundary carrying the first enzyme's end, the second one's ignored. The
+     * piece of lower strand between the two nicks may or may not stay paired : the end is unknown.
+     */
+    public function testTwoCutsSharingTheUpperPositionButNotTheLowerOneLeaveAnUnknownEnd()
+    {
+        $oOtherOverhang = new RestrictionEnzymeDefinition(
+            "Syn-BsaI-short", [], RestrictionEnzymeDefinition::TYPE_IIS, "GGTCTC", "(GGTCTC)", 6, 7, 2, 6
+        );
+        $oResult = $this->manager->digest(
+            $this->makePlasmid("AAAAGGTCTC" . str_repeat("T", 20)),
+            [$this->bsaILike(), $oOtherOverhang]
+        );
+
+        $this->assertCount(2, $oResult->getCuts());
+        $this->assertCount(1, $oResult->getFragments());
+        $this->assertFalse($oResult->getFragments()[0]->getLeftEnd()->isDeterminate());
+        $this->assertFalse($oResult->getFragments()[0]->getRightEnd()->isDeterminate());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("unknown", $oResult->getWarnings()[0]);
+
+        // The same enzyme twice (an isoschizomer) still leaves its own end.
+        $oResult = $this->manager->digest($this->makePlasmid("AAAAGGTCTC" . str_repeat("T", 20)), [$this->bsaILike(), $this->bsaILike()]);
+        $this->assertTrue($oResult->getFragments()[0]->getLeftEnd()->isDeterminate());
+        $this->assertSame([], $oResult->getWarnings());
+    }
+
     public function testAnEnzymeLongerThanThePlasmidIsSkippedWithAWarning()
     {
         $oPlasmid = $this->makePlasmid("AAAAA");

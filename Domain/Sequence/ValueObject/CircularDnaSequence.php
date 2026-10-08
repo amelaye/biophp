@@ -3,7 +3,7 @@
  * Immutable value object wrapping a circular DNA sequence and its origin-crossing operations
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 September 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -13,9 +13,10 @@ use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * A DNA sequence with no first or last symbol : position 0 follows the last symbol, so rotating and
- * slicing must be able to cross that origin. All three methods below are zero-based, consistently
- * with AbstractMolecularSequence::subSequence(). Extracting a piece with sliceCircular() yields a
- * plain, linear DnaSequence : a fragment cut out of a circular molecule is no longer circular.
+ * slicing must be able to cross that origin. All the methods below are zero-based, consistently
+ * with AbstractMolecularSequence::subSequence(). Extracting a piece, with sliceCircular() across the
+ * origin or with subSequence() within it, yields a plain, linear DnaSequence : a fragment cut out of
+ * a circular molecule is no longer circular, and may be empty.
  * Class CircularDnaSequence
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -105,5 +106,19 @@ final class CircularDnaSequence extends DnaSequence
         }
 
         return new DnaSequence($sSlice);
+    }
+
+    /**
+     * Extracts a portion of the molecule as written from its origin, without crossing it (see
+     * sliceCircular() to cross it). It used to be a CircularDnaSequence, as if the piece were
+     * closed into a ring of its own, and an empty piece threw.
+     * @param   int         $iStart         Zero-based position of the first symbol
+     * @param   int|null    $iLength        Number of symbols, until the end when omitted
+     * @return  DnaSequence                 A linear fragment
+     * @throws  InvalidSequenceException
+     */
+    public function subSequence(int $iStart, ?int $iLength = null) : DnaSequence
+    {
+        return new DnaSequence(substr($this->getValue(), $iStart, $iLength));
     }
 }

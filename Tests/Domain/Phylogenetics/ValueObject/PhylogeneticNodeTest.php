@@ -78,4 +78,15 @@ class PhylogeneticNodeTest extends TestCase
         $this->assertEquals(-0.5, $oLeaf->getBranchLength());
         $this->assertEquals("A:-0.5;", $oLeaf->toNewick());
     }
+
+    /**
+     * An infinite or NaN branch length was accepted and written as INF or NAN, which no reader,
+     * NewickReader included, reads back.
+     */
+    public function testRejectsANonFiniteBranchLength()
+    {
+        $this->expectException(InvalidPhylogeneticTreeException::class);
+
+        new PhylogeneticNode("A", INF);
+    }
 }

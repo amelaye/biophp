@@ -87,4 +87,17 @@ class SkewCalculatorTest extends TestCase
 
         $this->calculator->calculateSlidingWindow("ACGT", 2, 0);
     }
+
+    /**
+     * The GC content counted U, but the AT and keto skews ignored it : AAUU had an AT skew of 1
+     * and a keto skew of -1 instead of 0.
+     */
+    public function testUracilIsReadAsThymine()
+    {
+        $oResult = $this->calculator->calculate("AAUU");
+
+        $this->assertEquals(0.0, $oResult->getAtSkew());
+        $this->assertEquals(0.0, $oResult->getKetoSkew());
+        $this->assertEquals($this->calculator->calculate("AATT"), $oResult);
+    }
 }

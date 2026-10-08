@@ -3,7 +3,7 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -47,6 +47,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * @var array
      */
     private array $geneNames = [];
+
+    /**
+     * NCBI taxonomy identifier of the source organism (OX line), "" when absent
+     * @var string
+     */
+    private string $taxonomyId = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -147,6 +153,12 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
                     break;
                 case "OC":
                     $this->buildOCField($sOrganism, $iOrgaCpt);
+                    break;
+                case "OX":
+                    // OX   NCBI_TaxID=9606;  possibly followed by an evidence, {ECO:...}
+                    if (preg_match('/NCBI_TaxID=(\d+)/', $this->aLines->current(), $aMatch)) {
+                        $this->taxonomyId = $aMatch[1];
+                    }
                     break;
                 case "FT":
                     $this->buildFTField($aFlines);
@@ -643,6 +655,16 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     public function getNotupdDate(): string
     {
         return $this->notupdDate;
+    }
+
+    /**
+     * NCBI taxonomy identifier of the source organism (OX line), "9606" for Homo sapiens ; "" when
+     * the entry has none.
+     * @return string
+     */
+    public function getTaxonomyId(): string
+    {
+        return $this->taxonomyId;
     }
 
     /**

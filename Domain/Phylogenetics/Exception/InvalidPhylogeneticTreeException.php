@@ -3,7 +3,7 @@
  * Raised when a PhylogeneticNode is built in violation of one of its invariants
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -38,5 +38,16 @@ class InvalidPhylogeneticTreeException extends \InvalidArgumentException
                 is_object($mGiven) ? get_class($mGiven) : gettype($mGiven)
             )
         );
+    }
+
+    /**
+     * Builds the exception raised when a branch length is infinite or not a number, which no
+     * Newick string can hold.
+     * @param   float       $fBranchLength
+     * @return  InvalidPhylogeneticTreeException
+     */
+    public static function nonFiniteBranchLength(float $fBranchLength): self
+    {
+        return new self(sprintf("A branch length must be a finite number, got %s.", var_export($fBranchLength, true)));
     }
 }

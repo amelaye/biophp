@@ -3,7 +3,7 @@
  * PDB (Protein Data Bank) database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -336,8 +336,8 @@ final class ParsePdbManager implements ParseDatabaseInterface
 
     /**
      * Parses one HELIX line.
-     * Columns : 12-14 helixID, 16-18 initResName, 20 initChainID, 22-25 initSeqNum,
-     * 28-30 endResName, 32 endChainID, 34-37 endSeqNum, 39-40 helixClass, 72-76 length.
+     * Columns : 12-14 helixID, 16-18 initResName, 20 initChainID, 22-25 initSeqNum, 26 initICode,
+     * 28-30 endResName, 32 endChainID, 34-37 endSeqNum, 38 endICode, 39-40 helixClass, 72-76 length.
      * @param   string      $sLine
      * @return  PdbHelixInterface
      */
@@ -347,9 +347,11 @@ final class ParsePdbManager implements ParseDatabaseInterface
         $oHelix->setInitResName(trim(substr($sLine, 15, 3)));
         $oHelix->setInitChainId(trim(substr($sLine, 19, 1)));
         $oHelix->setInitSeqNum((int) trim(substr($sLine, 21, 4)));
+        $oHelix->setInitICode(trim(substr($sLine, 25, 1)));
         $oHelix->setEndResName(trim(substr($sLine, 27, 3)));
         $oHelix->setEndChainId(trim(substr($sLine, 31, 1)));
         $oHelix->setEndSeqNum((int) trim(substr($sLine, 33, 4)));
+        $oHelix->setEndICode(trim(substr($sLine, 37, 1)));
         $oHelix->setHelixClass((int) trim(substr($sLine, 38, 2)));
         $oHelix->setLength((int) trim(substr($sLine, 71, 5)));
         return $oHelix;
@@ -358,7 +360,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
     /**
      * Parses one SHEET line.
      * Columns : 8-10 strand, 12-14 sheetID, 18-20 initResName, 22 initChainID,
-     * 23-26 initSeqNum, 29-31 endResName, 33 endChainID, 34-37 endSeqNum.
+     * 23-26 initSeqNum, 27 initICode, 29-31 endResName, 33 endChainID, 34-37 endSeqNum, 38 endICode.
      * @param   string      $sLine
      * @return  PdbSheetInterface
      */
@@ -369,9 +371,11 @@ final class ParsePdbManager implements ParseDatabaseInterface
         $oSheet->setInitResName(trim(substr($sLine, 17, 3)));
         $oSheet->setInitChainId(trim(substr($sLine, 21, 1)));
         $oSheet->setInitSeqNum((int) trim(substr($sLine, 22, 4)));
+        $oSheet->setInitICode(trim(substr($sLine, 26, 1)));
         $oSheet->setEndResName(trim(substr($sLine, 28, 3)));
         $oSheet->setEndChainId(trim(substr($sLine, 32, 1)));
         $oSheet->setEndSeqNum((int) trim(substr($sLine, 33, 4)));
+        $oSheet->setEndICode(trim(substr($sLine, 37, 1)));
         return $oSheet;
     }
 

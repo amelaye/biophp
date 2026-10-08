@@ -173,4 +173,20 @@ class MeltingTemperatureCalculatorTest extends TestCase
 
         $this->calculator->calculateNearestNeighborTm("ACGN", 250, 50, 0);
     }
+
+    /**
+     * An empty primer gave -273.15 degrees, a single base about -441 : the model needs one
+     * nearest-neighbour stack at least.
+     */
+    public function testNearestNeighborTmRefusesAPrimerShorterThanTwoBases()
+    {
+        foreach (["", "A"] as $sPrimer) {
+            try {
+                $this->calculator->calculateNearestNeighborTm($sPrimer, 250, 50, 0);
+                $this->fail("A primer of " . strlen($sPrimer) . " base(s) was accepted.");
+            } catch (\InvalidArgumentException $oException) {
+                $this->assertStringContainsString("two bases", $oException->getMessage());
+            }
+        }
+    }
 }

@@ -235,6 +235,7 @@ class GenbankWriterTest extends TestCase
             new PlasmidFeature("ori", FeatureType::ORIGIN_OF_REPLICATION, 26, 35, Strand::FORWARD),
             new PlasmidFeature("lacZ", FeatureType::CDS, 36, 3, Strand::FORWARD, null, null, null, null, 0),
             new PlasmidFeature("rop", FeatureType::MISC_FEATURE, 38, 2, Strand::REVERSE),
+            new PlasmidFeature("site", FeatureType::MISC_FEATURE, 4, 9, Strand::NONE),
         ]);
 
         $oParser = new ParseGenbankManager();
@@ -262,5 +263,90 @@ class GenbankWriterTest extends TestCase
         $this->assertSame(100, $oParser->getSequence()->getSeqlength());
         $this->assertSame("DNA", $oParser->getSequence()->getMoltype());
         $this->assertSame("CIRCULAR", $oParser->getGbSequence()->getTopology());
+    }
+
+    /**
+     * A feature with no metadata lost its name, read back as its key ("CDS"), and a DEFINITION
+     * gained a period at each round trip ("X." then "X..").
+     */
+    public function testNamesAndDescriptionSurviveARoundTrip()
+    {
+        $oOriginal = new Plasmid("pName", new CircularDnaSequence(str_repeat("ACGT", 10)), [
+            new PlasmidFeature("AmpR", FeatureType::CDS, 1, 12, Strand::FORWARD),
+            new PlasmidFeature("lacO", FeatureType::MISC_FEATURE, 20, 30, Strand::REVERSE),
+        ], "A test plasmid.");
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(explode("\n", $this->writer->write($oOriginal)));
+        $oRestored = (new GenbankPlasmidMapper())
+            ->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures())
+            ->getPlasmid();
+
+        $this->assertSame(["AmpR", "lacO"], array_map(fn($o) => $o->getName(), $oRestored->getFeatures()));
+        $this->assertStringContainsString("DEFINITION  A test plasmid.\n", $this->writer->write($oRestored));
+    }
+
+    /**
+     * Qualifier and DEFINITION lines ran past 79 characters, and the source feature lost the
+     * /organism and /mol_type of the record it was read from.
+     */
+    public function testWrapsLongLinesAndKeepsTheSourceQualifiers()
+    {
+        $sNote = str_repeat("a long annotation note ", 8);
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       pLONG                     40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "DEFINITION  Cloning vector pLONG, " . trim(str_repeat("complete sequence ", 6)) . ".\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     source          1..40\n",
+            "                     /organism=\"synthetic construct\"\n",
+            "                     /mol_type=\"other DNA\"\n",
+            "     misc_feature    1..10\n",
+            "                     /note=\"" . trim($sNote) . "\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ]);
+        $oPlasmid = (new GenbankPlasmidMapper())
+            ->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures())
+            ->getPlasmid();
+
+        $sOutput = $this->writer->write($oPlasmid);
+
+        foreach (explode("\n", $sOutput) as $sLine) {
+            $this->assertLessThanOrEqual(79, strlen($sLine), $sLine);
+        }
+        $this->assertStringContainsString("                     /organism=\"synthetic construct\"\n", $sOutput);
+        $this->assertStringContainsString("                     /mol_type=\"other DNA\"\n", $sOutput);
+
+        $oReparsed = new ParseGenbankManager();
+        $oReparsed->parseDataFile(explode("\n", $sOutput));
+        $this->assertEquals($oParser->getSequence()->getDescription(), $oReparsed->getSequence()->getDescription());
+        $aNotes = array_values(array_filter($oReparsed->getFeatures(), fn($o) => $o->getFtQual() === "note"));
+        $this->assertEquals(trim($sNote), $aNotes[0]->getFtValue());
+    }
+
+    /**
+     * INSDC cannot write an unstranded feature : a Strand::NONE feature came back FORWARD. It is
+     * now marked with a qualifier of BioPHP's own, its location staying a plain range that any
+     * other reader takes as the direct strand.
+     */
+    public function testAnUnstrandedFeatureIsMarkedAndReadBack()
+    {
+        $oPlasmid = new Plasmid("pTest", new CircularDnaSequence("ACGTACGTAC"), [
+            new PlasmidFeature("site", FeatureType::MISC_FEATURE, 2, 8, Strand::NONE),
+            new PlasmidFeature("fwd", FeatureType::MISC_FEATURE, 2, 8, Strand::FORWARD),
+        ]);
+
+        $sOutput = $this->writer->write($oPlasmid);
+        $this->assertStringContainsString("     misc_feature    2..8\n                     /biophp_strand=\"none\"\n", $sOutput);
+        $this->assertSame(1, substr_count($sOutput, "biophp_strand"));
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(explode("\n", $sOutput));
+        $oRestored = (new GenbankPlasmidMapper())
+            ->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures())
+            ->getPlasmid();
+        $this->assertSame([Strand::NONE, Strand::FORWARD], array_map(fn($o) => $o->getStrand(), $oRestored->getFeatures()));
     }
 }

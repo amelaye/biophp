@@ -3,7 +3,7 @@
  * Immutable value object holding one FASTQ sequencing read and its per-base quality
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -17,7 +17,8 @@ use Amelaye\BioPHP\Domain\Sequencing\Exception\InvalidFastqRecordException;
  * produces : getPhredScores()[$i] = ord(quality[$i]) - 33, ranging from 0 to 93. The older
  * Phred+64 encoding (pre-1.8 Illumina) is out of scope - it has not shipped from a sequencer since
  * 2011 and supporting both would require the caller to specify which one applies per file, for no
- * benefit to any format this project currently reads or writes.
+ * benefit to any format this project currently reads or writes. FastqReader warns about a file
+ * that looks Phred+64 encoded.
  * Class FastqRecord
  * @package Amelaye\BioPHP\Domain\Sequencing\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>

@@ -377,5 +377,35 @@ class GenbankPlasmidMapperTest extends TestCase
         }
         $this->assertEquals(Strand::FORWARD, $aFeatures[0]->getStrand());
         $this->assertEquals(Strand::REVERSE, $aFeatures[1]->getStrand());
+        // Two segments meeting at the origin are one span : nothing was lost.
+        $this->assertSame([], $oResult->getWarnings());
+    }
+
+    /**
+     * Two features at the same location were merged, the second label dropped ; a spliced CDS
+     * was flattened into one span, its intron included, without a word.
+     */
+    public function testKeepsFeaturesSharingALocationApartAndWarnsAboutASplicedOne()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TESTPLAS                  40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     misc_feature    1..10\n",
+            "                     /label=\"first\"\n",
+            "     misc_feature    1..10\n",
+            "                     /label=\"second\"\n",
+            "     CDS             join(12..20,25..33)\n",
+            "                     /gene=\"spliced\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ]);
+
+        $oResult = $this->mapper->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures());
+
+        $this->assertSame(["first", "second", "spliced"], array_map(fn($o) => $o->getName(), $oResult->getPlasmid()->getFeatures()));
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("join(12..20,25..33)", $oResult->getWarnings()[0]);
     }
 }

@@ -3,7 +3,7 @@
  * Maps VcfVariant value objects to and from their Doctrine records
  * Freely inspired by BioPHP's project biophp.org
  * Created 6 October 2026
- * Last modified 6 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -40,6 +40,8 @@ class VcfVariantRecordMapper implements VcfVariantRecordMapperInterface
     }
 
     /**
+     * A record stored before ALT alleles were validated may hold the empty allele an empty ALT
+     * column used to give : it is no allele, and is dropped rather than making the record unreadable.
      * @param   VcfVariantRecord    $oRecord
      * @return  VcfVariant
      */
@@ -50,7 +52,7 @@ class VcfVariantRecordMapper implements VcfVariantRecordMapperInterface
             $oRecord->getPosition(),
             $oRecord->getVariantId(),
             $oRecord->getReference(),
-            $oRecord->getAlternates(),
+            array_values(array_filter($oRecord->getAlternates(), fn($sAlternate) => $sAlternate !== "")),
             $oRecord->getQuality(),
             $oRecord->getFilter(),
             $oRecord->getInfo()

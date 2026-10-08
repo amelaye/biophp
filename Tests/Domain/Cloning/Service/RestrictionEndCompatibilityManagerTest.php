@@ -70,6 +70,18 @@ class RestrictionEndCompatibilityManagerTest extends TestCase
         );
     }
 
+    /**
+     * Validated case-insensitively, the overhangs were compared case-sensitively : aatt and AATT
+     * were incompatible.
+     */
+    public function testOverhangsAreComparedWhateverTheirCase()
+    {
+        $this->assertEquals(
+            RestrictionEndCompatibilityManager::COMPATIBLE,
+            $this->manager->checkCompatibility(RestrictionEnd::fivePrime("aatt"), RestrictionEnd::fivePrime("AATT"))
+        );
+    }
+
     public function testTwoReverseComplementaryButNotIdenticalOverhangsAreIncompatible()
     {
         // The inverse mistake: a formula based on reverse-complement equality would wrongly call

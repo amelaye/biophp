@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 28 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -49,6 +49,9 @@ class MathematicsFunctions
      * @throws      \Exception
      */
     public static function Median(array $data) {
+        if (count($data) === 0) {
+            throw new \Exception("Cannot calculate the median of an empty data set !");
+        }
         sort($data);
         $i = floor(sizeof($data)/2);
         if (sizeof($data) / 2 != $i) {
@@ -160,7 +163,9 @@ class MathematicsFunctions
      * @param       array       $aValsX     Values for X
      * @param       array       $aValsY     Values for Y, indexed like $aValsX
      * @return      float
-     * @throws      \InvalidArgumentException  When the tables do not have the same size
+     * @throws      \InvalidArgumentException  When the tables do not have the same size, share no
+     * word present in both (all weights x.y zero) or one of them is constant over the words they
+     * share (zero weighted variance) : the correlation is then undefined
      */
     public static function AlmeidaDistance(array $aValsX, array $aValsY) : float {
         if (count($aValsX) !== count($aValsY)) {
@@ -174,6 +179,9 @@ class MathematicsFunctions
             $fX2y += $fValX * $fValX * $fValY;
             $fXy2 += $fValX * $fValY * $fValY;
         }
+        if ($fNw == 0) {
+            throw new \InvalidArgumentException("Both tables share no non-zero entry : their weighted correlation is undefined.");
+        }
         $fXw = $fX2y / $fNw;
         $fYw = $fXy2 / $fNw;
         foreach ($aValsX as $sKey => $fValX) {
@@ -183,6 +191,9 @@ class MathematicsFunctions
         }
         $fSx = $fPreSx / $fNw;
         $fSy = $fPreSy / $fNw;
+        if ($fSx == 0 || $fSy == 0) {
+            throw new \InvalidArgumentException("A table is constant over the entries both share : their weighted correlation is undefined.");
+        }
         foreach ($aValsX as $sKey => $fValX) {
             $fValY = $aValsY[$sKey];
             $fPreRw += ($fValX - $fXw) * ($fValY - $fYw) * $fValX * $fValY / (sqrt($fSx) * sqrt($fSy));

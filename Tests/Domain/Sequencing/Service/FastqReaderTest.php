@@ -148,4 +148,46 @@ class FastqReaderTest extends TestCase
         $this->assertCount(1, $oResult->getRecords());
         $this->assertEquals("read2", $oResult->getRecords()[0]->getIdentifier());
     }
+
+    /**
+     * A record cut short after its sequence took the next header for a bad sequence line and
+     * resumed after it : the next record was lost too.
+     */
+    public function testARecordCutShortDoesNotTakeTheNextOneWithIt()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "@r2", "ACGT", "+", "IIII"]);
+
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertCount(1, $oResult->getRecords());
+        $this->assertEquals("r2", $oResult->getRecords()[0]->getIdentifier());
+    }
+
+    /**
+     * A quality line longer than its sequence was left unread : the record was reported with a
+     * quality length of 0, and the line itself as a record that does not start with "@".
+     */
+    public function testATooLongQualityIsReportedWithItsLength()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "+", "IIIII", "@r2", "ACGT", "+", "IIII"]);
+
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("Skipped record 1", $oResult->getWarnings()[0]);
+        $this->assertStringContainsString("5", $oResult->getWarnings()[0]);
+        $this->assertEquals(["r2"], array_map(fn($o) => $o->getIdentifier(), $oResult->getRecords()));
+    }
+
+    /**
+     * A Phred+64 file (Illumina 1.3 to 1.7) was silently read as Phred+33, every score 31 too high.
+     * A Phred+33 file holding high scores is not mistaken for one.
+     */
+    public function testWarnsAboutAFileThatLooksPhred64Encoded()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "+", "hhgB", "@r2", "ACGT", "+", "hhhh"]);
+        $this->assertCount(2, $oResult->getRecords());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("Phred+64", $oResult->getWarnings()[0]);
+
+        $oResult = $this->reader->read(["@r1", "ACGT", "+", "IIJ#"]);
+        $this->assertSame([], $oResult->getWarnings());
+    }
 }

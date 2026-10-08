@@ -128,4 +128,30 @@ class MathematicsFunctionsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         MathematicsFunctions::AlmeidaDistance(['A' => 1, 'C' => 2], ['A' => 1]);
     }
+
+    /**
+     * Median([]) read outside the array, emitted warnings and returned 0, where Mean([]) throws.
+     */
+    public function testMedianOfAnEmptySetThrows()
+    {
+        $this->expectException(\Exception::class);
+
+        MathematicsFunctions::Median([]);
+    }
+
+    /**
+     * Tables sharing no non-zero entry, or one constant over the entries both share, made the
+     * weighted correlation divide by zero : an uncaught DivisionByZeroError.
+     */
+    public function testAlmeidaDistanceRefusesAnUndefinedCorrelation()
+    {
+        foreach ([[['A' => 1, 'C' => 0], ['A' => 0, 'C' => 2]], [['A' => 1, 'C' => 1], ['A' => 2, 'C' => 3]]] as [$aX, $aY]) {
+            try {
+                MathematicsFunctions::AlmeidaDistance($aX, $aY);
+                $this->fail("An undefined correlation was computed.");
+            } catch (\InvalidArgumentException $oException) {
+                $this->assertStringContainsString("undefined", $oException->getMessage());
+            }
+        }
+    }
 }

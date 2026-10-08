@@ -834,4 +834,15 @@ class ParseSwissprotManagerTest extends TestCase
 
         $this->assertEquals([["HBA1"], ["HBA2", "HBA-T2", "HBAT2", "hCG_1983332"]], $oParser->getGeneNames());
     }
+
+    /**
+     * The OX line, the organism's NCBI taxonomy identifier, was not read.
+     */
+    public function testReadsTheTaxonomyIdentifier()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile(file('data/Q5K4E3.txt'));
+
+        $this->assertEquals("9606", $oParser->getTaxonomyId());
+    }
 }

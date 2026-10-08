@@ -3,7 +3,7 @@
  * Immutable value object wrapping a validated symmetric distance matrix between taxa
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -62,7 +62,9 @@ final class DistanceMatrix
             throw InvalidDistanceMatrixException::mismatchedDimensions($iCount, count($aDistances));
         }
 
-        $aDistances = array_values($aDistances);
+        // Rows and the values within them are read in order, whatever their keys : a row keyed by
+        // label used to leave [$i][$j] undefined, read as 0, and build a wrong tree.
+        $aDistances = array_map('array_values', array_values($aDistances));
         foreach ($aDistances as $aRow) {
             if (count($aRow) !== $iCount) {
                 throw InvalidDistanceMatrixException::mismatchedDimensions($iCount, count($aRow));
@@ -78,6 +80,10 @@ final class DistanceMatrix
             for ($j = $i + 1; $j < $iCount; $j++) {
                 $fForward = (float) $aDistances[$i][$j];
                 $fBackward = (float) $aDistances[$j][$i];
+
+                if (!is_finite($fForward)) {
+                    throw InvalidDistanceMatrixException::nonFiniteDistance($i, $j, $fForward);
+                }
 
                 if ($fForward !== $fBackward) {
                     throw InvalidDistanceMatrixException::asymmetricEntry($i, $j, $fForward, $fBackward);

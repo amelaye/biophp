@@ -3,7 +3,7 @@
  * Parses a Newick string into a PhylogeneticNode tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -44,16 +44,21 @@ class NewickReader implements NewickReaderInterface
             throw InvalidNewickException::emptyString();
         }
 
-        if (substr($sTrimmed, -1) !== ";") {
+        // The tree ends with ";", which blanks and [comments] may still follow.
+        $iPosition = 0;
+        $oRoot = $this->parseSubtree($sTrimmed, $iPosition);
+        $this->skipBlanksAndComments($sTrimmed, $iPosition);
+
+        if ($iPosition >= strlen($sTrimmed)) {
             throw InvalidNewickException::missingTerminator();
         }
+        if ($sTrimmed[$iPosition] !== ";") {
+            throw InvalidNewickException::trailingContent($iPosition);
+        }
+        $iPosition++;
+        $this->skipBlanksAndComments($sTrimmed, $iPosition);
 
-        $sBody = substr($sTrimmed, 0, -1);
-        $iPosition = 0;
-        $oRoot = $this->parseSubtree($sBody, $iPosition);
-        $this->skipBlanksAndComments($sBody, $iPosition);
-
-        if ($iPosition !== strlen($sBody)) {
+        if ($iPosition !== strlen($sTrimmed)) {
             throw InvalidNewickException::trailingContent($iPosition);
         }
 
@@ -81,8 +86,11 @@ class NewickReader implements NewickReaderInterface
                 $this->skipBlanksAndComments($sBody, $iPosition);
             }
 
-            if ($iPosition >= strlen($sBody) || $sBody[$iPosition] !== ")") {
+            if ($iPosition >= strlen($sBody) || $sBody[$iPosition] === ";") {
                 throw InvalidNewickException::unbalancedParentheses($iPosition);
+            }
+            if ($sBody[$iPosition] !== ")") {
+                throw InvalidNewickException::unexpectedCharacter($sBody[$iPosition], $iPosition);
             }
             $iPosition++;
             $this->skipBlanksAndComments($sBody, $iPosition);
@@ -93,7 +101,11 @@ class NewickReader implements NewickReaderInterface
         $fBranchLength = $this->parseBranchLength($sBody, $iPosition);
         $this->skipBlanksAndComments($sBody, $iPosition);
 
-        return new PhylogeneticNode($sName === "" ? null : $sName, $fBranchLength, $aChildren);
+        if ($aChildren === [] && ($sName === null || $sName === "")) {
+            throw InvalidNewickException::unnamedLeaf($iPosition);
+        }
+
+        return new PhylogeneticNode($sName, $fBranchLength, $aChildren);
     }
 
     /**
@@ -122,16 +134,19 @@ class NewickReader implements NewickReaderInterface
     }
 
     /**
-     * Reads a node's label : quoted, with '' standing for a single quote, or unquoted.
+     * Reads a node's label : quoted, with '' standing for a single quote, or unquoted. A node with
+     * no label has none (null) ; an empty quoted label ('') is an empty name, which toNewick()
+     * writes for a node named "".
      * @param   string      $sBody
      * @param   int         $iPosition
-     * @return  string
+     * @return  string|null
      * @throws  InvalidNewickException  When a quoted label is never closed
      */
-    private function parseLabel(string $sBody, int &$iPosition): string
+    private function parseLabel(string $sBody, int &$iPosition): ?string
     {
         if ($iPosition >= strlen($sBody) || $sBody[$iPosition] !== "'") {
-            return $this->parseToken($sBody, $iPosition);
+            $sToken = $this->parseToken($sBody, $iPosition);
+            return $sToken === "" ? null : $sToken;
         }
 
         $iStart = $iPosition;

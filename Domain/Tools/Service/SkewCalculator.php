@@ -3,7 +3,7 @@
  * Calculates GC-skew, AT-skew, KETO-skew and GC content of a sequence window
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 8 October 2026
  */
 declare(strict_types=1);
 
@@ -41,7 +41,8 @@ class SkewCalculator implements SkewCalculatorInterface
         $iA = substr_count($sUpper, "A");
         $iC = substr_count($sUpper, "C");
         $iG = substr_count($sUpper, "G");
-        $iT = substr_count($sUpper, "T");
+        // U is RNA's T : an RNA is read as the DNA it was transcribed from, as gcFraction() does.
+        $iT = substr_count($sUpper, "T") + substr_count($sUpper, "U");
 
         $iGcSum = $iG + $iC;
         $iAtSum = $iA + $iT;
