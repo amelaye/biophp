@@ -142,6 +142,20 @@ do not add it.
 - Parsing logic depends on exact source-file formatting and the fixtures in
   `data/`. Preserve whitespace, indexing, case, and biological notation unless
   the intended behavior explicitly changes them.
+- Molecular weights are fixed against one reference, Biopython's
+  `Bio.SeqUtils.molecular_weight` (average masses): `SequenceManager::molwt()`
+  (5'-phosphate, 3'-OH strand) and `ProteinManager::molwt()` equal it, the
+  weight tables in bioapi are Biopython's (`Bio.Data.IUPACData`), and the tests
+  pin values Biopython computed. Do not change these methods, their convention
+  or the weight data to follow another source (OligoCalc, ExPASy, Legacy); a
+  change is only legitimate when it makes them disagree less with Biopython,
+  and its expected values must come from running Biopython, not from a hand
+  calculation.
+- Reference data (bioapi's `DataFixtures`, mirrored by `Tests/**/samples`) is
+  reviewed like code: genetic codes against the NCBI tables, pK values,
+  reduced alphabets, masses. `Tests/Api/BiologicalReferenceDataTest.php` and
+  `ReferenceDataConsistencyTest.php` guard it; a correction goes to bioapi and
+  to every sample copy together.
 - Avoid broad cleanup in bug fixes. Some historical naming and formatting is
   inconsistent; changing it can break consumers of this library (biotools and
   host applications depend on it).

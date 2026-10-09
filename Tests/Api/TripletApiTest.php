@@ -112,7 +112,7 @@ class TripletApiTest extends WebTestCase
           58 => "GAA ",
           59 => "GAG ",
           60 => "GGT ",
-          61 => "GCG ",
+          61 => "GGC ",
           62 => "GGA ",
           63 => "GGG "
         ];

@@ -60,13 +60,12 @@ class ProteinManagerTest extends TestCase
         $oProtein->setSequence($sProtein);
         $proteinManager->setProtein($oProtein);
 
+        // Bio.SeqUtils.molecular_weight(sequence, "protein"), Biopython 1.88, with X read as Gly
+        // for the lower limit and as Trp for the upper one
         $molwt = $proteinManager->molwt();
-        $aExpected = [
-            0 => 27394.954999999976,
-            1 => 28428.15499999998
-        ];
 
-        $this->assertEquals($aExpected, $molwt);
+        $this->assertEqualsWithDelta(27394.4746, $molwt[0], 0.0001);
+        $this->assertEqualsWithDelta(28427.7434, $molwt[1], 0.0001);
     }
 
     /**
@@ -99,7 +98,7 @@ class ProteinManagerTest extends TestCase
         $oProtein->setSequence("G");
         $proteinManager->setProtein($oProtein);
 
-        $this->assertEquals([75.07, 75.07], $proteinManager->molwt());
+        $this->assertEqualsWithDelta([75.0666, 75.0666], $proteinManager->molwt(), 0.0001);
     }
 
     /**
@@ -114,10 +113,10 @@ class ProteinManagerTest extends TestCase
         $oProtein->setSequence("gU*");
         $proteinManager->setProtein($oProtein);
 
-        // 75.07 (G) + 168.05 (U) - one water, 18.015
+        // Bio.SeqUtils.molecular_weight("GU", "protein"), Biopython 1.88
         $aMolwt = $proteinManager->molwt();
-        $this->assertEqualsWithDelta(225.105, $aMolwt[0], 0.0001);
-        $this->assertEqualsWithDelta(225.105, $aMolwt[1], 0.0001);
+        $this->assertEqualsWithDelta(225.1045, $aMolwt[0], 0.0001);
+        $this->assertEqualsWithDelta(225.1045, $aMolwt[1], 0.0001);
 
         $oProtein->setSequence("G*G");
         $this->assertFalse($proteinManager->molwt());

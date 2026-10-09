@@ -3,7 +3,7 @@
  * Protein Managing
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -67,6 +67,10 @@ class ProteinManager implements ProteinInterface
      * Computes the molecular weight of a protein sequence. Every residue the amino acid weight
      * table holds is weighed, selenocysteine (U) and pyrrolysine (O) included, whatever its case ;
      * the stop a translated ORF ends with ("*") is no residue and is left out.
+     * The reference is Biopython's Bio.SeqUtils.molecular_weight (average masses) : the sum of the
+     * free amino acids less one water (18.0153) per peptide bond. On a sequence without ambiguity
+     * code the result equals it, and the tests pin values it computed ; B, Z and X span the
+     * lightest to the heaviest amino acid they stand for.
      * @return  boolean|array   An array of the form: ( lower_molwt, upper_molwt ), FALSE when the
      * sequence holds a symbol the table does not (an internal stop among them)
      */
@@ -93,7 +97,7 @@ class ProteinManager implements ProteinInterface
             $aMolecularWeight[$iLowerLimit] += $wts[$amino][$iLowerLimit];
             $aMolecularWeight[$iUpperLimit] += $wts[$amino][$iUpperLimit];
         }
-        $fMwtWater = 18.015;
+        $fMwtWater = 18.0153;
         // A chain of n residues loses (n-1) water molecules during polymerization. An empty
         // chain (n=0) loses none: max(0, ...) keeps it from gaining a spurious water molecule.
         $iWaterLosses = max(0, $iAminoLength - 1);

@@ -312,7 +312,7 @@ $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();
 $triplet->setId(62);
-$triplet->setTriplet("GCG");
+$triplet->setTriplet("GGC");
 $aTripletObjects[] = $triplet;
 
 $triplet = new TripletDTO();

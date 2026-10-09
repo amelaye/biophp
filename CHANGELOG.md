@@ -215,6 +215,36 @@ Changes on `develop` since `master`.
 - `Tests/Api/ReferenceDataConsistencyTest` guards this data : every entry must agree with its own
   annotated site, every search pattern must cover both orientations and every IUPAC expansion, and
   the corrected entries are checked against REBASE.
+- Genetic code, pK, reduced alphabet, amino acid and nucleotide reference data, served by bioapi and
+  mirrored by the test samples, checked against the NCBI genetic code tables, Solomon, IMGT
+  (Pommié et al. 2004), ExPASy and OligoCalc :
+  - The triplet list held GCG twice and no GGC.
+  - Vertebrate mitochondrial code (NCBI 2) : ATA was in the Ile group instead of Met.
+  - Degenerate back-translation codons : Thr was WSN (invertebrate mitochondrial) and WCN
+    (echinoderm mitochondrial) instead of ACN, Asn was ATH (Ile codons) instead of AAH (flatworm
+    mitochondrial), and the Scenedesmus obliquus stops were TVR instead of TVA.
+  - Solomon pK of Arg was 125 instead of 12.5.
+  - 3IMG hydropathy alphabet : M was neutral and H in no class ; neutral is G H P S T Y.
+  - bioapi only : Gln's 3-letter code was "Gin" and Pyl's "Pyr", the weight ranges of Z (Glx) and X
+    were swapped, B's upper weight was Asn's instead of Asp's, and nitrogen was named "nitrate".
+  - Molecular weights have a single reference, Biopython's `Bio.SeqUtils.molecular_weight` (average
+    masses) : `SequenceManager::molwt()` on canonical bases and `ProteinManager::molwt()` on a
+    sequence without ambiguity code now equal it, and their tests pin values Biopython 1.88
+    computed (ATGC 1253.8027 instead of 1253.945). Neither convention changes : a 5'-phosphate,
+    3'-hydroxyl nucleic acid strand, and free amino acids less one water per peptide bond.
+    - Nucleotide residue weights are Biopython's nucleoside monophosphates less one water (dA
+      313.2065, dC 289.1818, dG 329.2059, dT 304.1932 ; A 329.2059, C 305.1812, G 345.2053,
+      U 306.166) : each base weighed about 0.035 Da too much.
+    - Amino acid weights are Biopython's `protein_weights`, with four decimals : Arg, Cys, Ile,
+      Leu, Met and Trp were off by about 0.01, and residue weights, truncated (Cys 103.10 and Asn
+      114.08 plain wrong), are now the free weights less one water ; B, Z, O, U and "*" get one.
+    - Water weighs 18.0153, Biopython's average, in both molwt() methods.
+    - bioapi stores amino acid weights as DECIMAL(8,4) instead of DECIMAL(5,2) (migration
+      `Version20261009120000`).
+- `Tests/Api/BiologicalReferenceDataTest` guards this data : 64 distinct codons, every species'
+  groups and degenerate codons derived from its NCBI table, every reduced alphabet a partition of
+  the 20 amino acids, pK values per source, IUPAC 3-letter codes, B/Z/X weight ranges, residue and
+  nucleotide weights.
 - `RestrictionEnzymeManager::cutSeq()` :
   - a degenerate site (AvaII, GGWCC) no longer yields every fragment twice ;
   - a pattern with alternatives (AciI, BbvCI, BssSI : "SITE1 or SITE2") now cuts ;

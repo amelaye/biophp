@@ -110,7 +110,7 @@ class ProteinReductionApiTest extends WebTestCase
           "3IMG" =>  [
             "pattern" => [
               0 => "/D|N|E|Q|K|R/",
-              1 => "/G|T|S|Y|P|M/",
+              1 => "/G|T|S|Y|P|H/",
               2 => "/I|V|L|F|C|M|A|W/",
             ],
             "reduction" => [

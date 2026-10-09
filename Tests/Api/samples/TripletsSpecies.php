@@ -41,8 +41,8 @@ use Doctrine\Common\Persistence\ObjectManager;
         $triplets_vertebrate_mitochondrial = [
             '(TTT |TTC )',
             '(TTA |TTG |CT. )',
-            '(ATT |ATC |ATA )',
-            '(ATG )',
+            '(ATT |ATC )',
+            '(ATG |ATA )',
             '(GT. )',
             '(TC. |AGT |AGC )',
             '(CC. )',
@@ -477,7 +477,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $triplet->setId(5);
         $triplet->setNature("invertebrate mitochondrial");
         $triplet->setTripletsGroups($triplets_invertebrate_mitochondrial);
-        $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","WSN","GCN","TAY","TAR",
+        $triplet->setTriplets(["TTY","YTN","ATY","ATR","GTN","WSN","CCN","ACN","GCN","TAY","TAR",
             "CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]);
         $aTripletSpeciesObjects[] = $triplet;
 
@@ -494,7 +494,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $triplet->setId(7);
         $triplet->setNature("echinoderm mitochondrial");
         $triplet->setTripletsGroups($triplets_echinoderm_mitochondrial);
-        $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","WCN","GCN","TAY","TAR",
+        $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAY","TAR",
             "CAY","CAR","AAH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]);
         $aTripletSpeciesObjects[] = $triplet;
 
@@ -535,7 +535,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $triplet->setNature("flatworm mitochondrial");
         $triplet->setTripletsGroups($triplets_flatworm_mitochondrial);
         $triplet->setTriplets(["TTY","YTN","ATH","ATG","GTN","WSN","CCN","ACN","GCN","TAH","TAG","CAY",
-            "CAR","ATH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]);
+            "CAR","AAH","AAG","GAY","GAR","TGY","TGR","CGN","GGN","NNN"]);
         $aTripletSpeciesObjects[] = $triplet;
 
         $triplet = new TripletSpecieDTO();
@@ -567,7 +567,7 @@ use Doctrine\Common\Persistence\ObjectManager;
         $triplet->setNature("scenedesmus obliquus mitochondrial");
         $triplet->setTripletsGroups($triplets_scenedesmus_obliquus_mitochondrial);
         $triplet->setTriplets(["TTY","YWN","ATH","ATG","GTN","WSB","CCN","ACN","GCN","TAY",
-            "TVR","CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN",
+            "TVA","CAY","CAR","AAY","AAR","GAY","GAR","TGY","TGG","MGN",
             "GGN","NNN"]);
         $aTripletSpeciesObjects[] = $triplet;
 

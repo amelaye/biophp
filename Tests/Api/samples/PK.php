@@ -33,7 +33,7 @@ $pkValue = new PKDTO();
 $pkValue->setId("Solomon");
 $pkValue->setNTerminus(9.6);
 $pkValue->setK(10.5);
-$pkValue->setR(125);
+$pkValue->setR(12.5);
 $pkValue->setH(6.0);
 $pkValue->setCTerminus(2.4);
 $pkValue->setD(3.9);

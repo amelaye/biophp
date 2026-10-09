@@ -236,15 +236,13 @@ class SequenceManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
         $sequenceBuilder = new SequenceBuilder($sequenceManager);
         $sequenceBuilder->setSequence($this->sequence);
-        $fMolWt = round($sequenceBuilder->molwt("upperlimit"),1);
-
-        $fExpected = 379669.7;
-        $this->assertEquals($fExpected, $fMolWt);
+        // Bio.SeqUtils.molecular_weight(sequence, "DNA"), Biopython 1.88
+        $this->assertEqualsWithDelta(379625.8051, $sequenceBuilder->molwt("upperlimit"), 0.0001);
     }
 
     /**
-     * An unknown symbol used to be weighed as zero : molwt("ATGZ") quietly returned 964.73 instead
-     * of the 1253.945 of "ATGC", a result wrong by one whole base.
+     * An unknown symbol used to be weighed as zero : molwt("ATGZ") quietly returned 964.6209 instead
+     * of the 1253.8027 of "ATGC", a result wrong by one whole base.
      */
     public function testMolWtThrowsOnAnUnrecognizedSymbolInsteadOfWeighingItZero()
     {
@@ -260,13 +258,15 @@ class SequenceManagerTest extends TestCase
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        // A + T + G + C + water, both limits equal since no symbol is degenerated
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 3));
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 3));
-        // The convention : a 5'-phosphate, 3'-OH strand. One dA weighs dAMP itself (331.2), and
-        // ATGC is OligoCalc's synthetic 5'-OH weight (1235.93 - 61.96 = 1173.97) plus HPO3 (79.98).
-        $this->assertEqualsWithDelta(331.22, $sequenceManager->molwt("upperlimit", "A", "DNA", 1), 0.05);
-        $this->assertEqualsWithDelta(1173.97 + 79.98, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.01);
+        // Bio.SeqUtils.molecular_weight("ATGC", "DNA"), Biopython 1.88 ; both limits are equal since
+        // no symbol is degenerated
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.0001);
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 0.0001);
+        // The convention : a 5'-phosphate, 3'-OH strand. One dA weighs dAMP itself (331.2218), and
+        // ATGC is OligoCalc's synthetic 5'-OH weight (313.21 + 304.2 + 329.21 + 289.18 - 61.96 = 1173.84)
+        // plus HPO3 (79.98), within OligoCalc's rounding.
+        $this->assertEqualsWithDelta(331.2218, $sequenceManager->molwt("upperlimit", "A", "DNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(1173.84 + 79.98, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.05);
     }
 
     /**
@@ -277,8 +277,8 @@ class SequenceManagerTest extends TestCase
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        $this->assertEquals(307.23, round($sequenceManager->molwt("lowerlimit", "N", "DNA", 1), 3));
-        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "N", "DNA", 1), 3));
+        $this->assertEqualsWithDelta(307.1971, $sequenceManager->molwt("lowerlimit", "N", "DNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceManager->molwt("upperlimit", "N", "DNA", 1), 0.0001);
     }
 
     /**
@@ -309,15 +309,15 @@ class SequenceManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
         // W is A or U : in RNA uracil is the lighter of the two
-        $this->assertEquals(324.21, round($sequenceManager->molwt("lowerlimit", "W", "RNA", 1), 3));
-        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "W", "RNA", 1), 3));
+        $this->assertEqualsWithDelta(324.1813, $sequenceManager->molwt("lowerlimit", "W", "RNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceManager->molwt("upperlimit", "W", "RNA", 1), 0.0001);
     }
 
     public function testMolWtAcceptsASequenceAsWrittenInAGenbankRecord()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "at gc", "DNA", 4), 3));
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("upperlimit", "at gc", "DNA", 4), 0.0001);
     }
 
     public function testMolWtThrowsOnAnUnknownLimit()
@@ -355,8 +355,8 @@ class SequenceManagerTest extends TestCase
         $oSequence->setSeqlength(1);
         $sequenceBuilder->setSequence($oSequence);
 
-        $this->assertEquals(307.23, round($sequenceBuilder->molwt("lowerlimit"), 3));
-        $this->assertEquals(347.26, round($sequenceBuilder->molwt("upperlimit"), 3));
+        $this->assertEqualsWithDelta(307.1971, $sequenceBuilder->molwt("lowerlimit"), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceBuilder->molwt("upperlimit"), 0.0001);
     }
 
     /**

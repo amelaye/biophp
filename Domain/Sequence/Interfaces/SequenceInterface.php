@@ -3,7 +3,7 @@
  * Sequence Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 january 2020
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -70,10 +70,13 @@ interface SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * The reference is Biopython's Bio.SeqUtils.molecular_weight (average masses, single strand,
+     * linear) : on canonical bases the result equals it, and the tests pin values it computed.
      * The weight is that of a neutral single strand carrying a 5' phosphate and a 3' hydroxyl, as a
-     * fragment cut by an enzyme does : the sum of its nucleotide residues (each a nucleoside
-     * monophosphate less one water, dA 313.2) plus one water (18.015). A synthetic oligonucleotide,
-     * which has a 5' hydroxyl, weighs 79.98 (HPO3) less - OligoCalc's sum of residues - 61.96.
+     * fragment cut by an enzyme does : the sum of its nucleoside monophosphates (dAMP 331.2218)
+     * less one water (18.0153) per phosphodiester bond, that is the sum of the nucleotide residues
+     * the database holds (dA 313.2065) plus one water. A synthetic oligonucleotide, which has a
+     * 5' hydroxyl, weighs 79.98 (HPO3) less.
      * @param   string        $sSequence    The sequence
      * @param   string        $sMolType     DNA or RNA
      * @param   int           $iNALen       Length of the sequence

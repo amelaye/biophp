@@ -30,5 +30,5 @@ $aElementsObjects[] = $element;
 
 $element = new ElementDTO();
 $element->setName("water");
-$element->setWeight(18.015);
+$element->setWeight(18.0153);
 $aElementsObjects[] = $element;
