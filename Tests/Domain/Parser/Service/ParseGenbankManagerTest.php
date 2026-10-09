@@ -1371,6 +1371,10 @@ class ParseGenbankManagerTest extends WebTestCase
             "only another entry"       => ["J00194.1:100..202", null, null, "+"],
             "one base within a range"  => ["102.110", 102, 110, "+"],
             "site between two bases"   => ["123^124", 123, 124, "+"],
+            "uncertain start"          => ["(102.110)..300", 102, 300, "+"],
+            "uncertain end"            => ["34..(122.126)", 34, 126, "+"],
+            "uncertain bound in a join" => ["join(1..100,(150.160)..200)", 1, 200, "+"],
+            "uncertain bound, reverse" => ["complement(join((10.12)..50,60..(90.95)))", 10, 95, "-"],
             "partial ends"             => ["<1..>206", 1, 206, "+"],
             "spliced, reverse"         => ["complement(join(2691..4571,4918..5163))", 2691, 5163, "-"],
             "spliced, listed 3' first" => ["join(complement(4918..5163),complement(2691..4571))", 2691, 5163, "-"],
@@ -1504,5 +1508,28 @@ class ParseGenbankManagerTest extends WebTestCase
         ]);
 
         $this->assertEquals(["sites", "1 to 10"], array_map(fn($oReference) => $oReference->getBaseRange(), $oParser->getReferences()));
+    }
+
+    /**
+     * A rank with a space ("Terrabacteria group") wrapped between two lineage lines used to be
+     * split into two ranks, each line being cut on ";" on its own.
+     */
+    public function testALineageRankWrappedOverTwoLinesIsKeptWhole()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TEST                      20 bp    DNA     linear   BCT 21-JUN-1999\n",
+            "SOURCE      Bacillus subtilis\n",
+            "  ORGANISM  Bacillus subtilis\n",
+            "            Bacteria; Terrabacteria\n",
+            "            group; Bacillota; Bacilli.\n",
+            "ORIGIN\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals(
+            ["Bacillus subtilis", "Bacteria", "Terrabacteria group", "Bacillota", "Bacilli"],
+            $oParser->getSequence()->getOrganism()
+        );
     }
 }

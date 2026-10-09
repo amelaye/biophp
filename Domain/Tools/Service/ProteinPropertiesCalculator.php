@@ -44,7 +44,9 @@ class ProteinPropertiesCalculator implements ProteinPropertiesInterface
 
     /**
      * pH bounds of the search : every charge is positive at 0 (the N-terminus alone carries almost
-     * one) and negative at 14, whatever the protein.
+     * one) and, for a real protein, negative at 14. A protein made of some thirty Arg and no acidic
+     * residue is still slightly positive there (each Arg keeps about 0.03 at pK 12.5) : its
+     * isoelectric point is then the upper bound, 14, and not a pH the search could not reach.
      */
     private const PH_MIN = 0.0;
 

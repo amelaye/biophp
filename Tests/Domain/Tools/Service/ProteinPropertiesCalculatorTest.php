@@ -202,6 +202,19 @@ class ProteinPropertiesCalculatorTest extends TestCase
         (new ProteinPropertiesCalculator())->isoelectricPoint(new AminoAcidSequence(""), self::PK["EMBOSS"]);
     }
 
+    /**
+     * Forty Arg and nothing acidic is still positive at pH 14 (each Arg keeps about 0.03 at pK
+     * 12.5) : the isoelectric point is the upper bound of the search, 14, not a pH past it.
+     */
+    public function testAnArginineOnlyProteinHasAnIsoelectricPointClampedAt14()
+    {
+        $oCalculator = new ProteinPropertiesCalculator();
+        $oProtein = new AminoAcidSequence(str_repeat("R", 40));
+
+        $this->assertGreaterThan(0.0, $oCalculator->netCharge($oProtein, 14.0, self::PK["EMBOSS"]));
+        $this->assertEqualsWithDelta(14.0, $oCalculator->isoelectricPoint($oProtein, self::PK["EMBOSS"]), 1e-6);
+    }
+
     public function testAPkSetWithoutAGroupThrows()
     {
         $aPk = self::PK["EMBOSS"];

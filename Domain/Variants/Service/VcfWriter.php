@@ -105,7 +105,7 @@ class VcfWriter implements VcfWriterInterface
             if ($mValue === false) {
                 continue;
             }
-            $aItems[] = $mValue === true ? $sKey : $sKey . "=" . strtr((string) $mValue, self::INFO_ENCODING);
+            $aItems[] = $mValue === true ? $sKey : $sKey . "=" . $this->encodeInfoValue((string) $mValue);
         }
 
         return $aItems === [] ? self::MISSING : implode(";", $aItems);
@@ -121,5 +121,25 @@ class VcfWriter implements VcfWriterInterface
         if (strpos($sLine, "\n") !== false || strpos($sLine, "\r") !== false) {
             throw new \InvalidArgumentException($sWhat . " must not contain a newline.");
         }
+    }
+
+    /**
+     * A "%2C" is left as it is : VcfReader keeps an encoded comma encoded, so a value read from a
+     * file holds "%2C" for it, and encoding its "%" again would write "%252C", the text "%2C"
+     * instead of a comma.
+     *
+     * @param   string  $sValue
+     * @return  string
+     */
+    private function encodeInfoValue(string $sValue): string
+    {
+        $aParts = preg_split('/(%2C)/i', $sValue, -1, PREG_SPLIT_DELIM_CAPTURE);
+        foreach ($aParts as $iKey => $sPart) {
+            if ($iKey % 2 === 0) {
+                $aParts[$iKey] = strtr($sPart, self::INFO_ENCODING);
+            }
+        }
+
+        return implode("", $aParts);
     }
 }

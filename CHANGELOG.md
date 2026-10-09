@@ -108,6 +108,19 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+
+- GenBank and EMBL locations written with an uncertain position, `(102.110)..300`, `34..(122.126)`
+  or `join(1..100,(150.160)..200)`, lost their span (`join` kept its first segment only, the others
+  gave null bounds) : the parentheses of the position were never removed. The start takes the first
+  base of the range, the end the last one.
+- GenBank `ORGANISM` and EMBL `OC` lineages cut a rank wrapped over two lines, such as
+  "Terrabacteria group", into two ranks : the lines are joined before the split on `;`, as
+  Swiss-Prot already did.
+- `VcfWriter` wrote an encoded comma read by `VcfReader` back as `%252C` (the text "%2C"); a `%2C` is
+  now written as it is.
+- `ProteinPropertiesCalculator` : the comment on the pH search bounds claimed the charge is negative
+  at pH 14 for any protein; an Arg-rich one with no acidic residue stays positive and its
+  isoelectric point is clamped at 14. Pinned by a test.
 - Enzyme suppliers : the `Vendors` data was an old snapshot of REBASE - 311 of its 620 enzymes
   differed from today's, and it used the codes of suppliers REBASE no longer lists (Fermentas F,
   Minotech C, Bangalore Genei U...). It is regenerated from REBASE v610's bairoch file, the CR line of

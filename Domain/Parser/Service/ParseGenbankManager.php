@@ -264,18 +264,20 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     {
         $organism = array();
         $organism[] = trim(substr($this->aLines->current(),12));
+        // A rank holding a space ("Terrabacteria group") may be wrapped between two lines : the
+        // lines are joined before the split, as the ranks end on ";" and not on the line.
+        $sLineage = "";
         while(1) {
             $sNextLine = $flines[$this->aLines->key()+1] ?? null;
             if($sNextLine === null || trim(substr($sNextLine, 0, 12)) != "") {
                 break;
             }
             $this->aLines->next();
-            $sLine = trim($this->aLines->current());
-            $aElems = explode(";", $sLine);
-            foreach($aElems as $sElem) {
-                if($sElem != "") {
-                    $organism[] = trim($sElem);
-                }
+            $sLineage .= " " . trim($this->aLines->current());
+        }
+        foreach(explode(";", $sLineage) as $sElem) {
+            if(trim($sElem) != "") {
+                $organism[] = trim($sElem);
             }
         }
         // The lineage is closed by a period, which is not part of its last rank ("Homo.").

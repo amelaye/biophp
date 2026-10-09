@@ -62,6 +62,20 @@ class VcfWriterTest extends TestCase
     }
 
     /**
+     * The reader keeps an encoded comma as "%2C" ; written back, it used to become "%252C", which
+     * a VCF 4.3 consumer reads as the text "%2C" and no more as a comma.
+     */
+    public function testAnEncodedCommaSurvivesReadingThenWriting()
+    {
+        $sLine = "chr1\t5\t.\tA\tG\t.\t.\tDESC=a%2Cb;NOTE=50%25%3B";
+        $oResult = (new VcfReader())->read(["#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO", $sLine]);
+
+        $sVcf = $this->writer->write($oResult->getVariants());
+
+        $this->assertStringEndsWith("\tDESC=a%2Cb;NOTE=50%25%3B\n", $sVcf);
+    }
+
+    /**
      * Every kind of line VcfReader understands - multi-allelic, symbolic, breakend, a telomere at
      * position 0, a missing ALT, encoded INFO values, a float quality - is read back as it was.
      */

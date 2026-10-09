@@ -309,17 +309,20 @@ final class ParseEmblManager extends ParseDbAbstractManager
         $this->sequence->setSource($sSpecies);
 
         $aOrganism = [$sSpecies];
+        // A rank holding a space ("Terrabacteria group") may be wrapped between two OC lines : the
+        // lines are joined before the split, as the ranks end on ";" and not on the line.
+        $sLineage = "";
         while (true) {
             $sHead = substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2);
             if ($sHead != "OC") {
                 break;
             }
             $this->aLines->next();
-            $aTokens = explode(";", trim(substr($this->aLines->current(), 5)));
-            foreach ($aTokens as $sToken) {
-                if (trim($sToken) != "") {
-                    $aOrganism[] = trim($sToken);
-                }
+            $sLineage .= " " . trim(substr($this->aLines->current(), 5));
+        }
+        foreach (explode(";", $sLineage) as $sToken) {
+            if (trim($sToken) != "") {
+                $aOrganism[] = trim($sToken);
             }
         }
         // The period closing the last OC line ends the lineage, it is no part of the last rank

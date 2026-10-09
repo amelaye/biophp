@@ -457,4 +457,24 @@ class ParseEmblManagerTest extends TestCase
             $oParser->getSequence()->getOrganism()
         );
     }
+
+    /**
+     * A rank with a space ("Terrabacteria group") wrapped between two OC lines used to be split
+     * into two ranks, each OC line being cut on ";" on its own.
+     */
+    public function testALineageRankWrappedOverTwoLinesIsKeptWhole()
+    {
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile([
+            "ID   X56734; SV 1; linear; mRNA; STD; PRO; 20 BP.\n",
+            "OS   Bacillus subtilis\n",
+            "OC   Bacteria; Terrabacteria\n",
+            "OC   group; Bacillota; Bacilli.\n",
+        ]);
+
+        $this->assertEquals(
+            ["Bacillus subtilis", "Bacteria", "Terrabacteria group", "Bacillota", "Bacilli"],
+            $oParser->getSequence()->getOrganism()
+        );
+    }
 }

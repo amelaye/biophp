@@ -252,7 +252,12 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
         $aSegments = [];
         foreach (explode(",", preg_replace('/\s+/', "", $sLocation)) as $sRawSegment) {
             $bComplement = strpos($sRawSegment, "complement(") !== false;
-            $sSegment = str_replace(["complement(", "join(", "order(", ")", "<", ">"], "", $sRawSegment);
+            // An uncertain position "(102.110)" is one base within a range : the start of the
+            // segment takes the first of them, its end the last, so the span is never shorter than
+            // what the record says. They go before the parentheses of join() and complement().
+            $sSegment = preg_replace('/\((\d+)\.(\d+)\)(?=\.\.)/', '$1', $sRawSegment);
+            $sSegment = preg_replace('/(?<=\.\.)\((\d+)\.(\d+)\)/', '$2', $sSegment);
+            $sSegment = str_replace(["complement(", "join(", "order(", ")", "<", ">"], "", $sSegment);
             if ($sSegment === "" || strpos($sSegment, ":") !== false) {
                 continue;
             }
