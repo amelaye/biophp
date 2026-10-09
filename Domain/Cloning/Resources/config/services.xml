@@ -9,6 +9,7 @@
 
         <!-- Cloning -->
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\CircularRestrictionDigestManager" id="amelaye_biophp.cloning_digest" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\LinearRestrictionDigestManager" id="amelaye_biophp.cloning_linear_digest" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\RestrictionEndCompatibilityManager" id="amelaye_biophp.cloning_end_compat" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\Mapper\GenbankPlasmidMapper" id="amelaye_biophp.cloning_genbank_mapper" />
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\FeatureOverlapManager" id="amelaye_biophp.cloning_feature_overlap" />
@@ -21,6 +22,7 @@
         <service class="Amelaye\BioPHP\Domain\Cloning\Service\Mapper\PlasmidRecordMapper" id="amelaye_biophp.cloning_plasmid_record_mapper" />
 
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\LinearRestrictionDigestInterface" alias="amelaye_biophp.cloning_linear_digest" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface" alias="amelaye_biophp.cloning_genbank_mapper" />
         <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\FeatureOverlapInterface" alias="amelaye_biophp.cloning_feature_overlap" />
