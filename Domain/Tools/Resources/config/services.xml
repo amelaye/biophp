@@ -29,6 +29,12 @@
             <argument type="service" id="Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface" />
         </service>
 
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\ProteinPropertiesCalculator" id="amelaye_biophp.tools_protein_properties" />
+
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\ProteinPropertiesInterface" alias="amelaye_biophp.tools_protein_properties" />
+        <service class="Amelaye\BioPHP\Domain\Tools\Service\ChaosGameRepresentationCalculator" id="amelaye_biophp.tools_chaos_game" />
+
+        <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\ChaosGameRepresentationInterface" alias="amelaye_biophp.tools_chaos_game" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\CodonAdaptationIndexInterface" alias="amelaye_biophp.tools_cai" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface" alias="amelaye_biophp.tools_orf_finder" />
         <service id="Amelaye\BioPHP\Domain\Tools\Interfaces\MeltingTemperatureInterface" alias="amelaye_biophp.tools_melting_temperature" />
