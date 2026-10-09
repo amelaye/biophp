@@ -10,7 +10,10 @@
         <!-- Sequencing -->
         <service class="Amelaye\BioPHP\Domain\Sequencing\Service\FastqReader" id="amelaye_biophp.sequencing_fastq_reader" />
 
+        <service class="Amelaye\BioPHP\Domain\Sequencing\Service\FastqWriter" id="amelaye_biophp.sequencing_fastq_writer" />
+
         <service id="Amelaye\BioPHP\Domain\Sequencing\Interfaces\FastqReaderInterface" alias="amelaye_biophp.sequencing_fastq_reader" />
+        <service id="Amelaye\BioPHP\Domain\Sequencing\Interfaces\FastqWriterInterface" alias="amelaye_biophp.sequencing_fastq_writer" />
     </services>
 
 </container>
