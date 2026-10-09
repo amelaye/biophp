@@ -1126,6 +1126,58 @@ class ParseGenbankManagerTest extends WebTestCase
     }
 
     /**
+     * A record whose LOCUS name differs from its accession (LOCUS SCU49845, ACCESSION U49845) is
+     * keyed by the accession on every row : GbSequence kept the LOCUS name, orphaning it from the
+     * Sequence it joins, and getEntryId() indexed the record under a name no fetch() would use.
+     */
+    public function testARecordIsKeyedByItsAccessionWhenTheLocusNameDiffers()
+    {
+        $aLines = [
+            "LOCUS       SCU49845     5028 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "DEFINITION  Saccharomyces cerevisiae TCP1-beta gene.\n",
+            "ACCESSION   U49845 X11111\n",
+            "KEYWORDS    .\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     gene            1..10\n",
+            "                     /gene=\"abc\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac\n",
+            "//\n",
+        ];
+
+        $this->assertEquals("U49845", ParseGenbankManager::getEntryId($aLines, $aLines[0]));
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        $this->assertEquals("U49845", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals("U49845", $oParser->getGbSequence()->getPrimAcc());
+        $this->assertEquals("U49845", $oParser->getFeatures()[0]->getPrimAcc());
+        $this->assertEquals("U49845", $oParser->getAccession()[0]->getPrimAcc());
+    }
+
+    /**
+     * Without an ACCESSION line, the LOCUS name keys the record, on both tables and as its id.
+     */
+    public function testARecordWithoutAccessionIsKeyedByItsLocusName()
+    {
+        $aLines = [
+            "LOCUS       TEST                      10 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac\n",
+            "//\n",
+        ];
+
+        $this->assertEquals("TEST", ParseGenbankManager::getEntryId($aLines, $aLines[0]));
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile($aLines);
+
+        $this->assertEquals("TEST", $oParser->getSequence()->getPrimAcc());
+        $this->assertEquals("TEST", $oParser->getGbSequence()->getPrimAcc());
+    }
+
+    /**
      * Wraps FEATURES lines into a minimal record and returns "key|from|to|strand|qualifier=value"
      * strings, one per Feature row, in parse order.
      */

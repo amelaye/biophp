@@ -66,6 +66,11 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+- GenBank : a record whose LOCUS name differs from its accession (LOCUS SCU49845, ACCESSION
+  U49845) is keyed by the accession on every row. `GbSequence` kept the LOCUS name and was orphaned
+  from its `Sequence`. `getEntryId()` now returns the primary accession (the LOCUS name only when
+  there is no ACCESSION line), as `ParseEntrezManager` does, so `fetch()` finds such a record ;
+  records whose LOCUS name equals their accession are unaffected.
 - Semi-global alignment : two sequences whose best overlap scored zero or less threw an exception
   (an empty alignment) ; that overlap is now reported with its own score.
 - Newick : blanks and newlines between tokens no longer end up in the names, [comments] and NHX

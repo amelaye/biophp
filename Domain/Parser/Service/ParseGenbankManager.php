@@ -77,16 +77,28 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     }
 
     /**
-     * Extracts the identifier uniquely naming a GenBank entry.
-     * @param   array       $aFlines        The whole file, buffered
+     * Extracts the identifier uniquely naming a GenBank entry, which is its primary accession
+     * (the key parseDataFile() gives to every row of the record, and ParseEntrezManager to its
+     * own). The LOCUS name is only a fallback for a record short of an ACCESSION line : the two
+     * differ in many records (LOCUS SCU49845, ACCESSION U49845).
+     * @param   array       $aFlines        The lines of the entry (or the whole file, buffered)
      * @param   string      $sLine          The line opening the entry
      * @return  string
      */
     public static function getEntryId(array $aFlines, string $sLine) : string
     {
-        $aLocus = preg_split("/\s+/", trim($sLine));
+        foreach ($aFlines as $sCurrent) {
+            if (trim(substr($sCurrent, 0, 12)) === "ACCESSION") {
+                $sAccessions = preg_replace('/\bREGION:\s*\S+/', "", substr($sCurrent, 12));
+                $aWords = preg_split("/\s+/", trim($sAccessions), -1, PREG_SPLIT_NO_EMPTY);
+                if (isset($aWords[0])) {
+                    return $aWords[0];
+                }
+                break;
+            }
+        }
 
-        return trim($aLocus[1]);
+        return self::readLocusLine($sLine)["name"];
     }
 
     /**
@@ -274,6 +286,19 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     }
 
     /**
+     * Gives the record its key, on the Sequence and on its GbSequence together : the one table
+     * joins the other on it, so they must never hold different values. LOCUS sets it first
+     * (the name), ACCESSION then replaces it with the primary accession, which is what
+     * getEntryId() indexes the record by.
+     * @param   string      $sKey
+     */
+    private function setRecordKey(string $sKey) : void
+    {
+        $this->sequence->setPrimAcc($sKey);
+        $this->gbSequence->setPrimAcc($sKey);
+    }
+
+    /**
      * Parses line LOCUS. NCBI writes its fields in fixed columns - name 13-28, length 30-40,
      * strandedness 45-47, molecule type 48-53, topology 56-63, division 65-67, date 69-79 - but
      * shifts them all right when the name is longer than its 16 columns (a WGS contig such as
@@ -286,8 +311,7 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     {
         $aLocus = self::readLocusLine($this->aLines->current());
 
-        $this->sequence->setPrimAcc($aLocus["name"]);
-        $this->gbSequence->setPrimAcc($this->sequence->getPrimAcc());
+        $this->setRecordKey($aLocus["name"]);
         $this->sequence->setSeqlength($aLocus["length"]);
         $this->sequence->setMoltype($aLocus["molType"]);
         if ($aLocus["strands"] !== null) {
@@ -416,7 +440,9 @@ final class ParseGenbankManager extends ParseDbAbstractManager
     {
         $sAccessions = preg_replace('/\bREGION:\s*\S+/', "", implode(" ", $this->readContinuedField()));
         $wordarray = preg_split("/\s+/", trim($sAccessions), -1, PREG_SPLIT_NO_EMPTY);
-        $this->sequence->setPrimAcc($wordarray[0] ?? "");
+        if (isset($wordarray[0])) {
+            $this->setRecordKey($wordarray[0]);
+        }
         array_shift($wordarray);
         foreach($wordarray as $word) {
             $oAccession = new Accession();
