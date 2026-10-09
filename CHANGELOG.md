@@ -109,6 +109,10 @@ Changes on `develop` since `master`.
 
 ### Fixed
 
+- Type IIb enzymes (AjuI, AlfI, BaeI, BcgI...) cut on both sides of their site; the linear and circular
+  digests already give both cuts, because their computing patterns are symmetric and the site is found
+  again on the reverse strand. Checked against Biopython's `search` on 91 sites in either orientation
+  (Biopython itself does not digest them : "cut twice, not yet implemented") and pinned by tests.
 - GenBank and EMBL locations written with an uncertain position, `(102.110)..300`, `34..(122.126)`
   or `join(1..100,(150.160)..200)`, lost their span (`join` kept its first segment only, the others
   gave null bounds) : the parentheses of the position were never removed. The start takes the first

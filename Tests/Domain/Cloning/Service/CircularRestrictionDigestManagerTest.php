@@ -88,6 +88,51 @@ class CircularRestrictionDigestManagerTest extends TestCase
         );
     }
 
+    private function alfI(): RestrictionEnzymeDefinition
+    {
+        return new RestrictionEnzymeDefinition(
+            "AlfI",
+            [],
+            RestrictionEnzymeDefinition::TYPE_IIB,
+            "_NN'NNNNNNNNNNGCANNNNNNTGCNNNNNNNNNN_NN'",
+            "(............GCA......TGC............)",
+            36,
+            2,
+            -2,
+            6
+        );
+    }
+
+    /**
+     * AlfI is a Type IIb enzyme, (10/12)GCA(N)6TGC(12/10) : two cuts per site, 34/36 bases after the
+     * pattern start, as Biopython locates them for the linear sequence (see
+     * LinearRestrictionDigestManagerTest). A site over the origin gives the same, modulo the length.
+     */
+    public function testATypeIIbSiteIsCutOnBothSides()
+    {
+        $sSite = "AAAAAAAAAAAAGCACCCCCCTGCAAAAAAAAAAAA";
+        $sPlasmid = str_repeat("T", 20) . $sSite . str_repeat("T", 24);
+        $oResult = $this->manager->digest($this->makePlasmid($sPlasmid), [$this->alfI()]);
+
+        $aCuts = array_map(fn($oCut) => [$oCut->getUpperCutPosition(), $oCut->getLowerCutPosition()], $oResult->getCuts());
+        $this->assertSame([[22, 20], [56, 54]], $aCuts);
+        $this->assertCount(2, $oResult->getFragments());
+    }
+
+    public function testATypeIIbSiteOverTheOriginIsCutOnBothSides()
+    {
+        $sSite = "AAAAAAAAAAAAGCACCCCCCTGCAAAAAAAAAAAA";
+        $sPlasmid = substr($sSite, 10) . str_repeat("T", 30) . substr($sSite, 0, 10);
+        $oResult = $this->manager->digest($this->makePlasmid($sPlasmid), [$this->alfI()]);
+
+        $iLength = strlen($sPlasmid);
+        $aUppers = array_map(fn($oCut) => $oCut->getUpperCutPosition(), $oResult->getCuts());
+        sort($aUppers);
+        $aExpected = [(66 - 10 + 2) % $iLength, (66 - 10 + 36) % $iLength];
+        sort($aExpected);
+        $this->assertSame($aExpected, $aUppers);
+    }
+
     private function totalFragmentLength(array $aFragments): int
     {
         return array_sum(array_map(function ($oFragment) {

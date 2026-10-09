@@ -52,6 +52,34 @@ class LinearRestrictionDigestManagerTest extends TestCase
         $this->catalog = new RestrictionEnzymeCatalog($typeIIApiMock, $typeIIbApiMock, $typeIIsApiMock);
     }
 
+    /**
+     * A Type IIb enzyme cuts on both sides of its site : AjuI, AlfI, BaeI... made one cut, and a
+     * second one, phantom, from the same site found again on the other strand. Biopython locates
+     * both cuts (search) though it does not digest with them.
+     */
+    public function testATypeIIbSiteIsCutOnBothSidesAtBiopythonsPositions()
+    {
+        $aRows = require __DIR__ . '/samples/BiopythonTypeIIbSites.php';
+
+        foreach ($aRows as $i => $aRow) {
+            $oEnzyme = $this->catalog->getByName($aRow["enzyme"]);
+            $oResult = $this->manager->digest(new DnaSequence($aRow["sequence"]), [$oEnzyme]);
+
+            $aUppers = array_map(fn($oCut) => $oCut->getUpperCutPosition() + 1, $oResult->getCuts());
+            sort($aUppers);
+            $this->assertSame($aRow["cuts"], $aUppers, "row $i, " . $aRow["enzyme"]);
+            $this->assertCount(3, $oResult->getFragments(), "row $i, " . $aRow["enzyme"]);
+            foreach ($oResult->getCuts() as $oCut) {
+                $this->assertSame(
+                    $oEnzyme->getCleavagePositionLower(),
+                    $oCut->getLowerCutPosition() - $oCut->getUpperCutPosition(),
+                    "row $i, " . $aRow["enzyme"] . " : the overhang"
+                );
+            }
+        }
+        $this->assertCount(91, $aRows);
+    }
+
     public function testTheCutsAndFragmentsAreBiopythons()
     {
         $aRows = require __DIR__ . '/samples/BiopythonLinearDigests.php';
