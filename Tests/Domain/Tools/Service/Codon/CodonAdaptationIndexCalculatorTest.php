@@ -184,4 +184,26 @@ class CodonAdaptationIndexCalculatorTest extends TestCase
             }
         }
     }
+
+    /**
+     * ATA is Ile in the standard code, so synonymous with ATT and ATC ; in the vertebrate
+     * mitochondrial code (table 2) it is Met, synonymous with ATG alone.
+     */
+    public function testSynonymsFollowTheGeneticCode()
+    {
+        $oTable = new CodonUsageTable(["ATT" => 30, "ATC" => 10, "ATA" => 5, "ATG" => 10]);
+        $oCds = new DnaSequence("ATA");
+
+        $this->assertEqualsWithDelta(5 / 30, $this->calculator->calculate($oCds, $oTable)->getScore(), 1e-12);
+        $this->assertEqualsWithDelta(5 / 30, $this->calculator->calculate($oCds, $oTable, 1)->getScore(), 1e-12);
+        $this->assertEqualsWithDelta(5 / 10, $this->calculator->calculate($oCds, $oTable, 2)->getScore(), 1e-12);
+    }
+
+    public function testAnUnsupportedGeneticCodeIsRefused()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsupported genetic code table 28");
+
+        $this->calculator->calculate(new DnaSequence("TTT"), new CodonUsageTable(["TTT" => 1, "TTC" => 1]), 28);
+    }
 }

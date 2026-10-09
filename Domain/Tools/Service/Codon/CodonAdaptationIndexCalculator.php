@@ -32,6 +32,8 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
  */
 class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
 {
+    use TranslatesUnderGeneticCode;
+
     private const BASES = ["A", "C", "G", "T"];
 
     /**
@@ -66,10 +68,13 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
     /**
      * @param   DnaSequence         $oCodingSequence
      * @param   CodonUsageTable     $oReferenceTable
+     * @param   int                 $iGeneticCode       The NCBI table that says which codons are synonyms
      * @return  CaiResult
+     * @throws  \InvalidArgumentException  When the genetic code is not supported
      */
-    public function calculate(DnaSequence $oCodingSequence, CodonUsageTable $oReferenceTable): CaiResult
+    public function calculate(DnaSequence $oCodingSequence, CodonUsageTable $oReferenceTable, int $iGeneticCode = 1): CaiResult
     {
+        $this->assertSupportedGeneticCode($iGeneticCode);
         $sValue = $oCodingSequence->getValue();
         $iCodonCount = intdiv(strlen($sValue), 3);
 
@@ -85,17 +90,17 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
                 continue;
             }
 
-            $sAminoAcid = $this->sequenceManager->translateCodon($sCodon, 1);
+            $sAminoAcid = $this->translateUnder($sCodon, $iGeneticCode);
 
             if ($sAminoAcid === "*" || $sAminoAcid === "X") {
                 continue;
             }
 
-            if ($this->countSynonyms($sAminoAcid) <= 1) {
+            if ($this->countSynonyms($sAminoAcid, $iGeneticCode) <= 1) {
                 continue;
             }
 
-            $iMax = $this->maxReferenceCount($sAminoAcid, $oReferenceTable);
+            $iMax = $this->maxReferenceCount($sAminoAcid, $oReferenceTable, $iGeneticCode);
             $iCount = $oReferenceTable->getCount($sCodon);
 
             // No synonym of the amino acid in the table : nothing to be relative to, whatever the weight
@@ -125,14 +130,15 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
      * How many of the 64 possible codons translate to $sAminoAcid, under the standard genetic code -
      * not how many of them happen to appear in a reference table, which could be incomplete.
      * @param   string  $sAminoAcid     A single-letter amino acid code, as returned by translateCodon()
+     * @param   int     $iGeneticCode
      * @return  int
      */
-    private function countSynonyms(string $sAminoAcid): int
+    private function countSynonyms(string $sAminoAcid, int $iGeneticCode): int
     {
         $iCount = 0;
 
         foreach ($this->everyCodon() as $sCodon) {
-            if ($this->sequenceManager->translateCodon($sCodon, 1) === $sAminoAcid) {
+            if ($this->translateUnder($sCodon, $iGeneticCode) === $sAminoAcid) {
                 $iCount++;
             }
         }
@@ -143,14 +149,15 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
     /**
      * @param   string              $sAminoAcid
      * @param   CodonUsageTable     $oReferenceTable
+     * @param   int                 $iGeneticCode
      * @return  int         The highest reference count among every codon translating to $sAminoAcid
      */
-    private function maxReferenceCount(string $sAminoAcid, CodonUsageTable $oReferenceTable): int
+    private function maxReferenceCount(string $sAminoAcid, CodonUsageTable $oReferenceTable, int $iGeneticCode): int
     {
         $iMax = 0;
 
         foreach ($this->everyCodon() as $sCodon) {
-            if ($this->sequenceManager->translateCodon($sCodon, 1) === $sAminoAcid) {
+            if ($this->translateUnder($sCodon, $iGeneticCode) === $sAminoAcid) {
                 $iMax = max($iMax, $oReferenceTable->getCount($sCodon));
             }
         }

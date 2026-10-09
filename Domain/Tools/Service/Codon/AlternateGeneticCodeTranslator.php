@@ -21,13 +21,9 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\GeneticCodeTable;
  * the standard, not a second full 64-entry table. A codon not present in a table's overlay falls
  * back to the standard translation.
  *
- * Deliberately conservative in scope : only the Vertebrate Mitochondrial code (NCBI table 2) is
- * included, since its four differences from the standard code are extremely well established
- * (textbook material, not a niche or disputed table) - AGA/AGG becoming stop codons instead of
- * Arginine, and ATA/TGA being reassigned to Met/Trp, is the classic example of why vertebrate
- * mitochondrial DNA needs only 22 tRNAs instead of 32. Other NCBI tables were intentionally left out
- * rather than encoded from a less certain recollection ; adding one later only means adding its own
- * overlay entry to self::OVERLAYS and its constant to GeneticCodeTable.
+ * The overlays were generated from NCBI's gc.prt (version 4.6) and checked, codon by codon, against
+ * Biopython's CodonTable. They cover every table whose stop codons do not depend on their context
+ * (see GeneticCodeTable) ; adding a table means adding its overlay here and its id and name there.
  * Class AlternateGeneticCodeTranslator
  * @package Amelaye\BioPHP\Domain\Tools\Service\Codon
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
@@ -44,15 +40,33 @@ class AlternateGeneticCodeTranslator implements AlternateGeneticCodeTranslatorIn
     ];
 
     /**
-     * @var     array<int,array<string,string>>
+     * @var     array<int,array<string,string>>   Per table, the codons it reads differently from the
+     * standard code (gc.prt, version 4.6)
      */
     private const OVERLAYS = [
-        GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL => [
-            "AGA" => "*",
-            "AGG" => "*",
-            "ATA" => "M",
-            "TGA" => "W",
-        ],
+        2 => ["TGA" => "W", "ATA" => "M", "AGA" => "*", "AGG" => "*"],
+        3 => ["TGA" => "W", "CTT" => "T", "CTC" => "T", "CTA" => "T", "CTG" => "T", "ATA" => "M"],
+        4 => ["TGA" => "W"],
+        5 => ["TGA" => "W", "ATA" => "M", "AGA" => "S", "AGG" => "S"],
+        6 => ["TAA" => "Q", "TAG" => "Q"],
+        9 => ["TGA" => "W", "AAA" => "N", "AGA" => "S", "AGG" => "S"],
+        10 => ["TGA" => "C"],
+        11 => [],
+        12 => ["CTG" => "S"],
+        13 => ["TGA" => "W", "ATA" => "M", "AGA" => "G", "AGG" => "G"],
+        14 => ["TAA" => "Y", "TGA" => "W", "AAA" => "N", "AGA" => "S", "AGG" => "S"],
+        15 => ["TAG" => "Q"],
+        16 => ["TAG" => "L"],
+        21 => ["TGA" => "W", "ATA" => "M", "AAA" => "N", "AGA" => "S", "AGG" => "S"],
+        22 => ["TCA" => "*", "TAG" => "L"],
+        23 => ["TTA" => "*"],
+        24 => ["TGA" => "W", "AGA" => "S", "AGG" => "K"],
+        25 => ["TGA" => "G"],
+        26 => ["CTG" => "A"],
+        29 => ["TAA" => "Y", "TAG" => "Y"],
+        30 => ["TAA" => "E", "TAG" => "E"],
+        32 => ["TAG" => "W"],
+        33 => ["TAA" => "Y", "TGA" => "W", "AGA" => "S", "AGG" => "K"],
     ];
 
     /**

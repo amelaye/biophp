@@ -23,7 +23,8 @@ interface OrfFinderInterface
     /**
      * @param   DnaSequence     $oSequence
      * @param   int             $iMinimumProteinLength  In amino acids, stop codon excluded
+     * @param   int             $iGeneticCode           An NCBI genetic code table id, 1 (standard) by default
      * @return  OpenReadingFrame[]
      */
-    public function findOrfs(DnaSequence $oSequence, int $iMinimumProteinLength = 1): array;
+    public function findOrfs(DnaSequence $oSequence, int $iMinimumProteinLength = 1, int $iGeneticCode = 1): array;
 }

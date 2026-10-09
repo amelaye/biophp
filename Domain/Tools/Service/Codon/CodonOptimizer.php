@@ -28,6 +28,8 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
  */
 class CodonOptimizer implements CodonOptimizerInterface
 {
+    use TranslatesUnderGeneticCode;
+
     private const BASES = ["A", "C", "G", "T"];
 
     /**
@@ -47,16 +49,19 @@ class CodonOptimizer implements CodonOptimizerInterface
     /**
      * @param   AminoAcidSequence   $oProtein
      * @param   CodonUsageTable     $oReferenceTable
+     * @param   int                 $iGeneticCode       The NCBI table the protein is back-translated under
      * @return  DnaSequence
+     * @throws  \InvalidArgumentException  When the genetic code is not supported
      */
-    public function optimize(AminoAcidSequence $oProtein, CodonUsageTable $oReferenceTable): DnaSequence
+    public function optimize(AminoAcidSequence $oProtein, CodonUsageTable $oReferenceTable, int $iGeneticCode = 1): DnaSequence
     {
+        $this->assertSupportedGeneticCode($iGeneticCode);
         $sProtein = $oProtein->getValue();
         $sDna = "";
         $iLength = strlen($sProtein);
 
         for ($i = 0; $i < $iLength; $i++) {
-            $sDna .= $this->bestCodonFor($sProtein[$i], $oReferenceTable);
+            $sDna .= $this->bestCodonFor($sProtein[$i], $oReferenceTable, $iGeneticCode);
         }
 
         return new DnaSequence($sDna);
@@ -65,15 +70,16 @@ class CodonOptimizer implements CodonOptimizerInterface
     /**
      * @param   string              $sResidue           A single-letter amino acid code, or "*"
      * @param   CodonUsageTable     $oReferenceTable
+     * @param   int                 $iGeneticCode
      * @return  string
      */
-    private function bestCodonFor(string $sResidue, CodonUsageTable $oReferenceTable): string
+    private function bestCodonFor(string $sResidue, CodonUsageTable $oReferenceTable, int $iGeneticCode): string
     {
         $sBestCodon = null;
         $iBestCount = -1;
 
         foreach ($this->everyCodon() as $sCodon) {
-            if ($this->sequenceManager->translateCodon($sCodon, 1) !== $sResidue) {
+            if ($this->translateUnder($sCodon, $iGeneticCode) !== $sResidue) {
                 continue;
             }
 
@@ -86,7 +92,7 @@ class CodonOptimizer implements CodonOptimizerInterface
 
         if ($sBestCodon === null) {
             throw new \InvalidArgumentException(
-                sprintf('No codon under the standard genetic code translates to "%s".', $sResidue)
+                sprintf('No codon under genetic code table %d translates to "%s".', $iGeneticCode, $sResidue)
             );
         }
 

@@ -86,4 +86,26 @@ class CodonOptimizerTest extends TestCase
 
         $this->assertEquals("ATGTAA", $oDna->getValue());
     }
+
+    /**
+     * Under the vertebrate mitochondrial code (table 2) Met has two codons, ATG and ATA, a stop has
+     * four (TAA, TAG, AGA, AGG) : the most used of them is the one picked.
+     */
+    public function testTheCodonPickedFollowsTheGeneticCode()
+    {
+        $oTable = new CodonUsageTable(["ATG" => 5, "ATA" => 10, "AGA" => 50, "TAA" => 20]);
+
+        $this->assertSame("ATG", $this->optimizer->optimize(new AminoAcidSequence("M"), $oTable)->getValue());
+        $this->assertSame("ATA", $this->optimizer->optimize(new AminoAcidSequence("M"), $oTable, 2)->getValue());
+        $this->assertSame("TAA", $this->optimizer->optimize(new AminoAcidSequence("*"), $oTable, 1)->getValue());
+        $this->assertSame("AGA", $this->optimizer->optimize(new AminoAcidSequence("*"), $oTable, 2)->getValue());
+    }
+
+    public function testAnUnsupportedGeneticCodeIsRefused()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsupported genetic code table 31");
+
+        $this->optimizer->optimize(new AminoAcidSequence("M"), new CodonUsageTable(["ATG" => 1]), 31);
+    }
 }

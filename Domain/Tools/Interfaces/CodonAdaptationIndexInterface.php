@@ -26,7 +26,8 @@ interface CodonAdaptationIndexInterface
      * @param   DnaSequence         $oCodingSequence    A CDS, in frame from its first base ; only
      * complete trailing codons are considered
      * @param   CodonUsageTable     $oReferenceTable    The host organism's reference codon usage
+     * @param   int                 $iGeneticCode       An NCBI genetic code table id, 1 (standard) by default
      * @return  CaiResult
      */
-    public function calculate(DnaSequence $oCodingSequence, CodonUsageTable $oReferenceTable): CaiResult;
+    public function calculate(DnaSequence $oCodingSequence, CodonUsageTable $oReferenceTable, int $iGeneticCode = 1): CaiResult;
 }

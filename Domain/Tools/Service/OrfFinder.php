@@ -12,6 +12,7 @@ namespace Amelaye\BioPHP\Domain\Tools\Service;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
 use Amelaye\BioPHP\Domain\Tools\Interfaces\OrfFinderInterface;
+use Amelaye\BioPHP\Domain\Tools\Service\Codon\TranslatesUnderGeneticCode;
 use Amelaye\BioPHP\Domain\Tools\ValueObject\OpenReadingFrame;
 
 /**
@@ -36,6 +37,8 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\OpenReadingFrame;
  */
 class OrfFinder implements OrfFinderInterface
 {
+    use TranslatesUnderGeneticCode;
+
     /**
      * @var     SequenceInterface
      */
@@ -53,10 +56,14 @@ class OrfFinder implements OrfFinderInterface
     /**
      * @param   DnaSequence     $oSequence
      * @param   int             $iMinimumProteinLength
+     * @param   int             $iGeneticCode           The NCBI table the sequence is translated under ; an
+     * ORF starts at the first codon that table reads as Met and ends at one it reads as a stop
      * @return  OpenReadingFrame[]
+     * @throws  \InvalidArgumentException  When the genetic code is not supported
      */
-    public function findOrfs(DnaSequence $oSequence, int $iMinimumProteinLength = 1): array
+    public function findOrfs(DnaSequence $oSequence, int $iMinimumProteinLength = 1, int $iGeneticCode = 1): array
     {
+        $this->assertSupportedGeneticCode($iGeneticCode);
         $iLength = $oSequence->getLength();
         $sForwardValue = $oSequence->getValue();
         $sReverseValue = $oSequence->reverseComplement()->getValue();
@@ -66,11 +73,11 @@ class OrfFinder implements OrfFinderInterface
         for ($iFrameOffset = 0; $iFrameOffset < 3; $iFrameOffset++) {
             $aOrfs = array_merge(
                 $aOrfs,
-                $this->scanFrame($sForwardValue, $iFrameOffset, $iFrameOffset + 1, $iLength, $iMinimumProteinLength, false)
+                $this->scanFrame($sForwardValue, $iFrameOffset, $iFrameOffset + 1, $iLength, $iMinimumProteinLength, false, $iGeneticCode)
             );
             $aOrfs = array_merge(
                 $aOrfs,
-                $this->scanFrame($sReverseValue, $iFrameOffset, -($iFrameOffset + 1), $iLength, $iMinimumProteinLength, true)
+                $this->scanFrame($sReverseValue, $iFrameOffset, -($iFrameOffset + 1), $iLength, $iMinimumProteinLength, true, $iGeneticCode)
             );
         }
 
@@ -85,6 +92,7 @@ class OrfFinder implements OrfFinderInterface
      * @param   int         $iOriginalLength    Length of the original, forward-strand sequence
      * @param   int         $iMinimumProteinLength
      * @param   bool        $bReverse
+     * @param   int         $iGeneticCode
      * @return  OpenReadingFrame[]
      */
     private function scanFrame(
@@ -93,16 +101,17 @@ class OrfFinder implements OrfFinderInterface
         int $iFrame,
         int $iOriginalLength,
         int $iMinimumProteinLength,
-        bool $bReverse
+        bool $bReverse,
+        int $iGeneticCode
     ): array {
         $aOrfs = [];
         $iCodonCount = intdiv(strlen($sSequenceValue) - $iOffset, 3);
         $iFirstMetCodon = null;
 
         for ($iCodon = 0; $iCodon < $iCodonCount; $iCodon++) {
-            $sAminoAcid = $this->sequenceManager->translateCodon(
+            $sAminoAcid = $this->translateUnder(
                 substr($sSequenceValue, $iOffset + $iCodon * 3, 3),
-                1
+                $iGeneticCode
             );
 
             if ($sAminoAcid === "*") {
@@ -115,7 +124,8 @@ class OrfFinder implements OrfFinderInterface
                         $iCodon,
                         $iOriginalLength,
                         $bReverse,
-                        true
+                        true,
+                        $iGeneticCode
                     );
                 }
                 $iFirstMetCodon = null;
@@ -136,7 +146,8 @@ class OrfFinder implements OrfFinderInterface
                 $iCodonCount,
                 $iOriginalLength,
                 $bReverse,
-                false
+                false,
+                $iGeneticCode
             );
         }
 
@@ -153,6 +164,7 @@ class OrfFinder implements OrfFinderInterface
      * @param   int         $iOriginalLength
      * @param   bool        $bReverse
      * @param   bool        $bHasStopCodon
+     * @param   int         $iGeneticCode
      * @return  OpenReadingFrame
      */
     private function buildOrf(
@@ -163,15 +175,16 @@ class OrfFinder implements OrfFinderInterface
         int $iStopOrCodonCount,
         int $iOriginalLength,
         bool $bReverse,
-        bool $bHasStopCodon
+        bool $bHasStopCodon,
+        int $iGeneticCode
     ): OpenReadingFrame {
         $iLastPeptideCodon = $iStopOrCodonCount - 1;
 
         $sPeptide = "";
         for ($iCodon = $iFirstMetCodon; $iCodon <= $iLastPeptideCodon; $iCodon++) {
-            $sPeptide .= $this->sequenceManager->translateCodon(
+            $sPeptide .= $this->translateUnder(
                 substr($sSequenceValue, $iOffset + $iCodon * 3, 3),
-                1
+                $iGeneticCode
             );
         }
 

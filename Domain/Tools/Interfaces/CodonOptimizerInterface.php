@@ -26,7 +26,8 @@ interface CodonOptimizerInterface
     /**
      * @param   AminoAcidSequence   $oProtein           May include a trailing "*" for a stop
      * @param   CodonUsageTable     $oReferenceTable
+     * @param   int                 $iGeneticCode       An NCBI genetic code table id, 1 (standard) by default
      * @return  DnaSequence
      */
-    public function optimize(AminoAcidSequence $oProtein, CodonUsageTable $oReferenceTable): DnaSequence;
+    public function optimize(AminoAcidSequence $oProtein, CodonUsageTable $oReferenceTable, int $iGeneticCode = 1): DnaSequence;
 }

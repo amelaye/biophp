@@ -134,4 +134,51 @@ class OrfFinderTest extends TestCase
 
         $this->assertCount(0, $aOrfs);
     }
+
+    /**
+     * @param   \Amelaye\BioPHP\Domain\Tools\ValueObject\OpenReadingFrame[]   $aOrfs
+     * @return  string[]    "start-end peptide" of the ORFs of the first forward frame
+     */
+    private static function firstFrame(array $aOrfs): array
+    {
+        $aFirstFrame = [];
+        foreach ($aOrfs as $oOrf) {
+            if ($oOrf->getFrame() === 1) {
+                $aFirstFrame[] = $oOrf->getStart() . "-" . $oOrf->getEnd() . " " . $oOrf->getPeptide();
+            }
+        }
+
+        return $aFirstFrame;
+    }
+
+    /**
+     * AGA is Arg in the standard code and a stop in the vertebrate mitochondrial one (table 2), where
+     * ATA, Ile in the standard code, is a Met : the same DNA has other ORFs under each.
+     */
+    public function testAnOrfFollowsTheGeneticCodeItIsSearchedUnder()
+    {
+        $oSequence = new DnaSequence("ATGAAAAGAGGGTAA");
+
+        $this->assertSame(["1-15 MKRG"], self::firstFrame($this->finder->findOrfs($oSequence)));
+        $this->assertSame(["1-9 MK"], self::firstFrame($this->finder->findOrfs($oSequence, 1, 2)));
+
+        $oSequence = new DnaSequence("ATAAAATAA");
+        $this->assertSame([], self::firstFrame($this->finder->findOrfs($oSequence, 1, 1)));
+        $this->assertSame(["1-9 MK"], self::firstFrame($this->finder->findOrfs($oSequence, 1, 2)));
+    }
+
+    public function testTheStandardCodeIsTheDefault()
+    {
+        $oSequence = new DnaSequence("ATGAAAAGAGGGTAA");
+
+        $this->assertEquals($this->finder->findOrfs($oSequence, 1, 1), $this->finder->findOrfs($oSequence));
+    }
+
+    public function testAnUnsupportedGeneticCodeIsRefused()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsupported genetic code table 27");
+
+        $this->finder->findOrfs(new DnaSequence("ATGAAATAA"), 1, 27);
+    }
 }
