@@ -309,19 +309,20 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     private function buildOSFields(&$sSource, &$iSourceCpt)
     {
         $sLineData = trim(substr($this->aLines->current(), 3));
-        $sLineEnd = $this->right($sLineData, 1);
 
         $iSourceCpt++;
-        if ($sLineEnd != ".") {
-            if ($iSourceCpt == 1) {
-                $sSource .= $sLineData;
-            } else {
-                $sSource .= " $sLineData";
+        $sSource .= ($iSourceCpt == 1 ? "" : " ") . $sLineData;
+
+        // The field ends with its last OS line, not with the first line ending in a period : a line
+        // wrapped after an abbreviation ("subsp.") lost that period and was cut short.
+        $iNext = $this->aLines->key() + 1;
+        $sNextLine = $this->aLines->offsetExists($iNext) ? (string) $this->aLines->offsetGet($iNext) : "";
+        if (substr($sNextLine, 0, 2) != "OS") {
+            if (substr($sSource, -1) == ".") {
+                $sSource = $this->rem_right($sSource);
             }
-        } else {
-            $sSource .= " $sLineData";
-            $sSource = $this->rem_right($sSource);
-            $aOSLine = preg_split("/\, AND /", $sSource);
+            // Several species are separated by ", and " (", AND " in the old upper-case entries)
+            $aOSLine = preg_split("/, and /i", $sSource);
             $this->sequence->setSource(trim($aOSLine[0]));
         }
     }
@@ -441,7 +442,18 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
         foreach ($aLines as $sLine) {
             $sText .= ($sText === "" || substr($sText, -1) === "-" ? "" : " ") . $sLine;
         }
-        if (preg_match('/\/note="([^"]*)"/', $sText, $aNote)) {
+        if ($sKey === "BINDING" && preg_match('/\/ligand="([^"]*)"/', $sText, $aLigand)) {
+            // A binding site names its ligand (and says how it binds) in qualifiers of its own :
+            // it has no /note to speak of, and was left with an empty description.
+            $sDescription = $aLigand[1];
+            if (preg_match('/\/ligand_note="([^"]*)"/', $sText, $aLigandNote)) {
+                $sDescription .= " (" . $aLigandNote[1] . ")";
+            }
+            if (preg_match('/\/note="([^"]*)"/', $sText, $aNote)) {
+                $sDescription .= "; " . $aNote[1];
+            }
+            $sText = $sDescription;
+        } elseif (preg_match('/\/note="([^"]*)"/', $sText, $aNote)) {
             $sText = $aNote[1];
         } else {
             $sText = preg_replace('/\s*\/\w+=.*$/', "", $sText);

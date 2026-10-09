@@ -436,4 +436,25 @@ class ParseEmblManagerTest extends TestCase
 
         $this->assertEquals("16-JAN-2020", $oParser->getSequence()->getDate());
     }
+
+    /**
+     * A species name too long for one OS line goes on over the next ones : each used to replace
+     * the previous, and only the end of the name was kept.
+     */
+    public function testAWrappedSpeciesNameIsKeptWhole()
+    {
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile([
+            "ID   X56734; SV 1; linear; mRNA; STD; PLN; 20 BP.\n",
+            "OS   Saccharomyces cerevisiae (brewer's yeast) strain\n",
+            "OS   S288C\n",
+            "OC   Eukaryota; Fungi; Dikarya.\n",
+        ]);
+
+        $this->assertEquals("Saccharomyces cerevisiae (brewer's yeast) strain S288C", $oParser->getSequence()->getSource());
+        $this->assertEquals(
+            ["Saccharomyces cerevisiae (brewer's yeast) strain S288C", "Eukaryota", "Fungi", "Dikarya"],
+            $oParser->getSequence()->getOrganism()
+        );
+    }
 }

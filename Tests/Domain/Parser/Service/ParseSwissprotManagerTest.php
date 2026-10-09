@@ -878,4 +878,61 @@ class ParseSwissprotManagerTest extends TestCase
         $this->assertEquals("<1..>855", $aFeatures[2]->getFtLocation());
         $this->assertEquals([1, 855], [$aFeatures[2]->getFtFrom(), $aFeatures[2]->getFtTo()]);
     }
+
+    /**
+     * The species of the OS lines : the separator is ", and " in lower case in the current entries,
+     * and a line wrapped after an abbreviation period ("subsp.") is not the end of the field.
+     */
+    public function testReadsTheSpeciesOfWrappedAndMultipleOsLines()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile([
+            "ID   POLS2_HUMAN             Reviewed;         855 AA.",
+            "AC   Q5K4E3;",
+            "OS   Homo sapiens (Human), and Pan troglodytes (Chimpanzee).",
+            "SQ   SEQUENCE   4 AA;  500 MW;  0 CRC64;",
+            "     MARH",
+            "//",
+        ]);
+        $this->assertEquals("Homo sapiens (Human)", $oParser->getSequence()->getSource());
+
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile([
+            "ID   POLS2_HUMAN             Reviewed;         855 AA.",
+            "AC   Q5K4E3;",
+            "OS   Acetobacter pasteurianus subsp.",
+            "OS   pasteurianus (strain NBRC 3191).",
+            "SQ   SEQUENCE   4 AA;  500 MW;  0 CRC64;",
+            "     MARH",
+            "//",
+        ]);
+        $this->assertEquals("Acetobacter pasteurianus subsp. pasteurianus (strain NBRC 3191)", $oParser->getSequence()->getSource());
+    }
+
+    /**
+     * A BINDING site of the 2019_11 layout carries its ligand in /ligand and /ligand_note, and no
+     * /note : its description was empty.
+     */
+    public function testABindingSiteKeepsItsLigand()
+    {
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile([
+            "ID   POLS2_HUMAN             Reviewed;         855 AA.",
+            "AC   Q5K4E3;",
+            "FT   BINDING         123",
+            "FT                   /ligand=\"Zn(2+)\"",
+            "FT                   /ligand_id=\"ChEBI:CHEBI:29105\"",
+            "FT                   /evidence=\"ECO:0000255\"",
+            "FT   BINDING         80..86",
+            "FT                   /ligand=\"ATP\"",
+            "FT                   /ligand_note=\"via carbonyl oxygen\"",
+            "SQ   SEQUENCE   4 AA;  500 MW;  0 CRC64;",
+            "     MARH",
+            "//",
+        ]);
+        $aFeatures = $oParser->getFeatures();
+
+        $this->assertEquals(["BINDING", 123, 123, "Zn(2+)"], [$aFeatures[0]->getFtKey(), $aFeatures[0]->getFtFrom(), $aFeatures[0]->getFtTo(), $aFeatures[0]->getFtDesc()]);
+        $this->assertEquals("ATP (via carbonyl oxygen)", $aFeatures[1]->getFtDesc());
+    }
 }

@@ -300,6 +300,12 @@ final class ParseEmblManager extends ParseDbAbstractManager
      */
     private function parseOrganism(array $aFlines) {
         $sSpecies = trim(substr($this->aLines->current(), 5));
+        // A long species name goes on over further OS lines : each one used to replace the name
+        // read before it, keeping the last part only.
+        while (substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2) == "OS") {
+            $this->aLines->next();
+            $sSpecies .= " " . trim(substr($this->aLines->current(), 5));
+        }
         $this->sequence->setSource($sSpecies);
 
         $aOrganism = [$sSpecies];

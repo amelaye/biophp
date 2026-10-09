@@ -77,6 +77,13 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+- EMBL : a species name wrapped over several OS lines is kept whole ; each line replaced the one
+  before, keeping the end of the name only.
+- Swiss-Prot : the OS field ends with its last OS line, not with the first line ending in a period
+  (a line wrapped after "subsp." was cut short), and several species are split on ", and " in any
+  case, the current entries writing it in lower case.
+- Swiss-Prot : a BINDING site of the 2019_11 layout keeps its `/ligand` (and `/ligand_note`) as its
+  description, it was left empty for want of a `/note`.
 - Vendor links : supplier B (Thermo Fisher Scientific) had no link ; E was named "Minotech
   Stratagene" (a copy of C), it is Agilent Technologies in REBASE ; V was "MRC-Holland", it is
   Vivantis Technologies. Supplier Y is still without a link : the current REBASE list no longer has
