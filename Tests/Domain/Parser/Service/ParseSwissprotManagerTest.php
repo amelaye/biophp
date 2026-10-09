@@ -26,7 +26,7 @@ class ParseSwissprotManagerTest extends TestCase
         $collection->setNomCollection("humandbSwiss");
 
         $collectionElement = new CollectionElement();
-        $collectionElement->setIdElement("1375");
+        $collectionElement->setIdElement("P01375");
         $collectionElement->setFileName("basicswiss.txt");
         $collectionElement->setDbFormat("SWISSPROT");
         $collectionElement->setSeqCount(1);
@@ -42,11 +42,11 @@ class ParseSwissprotManagerTest extends TestCase
             ->with(CollectionElement::class)
             ->willReturn($repo);
         $repo->expects($this->once())->method('findOneBy')
-            ->with(['idElement' => "1375"])
+            ->with(['idElement' => "P01375"])
             ->willReturn($collectionElement);
 
         $databaseManager = new DatabaseManager($mockedEm, './data/');
-        $oParseSwisprotManager = $databaseManager->fetch("1375");
+        $oParseSwisprotManager = $databaseManager->fetch("P01375");
 
         // Accession
         $aExpectedAccession = [];
@@ -844,5 +844,38 @@ class ParseSwissprotManagerTest extends TestCase
         $oParser->parseDataFile(file('data/Q5K4E3.txt'));
 
         $this->assertEquals("9606", $oParser->getTaxonomyId());
+    }
+
+    /**
+     * UniProt wraps the residues of a VAR_SEQ at the column without a space : the lines were joined with
+     * one, "MSLAWLAAEGLR LSSRRA" for an isoform sequence. A "<" or ">" end was lost (the feature looked
+     * complete), and is kept in the location.
+     */
+    public function testWrappedVariantResiduesAreNotSplitAndPartialEndsAreKept()
+    {
+        $aFlines = [
+            "ID   POLS2_HUMAN             Reviewed;         855 AA.",
+            "AC   Q5K4E3;",
+            "FT   VAR_SEQ         1..20",
+            "FT                   /note=\"MSLAWLAAEGLR",
+            "FT                   LSSRRA -> MQ (in isoform 2)\"",
+            "FT   VARIANT         5",
+            "FT                   /note=\"R -> Q (in dbSNP:rs1)\"",
+            "FT   CHAIN           <1..>855",
+            "FT                   /note=\"Polyserase-2\"",
+            "SQ   SEQUENCE   4 AA;  500 MW;  0 CRC64;",
+            "     MARH",
+            "//",
+        ];
+        $oParser = new ParseSwissprotManager();
+        $oParser->parseDataFile($aFlines);
+        $aFeatures = $oParser->getFeatures();
+
+        $this->assertEquals("MSLAWLAAEGLRLSSRRA -> MQ (in isoform 2)", $aFeatures[0]->getFtDesc());
+        $this->assertEquals("R -> Q (in dbSNP:rs1)", $aFeatures[1]->getFtDesc());
+        $this->assertFalse($aFeatures[0]->isPartial());
+        $this->assertTrue($aFeatures[2]->isPartial());
+        $this->assertEquals("<1..>855", $aFeatures[2]->getFtLocation());
+        $this->assertEquals([1, 855], [$aFeatures[2]->getFtFrom(), $aFeatures[2]->getFtTo()]);
     }
 }

@@ -252,4 +252,16 @@ class NewickReaderTest extends TestCase
         $this->assertSame("", $this->reader->read($oTree->toNewick())->getName());
         $this->assertNull($this->reader->read("(A,B);")->getName());
     }
+
+    /**
+     * "1e400" is numeric and overflows to INF : the node then refused it with a tree exception, which a
+     * caller catching InvalidNewickException missed.
+     */
+    public function testAnOverflowingBranchLengthIsAnInvalidNewickString()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("1e400");
+
+        (new NewickReader())->read("(A:1e400,B:1);");
+    }
 }

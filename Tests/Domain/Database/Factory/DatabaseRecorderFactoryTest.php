@@ -59,7 +59,7 @@ class DatabaseRecorderFactoryTest extends TestCase
     public function testGetEntryIdSwissprot()
     {
         $flines = file("./data/basicswiss.txt");
-        $this->assertEquals("1375", DatabaseRecorderFactory::getEntryId("SWISSPROT", $flines, $flines[0]));
+        $this->assertEquals("P01375", DatabaseRecorderFactory::getEntryId("SWISSPROT", $flines, $flines[0]));
     }
 
     public function testGetEntryIdEmbl()
@@ -91,5 +91,15 @@ class DatabaseRecorderFactoryTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageMatches('/Unknown database format !/');
         DatabaseRecorderFactory::getEntryId("UNKNOWN_FORMAT", [], "whatever");
+    }
+
+    /**
+     * The AC line was cut at column 5 : with a single blank after "AC" (basicswiss.txt) the entry
+     * was indexed as "1375", an accession that does not exist.
+     */
+    public function testSwissprotEntryIdWithASingleBlankAfterTheLineCode()
+    {
+        $this->assertEquals("P01375", DatabaseRecorderFactory::getEntryId("SWISSPROT", ["ID   TNFA_HUMAN\n", "AC   P01375;\n"], "ID   TNFA_HUMAN\n"));
+        $this->assertEquals("P01375", DatabaseRecorderFactory::getEntryId("SWISSPROT", ["ID TNFA_HUMAN\n", "AC P01375; Q99999;\n"], "ID TNFA_HUMAN\n"));
     }
 }

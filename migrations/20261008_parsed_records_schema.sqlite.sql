@@ -1,13 +1,19 @@
 -- BioPHP schema upgrade : parsed-record tables (CHANGELOG, "Breaking (schema)")
--- From : the mapping of 1db8945 (before bed2e10, 7 October 2026)
+-- From : the mapping of the last release, 1.5.1 (fc3ecb5)
 -- To   : the current mapping of Domain/{Database,Sequence,Cloning,Variants}/Entity
 -- Generated with Doctrine DBAL's schema Comparator from both mappings (naming strategy
 -- underscore_number_aware, as the bundle configures it), as generated : SQLite rebuilds each
 -- table. Checked : a database created with the former mapping and migrated with this script has
 -- the same schema as one created with the current mapping.
--- These tables could hold no row before the change (flushing a parsed record failed), so no data
--- is migrated. Copy these statements into a migration of the application using the bundle.
+-- plasmid, plasmid_feature and vcf_variant are new tables. The parsed-record tables could hold no
+-- row before the change (flushing a parsed record failed), so no data is migrated. Copy these
+-- statements into a migration of the application using the bundle.
 
+CREATE TABLE plasmid (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL, sequence CLOB NOT NULL, description CLOB DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, metadata CLOB NOT NULL);
+CREATE TABLE plasmid_feature (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, position INTEGER NOT NULL, name VARCHAR(255) NOT NULL, type VARCHAR(32) NOT NULL, start_position INTEGER NOT NULL, end_position INTEGER NOT NULL, strand VARCHAR(8) NOT NULL, color VARCHAR(7) DEFAULT NULL, note CLOB DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, metadata CLOB NOT NULL, phase SMALLINT DEFAULT NULL, plasmid_id INTEGER NOT NULL, CONSTRAINT FK_4E96F8CF63598003 FOREIGN KEY (plasmid_id) REFERENCES plasmid (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE);
+CREATE INDEX IDX_4E96F8CF63598003 ON plasmid_feature (plasmid_id);
+CREATE TABLE vcf_variant (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, chrom VARCHAR(255) NOT NULL, position BIGINT NOT NULL, variant_id VARCHAR(255) DEFAULT NULL, reference CLOB NOT NULL, alternates CLOB NOT NULL, quality DOUBLE PRECISION DEFAULT NULL, filter VARCHAR(255) DEFAULT NULL, info CLOB NOT NULL);
+CREATE INDEX idx_vcf_variant_locus ON vcf_variant (chrom, position);
 CREATE TEMPORARY TABLE __temp__keyword AS SELECT keywords, prim_acc FROM keyword;
 DROP TABLE keyword;
 CREATE TABLE keyword (keywords VARCHAR(255) NOT NULL, prim_acc VARCHAR(50) NOT NULL, id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL);
@@ -25,10 +31,10 @@ CREATE TABLE sp_databank (db_name VARCHAR(50) DEFAULT NULL, pid1 VARCHAR(100) DE
 INSERT INTO sp_databank (db_name, pid1, pid2, prim_acc) SELECT db_name, pid1, pid2, prim_acc FROM __temp__sp_databank;
 DROP TABLE __temp__sp_databank;
 CREATE INDEX sp_databank_prim_acc ON sp_databank (prim_acc);
-CREATE TEMPORARY TABLE __temp__feature AS SELECT ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, ft_location, prim_acc FROM feature;
+CREATE TEMPORARY TABLE __temp__feature AS SELECT ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, prim_acc FROM feature;
 DROP TABLE feature;
-CREATE TABLE feature (ft_key VARCHAR(20) NOT NULL, ft_from INTEGER DEFAULT NULL, ft_to INTEGER DEFAULT NULL, ft_qual VARCHAR(60) NOT NULL, ft_value CLOB NOT NULL, ft_desc CLOB NOT NULL, strand VARCHAR(1) DEFAULT NULL, ft_location CLOB DEFAULT NULL, prim_acc VARCHAR(50) NOT NULL, id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL);
-INSERT INTO feature (ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, ft_location, prim_acc) SELECT ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, ft_location, prim_acc FROM __temp__feature;
+CREATE TABLE feature (ft_key VARCHAR(20) NOT NULL, ft_from INTEGER DEFAULT NULL, ft_to INTEGER DEFAULT NULL, ft_qual VARCHAR(60) NOT NULL, ft_value CLOB NOT NULL, ft_desc CLOB NOT NULL, strand VARCHAR(1) DEFAULT NULL, prim_acc VARCHAR(50) NOT NULL, id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, ft_location CLOB DEFAULT NULL);
+INSERT INTO feature (ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, prim_acc) SELECT ft_key, ft_from, ft_to, ft_qual, ft_value, ft_desc, strand, prim_acc FROM __temp__feature;
 DROP TABLE __temp__feature;
 CREATE INDEX feature_prim_acc ON feature (prim_acc);
 CREATE TEMPORARY TABLE __temp__sequence AS SELECT prim_acc, entry_name, seq_length, start, "end", mol_type, date, source, sequence, description, organism, fragment FROM sequence;
@@ -60,9 +66,3 @@ CREATE TABLE author (refno INTEGER DEFAULT 0 NOT NULL, author VARCHAR(255) NOT N
 INSERT INTO author (refno, author, prim_acc) SELECT refno, author, prim_acc FROM __temp__author;
 DROP TABLE __temp__author;
 CREATE INDEX author_prim_acc ON author (prim_acc, refno);
-CREATE TEMPORARY TABLE __temp__vcf_variant AS SELECT id, chrom, position, variant_id, reference, alternates, quality, filter, info FROM vcf_variant;
-DROP TABLE vcf_variant;
-CREATE TABLE vcf_variant (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, chrom VARCHAR(255) NOT NULL, position BIGINT NOT NULL, variant_id VARCHAR(255) DEFAULT NULL, reference CLOB NOT NULL, alternates CLOB NOT NULL, quality DOUBLE PRECISION DEFAULT NULL, filter VARCHAR(255) DEFAULT NULL, info CLOB NOT NULL);
-INSERT INTO vcf_variant (id, chrom, position, variant_id, reference, alternates, quality, filter, info) SELECT id, chrom, position, variant_id, reference, alternates, quality, filter, info FROM __temp__vcf_variant;
-DROP TABLE __temp__vcf_variant;
-CREATE INDEX idx_vcf_variant_locus ON vcf_variant (chrom, position);

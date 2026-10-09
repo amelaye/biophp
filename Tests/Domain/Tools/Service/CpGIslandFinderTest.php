@@ -69,4 +69,15 @@ class CpGIslandFinderTest extends TestCase
 
         $this->finder->findIslands(new DnaSequence("ACGT"), 4, 0);
     }
+
+    /**
+     * The GC content leaves the N out and the Obs/Exp ratio counted them in the length : a CpG next to
+     * an assembly gap ("CG" then 198 N) reported a ratio of 200 and passed for an island.
+     */
+    public function testAGapOfNIsNoIsland()
+    {
+        $aIslands = $this->finder->findIslands(new DnaSequence("CG" . str_repeat("N", 198)), 200, 1);
+
+        $this->assertCount(0, $aIslands);
+    }
 }

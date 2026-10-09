@@ -3,7 +3,7 @@
  * EMBL database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -79,8 +79,25 @@ final class ParseEmblManager extends ParseDbAbstractManager
     public static function getEntryId(array $aFlines, string $sLine) : string
     {
         $aWords = preg_split("/;/", trim(substr($sLine, 5)));
+        $sName = trim($aWords[0]);
 
-        return trim($aWords[0]);
+        // Before release 87 the ID line opened with the entry name and its data class
+        // ("HSERPG     standard; ...") : the name is no accession, the first AC line holds it, which
+        // is what the parsed record is keyed by
+        if (preg_match('/\s/', $sName)) {
+            foreach ($aFlines as $sCurrent) {
+                if (substr($sCurrent, 0, 2) == "AC") {
+                    $sAccession = trim(explode(";", substr($sCurrent, 5))[0]);
+                    if ($sAccession !== "") {
+                        return $sAccession;
+                    }
+                }
+            }
+
+            return preg_split('/\s+/', $sName)[0];
+        }
+
+        return $sName;
     }
 
     /**
@@ -111,7 +128,7 @@ final class ParseEmblManager extends ParseDbAbstractManager
                     $this->parseDescription($aFlines);
                     break;
                 case "KW":
-                    $this->parseKeywords();
+                    $this->parseKeywords($aFlines);
                     break;
                 case "OS":
                     $this->parseOrganism($aFlines);
@@ -252,9 +269,14 @@ final class ParseEmblManager extends ParseDbAbstractManager
      * Format : KW   WORD1; WORD2; WORD3.
      * @throws  \Exception
      */
-    private function parseKeywords()
+    private function parseKeywords(array $aFlines = [])
     {
         $sLineData = trim(substr($this->aLines->current(), 5));
+        // A keyword wrapped over two KW lines is one keyword : the lines are joined before the split
+        while (substr($aFlines[$this->aLines->key() + 1] ?? "", 0, 2) == "KW") {
+            $this->aLines->next();
+            $sLineData .= " " . trim(substr($this->aLines->current(), 5));
+        }
         $sLineData = rtrim($sLineData, ".");
         $aKeywords = array_filter(array_map('trim', explode(";", $sLineData)));
 
@@ -290,6 +312,10 @@ final class ParseEmblManager extends ParseDbAbstractManager
                     $aOrganism[] = trim($sToken);
                 }
             }
+        }
+        // The period closing the last OC line ends the lineage, it is no part of the last rank
+        if (count($aOrganism) > 1) {
+            $aOrganism[count($aOrganism) - 1] = rtrim($aOrganism[count($aOrganism) - 1], ".");
         }
         $this->sequence->setOrganism($aOrganism);
     }

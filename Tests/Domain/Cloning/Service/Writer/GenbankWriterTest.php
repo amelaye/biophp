@@ -349,4 +349,34 @@ class GenbankWriterTest extends TestCase
             ->getPlasmid();
         $this->assertSame([Strand::NONE, Strand::FORWARD], array_map(fn($o) => $o->getStrand(), $oRestored->getFeatures()));
     }
+
+    /**
+     * Two features of one key at one location, the second named after its key, came back as one :
+     * with no /label the reader had nothing to split them on, and the second one's note was folded
+     * into the first.
+     */
+    public function testTwoFeaturesAtOneLocationSurviveARoundTrip()
+    {
+        $oPlasmid = new Plasmid("pTest", new CircularDnaSequence("ACGTACGTAC"), [
+            new PlasmidFeature("misc_feature", FeatureType::MISC_FEATURE, 1, 10, Strand::FORWARD, null, "n1"),
+            new PlasmidFeature("lacO", FeatureType::MISC_FEATURE, 1, 10, Strand::FORWARD, null, "n2"),
+            new PlasmidFeature("alone", FeatureType::MISC_FEATURE, 3, 5, Strand::FORWARD, null, "n3"),
+            new PlasmidFeature("misc_feature", FeatureType::MISC_FEATURE, 6, 8, Strand::FORWARD, null, "n4"),
+        ]);
+
+        $sOutput = $this->writer->write($oPlasmid);
+        // A feature alone at its location keeps its output : no /label for a name that is its key
+        $this->assertStringContainsString("     misc_feature    6..8\n                     /note=\"n4\"\n", $sOutput);
+
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile(explode("\n", $sOutput));
+        $oRestored = (new GenbankPlasmidMapper())
+            ->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures())
+            ->getPlasmid();
+
+        $this->assertSame(
+            [["misc_feature", "n1"], ["lacO", "n2"], ["alone", "n3"], ["misc_feature", "n4"]],
+            array_map(fn($o) => [$o->getName(), $o->getNote()], $oRestored->getFeatures())
+        );
+    }
 }

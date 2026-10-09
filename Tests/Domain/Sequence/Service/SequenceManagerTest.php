@@ -2214,4 +2214,28 @@ class SequenceManagerTest extends TestCase
 
         $this->assertEquals($aMirrors, $aExpected);
     }
+
+    /**
+     * The positions came from a second search for each matched string, from the start : "AR" in
+     * "AAGCAG" is found as AA at 0 and AG at 4, and AG was reported at 1, overlapping AA.
+     */
+    public function testPatPosReportsThePositionsOfTheMatchesTheScanFound()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals(["AA" => [0], "AG" => [4]], $sequenceManager->patPos("AR", "I", "AAGCAG"));
+        $this->assertEquals(["TT" => [0, 3]], $sequenceManager->patPos("tt", "I", "TTATTA"));
+    }
+
+    /**
+     * charge() and chemicalGroup() refused lower case, as the other amino acid functions do not.
+     */
+    public function testChargeAndChemicalGroupAcceptLowerCase()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals($sequenceManager->charge("DKRG"), $sequenceManager->charge("dkrg"));
+        $this->assertEquals("ACCN", $sequenceManager->charge("dkrg"));
+        $this->assertEquals($sequenceManager->chemicalGroup("GAVLIFYWKRH"), $sequenceManager->chemicalGroup("gavlifywkrh"));
+    }
 }

@@ -1,5 +1,5 @@
 -- BioPHP schema upgrade : parsed-record tables (CHANGELOG, "Breaking (schema)")
--- From : the mapping of 1db8945 (before bed2e10, 7 October 2026)
+-- From : the mapping of the last release, 1.5.1 (fc3ecb5)
 -- To   : the current mapping of Domain/{Database,Sequence,Cloning,Variants}/Entity
 -- Generated with Doctrine DBAL's schema Comparator from both mappings (naming strategy
 -- underscore_number_aware, as the bundle configures it), then reordered by hand : every foreign
@@ -7,9 +7,14 @@
 -- (MySQL refuses an AUTO_INCREMENT column that is not a key yet, error 1075).
 -- Not run against a live server : no MySQL or PostgreSQL instance was reachable when this was
 -- written. The same comparison was checked on SQLite (see the .sqlite.sql script).
--- These tables could hold no row before the change (flushing a parsed record failed), so no data
--- is migrated. Copy these statements into a migration of the application using the bundle.
+-- plasmid, plasmid_feature and vcf_variant are new tables. The parsed-record tables could hold no
+-- row before the change (flushing a parsed record failed), so no data is migrated. Copy these
+-- statements into a migration of the application using the bundle.
 
+CREATE TABLE plasmid (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, sequence LONGTEXT NOT NULL, description LONGTEXT DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, metadata JSON NOT NULL, PRIMARY KEY (id));
+CREATE TABLE plasmid_feature (id INT AUTO_INCREMENT NOT NULL, position INT NOT NULL, name VARCHAR(255) NOT NULL, type VARCHAR(32) NOT NULL, start_position INT NOT NULL, end_position INT NOT NULL, strand VARCHAR(8) NOT NULL, color VARCHAR(7) DEFAULT NULL, note LONGTEXT DEFAULT NULL, external_id VARCHAR(255) DEFAULT NULL, metadata JSON NOT NULL, phase SMALLINT DEFAULT NULL, plasmid_id INT NOT NULL, INDEX IDX_4E96F8CF63598003 (plasmid_id), PRIMARY KEY (id));
+CREATE TABLE vcf_variant (id INT AUTO_INCREMENT NOT NULL, chrom VARCHAR(255) NOT NULL, position BIGINT NOT NULL, variant_id VARCHAR(255) DEFAULT NULL, reference LONGTEXT NOT NULL, alternates JSON NOT NULL, quality DOUBLE PRECISION DEFAULT NULL, filter VARCHAR(255) DEFAULT NULL, info JSON NOT NULL, INDEX idx_vcf_variant_locus (chrom, position), PRIMARY KEY (id));
+ALTER TABLE plasmid_feature ADD CONSTRAINT FK_4E96F8CF63598003 FOREIGN KEY (plasmid_id) REFERENCES plasmid (id) ON DELETE CASCADE;
 ALTER TABLE keyword DROP FOREIGN KEY FK_5A93713BBCCCD4F0;
 ALTER TABLE src_form DROP FOREIGN KEY FK_7BE58FA5BCCCD4F0;
 ALTER TABLE sp_databank DROP FOREIGN KEY FK_E340167DBCCCD4F0;
@@ -28,7 +33,7 @@ DROP INDEX `primary` ON sp_databank;
 ALTER TABLE sp_databank ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, CHANGE db_name db_name VARCHAR(50) DEFAULT NULL, CHANGE pid1 pid1 VARCHAR(100) DEFAULT NULL, CHANGE pid2 pid2 VARCHAR(100) DEFAULT NULL, CHANGE prim_acc prim_acc VARCHAR(50) NOT NULL;
 DROP INDEX uniq_feature ON feature;
 DROP INDEX `primary` ON feature;
-ALTER TABLE feature ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, CHANGE ft_key ft_key VARCHAR(20) NOT NULL, CHANGE prim_acc prim_acc VARCHAR(50) NOT NULL;
+ALTER TABLE feature ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, ADD ft_location LONGTEXT DEFAULT NULL, CHANGE ft_key ft_key VARCHAR(20) NOT NULL, CHANGE prim_acc prim_acc VARCHAR(50) NOT NULL;
 ALTER TABLE feature RENAME INDEX idx_1fd77566bcccd4f0 TO feature_prim_acc;
 ALTER TABLE sequence CHANGE prim_acc prim_acc VARCHAR(50) NOT NULL, CHANGE entry_name entry_name VARCHAR(50) NOT NULL, CHANGE mol_type mol_type VARCHAR(20) DEFAULT NULL, CHANGE description description LONGTEXT DEFAULT NULL;
 DROP INDEX IDX_AEA34913BCCCD4F0 ON reference;
@@ -44,4 +49,3 @@ DROP INDEX IDX_BDAFD8C8BCCCD4F0 ON author;
 DROP INDEX `primary` ON author;
 ALTER TABLE author ADD id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, CHANGE author author VARCHAR(255) NOT NULL, CHANGE prim_acc prim_acc VARCHAR(50) NOT NULL;
 CREATE INDEX author_prim_acc ON author (prim_acc, refno);
-ALTER TABLE vcf_variant CHANGE position position BIGINT NOT NULL;

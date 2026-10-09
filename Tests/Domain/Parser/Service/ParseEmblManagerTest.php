@@ -57,7 +57,7 @@ class ParseEmblManagerTest extends TestCase
         $oExpectedSequence->setSequence(str_repeat("a", 30) . str_repeat("c", 30) . str_repeat("g", 30) . str_repeat("t", 30));
         $oExpectedSequence->setDescription("Homo sapiens mRNA for test gene, complete cds.");
         $organism = ['Homo sapiens (human)', 'Eukaryota', 'Metazoa', 'Chordata', 'Craniata', 'Vertebrata', 'Euteleostomi',
-            'Mammalia', 'Eutheria', 'Euarchontoglires', 'Primates', 'Haplorrhini', 'Catarrhini', 'Hominidae', 'Homo.'];
+            'Mammalia', 'Eutheria', 'Euarchontoglires', 'Primates', 'Haplorrhini', 'Catarrhini', 'Hominidae', 'Homo'];
         $oExpectedSequence->setOrganism($organism);
         $this->assertEquals($oExpectedSequence, $oParseEmblManager->getSequence());
 
@@ -386,5 +386,39 @@ class ParseEmblManagerTest extends TestCase
         ]);
 
         $this->assertEquals("acgtacgtacgtacgtacgt", $oParser->getSequence()->getSequence());
+    }
+
+    /**
+     * getEntryId() split the old ID line on ";" only : the entry was indexed under "HSERPG     standard",
+     * and neither fetch("HSERPG") nor a lookup by accession found it.
+     */
+    public function testEmblEntryIdOfTheLayoutBeforeRelease87IsThePrimaryAccession()
+    {
+        $aFlines = ["ID   HSERPG     standard; circular DNA; HUM; 3398 BP.\n", "AC   X01234; X01235;\n", "//\n"];
+
+        $this->assertEquals("X01234", ParseEmblManager::getEntryId($aFlines, $aFlines[0]));
+        $this->assertEquals("HSERPG", ParseEmblManager::getEntryId(["ID   HSERPG     standard; DNA;\n"], "ID   HSERPG     standard; DNA;\n"));
+        $aCurrent = ["ID   X56734; SV 1; linear; mRNA; STD; PLN; 1859 BP.\n", "AC   X56734;\n"];
+        $this->assertEquals("X56734", ParseEmblManager::getEntryId($aCurrent, $aCurrent[0]));
+    }
+
+    /**
+     * A keyword wrapped over two KW lines became two keywords ("complete" and "genome").
+     */
+    public function testAKeywordWrappedOverTwoLinesIsOneKeyword()
+    {
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile([
+            "ID   X01234; SV 1; linear; mRNA; STD; HUM; 10 BP.\n",
+            "AC   X01234;\n",
+            "KW   first; complete\n",
+            "KW   genome; last.\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals(
+            ["first", "complete genome", "last"],
+            array_map(fn($oKeyword) => $oKeyword->getKeywords(), $oParser->getKeywords())
+        );
     }
 }

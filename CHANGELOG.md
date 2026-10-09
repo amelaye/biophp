@@ -281,11 +281,40 @@ Changes on `develop` since `master`.
   sequence length to write one (with its circular landmark) instead of rejecting it.
 - VCF : POS 0 is accepted (a telomere, per VCF 4.3), and percent-encoded INFO values are decoded
   (`%2C` excepted, to keep list commas unambiguous).
+- Found by the last review of the whole project :
+  - Tools : `Median()` skips the null entries as `Mean()` does ; `findOligos()` and `CreateInversion()`
+    accept lower case ; `findZScore()` no longer divides by a dinucleotide absent from the sequence ;
+    a window mostly made of N is no CpG island, and the observed/expected ratio is over the bases
+    called ; the basic Tm reads U as T, and the nearest-neighbour Tm refuses an RNA primer for that
+    reason ; the CAI leaves out a codon holding an ambiguity code ; `AlternateGeneticCodeTranslator`
+    reads an ambiguous codon under the requested table (AGR is a stop in table 2, TGR is Trp, ATR Met).
+  - Sequence : `patPos()` reports the positions of the matches its scan found ; the consensus and
+    `resVar()` ignore the case of the residues and cover the longest sequence of the set ;
+    `charge()` and `chemicalGroup()` accept lower case.
+  - Parsers : the EMBL entry id of the layout before release 87 is the primary accession, the closing
+    period of the OC lineage is dropped, and a keyword wrapped over two KW lines is one keyword ; the
+    Swiss-Prot entry id no longer loses the first letter of "AC P01375;", the residues of a VAR_SEQ,
+    VARIANT or CONFLICT wrapped at the column are not split, and a "<" or ">" end is kept in the
+    location (`isPartial()`) ; Entrez drops "REGION:" from the accessions and reads CONSRTM ; the
+    GenBank reference range "(sites)" loses its bracket ; a trans-spliced gene of a circular record and
+    an `order()` no longer read as crossing the origin ; a complemented segment of another entry alone
+    no longer gives the "-" strand ; KEGG ENZYME reads a SUBSTRATE or PRODUCT wrapped at the first
+    column and a "$" continuation, and the capital `MAP00010` pathway identifiers of the oldest files.
+  - FASTQ : a blank quality line no longer swallows the next header, a "+" line repeating another
+    title is reported, and a Phred+33 file of a long-read instrument is not taken for Phred+64.
+  - VCF : a breakend needs the same bracket on both sides of a chromosome:position mate.
+  - Phylogenetics : `DistanceMatrix` reads a matrix keyed by label by label, whatever its order, and
+    refuses a distance that is no number ; an overflowing Newick branch length ("1e400") is an
+    `InvalidNewickException`.
+  - Cloning : every `/note` of a GenBank feature is kept (joined with "; ") ; two features of one key at
+    one location survive a write, parse and map round trip ; a join is a wrap only when its segments
+    meet at the origin, in the order written.
 
 ### Changed
 - **Schema upgrade scripts :** `migrations/20261008_parsed_records_schema.{mysql,postgresql,sqlite}.sql`
-  take an existing database from the former mapping of the parsed-record tables to the current one ;
-  copy them into a migration of the application using the bundle. The SQLite script is checked (a
+  take an existing database from the mapping of the last release, 1.5.1, to the current one : they
+  create the plasmid, plasmid_feature and vcf_variant tables, add feature.ft_location and reshape
+  the parsed-record tables ; copy them into a migration of the application using the bundle. The SQLite script is checked (a
   migrated database matches a fresh one) ; the MySQL and PostgreSQL ones were not run on a server.
 - ExPASy ENZYME : the description (DE) no longer keeps the period closing it, as AN and CA did not.
 - VCF : each ALT allele is validated (bases, "*", <symbolic>, breakend, single breakend) ; an empty

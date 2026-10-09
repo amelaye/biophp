@@ -408,4 +408,60 @@ class GenbankPlasmidMapperTest extends TestCase
         $this->assertCount(1, $oResult->getWarnings());
         $this->assertStringContainsString("join(12..20,25..33)", $oResult->getWarnings()[0]);
     }
+
+    /**
+     * Only the first /note of a feature was kept : Addgene and SnapGene write several, and the others
+     * were lost without a word.
+     */
+    public function testEveryNoteOfAFeatureIsKept()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TESTPLAS                  40 bp    DNA     circular SYN 01-JAN-2026\n",
+            "FEATURES             Location/Qualifiers\n",
+            "     misc_feature    1..10\n",
+            "                     /label=\"site\"\n",
+            "                     /note=\"a\"\n",
+            "                     /note=\"b\"\n",
+            "ORIGIN\n",
+            "        1 acgtacgtac gtacgtacgt acgtacgtac gtacgtacgt\n",
+            "//\n",
+        ]);
+
+        $oResult = $this->mapper->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures());
+
+        $this->assertSame("a; b", $oResult->getPlasmid()->getFeatures()[0]->getNote());
+    }
+
+    /**
+     * A join was a wrap if it touched base 1 and base n, in whichever order : join(1..3,9..10) lists
+     * its segments forward and crosses nothing, so its gap was imported with no warning ; and the
+     * "1..>5" of join(35..40,1..>5) was cut in 1, 5 and a false warning.
+     */
+    public function testAJoinIsAWrapOnlyWhenItsSegmentsMeetAtTheOrigin()
+    {
+        $aCases = [
+            "join(1..3,9..10)"            => 1,
+            "join(9..10,1..3)"            => 0,
+            "complement(join(1..3,9..10))" => 0,
+            "join(complement(1..3),complement(9..10))" => 0,
+            "join(10..10,1..>3)"           => 0,
+        ];
+        foreach ($aCases as $sLocation => $iWarnings) {
+            $oParser = new ParseGenbankManager();
+            $oParser->parseDataFile([
+                "LOCUS       TESTPLAS                  10 bp    DNA     circular SYN 01-JAN-2026\n",
+                "FEATURES             Location/Qualifiers\n",
+                "     misc_feature    " . $sLocation . "\n",
+                "                     /label=\"x\"\n",
+                "ORIGIN\n",
+                "        1 acgtacgtac\n",
+                "//\n",
+            ]);
+
+            $oResult = $this->mapper->map($oParser->getSequence(), $oParser->getGbSequence(), $oParser->getFeatures());
+
+            $this->assertCount($iWarnings, $oResult->getWarnings(), $sLocation);
+        }
+    }
 }

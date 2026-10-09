@@ -3,7 +3,7 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -564,8 +564,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
 
         $aAllPos     = $aInvarPos = $aVarPos = [];
         $aGlobFreq   = array();
-        $oFirstSeq   = $this->aSeqSet->current();
-        $iSeqLength  = strlen($oFirstSeq->getSequence());
+        $iSeqLength  = $this->longestLength();
 
         for($i = 0; $i < count($this->aAlphabet); $i++) {
             $sCurrLet = $this->aAlphabet[$i];
@@ -599,8 +598,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $this->aSeqSet->rewind();
 
         $sResult     = "";
-        $oFirstSeq   = $this->aSeqSet->current();
-        $iSeqLength  = strlen($oFirstSeq->getSequence());
+        $iSeqLength  = $this->longestLength();
         $aGlobFreq   = [];
 
         for($i = 0; $i < count($this->aAlphabet); $i++) {
@@ -778,6 +776,18 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     }
 
     /**
+     * @return  int     The length of the longest sequence of the set, whose columns are all scanned
+     */
+    private function longestLength() : int
+    {
+        $iLength = 0;
+        for ($j = 0; $j < $this->aSeqSet->count(); $j++) {
+            $iLength = max($iLength, strlen($this->aSeqSet->offsetGet($j)->getSequence()));
+        }
+        return $iLength;
+    }
+
+    /**
      * Calculates the max percentage of frequencies
      * @param   array       $aGlobFreq      Array of frequencies of the letters
      * @param   int         $i              Current iteration
@@ -789,7 +799,12 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $aFrequences = $aGlobFreq;
         for($j = 0; $j < $this->aSeqSet->count(); $j++) {
             $oCurrSeq = $this->aSeqSet->offsetGet($j);
-            $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
+            // "a" and "A" are one residue (soft-masked FASTA), and a sequence shorter than the others
+            // holds none at all here : substr() returns "" past its end, which is not a symbol
+            $sCurrLet = strtoupper(substr($oCurrSeq->getSequence(), $i, 1));
+            if ($sCurrLet === "") {
+                continue;
+            }
             if(isset($aFrequences[$sCurrLet])) {
                 $aFrequences[$sCurrLet]++;
             } else {

@@ -3,7 +3,7 @@
  * Translates a codon under a specific NCBI genetic code table
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -34,6 +34,15 @@ use Amelaye\BioPHP\Domain\Tools\ValueObject\GeneticCodeTable;
  */
 class AlternateGeneticCodeTranslator implements AlternateGeneticCodeTranslatorInterface
 {
+    /**
+     * @var string[]    The bases each IUPAC nucleotide code stands for
+     */
+    private const IUPAC = [
+        "A" => "A", "C" => "C", "G" => "G", "T" => "T", "R" => "AG", "Y" => "CT", "S" => "CG",
+        "W" => "AT", "K" => "GT", "M" => "AC", "B" => "CGT", "D" => "AGT", "H" => "ACT",
+        "V" => "ACG", "N" => "ACGT",
+    ];
+
     /**
      * @var     array<int,array<string,string>>
      */
@@ -75,6 +84,46 @@ class AlternateGeneticCodeTranslator implements AlternateGeneticCodeTranslatorIn
         // The overlays are keyed on DNA codons : an RNA codon (AUA, UGA, AGA) must read the same.
         $sNormalizedCodon = str_replace("U", "T", strtoupper($sCodon));
 
-        return $aOverlay[$sNormalizedCodon] ?? $this->sequenceManager->translateCodon($sCodon, 1);
+        if (isset($aOverlay[$sNormalizedCodon])) {
+            return $aOverlay[$sNormalizedCodon];
+        }
+
+        // An ambiguous codon (AGR, TGR, ATR) must be read under this table, not the standard one :
+        // AGR is Arg in the standard code and a stop in the vertebrate mitochondrial one. It stands
+        // for an amino acid when every codon it covers reads as that one, as the standard code does.
+        if ($aOverlay !== [] && preg_match('/[^ACGT]/', $sNormalizedCodon) === 1) {
+            return $this->translateAmbiguousCodon($sNormalizedCodon, $aOverlay);
+        }
+
+        return $this->sequenceManager->translateCodon($sCodon, 1);
+    }
+
+    /**
+     * @param   string      $sCodon         DNA codon holding at least one IUPAC ambiguity code
+     * @param   array       $aOverlay       The codons this table reads differently from the standard code
+     * @return  string                      The amino acid, "X" when the covered codons disagree
+     */
+    private function translateAmbiguousCodon(string $sCodon, array $aOverlay): string
+    {
+        $aCodons = [""];
+        foreach (str_split($sCodon) as $sBase) {
+            if (!isset(self::IUPAC[$sBase])) {
+                return "X";
+            }
+            $aNext = [];
+            foreach ($aCodons as $sPrefix) {
+                foreach (str_split(self::IUPAC[$sBase]) as $sConcrete) {
+                    $aNext[] = $sPrefix . $sConcrete;
+                }
+            }
+            $aCodons = $aNext;
+        }
+
+        $aAminoAcids = [];
+        foreach ($aCodons as $sConcreteCodon) {
+            $aAminoAcids[$aOverlay[$sConcreteCodon] ?? $this->sequenceManager->translateCodon($sConcreteCodon, 1)] = true;
+        }
+
+        return count($aAminoAcids) === 1 ? (string) array_key_first($aAminoAcids) : "X";
     }
 }

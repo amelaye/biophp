@@ -3,7 +3,7 @@
  * Entrez genome record parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -32,7 +32,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
     /**
      * Subkeys of a REFERENCE block, indented under it.
      */
-    private const REFERENCE_SUBKEYS = ["AUTHORS", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK"];
+    private const REFERENCE_SUBKEYS = ["AUTHORS", "CONSRTM", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK"];
 
     /**
      * @var string
@@ -205,9 +205,11 @@ final class ParseEntrezManager implements ParseDatabaseInterface
                     $this->definition = $this->accumulate($aLines, $aFlines);
                     break;
                 case "ACCESSION":
+                    // A record on a sub-range of its sequence follows its accession with
+                    // "REGION: from..to", which is no accession
                     $this->accession = preg_split(
                         "/\s+/",
-                        $this->accumulate($aLines, $aFlines),
+                        preg_replace('/\bREGION:\s*\S+/', "", $this->accumulate($aLines, $aFlines)),
                         -1,
                         PREG_SPLIT_NO_EMPTY
                     );
@@ -345,6 +347,13 @@ final class ParseEntrezManager implements ParseDatabaseInterface
         switch ($sSubkey) {
             case "AUTHORS":
                 $oReference->setAuthors($this->splitAuthors($sValue));
+                break;
+            case "CONSRTM":
+                // Each consortium is kept as an author, as the GenBank parser does
+                $oReference->setAuthors(array_merge(
+                    $oReference->getAuthors(),
+                    array_values(array_filter(array_map('trim', explode(";", $sValue)), fn($s) => $s !== ""))
+                ));
                 break;
             case "TITLE":
                 $oReference->setTitle($sValue);

@@ -3,7 +3,7 @@
  * Calculates a primer's GC content and melting temperature
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -74,7 +74,7 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
      */
     public function calculateMinimumTm(string $sPrimer): float
     {
-        return $this->calculateBasicTm($this->toWeakestReading(strtoupper($sPrimer)));
+        return $this->calculateBasicTm($this->toWeakestReading($this->asDna($sPrimer)));
     }
 
     /**
@@ -83,7 +83,7 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
      */
     public function calculateMaximumTm(string $sPrimer): float
     {
-        return $this->calculateBasicTm($this->toStrongestReading(strtoupper($sPrimer)));
+        return $this->calculateBasicTm($this->toStrongestReading($this->asDna($sPrimer)));
     }
 
     /**
@@ -100,6 +100,11 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
         float $iMagnesiumConcentration
     ): NearestNeighborTmResult {
         $sPrimer = strtoupper($sPrimer);
+        if (strpos($sPrimer, "U") !== false) {
+            throw new \InvalidArgumentException(
+                "Nearest-neighbor Tm uses DNA/DNA parameters : an RNA primer (U) is not supported."
+            );
+        }
         if (GeneticsFunctions::CountACGT($sPrimer) !== strlen($sPrimer)) {
             throw new \InvalidArgumentException(
                 "Nearest-neighbor Tm cannot be computed on a primer containing degenerate nucleotides."
@@ -188,6 +193,17 @@ class MeltingTemperatureCalculator implements MeltingTemperatureInterface
         }
 
         return round(64.9 + 41 * (($iStrongCount - 16.4) / $iLength), 1);
+    }
+
+    /**
+     * Upper-cases a primer and reads U as T, as calculateGcPercent() does : the basic Tm counts weak
+     * and strong bases, and U is a weak one.
+     * @param   string      $sPrimer
+     * @return  string
+     */
+    private function asDna(string $sPrimer): string
+    {
+        return str_replace("U", "T", strtoupper($sPrimer));
     }
 
     /**

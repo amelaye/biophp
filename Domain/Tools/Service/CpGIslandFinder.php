@@ -3,7 +3,7 @@
  * Finds CpG islands in a DNA sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -120,6 +120,13 @@ class CpGIslandFinder implements CpGIslandFinderInterface
      */
     private function qualifies(string $sWindow, float $fMinGcContent, float $fMinObservedToExpectedRatio): bool
     {
+        // A window mostly made of N (an assembly gap) says nothing about CpG : the GC content and the
+        // ratio are over the few bases called, and a lone CG between gaps would pass for an island
+        $iCalled = strlen((string) preg_replace('/[^ACGT]/i', "", $sWindow));
+        if ($iCalled * 2 < strlen($sWindow)) {
+            return false;
+        }
+
         $fGcContent = $this->skewCalculator->calculate($sWindow)->getGcContent();
 
         if ($fGcContent < $fMinGcContent) {
@@ -136,7 +143,8 @@ class CpGIslandFinder implements CpGIslandFinderInterface
     private function observedToExpectedRatio(string $sSequence): float
     {
         $sUpper = strtoupper($sSequence);
-        $iLength = strlen($sUpper);
+        // The expectation is over the bases, the N of an assembly gap excluded as the GC content does
+        $iLength = strlen((string) preg_replace('/[^ACGT]/', "", $sUpper));
 
         $iC = substr_count($sUpper, "C");
         $iG = substr_count($sUpper, "G");

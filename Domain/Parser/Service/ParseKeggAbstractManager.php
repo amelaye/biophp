@@ -3,7 +3,7 @@
  * Shared reading of the KEGG flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -209,21 +209,34 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * Format : GENES       HSA: 3098(HK1) 3099(HK2)
      *                      ECO: b1234 b2345
      *                           b3456
-     * @param   string      $sField     The field label
+     * A line opening with "$" continues the word the line above broke off. In a field whose items all
+     * end with ";" (SUBSTRATE, PRODUCT), an item wrapped at the first column is told by the missing
+     * ";" on the line above.
+     * @param   string      $sField         The field label
+     * @param   bool        $bTerminated    Every item of the field ends with ";"
      * @return  array
      */
-    protected function readItems(string $sField) : array {
+    protected function readItems(string $sField, bool $bTerminated = false) : array {
         $aItems = [];
+        $bOpen = false;
         foreach ($this->rawFields[$sField] ?? [] as $sLine) {
             $sItem = rtrim(trim($sLine), ";");
             if ($sItem == "") {
                 continue;
             }
-            if ($aItems != [] && preg_match('/^\s/', $sLine)) {
+            $bClosed = substr(rtrim($sLine), -1) === ";";
+            if ($aItems != [] && substr($sLine, 0, 1) === '$') {
+                $aItems[count($aItems) - 1] .= substr($sItem, 1);
+                $bOpen = !$bClosed;
+                continue;
+            }
+            if ($aItems != [] && (preg_match('/^\s/', $sLine) || ($bTerminated && $bOpen))) {
                 $aItems[count($aItems) - 1] .= " " . $sItem;
+                $bOpen = !$bClosed;
                 continue;
             }
             $aItems[] = $sItem;
+            $bOpen = !$bClosed;
         }
 
         return $aItems;
@@ -245,8 +258,9 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
             if ($sLine == "") {
                 continue;
             }
-            if (preg_match('/^([a-z]{2,4}\d{5})\s*(.*)$/', $sLine, $aMatch)) {
-                $aPathways[] = [$aMatch[1], trim($aMatch[2])];
+            // The oldest files write the map identifier in capitals ("PATH: MAP00010")
+            if (preg_match('/^([a-zA-Z]{2,4}\d{5})\s*(.*)$/', $sLine, $aMatch)) {
+                $aPathways[] = [strtolower($aMatch[1]), trim($aMatch[2])];
             } elseif ($aPathways != []) {
                 $aPathways[count($aPathways) - 1][1] = trim($aPathways[count($aPathways) - 1][1] . " " . $sLine);
             }

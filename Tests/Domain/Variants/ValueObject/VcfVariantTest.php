@@ -107,4 +107,24 @@ class VcfVariantTest extends TestCase
             }
         }
     }
+
+    /**
+     * A breakend has the same bracket on both sides of a chromosome:position mate (VCF 4.3, 5.4) : the
+     * check accepted "G[17:198982]" (brackets that differ) and "G]17]" (no position).
+     */
+    public function testRejectsABreakendWithDifferentBracketsOrNoMatePosition()
+    {
+        foreach (["G[17:198982]", "G]17]", "G]17:198982[", "]13:123456[T", "G[17["] as $sAlternate) {
+            try {
+                new VcfVariant("chr2", 321682, null, "T", [$sAlternate], null, null);
+                $this->fail('"' . $sAlternate . '" was accepted as a breakend.');
+            } catch (InvalidVcfRecordException $oException) {
+                $this->assertStringContainsString("ALT", $oException->getMessage());
+            }
+        }
+
+        foreach (["G]17:198982]", "]13:123456]T", "C[<ctg1>:7[", ".[13:123457[", "T[chr1:1[", "A[HLA-A*01:01:3["] as $sAlternate) {
+            $this->assertEquals([$sAlternate], (new VcfVariant("chr2", 321682, null, "T", [$sAlternate], null, null))->getAlternates());
+        }
+    }
 }

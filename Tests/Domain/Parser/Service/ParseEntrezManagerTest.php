@@ -165,4 +165,28 @@ class ParseEntrezManagerTest extends TestCase
         $this->assertEquals("LINEAR", $oParser->getTopology());
         $this->assertEquals("CON", $oParser->getDivision());
     }
+
+    /**
+     * "REGION: 1..1000" follows the accession of a record on a sub-range of its sequence : it was read
+     * as two more accessions, and the consortium of a CONSRTM line was dropped, as GenBank no longer does.
+     */
+    public function testAccessionRegionIsNoAccessionAndConsortiaAreAuthors()
+    {
+        $oParser = new ParseEntrezManager();
+        $oParser->parseDataFile([
+            "LOCUS       NC_000913               1000 bp    DNA     circular BCT 01-JAN-2020",
+            "ACCESSION   NC_000913 REGION: 1..1000",
+            "REFERENCE   1  (bases 1 to 1000)",
+            "  AUTHORS   Blattner,F.R. and Plunkett,G.",
+            "  CONSRTM   The E. coli Genome Project; Another Consortium",
+            "  TITLE     The complete genome sequence",
+            "//",
+        ]);
+
+        $this->assertEquals(["NC_000913"], $oParser->getAccession());
+        $this->assertContains("The E. coli Genome Project", $oParser->getReferences()[0]->getAuthors());
+        $this->assertContains("Another Consortium", $oParser->getReferences()[0]->getAuthors());
+        $this->assertContains("Blattner,F.R.", $oParser->getReferences()[0]->getAuthors());
+        $this->assertEquals("The complete genome sequence", $oParser->getReferences()[0]->getTitle());
+    }
 }

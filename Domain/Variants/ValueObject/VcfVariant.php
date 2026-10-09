@@ -3,7 +3,7 @@
  * Immutable value object describing one VCF variant record
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -134,7 +134,8 @@ final class VcfVariant
     private static function isValidAlternate(string $sAlternate): bool
     {
         $sBases = '[ACGTNRYSWKMBDHV]+';
-        $sMate = '[\[\]][^\[\]\s,]+[\[\]]';
+        // The same bracket on both sides of a chromosome:position mate : ]13:123456] or [13:123457[
+        $sMate = '(?:\[[^\[\]\s,]+:\d+\[|\][^\[\]\s,]+:\d+\])';
         // At a telomere (POS 0 or length + 1), "." stands for the bases next to a mate : .[13:123457[
         $sMateSide = '(' . $sBases . '|\.)';
 

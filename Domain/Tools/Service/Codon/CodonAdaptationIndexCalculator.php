@@ -3,7 +3,7 @@
  * Codon Adaptation Index calculation
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 6 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -63,6 +63,13 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
 
         for ($i = 0; $i < $iCodonCount; $i++) {
             $sCodon = substr($sValue, $i * 3, 3);
+
+            // A codon holding an ambiguity code (a sequencing N) has no usage in the table, which
+            // counts A, C, G and T codons only : it is left out, as the builder leaves it out
+            if (!preg_match('/^[ACGT]{3}$/', $sCodon)) {
+                continue;
+            }
+
             $sAminoAcid = $this->sequenceManager->translateCodon($sCodon, 1);
 
             if ($sAminoAcid === "*" || $sAminoAcid === "X") {

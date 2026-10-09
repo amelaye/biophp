@@ -3,7 +3,7 @@
  * Reads a FASTQ file into FastqRecord instances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -97,16 +97,33 @@ class FastqReader implements FastqReaderInterface
                 );
                 break;
             }
+            // The "+" line may repeat the title, which then has to be the "@" one (Cock et al. 2010)
+            $sRepeatedTitle = substr($aLines[$i], 1);
+            if ($sRepeatedTitle !== "" && $sRepeatedTitle !== $sIdentifier) {
+                $aWarnings[] = sprintf(
+                    'Record %d: the "+" line repeats "%s", which is not the title "%s" of the "@" line.',
+                    $iRecordNumber,
+                    $sRepeatedTitle,
+                    $sIdentifier
+                );
+            }
             $i++;
 
             // The quality, possibly wrapped, runs until it is as long as the sequence. Its first
-            // line always belongs to the record, even too long : the record is then reported with
-            // its real quality length, and that line is not read as the next record.
+            // line always belongs to the record, even too long or blank : the record is then reported
+            // with its real quality length, and that line is not read as the next record.
             $sQuality = "";
+            $bFirstLine = true;
             while ($i < $iTotalLines && strlen($sQuality) < strlen($sSequence)
-                && ($sQuality === "" || strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence))) {
+                && ($bFirstLine || strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence))) {
                 $sQuality .= $aLines[$i];
                 $i++;
+                if ($bFirstLine && $sQuality === "") {
+                    // A blank quality line under a sequence : the record is cut short, and the line
+                    // after it is the next header, not the rest of this quality
+                    break;
+                }
+                $bFirstLine = false;
             }
             if ($sQuality === "" && $sSequence !== "" && $i >= $iTotalLines) {
                 $aWarnings[] = sprintf(
@@ -124,8 +141,11 @@ class FastqReader implements FastqReaderInterface
         }
 
         $sQualities = implode("", array_map(fn(FastqRecord $oRecord) => $oRecord->getQuality(), $aRecords));
+        // Phred+64 stops at "h" or "i" (Q40, Q41) : a file reaching further, up to "~", is Phred+33 of a
+        // long-read instrument (PacBio HiFi, Q93)
         if ($sQualities !== "" && min(array_map('ord', str_split($sQualities))) >= ord("@")
-            && max(array_map('ord', str_split($sQualities))) > ord("J")) {
+            && max(array_map('ord', str_split($sQualities))) > ord("J")
+            && max(array_map('ord', str_split($sQualities))) <= ord("i")) {
             $aWarnings[] = 'Every quality symbol is "@" or above, some past "J" : the file looks Phred+64'
                 . ' encoded (Illumina 1.3 to 1.7). Its qualities were read as Phred+33, 31 too high.';
         }

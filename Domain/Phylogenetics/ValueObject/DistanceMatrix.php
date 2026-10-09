@@ -3,7 +3,7 @@
  * Immutable value object wrapping a validated symmetric distance matrix between taxa
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -62,12 +62,26 @@ final class DistanceMatrix
             throw InvalidDistanceMatrixException::mismatchedDimensions($iCount, count($aDistances));
         }
 
-        // Rows and the values within them are read in order, whatever their keys : a row keyed by
-        // label used to leave [$i][$j] undefined, read as 0, and build a wrong tree.
-        $aDistances = array_map('array_values', array_values($aDistances));
-        foreach ($aDistances as $aRow) {
+        // A matrix keyed by label (rows and columns) is read by label, in the order of the labels ; any
+        // other is read in order, whatever its keys. Reading a label-keyed one in its own order built
+        // a wrong tree when it was not listed in the order of the labels.
+        $aLabelList = array_values($aLabels);
+        $aRows = self::inLabelOrder($aDistances, $aLabelList) ?? array_values($aDistances);
+        $aDistances = [];
+        foreach ($aRows as $iRow => $aRow) {
+            if (!is_array($aRow)) {
+                throw InvalidDistanceMatrixException::mismatchedDimensions($iCount, 1);
+            }
+            $aDistances[] = self::inLabelOrder($aRow, $aLabelList) ?? array_values($aRow);
+        }
+        foreach ($aDistances as $iRow => $aRow) {
             if (count($aRow) !== $iCount) {
                 throw InvalidDistanceMatrixException::mismatchedDimensions($iCount, count($aRow));
+            }
+            foreach ($aRow as $iColumn => $mValue) {
+                if (!is_int($mValue) && !is_float($mValue) && !(is_string($mValue) && is_numeric($mValue))) {
+                    throw InvalidDistanceMatrixException::nonNumericDistance($iRow, $iColumn, $mValue);
+                }
             }
         }
 
@@ -100,6 +114,27 @@ final class DistanceMatrix
             static fn(array $aRow) => array_map(static fn($mValue) => (float) $mValue, $aRow),
             $aDistances
         );
+    }
+
+    /**
+     * @param   array       $aMap           Values keyed by label, or a plain list
+     * @param   string[]    $aLabels
+     * @return  array|null                  The values in the order of the labels, null when the keys
+     * are not exactly the labels
+     */
+    private static function inLabelOrder(array $aMap, array $aLabels): ?array
+    {
+        // A list is read in order, even when numeric labels happen to be a permutation of its indexes
+        if (array_is_list($aMap)) {
+            return null;
+        }
+
+        $aKeys = array_map('strval', array_keys($aMap));
+        if (count($aKeys) !== count($aLabels) || array_diff($aLabels, $aKeys) !== []) {
+            return null;
+        }
+
+        return array_map(static fn(string $sLabel) => $aMap[$sLabel], $aLabels);
     }
 
     /**

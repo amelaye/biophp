@@ -3,7 +3,7 @@
  * Genbank database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -178,7 +178,8 @@ final class ParseGenbankManager extends ParseDbAbstractManager
         $oReference->setRefno((int) $aWords[0]);
         array_shift($aWords);
         $sbaseRange = implode(" ", $aWords);
-        $sbaseRange = str_replace(["(bases ",")"], "", $sbaseRange);
+        // "(bases 1 to 3488)", or "(sites)" : the brackets go, the words stay
+        $sbaseRange = trim((string) preg_replace('/^\((?:bases\s+)?|\)$/', "", $sbaseRange));
         $oReference->setBaseRange($sbaseRange);
 
         $aFields = [];

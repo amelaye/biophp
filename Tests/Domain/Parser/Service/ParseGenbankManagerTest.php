@@ -1322,9 +1322,13 @@ class ParseGenbankManagerTest extends WebTestCase
             "partial ends"             => ["<1..>206", 1, 206, "+"],
             "spliced, reverse"         => ["complement(join(2691..4571,4918..5163))", 2691, 5163, "-"],
             "spliced, listed 3' first" => ["join(complement(4918..5163),complement(2691..4571))", 2691, 5163, "-"],
-            "join across the origin"   => ["join(4900..5000,1..100)", 4900, 100, "+", "circular"],
+            "join across the origin"   => ["join(4900..5000,1..100)", 4900, 100, "+", "circular", 5000],
             "join out of order, linear" => ["join(4900..5000,1..100)", 1, 5000, "+"],
-            "reverse across the origin" => ["join(complement(1..100),complement(4900..5000))", 4900, 100, "-", "circular"],
+            "reverse across the origin" => ["join(complement(1..100),complement(4900..5000))", 4900, 100, "-", "circular", 5000],
+            "order() backwards, circular" => ["order(30..40,10..20)", 10, 40, "+", "circular", 5000],
+            "trans-spliced, one strand, circular" => ["join(complement(69611..69724),complement(140378..140403),complement(141009..141240))", 69611, 141240, "-", "circular"],
+            "two segments back, circular, not across the origin" => ["join(complement(69611..69724),complement(140378..140403))", 69611, 140403, "-", "circular"],
+            "complement of another entry alone" => ["complement(J00194.1:100..202)", null, null, "+"],
             "reverse out of order, linear" => ["join(complement(1..100),complement(4900..5000))", 1, 5000, "-"],
             "trans-spliced, both strands" => ["join(complement(69611..69724),139856..139881,140400..140631)", 69611, 140631, null],
             "complement of another entry only" => ["join(complement(J00194.1:100..202),1..50)", 1, 50, "+"],
@@ -1332,11 +1336,11 @@ class ParseGenbankManagerTest extends WebTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('locations')]
-    public function testLocationBounds(string $sLocation, ?int $iFrom, ?int $iTo, ?string $sStrand, string $sTopology = "linear")
+    public function testLocationBounds(string $sLocation, ?int $iFrom, ?int $iTo, ?string $sStrand, string $sTopology = "linear", int $iLength = 150000)
     {
         $oParser = new ParseGenbankManager();
         $oParser->parseDataFile([
-            sprintf("LOCUS       %-16s %11d bp    %-6s  %-8s PLN 21-JUN-1999\n", "TEST", 150000, "DNA", $sTopology),
+            sprintf("LOCUS       %-16s %11d bp    %-6s  %-8s PLN 21-JUN-1999\n", "TEST", $iLength, "DNA", $sTopology),
             "FEATURES             Location/Qualifiers\n",
             "     misc_feature    " . $sLocation . "\n",
             "                     /note=\"test\"\n",
@@ -1430,5 +1434,23 @@ class ParseGenbankManagerTest extends WebTestCase
         $this->assertEquals("NC_000913", $oParser->getSequence()->getPrimAcc());
         $this->assertSame([], $oParser->getAccession());
         $this->assertSame([], $oParser->getKeywords());
+    }
+
+    /**
+     * "(sites)" is no "(bases a to b)" : only the closing bracket went, and the range was stored "(sites".
+     */
+    public function testReferenceRangeOfSites()
+    {
+        $oParser = new ParseGenbankManager();
+        $oParser->parseDataFile([
+            "LOCUS       TEST                      10 bp    DNA     linear   PLN 21-JUN-1999\n",
+            "REFERENCE   1  (sites)\n",
+            "  AUTHORS   Smith,J.\n",
+            "REFERENCE   2  (bases 1 to 10)\n",
+            "  AUTHORS   Smith,J.\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals(["sites", "1 to 10"], array_map(fn($oReference) => $oReference->getBaseRange(), $oParser->getReferences()));
     }
 }

@@ -417,24 +417,19 @@ class SequenceManager
      */
     public function patPos(string $sPattern, string $sOptions = "I", ?string $sSequence = null) : array {
         $aOuter = [];
-        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
+        $bInsensitive = strtoupper($sOptions) == "I";
 
-        if (strtoupper($sOptions) == "I") {
-            $sSequence = strtoupper($sSequence);
-        }
+        // The offsets come from the very scan that counts the matches : looking each matched string
+        // up again with strpos() reported an occurrence the scan had skipped as overlapping.
+        preg_match_all(
+            "/" . $this->expandNa($bInsensitive ? strtoupper($sPattern) : $sPattern) . "/",
+            $bInsensitive ? strtoupper($sSequence) : $sSequence,
+            $aMatches,
+            PREG_OFFSET_CAPTURE
+        );
 
-        foreach($aPatFreq as $skey => $iValue) {
-            if ($sOptions == "I") {
-                $skey = strtoupper($skey);
-            }
-            $aInner = [];
-            $iStart = 0;
-            for($i = 0; $i < $iValue; $i++) {
-                $iLastPos = strpos($sSequence, $skey, $iStart);
-                array_push($aInner, $iLastPos);
-                $iStart = $iLastPos + strlen($skey);
-            }
-            $aOuter[$skey] = $aInner;
+        foreach ($aMatches[0] as [$sMatch, $iOffset]) {
+            $aOuter[$sMatch][] = $iOffset;
         }
         return $aOuter;
     }
@@ -636,6 +631,7 @@ class SequenceManager
      */
     public function charge(string $sAminoSeq) : string
     {
+        $sAminoSeq = strtoupper($sAminoSeq);
         $sChargedSequence = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);
@@ -688,6 +684,7 @@ class SequenceManager
      */
     public function chemicalGroup(string $sAminoSeq) : string
     {
+        $sAminoSeq = strtoupper($sAminoSeq);
         $sChemgrpSeq = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);

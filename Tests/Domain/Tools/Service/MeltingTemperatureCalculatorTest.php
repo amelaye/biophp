@@ -189,4 +189,26 @@ class MeltingTemperatureCalculatorTest extends TestCase
             }
         }
     }
+
+    /**
+     * U is a weak base : the basic Tm ignored it, giving 10 for ACGU where ACGT gives 12, while the GC
+     * percentage counted it.
+     */
+    public function testBasicTmReadsUAsT()
+    {
+        $this->assertEquals(12.0, $this->calculator->calculateMinimumTm("ACGU"));
+        $this->assertEquals(12.0, $this->calculator->calculateMaximumTm("acgu"));
+        $this->assertEquals(
+            $this->calculator->calculateMinimumTm("ACGTACGTACGTACGTACGT"),
+            $this->calculator->calculateMinimumTm("ACGUACGUACGUACGUACGU")
+        );
+    }
+
+    public function testNearestNeighborTmRefusesAnRnaPrimerForItsOwnReason()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("RNA");
+
+        $this->calculator->calculateNearestNeighborTm("ACGUACGU", 250, 50, 0);
+    }
 }

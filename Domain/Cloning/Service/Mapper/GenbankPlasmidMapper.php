@@ -3,7 +3,7 @@
  * Transforms an already-parsed circular GenBank record into a Plasmid
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -233,12 +233,20 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
         if ($sLocation === null || !preg_match('/join\(|order\(/', $sLocation)) {
             return false;
         }
+        // The partial marks "<" and ">" are no part of a coordinate ("1..>5")
+        $sLocation = str_replace(["<", ">"], "", $sLocation);
         preg_match_all('/(\d+)(?:\.\.(\d+))?/', preg_replace('/[^,(]*:[^,)]*/', "", $sLocation), $aMatches, PREG_SET_ORDER);
-        $aSegments = array_map(fn($aMatch) => [(int) $aMatch[1], (int) ($aMatch[2] ?? $aMatch[1])], $aMatches);
+        $aWritten = array_map(fn($aMatch) => [(int) $aMatch[1], (int) ($aMatch[2] ?? $aMatch[1])], $aMatches);
+        $aSegments = $aWritten;
         usort($aSegments, fn($a, $b) => $a[0] <=> $b[0]);
         for ($i = 1; $i < count($aSegments); $i++) {
             if ($aSegments[$i][0] !== $aSegments[$i - 1][1] + 1) {
-                $bWrap = count($aSegments) === 2 && $aSegments[0][0] === 1 && $aSegments[1][1] === $iLength;
+                // Two segments meet at the origin when they are listed from the last base to the first
+                // one (the first one first on the reverse strand, which lists its segments backwards)
+                $bReverse = strpos($sLocation, "complement(") !== false;
+                $bWrap = count($aWritten) === 2 && ($bReverse
+                    ? ($aWritten[0][0] === 1 && $aWritten[1][1] === $iLength)
+                    : ($aWritten[0][1] === $iLength && $aWritten[1][0] === 1));
                 return !$bWrap;
             }
         }
@@ -257,7 +265,8 @@ class GenbankPlasmidMapper implements GenbankPlasmidMapperInterface
         $sGene = $aQualifiers["gene"][0] ?? null;
         $sLabel = $aQualifiers["label"][0] ?? null;
         $sProduct = $aQualifiers["product"][0] ?? null;
-        $sNote = $aQualifiers["note"][0] ?? null;
+        // /note may come several times (Addgene and SnapGene exports) : none is dropped
+        $sNote = isset($aQualifiers["note"]) ? implode("; ", $aQualifiers["note"]) : null;
 
         $sName = $sGene ?? $sLabel ?? $sProduct ?? $sKey;
         $sType = self::FEATURE_TYPE_BY_GENBANK_KEY[$sKey] ?? FeatureType::MISC_FEATURE;

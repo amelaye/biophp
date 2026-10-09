@@ -3,7 +3,7 @@
  * Global database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -234,10 +234,11 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
      * - the segments of a join() are listed in the order they are transcribed. When the record is
      *   circular, all of them lie on the same strand and that order goes back past the origin
      *   (join(4900..5000,1..100), or join(complement(1..100),complement(4900..5000)) on the other
-     *   strand), the bounds are from = 4900, to = 100 : from > to, the origin-crossing convention of
-     *   PlasmidFeature, as for a single segment written "4900..100". Otherwise - a linear record,
-     *   whose trans-spliced genes (plant organelle nad1, rps12) list their segments out of order -
-     *   they are the lowest start and the highest end.
+     *   strand), that order goes back exactly once, from the last base of the molecule to the first,
+     *   and the join is not an order(), the bounds are from = 4900, to = 100 : from > to, the
+     *   origin-crossing convention of PlasmidFeature, as for a single segment written "4900..100".
+     *   Otherwise - a linear record, an order(), a trans-spliced gene (plant organelle nad1, rps12)
+     *   whose segments are listed out of order - they are the lowest start and the highest end.
      * @param   string  $sLocation  The raw location text, e.g. "complement(join(<1..10,50..>60))".
      * @return  array   [$iFrom, $iTo, $sStrand] - $sStrand is "-" when every segment of this entry
      * is complemented, "+" when none is, null when the location lies on both strands (a trans-spliced
@@ -265,7 +266,8 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
         }
 
         if ($aSegments === []) {
-            return [null, null, $sStrand];
+            // Nothing of this entry : a complement() around another entry's segment says nothing here
+            return [null, null, strpos($sLocation, ":") !== false ? "+" : $sStrand];
         }
 
         $aStrands = array_unique(array_column($aSegments, 2));
@@ -277,14 +279,27 @@ abstract class ParseDbAbstractManager implements ParseDatabaseInterface
             $sStrand = $aSegments[0][2] ? "-" : "+";
         }
         $bCircular = $this->gbSequence !== null && $this->gbSequence->getTopology() === "CIRCULAR";
-        if ($bCircular && count($aSegments) > 1 && count($aStrands) === 1) {
+        // order() implies no order of the segments : listing them backwards crosses nothing
+        $bOrdered = preg_match('/\border\(/', $sLocation) !== 1;
+        if ($bCircular && $bOrdered && count($aSegments) > 1 && count($aStrands) === 1) {
             // join(complement(c..d),complement(a..b)) is transcribed from the last base of the
             // feature : listed from its 3' end, read back to front it runs like a direct one.
             if ($aSegments[0][2] && !$bOuterComplement) {
                 $aSegments = array_reverse($aSegments);
             }
+            // The feature crosses the origin when its segments go back once, from the last base of the
+            // molecule to the first : a trans-spliced gene (plant organelle nad1, rps12) lists its
+            // segments out of order too, several times, and not from end to start
+            $aDescents = [];
             for ($i = 1; $i < count($aSegments); $i++) {
                 if ($aSegments[$i][0] < $aSegments[$i - 1][0]) {
+                    $aDescents[] = $i;
+                }
+            }
+            if (count($aDescents) === 1) {
+                $i = $aDescents[0];
+                $iLength = $this->sequence !== null ? (int) $this->sequence->getSeqLength() : 0;
+                if ($iLength <= 0 || ($aSegments[$i - 1][1] === $iLength && $aSegments[$i][0] === 1)) {
                     return [$aSegments[0][0], $aSegments[count($aSegments) - 1][1], $sStrand];
                 }
             }

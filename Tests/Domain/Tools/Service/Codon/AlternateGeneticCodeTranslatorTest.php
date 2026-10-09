@@ -102,4 +102,24 @@ class AlternateGeneticCodeTranslatorTest extends TestCase
         $this->assertEquals("*", $this->translator->translateCodon("aga", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
         $this->assertEquals("*", $this->translator->translateCodon("AGG", GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL));
     }
+
+    /**
+     * An ambiguous codon was always read under the standard code : AGR is Arg there, and a stop in the
+     * vertebrate mitochondrial code, where AGA and AGG both are ; a mitochondrial CDS read through its
+     * terminator. NCBI table 2 : TGR is Trp (TGA, TGG), ATR is Met (ATA, ATG).
+     */
+    public function testAnAmbiguousCodonIsReadUnderTheRequestedTable()
+    {
+        $iTable = GeneticCodeTable::VERTEBRATE_MITOCHONDRIAL;
+
+        $this->assertEquals("*", $this->translator->translateCodon("AGR", $iTable));
+        $this->assertEquals("W", $this->translator->translateCodon("TGR", $iTable));
+        $this->assertEquals("M", $this->translator->translateCodon("ATR", $iTable));
+        // AGT/AGC are Ser and AGA/AGG stops : the codons covered disagree
+        $this->assertEquals("X", $this->translator->translateCodon("AGN", $iTable));
+        $this->assertEquals("X", $this->translator->translateCodon("NNN", $iTable));
+        $this->assertEquals("W", $this->translator->translateCodon("UGR", $iTable));
+        // The standard code keeps its own reading
+        $this->assertEquals("R", $this->translator->translateCodon("AGR", GeneticCodeTable::STANDARD));
+    }
 }

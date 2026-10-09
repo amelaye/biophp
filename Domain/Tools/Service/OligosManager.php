@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 2 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -237,6 +237,7 @@ class OligosManager implements OligosInterface
      * @throws      \Exception
      */
     public function findOligos(string $sSequence, int $iOligoLen) : array {
+        $sSequence      = strtoupper($sSequence);
         $i              = 0;
         $aOligos1Step   = [];
         $aOligos        = [];
@@ -314,6 +315,10 @@ class OligosManager implements OligosInterface
 
                         if(!isset($oligos2[$val_b.$val_c])) {
                             $oligos2[$val_b.$val_c] = null;
+                            $exp[$val_a.$val_b.$val_c.$val_d] = 0;
+                        } elseif ($oligos2[$val_b.$val_c] == 0) {
+                            // The dinucleotide is absent (findOligos() lists it with a count of 0) :
+                            // the expectation is undefined, and 0 as for an unlisted one
                             $exp[$val_a.$val_b.$val_c.$val_d] = 0;
                         } else {
                             $exp[$val_a.$val_b.$val_c.$val_d] = $atemp / $oligos2[$val_b.$val_c];

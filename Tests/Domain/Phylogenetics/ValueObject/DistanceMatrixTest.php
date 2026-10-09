@@ -117,4 +117,45 @@ class DistanceMatrixTest extends TestCase
 
         new DistanceMatrix(["A", "B"], [[0, INF], [INF, 0]]);
     }
+
+    /**
+     * The rows were read in their own order : a matrix keyed by label and not listed in the order of the
+     * labels (symmetric, zero diagonal) was accepted, and d(A,C) read as d(B,C).
+     */
+    public function testAMatrixKeyedByLabelIsReadByLabelWhateverItsOrder()
+    {
+        $oMatrix = new DistanceMatrix(["A", "B", "C"], [
+            "B" => ["B" => 0, "A" => 3, "C" => 6],
+            "A" => ["B" => 3, "A" => 0, "C" => 5],
+            "C" => ["B" => 6, "A" => 5, "C" => 0],
+        ]);
+
+        $this->assertEquals(3.0, $oMatrix->getDistance(0, 1));
+        $this->assertEquals(5.0, $oMatrix->getDistance(0, 2));
+        $this->assertEquals(6.0, $oMatrix->getDistance(1, 2));
+    }
+
+    public function testAListIsReadInOrderEvenWithNumericLabels()
+    {
+        $oMatrix = new DistanceMatrix(["1", "0"], [[0, 4], [4, 0]]);
+
+        $this->assertEquals(4.0, $oMatrix->getDistance(0, 1));
+    }
+
+    /**
+     * A distance that is no number was cast to 0 : two distinct taxa were taken for identical.
+     */
+    public function testRejectsADistanceThatIsNoNumber()
+    {
+        foreach (["n/a", null, "", [1]] as $mValue) {
+            try {
+                new DistanceMatrix(["A", "B"], [[0, $mValue], [$mValue, 0]]);
+                $this->fail("A distance of " . var_export($mValue, true) . " was accepted.");
+            } catch (InvalidDistanceMatrixException $oException) {
+                $this->assertStringContainsString("is not a number", $oException->getMessage());
+            }
+        }
+
+        $this->assertEquals(2.5, (new DistanceMatrix(["A", "B"], [[0, "2.5"], ["2.5", 0]]))->getDistance(0, 1));
+    }
 }

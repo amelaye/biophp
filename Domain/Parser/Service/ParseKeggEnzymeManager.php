@@ -3,7 +3,7 @@
  * KEGG ENZYME parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 7 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -105,8 +105,8 @@ final class ParseKeggEnzymeManager extends ParseKeggAbstractManager
         $this->sysname        = isset($aFields["SYSNAME"]) ? $this->joinLines($aFields["SYSNAME"]) : "";
         $this->comment        = isset($aFields["COMMENT"]) ? $this->joinLines($aFields["COMMENT"]) : "";
         $this->reactions      = $this->readItems("REACTION");
-        $this->substrates     = $this->readItems("SUBSTRATE");
-        $this->products       = $this->readItems("PRODUCT");
+        $this->substrates     = $this->readItems("SUBSTRATE", true);
+        $this->products       = $this->readItems("PRODUCT", true);
         $this->genes          = $this->readItems("GENES");
         $this->diseases       = $this->readItems("DISEASE");
         // ORTHOLOGY since the 2008 format, ORTHOLOG before it.

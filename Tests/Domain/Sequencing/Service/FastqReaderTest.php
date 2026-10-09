@@ -190,4 +190,41 @@ class FastqReaderTest extends TestCase
         $oResult = $this->reader->read(["@r1", "ACGT", "+", "IIJ#"]);
         $this->assertSame([], $oResult->getWarnings());
     }
+
+    /**
+     * A blank quality line was no "first line taken" : the next header was read as the quality of the
+     * record, which got Phred scores invented from "@r2x", and r2x was lost.
+     */
+    public function testABlankQualityLineDoesNotSwallowTheNextHeader()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "+", "", "@r2x", "ACGT", "+", "IIII"]);
+
+        $this->assertEquals(["r2x"], array_map(fn($o) => $o->getIdentifier(), $oResult->getRecords()));
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("length", $oResult->getWarnings()[0]);
+    }
+
+    /**
+     * Cock et al. 2010 : a "+" line repeating the title must repeat the "@" one.
+     */
+    public function testWarnsWhenThePlusLineRepeatsAnotherTitle()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "+r2", "IIII", "@r3", "ACGT", "+r3", "IIII"]);
+
+        $this->assertCount(2, $oResult->getRecords());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString('"+" line repeats "r2"', $oResult->getWarnings()[0]);
+    }
+
+    /**
+     * A Phred+33 file of a long-read instrument reaches "~" (Q93) : it is no Phred+64 file, whose
+     * scores stop at "h" or "i".
+     */
+    public function testAHighQualityPhred33FileIsNotTakenForPhred64()
+    {
+        $oResult = $this->reader->read(["@r1", "ACGT", "+", "~~~@"]);
+
+        $this->assertSame([], $oResult->getWarnings());
+        $this->assertEquals([93, 93, 93, 31], $oResult->getRecords()[0]->getPhredScores());
+    }
 }

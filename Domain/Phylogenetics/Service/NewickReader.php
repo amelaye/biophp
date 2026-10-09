@@ -3,7 +3,7 @@
  * Parses a Newick string into a PhylogeneticNode tree
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -206,7 +206,8 @@ class NewickReader implements NewickReaderInterface
         $iStart = $iPosition;
         $sValue = $this->parseToken($sBody, $iPosition);
 
-        if (!is_numeric($sValue)) {
+        // "1e400" is numeric and overflows to INF, which is no length a tree can hold
+        if (!is_numeric($sValue) || !is_finite((float) $sValue)) {
             throw InvalidNewickException::invalidBranchLength($sValue, $iStart);
         }
 

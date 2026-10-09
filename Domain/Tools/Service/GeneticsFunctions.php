@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 19 march  2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 2 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -63,14 +63,14 @@ class GeneticsFunctions
     }
 
     /**
-     * Place sequence and reverse complement of sequence in one line
+     * Returns the reverse complement of a sequence, in upper case
      * @param $sSequence
      * @param $dnaComplements
      * @return string
      */
     public static function CreateInversion($sSequence, $dnaComplements): string
     {
-        $seqRevert = strrev($sSequence);
+        $seqRevert = strrev(strtoupper($sSequence));
         $sNewSequence = "";
         foreach ($dnaComplements as $nucleotide => $complement) {
             $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);

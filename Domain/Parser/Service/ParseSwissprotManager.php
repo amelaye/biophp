@@ -3,7 +3,7 @@
  * Swissprot database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 15 february 2019
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -93,7 +93,9 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
     {
         foreach($aFlines as $sCurrent) {
             if (substr($sCurrent, 0, 2) == "AC") {
-                $sCurrent = str_replace(' ', '', substr($sCurrent, 5));
+                // The accession follows the line code whatever the blanks between them : cutting at
+                // column 5 took the "P" of "AC P01375;" off
+                $sCurrent = str_replace(' ', '', substr($sCurrent, 2));
                 $aWords = preg_split("/;/", $sCurrent);
 
                 return $aWords[0];
@@ -396,13 +398,17 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             $aDescription[] = trim(substr($sNext, 5));
             $this->aLines->next();
         }
-        $sFTDesc = $this->featureDescription(array_values(array_filter($aDescription, 'strlen')));
+        $sFTDesc = $this->featureDescription(array_values(array_filter($aDescription, 'strlen')), $sFTKey);
 
         $oFeature = new Feature();
         $oFeature->setPrimAcc($this->sequence->getPrimAcc());
         $oFeature->setFtKey($sFTKey);
         $oFeature->setFtFrom($this->featurePosition($sFrom));
         $oFeature->setFtTo($this->featurePosition($sTo));
+        // A "<" or ">" end is kept in the location, which Feature::isPartial() reads
+        if (strpbrk($sFrom . $sTo, "<>") !== false) {
+            $oFeature->setFtLocation($sFrom . ".." . $sTo);
+        }
         $oFeature->setFtValue($sFTKey);
         $oFeature->setFtDesc($sFTDesc);
         $this->features[] = $oFeature;
@@ -423,10 +429,13 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
      * /note="..." qualifier of the 2019_11 layout. A line broken right after a hyphen continues
      * the same word ("PROSITE-" + "ProRule"). The evidence tags ({ECO:0000255}), the /FTId, /id and
      * /evidence qualifiers and the final period are provenance and punctuation, not description.
+     * The residues of a VAR_SEQ, VARIANT or CONFLICT ("MSLAWLAAEGLR" + "LSSRRA -> MQ (in isoform 2)")
+     * are wrapped at the column without a space, which the joining must not add inside them.
      * @param   string[]    $aLines
+     * @param   string      $sKey       The feature key
      * @return  string
      */
-    private function featureDescription(array $aLines) : string
+    private function featureDescription(array $aLines, string $sKey = "") : string
     {
         $sText = "";
         foreach ($aLines as $sLine) {
@@ -436,6 +445,18 @@ final class ParseSwissprotManager extends ParseDbAbstractManager
             $sText = $aNote[1];
         } else {
             $sText = preg_replace('/\s*\/\w+=.*$/', "", $sText);
+        }
+        if (in_array($sKey, ["VAR_SEQ", "VARIANT", "CONFLICT"], true)) {
+            $sText = preg_replace_callback(
+                '/^([A-Z][A-Z ]*)( -> )/',
+                fn(array $aMatch) => str_replace(" ", "", $aMatch[1]) . $aMatch[2],
+                $sText
+            );
+            $sText = preg_replace_callback(
+                '/( -> )([A-Z][A-Z ]*?)(?= \(|\.?$)/',
+                fn(array $aMatch) => $aMatch[1] . str_replace(" ", "", $aMatch[2]),
+                $sText
+            );
         }
         // "Charge relay system. {ECO:0000250}." : the period before the tag goes with it.
         $sText = trim(preg_replace('/\.?\s*\{ECO:[^}]*\}/', "", $sText));

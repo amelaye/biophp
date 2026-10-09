@@ -3,7 +3,7 @@
  * Serializes a Plasmid into GenBank flat-file text
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -118,8 +118,14 @@ class GenbankWriter implements GenbankWriterInterface
             $sOutput .= $this->writeQualifier("mol_type", $aPlasmidMetadata["molType"]);
         }
 
-        foreach ($oPlasmid->getFeatures() as $oFeature) {
-            $sOutput .= $this->writeFeature($oFeature, $iLength);
+        // Two features of one key at one location follow each other as one run of qualifiers when read
+        // back : each of them then gets a /label, which the reader splits them on
+        $aFeatures = array_values($oPlasmid->getFeatures());
+        foreach ($aFeatures as $iIndex => $oFeature) {
+            $sSignature = $this->locationSignature($oFeature);
+            $bSharesItsLocation = ($iIndex > 0 && $this->locationSignature($aFeatures[$iIndex - 1]) === $sSignature)
+                || (isset($aFeatures[$iIndex + 1]) && $this->locationSignature($aFeatures[$iIndex + 1]) === $sSignature);
+            $sOutput .= $this->writeFeature($oFeature, $iLength, $bSharesItsLocation);
         }
 
         $sOutput .= $this->writeOriginBlock($oPlasmid->getSequence()->getValue());
@@ -148,9 +154,10 @@ class GenbankWriter implements GenbankWriterInterface
     /**
      * @param   PlasmidFeature  $oFeature
      * @param   int             $iLength    The plasmid length, where an origin-crossing feature wraps
+     * @param   bool            $bSharesItsLocation     Another feature of the same key lies next to it, at the same place
      * @return  string
      */
-    private function writeFeature(PlasmidFeature $oFeature, int $iLength): string
+    private function writeFeature(PlasmidFeature $oFeature, int $iLength, bool $bSharesItsLocation = false): string
     {
         $aMetadata = $oFeature->getMetadata();
         $sKey = $aMetadata["genbankKey"]
@@ -192,7 +199,7 @@ class GenbankWriter implements GenbankWriterInterface
         // A feature built by hand or read from GFF3/BED carries its name alone : without a
         // /label it would come back named after its key.
         if (empty($aMetadata["gene"]) && empty($aMetadata["label"]) && empty($aMetadata["product"])
-            && $oFeature->getName() !== $sKey) {
+            && ($oFeature->getName() !== $sKey || $bSharesItsLocation)) {
             $sOutput .= $this->writeQualifier("label", $oFeature->getName());
         }
         if ($oFeature->getPhase() !== null) {
@@ -203,6 +210,22 @@ class GenbankWriter implements GenbankWriterInterface
         }
 
         return $sOutput;
+    }
+
+    /**
+     * @param   PlasmidFeature  $oFeature
+     * @return  string          What a feature shares with another one that the reader cannot tell it from
+     */
+    private function locationSignature(PlasmidFeature $oFeature): string
+    {
+        $aMetadata = $oFeature->getMetadata();
+
+        return implode("|", [
+            $aMetadata["genbankKey"] ?? self::GENBANK_KEY_BY_FEATURE_TYPE[$oFeature->getType()] ?? "misc_feature",
+            $oFeature->getStart(),
+            $oFeature->getEnd(),
+            $oFeature->getStrand(),
+        ]);
     }
 
     /**

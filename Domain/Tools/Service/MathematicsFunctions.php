@@ -4,7 +4,7 @@
  * Inspired by BioPHP's project biophp.org
  * Created 28 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -43,12 +43,14 @@ class MathematicsFunctions
 
 
     /**
-     * Calculates the median
+     * Calculates the median, the null entries left out
      * @param       array       $data
      * @return      float|int
      * @throws      \Exception
      */
     public static function Median(array $data) {
+        // Mean() and Variance() skip the null entries : the median does the same
+        $data = array_values(array_filter($data, fn($fValue) => $fValue !== null));
         if (count($data) === 0) {
             throw new \Exception("Cannot calculate the median of an empty data set !");
         }

@@ -56,4 +56,14 @@ class GeneticsFunctionsTest extends TestCase
     {
         $this->assertEquals("ARN*DCE", GeneticsFunctions::RemoveNonCodingProt("ARN*DCE"));
     }
+
+    /**
+     * The complements are looked up in upper case : "aagg" used to be reversed and not complemented,
+     * and came back as "GGAA".
+     */
+    public function testCreateInversionOfALowerCaseSequence()
+    {
+        $dnaComplements = ['A' => 'T', 'T' => 'A', 'G' => 'C', 'C' => 'G'];
+        $this->assertEquals("CCTT", GeneticsFunctions::CreateInversion("aagg", $dnaComplements));
+    }
 }

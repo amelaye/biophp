@@ -3,7 +3,7 @@
  * Raised when a DistanceMatrix is built from inconsistent labels or distances
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 8 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -112,6 +112,21 @@ class InvalidDistanceMatrixException extends \InvalidArgumentException
     {
         return new self(
             sprintf('Distance D[%d][%d]=%s must not be negative.', $iRow, $iColumn, $fValue)
+        );
+    }
+
+    /**
+     * Builds the exception raised when a distance is not a number at all (a null, an empty string, "n/a") :
+     * cast to a float it would read as 0, and two distinct taxa would be taken for identical.
+     * @param   int         $iRow
+     * @param   int         $iColumn
+     * @param   mixed       $mValue
+     * @return  InvalidDistanceMatrixException
+     */
+    public static function nonNumericDistance(int $iRow, int $iColumn, $mValue): self
+    {
+        return new self(
+            sprintf('Distance D[%d][%d]=%s is not a number.', $iRow, $iColumn, var_export($mValue, true))
         );
     }
 

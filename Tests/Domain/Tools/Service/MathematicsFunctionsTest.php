@@ -154,4 +154,20 @@ class MathematicsFunctionsTest extends TestCase
             }
         }
     }
+
+    /**
+     * Mean() and Variance() skip the null entries ; Median() sorted a null first and returned 1.
+     */
+    public function testMedianSkipsTheNullEntries()
+    {
+        $this->assertEquals(2, MathematicsFunctions::Median([1, null, 3]));
+        $this->assertEquals(2, MathematicsFunctions::Mean([1, null, 3]));
+    }
+
+    public function testMedianOfOnlyNullEntriesThrows()
+    {
+        $this->expectException(\Exception::class);
+
+        MathematicsFunctions::Median([null, null]);
+    }
 }

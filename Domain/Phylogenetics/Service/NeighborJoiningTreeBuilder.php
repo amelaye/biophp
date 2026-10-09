@@ -3,7 +3,7 @@
  * Builds an unrooted phylogenetic tree from a distance matrix via neighbor-joining
  * Freely inspired by BioPHP's project biophp.org
  * Created 30 September 2026
- * Last modified 2 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -19,8 +19,8 @@ use Amelaye\BioPHP\Domain\Phylogenetics\ValueObject\PhylogeneticNode;
  * sum of i's distances to every other active cluster ; this is what makes neighbor-joining prefer a
  * pair that is close to each other AND far from everything else, rather than simply the closest pair
  * (which is what UPGMA does, and which assumes a molecular clock this algorithm does not need). Ties
- * in Q keep the first pair encountered, in (label) iteration order - an arbitrary but deterministic
- * choice, the same kind already made by this project's alignment tie-breaking.
+ * in Q keep the first pair encountered, in the order of the active clusters (the labels first, then
+ * each cluster joined, appended last) - an arbitrary but deterministic choice, the same kind already made by this project's alignment tie-breaking.
  *
  * The reduction stops at exactly 3 active clusters rather than 2, because the classic pairwise
  * branch-length formula needs an r_i computed over at least one OTHER active cluster besides the

@@ -906,4 +906,41 @@ class SequenceAlignmentManagerTest extends TestCase
 
         $this->assertEquals(33, $iCount);
     }
+
+    /**
+     * "a" and "A" counted as two residues : a column of a, A, A scored 66.7% and gave "?" at the
+     * default threshold, and was reported variant, in a soft-masked FASTA alignment.
+     */
+    public function testConsensusAndVariabilityIgnoreTheCaseOfTheResidues()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["a", "A", "A"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(1);
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("A", $sequenceAlignmentManager->consensus());
+        $this->assertEquals(["INVARIANT" => [0], "VARIANT" => []], $sequenceAlignmentManager->resVar());
+    }
+
+    /**
+     * The columns were those of the first sequence, and a sequence shorter than the others counted
+     * "" as a symbol past its end : "AC" over "A" lost the second column.
+     */
+    public function testConsensusOfASetOfDifferentLengthsCoversTheLongestSequence()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["A", "AC", "AC"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(strlen($sSeq));
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("AC", $sequenceAlignmentManager->consensus(60));
+    }
 }

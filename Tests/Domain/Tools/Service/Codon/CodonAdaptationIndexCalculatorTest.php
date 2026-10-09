@@ -118,4 +118,18 @@ class CodonAdaptationIndexCalculatorTest extends TestCase
 
         $this->calculator->calculate($oCds, $oTable);
     }
+
+    /**
+     * "GGN" is Gly whatever the N, so it was scored, and the table (A, C, G, T codons only) has no
+     * usage for it : one N in a sequencing-derived CDS made the CAI throw.
+     */
+    public function testACodonHoldingAnAmbiguityCodeIsLeftOut()
+    {
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+
+        $oResult = $this->calculator->calculate(new DnaSequence("ATGGGNTTT"), $oTable);
+
+        $this->assertEquals(1, $oResult->getCodonsScored());
+        $this->assertEqualsWithDelta(1.0, $oResult->getScore(), 0.0000001);
+    }
 }
