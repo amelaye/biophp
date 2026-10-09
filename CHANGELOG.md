@@ -9,6 +9,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Changes on `develop` since `master`.
 
 ### Added
+- `getGcPercent()` and `getGcFraction()` on `AbstractNucleicSequence` (so `DnaSequence`, `RnaSequence`),
+  `SkewResult` and `CpGIsland` : `getGcContent()` is a percentage on the first and a fraction on the
+  other two, which these name by their scale. `getGcContent()` is unchanged (making the four agree
+  would break whoever reads either), and now says so in its docblock.
+- `ChaosGameRepresentationCalculator` : the points of a Chaos Game Representation, and the counts of
+  the oligonucleotides on the 2^k x 2^k grid of an FCGR, one strand or both. Migrated from biotools'
+  `ChaosGameRepresentationManager`, whose computation was mixed with the drawing ; the points and
+  the cells are checked against that code's own loops. The drawing stays in biotools.
+- `FastqWriter` and `VcfWriter`, the counterparts of `FastqReader` and `VcfReader` : what they write,
+  the readers read back as it was (a quality starting with "@" or "+", a multi-allelic ALT, a
+  breakend, a telomere, percent-encoded INFO values). A FASTQ read is four lines, unwrapped ; a VCF
+  file starts with `##fileformat=VCFv4.3`, takes extra meta lines, and holds the eight fixed columns.
+- Genetic codes : `AlternateGeneticCodeTranslator` reads 24 NCBI tables, where it read tables 1 and 2
+  only (1 to 6, 9 to 16, 21 to 26, 29, 30, 32, 33). Generated from gc.prt 4.6, and checked codon by
+  codon against Biopython's CodonTable. Tables 27, 28 and 31 are refused : their stop codons depend
+  on their position. `OrfFinder::findOrfs()`, `CodonAdaptationIndexCalculator::calculate()` and
+  `CodonOptimizer::optimize()` take the table as a last, optional argument (1 by default), on their
+  interfaces too.
+- `ProteinPropertiesCalculator` : the net charge of a protein at a pH, its isoelectric point (by
+  bisection) and its GRAVY (Kyte and Doolittle). The pK set is the caller's - bioapi's EMBOSS,
+  DTASelect or Solomon - and the values were checked against Biopython 1.88 run with the same sets.
+  Ported from biotools' `ProteinPropertiesManager`, which stops at two decimals and has no GRAVY.
 - Genetic codes : `TripletSpecieDTO::getNcbiTableId()` gives the NCBI table number (transl_table) of
   a species ; its `getId()` is only an auto-increment (echinoderm mitochondrial is 7, table 9 at
   NCBI). Null when the API does not send it. Seven NCBI codes join the 17 already there, taken from
@@ -86,6 +108,16 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+- Enzyme suppliers : the `Vendors` data was an old snapshot of REBASE - 311 of its 620 enzymes
+  differed from today's, and it used the codes of suppliers REBASE no longer lists (Fermentas F,
+  Minotech C, Bangalore Genei U...). It is regenerated from REBASE v610's bairoch file, the CR line of
+  each enzyme (587 commercially available enzymes, the methyltransferases left out), and the links
+  hold the thirteen suppliers of that version (B E I J K M N O Q R S V X) : the obsolete ones are
+  gone, Takara and Roche carry their current names. The previous supplier Y, unresolved before, was
+  among the obsolete codes. bioapi's fixtures and the samples change together.
+- Amino acid X : its residue weight was 114.822, which followed no rule. Like B and Z it is now the
+  lower bound of its free weight (glycine's 75.0666) less one water, 57.0513 ; the consistency test
+  covers B, Z and X, which it used to skip. bioapi's fixtures and the samples change together.
 - EMBL : a species name wrapped over several OS lines is kept whole ; each line replaced the one
   before, keeping the end of the name only.
 - Swiss-Prot : the OS field ends with its last OS line, not with the first line ending in a period
