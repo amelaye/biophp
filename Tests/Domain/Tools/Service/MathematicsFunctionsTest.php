@@ -170,4 +170,26 @@ class MathematicsFunctionsTest extends TestCase
 
         MathematicsFunctions::Median([null, null]);
     }
+
+    /**
+     * The result is rounded to 3 decimals by default, which flattens a frequency-scale mean or
+     * variance to 0 : a null precision returns it as it is, another one rounds to it.
+     */
+    public function testMeanAndVarianceHonourTheRequestedPrecision()
+    {
+        $this->assertSame(0.0, MathematicsFunctions::Mean([0.0001, 0.0003]));
+        $this->assertEqualsWithDelta(0.0002, MathematicsFunctions::Mean([0.0001, 0.0003], null), 1e-12);
+        $this->assertSame(0.0002, MathematicsFunctions::Mean([0.0001, 0.0003], 4));
+        $this->assertSame(2.3, MathematicsFunctions::Mean([1, 2, 4], 1));
+
+        $this->assertSame(0.0, MathematicsFunctions::Variance([0.0001, 0.0003]));
+        $this->assertEqualsWithDelta(2.0e-8, MathematicsFunctions::Variance([0.0001, 0.0003], null), 1e-15);
+        $this->assertEqualsWithDelta(32 / 7, MathematicsFunctions::Variance([2, 4, 4, 4, 5, 5, 7, 9], null), 1e-12);
+    }
+
+    public function testMeanAndVarianceKeepSkippingNullsWhateverThePrecision()
+    {
+        $this->assertEqualsWithDelta(0.0002, MathematicsFunctions::Mean([0.0001, null, 0.0003], null), 1e-12);
+        $this->assertEqualsWithDelta(2.0e-8, MathematicsFunctions::Variance([0.0001, null, 0.0003], null), 1e-15);
+    }
 }

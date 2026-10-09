@@ -18,16 +18,31 @@ namespace Amelaye\BioPHP\Domain\Tools\Service;
 class MathematicsFunctions
 {
     /**
-     * Calculates the mean
+     * Calculates the mean, the null entries left out
+     * @param       array       $data
+     * @param       int|null    $iPrecision     Decimals the result is rounded to, 3 by default (the
+     * historical behaviour). Null returns it unrounded : a mean of frequencies or skews, of the
+     * order of 1e-4, is rounded to 0 by the default.
+     * @return      float|int
+     * @throws      \Exception
+     */
+    public static function Mean(array $data, ?int $iPrecision = 3) {
+        $mean = self::unroundedMean($data);
+
+        return $iPrecision === null ? $mean : round($mean, $iPrecision);
+    }
+
+    /**
+     * The mean of the values, the null entries left out, unrounded
      * @param       array       $data
      * @return      float|int
      * @throws      \Exception
      */
-    public static function Mean(array $data) {
+    private static function unroundedMean(array $data) {
         $sum = 0;
         $numValidElements = 0;
 
-        foreach($data as $key => $val) {
+        foreach($data as $val) {
             if(isset($val)) {
                 $sum += $val;
                 $numValidElements += 1;
@@ -36,9 +51,8 @@ class MathematicsFunctions
         if ($numValidElements === 0) {
             throw new \Exception("Cannot calculate the mean of an empty data set !");
         }
-        $mean = $sum / $numValidElements;
-        $mean = round ($mean,3);
-        return $mean;
+
+        return $sum / $numValidElements;
     }
 
 
@@ -64,32 +78,22 @@ class MathematicsFunctions
 
 
     /**
-     * Calculates the variance
+     * Calculates the variance (sample variance, n - 1), the null entries left out
      * @param       array       $data
+     * @param       int|null    $iPrecision     Decimals the result is rounded to, 3 by default (the
+     * historical behaviour). Null returns it unrounded : the variance of frequencies, of the order
+     * of 1e-6, is rounded to 0 by the default.
      * @return      float|int
      * @throws      \Exception
      */
-    public static function Variance(array $data) {
-        // Mean() rounds its result to 3 decimals for display purposes: reusing that rounded
-        // figure here would bias every squared deviation below. The mean used internally is
-        // computed unrounded instead; only the final variance is rounded, exactly as Mean()
-        // rounds only its own final output.
-        $sum = 0;
-        $numValidElements = 0;
-        foreach($data as $key => $val) {
-            if(isset($val)) {
-                $sum += $val;
-                $numValidElements += 1;
-            }
-        }
-        if ($numValidElements === 0) {
-            throw new \Exception("Cannot calculate the mean of an empty data set !");
-        }
-        $mean = $sum / $numValidElements;
+    public static function Variance(array $data, ?int $iPrecision = 3) {
+        // The deviations are taken from the unrounded mean : reusing the rounded one would bias
+        // every squared deviation. Only the final variance is rounded.
+        $mean = self::unroundedMean($data);
 
         $sum = 0;
         $numValidElements = 0;
-        foreach($data as $key => $val) {
+        foreach($data as $val) {
             if(isset($val)) {
                 $tmp = $val - $mean;
                 $sum += $tmp * $tmp;
@@ -101,8 +105,8 @@ class MathematicsFunctions
             throw new \Exception("Cannot calculate the variance with fewer than 2 valid elements !");
         }
         $variance = $sum / ( $numValidElements - 1 );
-        $variance = round($variance,3);
-        return $variance;
+
+        return $iPrecision === null ? $variance : round($variance, $iPrecision);
     }
 
     /**
