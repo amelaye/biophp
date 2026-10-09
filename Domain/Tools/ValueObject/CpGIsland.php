@@ -90,11 +90,29 @@ final class CpGIsland
     }
 
     /**
+     * The G+C content as a FRACTION, 0 to 1 - not the percentage AbstractNucleicSequence::getGcContent()
+     * gives under the same name. Kept as it is ; getGcFraction() and getGcPercent() say their scale.
      * @return  float
      */
     public function getGcContent(): float
     {
         return $this->gcContent;
+    }
+
+    /**
+     * @return  float   The G+C content as a fraction, 0 to 1
+     */
+    public function getGcFraction(): float
+    {
+        return $this->gcContent;
+    }
+
+    /**
+     * @return  float   The G+C content as a percentage, 0 to 100
+     */
+    public function getGcPercent(): float
+    {
+        return $this->gcContent * 100;
     }
 
     /**

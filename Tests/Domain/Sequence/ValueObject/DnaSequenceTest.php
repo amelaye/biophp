@@ -159,4 +159,23 @@ class DnaSequenceTest extends TestCase
         $this->assertInstanceOf(RnaSequence::class, $oRna);
         $this->assertEquals("AUGCUU", $oRna->getValue());
     }
+
+    /**
+     * Four classes answer to getGcContent() on two scales : the sequence in percent, SkewResult and
+     * CpGIsland as a fraction. getGcPercent() and getGcFraction() say which one they mean.
+     */
+    public function testTheGcContentCanBeAskedOnAnExplicitScale()
+    {
+        $oSequence = new DnaSequence("GGCCAATT");
+
+        $this->assertEqualsWithDelta(50.0, $oSequence->getGcContent(), 1e-12);
+        $this->assertEqualsWithDelta(50.0, $oSequence->getGcPercent(), 1e-12);
+        $this->assertEqualsWithDelta(0.5, $oSequence->getGcFraction(), 1e-12);
+
+        $oSkew = (new \Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator())->calculate("GGCCAATT");
+        $this->assertEqualsWithDelta(0.5, $oSkew->getGcContent(), 1e-12);
+        $this->assertEqualsWithDelta(0.5, $oSkew->getGcFraction(), 1e-12);
+        $this->assertEqualsWithDelta(50.0, $oSkew->getGcPercent(), 1e-12);
+        $this->assertEqualsWithDelta($oSequence->getGcPercent(), $oSkew->getGcPercent(), 1e-12);
+    }
 }

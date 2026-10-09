@@ -56,11 +56,29 @@ abstract class AbstractNucleicSequence extends AbstractMolecularSequence
 
     /**
      * Proportion of guanine and cytosine in the sequence, expressed as a percentage : see gcFraction().
+     * Beware that SkewResult::getGcContent() and CpGIsland::getGcContent() give a fraction (0 to 1) :
+     * getGcPercent() and getGcFraction() say which scale they use, on all of these classes.
      * @return  float                       0 when the sequence holds no base telling G/C from A/T
      */
     public function getGcContent() : float
     {
+        return $this->getGcPercent();
+    }
+
+    /**
+     * @return  float   The G+C content as a percentage, 0 to 100
+     */
+    public function getGcPercent() : float
+    {
         return self::gcFraction($this->getValue()) * 100;
+    }
+
+    /**
+     * @return  float   The G+C content as a fraction, 0 to 1
+     */
+    public function getGcFraction() : float
+    {
+        return self::gcFraction($this->getValue());
     }
 
     /**
