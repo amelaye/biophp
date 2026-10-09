@@ -3,8 +3,10 @@
  * ExPASy ENZYME database parsing (EC nomenclature)
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -25,54 +27,54 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $id = "";
+    private string $id = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var array
      */
-    private $alternateNames = [];
+    private array $alternateNames = [];
 
     /**
      * One entry per reaction the enzyme catalyses : an enzyme acting on several substrates has
      * as many, and the file numbers them "(1)", "(2)".
      * @var array
      */
-    private $catalyticActivities = [];
+    private array $catalyticActivities = [];
 
     /**
      * @var array
      */
-    private $aCaLines = [];
+    private array $aCaLines = [];
 
     /**
      * @var array
      */
-    private $cofactors = [];
+    private array $cofactors = [];
 
     /**
      * @var string
      */
-    private $comments = "";
+    private string $comments = "";
 
     /**
      * @var ExpasyDiseaseInterface[]
      */
-    private $diseases = [];
+    private array $diseases = [];
 
     /**
      * @var array
      */
-    private $prositeRefs = [];
+    private array $prositeRefs = [];
 
     /**
      * @var array
      */
-    private $swissprotRefs = [];
+    private array $swissprotRefs = [];
 
     /**
      * Constructor.
@@ -126,10 +128,10 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aLines = new \ArrayIterator($aFlines);
         $sComments = "";
+        $sAlternateName = "";
 
         foreach ($aLines as $lineno => $linestr) {
             switch (trim(substr($aLines->current(), 0, 2))) {
@@ -137,12 +139,17 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
                     $this->id = trim(substr($aLines->current(), 5));
                     break;
                 case "DE":
-                    $this->description = $this->accumulate($aLines, $aFlines, "DE", " ");
+                    // The period closing the name is no part of it, as for AN and CA.
+                    $this->description = rtrim($this->accumulate($aLines, $aFlines, "DE", " "), ".");
                     break;
                 case "AN":
-                    // One synonym per line: unlike DE, CA or CF, consecutive AN lines are
-                    // separate names, not one name wrapped over several lines.
-                    $this->alternateNames[] = rtrim(trim(substr($aLines->current(), 5)), ".");
+                    // Each synonym ends with a period : consecutive AN lines are separate names,
+                    // but a name too long for one line goes on over the next AN line(s).
+                    $sAlternateName = trim($sAlternateName . " " . trim(substr($aLines->current(), 5)));
+                    if (substr($sAlternateName, -1) === ".") {
+                        $this->alternateNames[] = rtrim($sAlternateName, ".");
+                        $sAlternateName = "";
+                    }
                     break;
                 case "CA":
                     $this->aCaLines[] = trim(substr($aLines->current(), 5));
@@ -168,6 +175,9 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
             }
         }
 
+        if ($sAlternateName !== "") {
+            $this->alternateNames[] = $sAlternateName;
+        }
         $this->comments = rtrim($sComments, "\n");
         $this->catalyticActivities = $this->parseCatalyticActivities($this->aCaLines);
     }
@@ -179,8 +189,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    private function parseCatalyticActivities($aLines)
-    {
+    private function parseCatalyticActivities(array $aLines) : array {
         $aActivities = [];
 
         foreach ($aLines as $sLine) {
@@ -209,8 +218,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   string          $sJoiner
      * @return  string
      */
-    private function accumulate(\ArrayIterator $aLines, $aFlines, $sTag, $sJoiner)
-    {
+    private function accumulate(\ArrayIterator $aLines, array $aFlines, string $sTag, string $sJoiner) : string {
         $sResult = trim(substr($aLines->current(), 5));
         while (true) {
             $sNextLine = $aFlines[$aLines->key() + 1] ?? "";
@@ -229,8 +237,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseCofactors($sText)
-    {
+    private function parseCofactors(string $sText) : array {
         return array_values(array_filter(array_map(function ($sItem) {
             return rtrim(trim($sItem), ".");
         }, explode(";", $sText))));
@@ -242,8 +249,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  ExpasyDiseaseInterface
      */
-    private function parseDisease($sLine)
-    {
+    private function parseDisease(string $sLine) : ExpasyDiseaseInterface {
         $aTokens = array_map('trim', explode(";", $sLine));
         $oDisease = new ExpasyDisease();
         $oDisease->setDisease($aTokens[0] ?? "");
@@ -259,8 +265,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  string
      */
-    private function parsePrositeRef($sLine)
-    {
+    private function parsePrositeRef(string $sLine) : string {
         $aTokens = array_values(array_filter(array_map('trim', explode(";", $sLine))));
         return $aTokens[1] ?? "";
     }
@@ -271,8 +276,7 @@ final class ParseExpasyEnzymeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseSwissprotRefs($sText)
-    {
+    private function parseSwissprotRefs(string $sText) : array {
         $aResult = [];
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {

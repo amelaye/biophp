@@ -3,8 +3,10 @@
  * One reference set from a genome sequencing statistics record
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 
 use Amelaye\BioPHP\Domain\Parser\Interfaces\GenomeReferenceInterface;
@@ -19,37 +21,37 @@ class GenomeReference implements GenomeReferenceInterface
     /**
      * @var string
      */
-    private $type = "";
+    private string $type = "";
 
     /**
      * @var array
      */
-    private $authors = [];
+    private array $authors = [];
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var string
      */
-    private $journal = "";
+    private string $journal = "";
 
     /**
      * @var string
      */
-    private $volume = "";
+    private string $volume = "";
 
     /**
      * @var string
      */
-    private $pages = "";
+    private string $pages = "";
 
     /**
      * @var string
      */
-    private $year = "";
+    private string $year = "";
 
     /**
      * @return string

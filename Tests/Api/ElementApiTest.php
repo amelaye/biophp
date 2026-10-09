@@ -35,7 +35,7 @@ class ElementApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
 
@@ -61,7 +61,7 @@ class ElementApiTest extends WebTestCase
             new Response(200, [], json_encode(['id' => 6, 'name' => 'water', 'weight' => 18.015])),
         ]);
         $clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
 

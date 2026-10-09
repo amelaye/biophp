@@ -43,7 +43,7 @@ class AminoApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -216,31 +216,31 @@ class AminoApiTest extends WebTestCase
 
         $aAminosResidueMolWeightsExpected = [
           "*" => 0.0,
-          "A" => 71.07,
-          "B" => 114.10,
-          "C" => 103.1,
-          "D" => 115.08,
-          "E" => 129.11,
-          "F" => 147.17,
-          "G" => 57.05,
-          "H" => 137.14,
-          "I" => 113.15,
-          "K" => 128.17,
-          "L" => 113.15,
-          "M" => 131.19,
-          "N" => 114.08,
-          "O" => 237.29,
-          "P" => 97.11,
-          "Q" => 128.13,
-          "R" => 156.18,
-          "S" => 87.07,
-          "T" => 101.1,
-          "U" => 150.03,
-          "V" => 99.13,
-          "W" => 186.2,
-          "X" => 114.82,
-          "Y" => 163.17,
-          "Z" => 128.13
+          "A" => 71.0779,
+          "B" => 114.1026,
+          "C" => 103.1429,
+          "D" => 115.0874,
+          "E" => 129.114,
+          "F" => 147.1738,
+          "G" => 57.0513,
+          "H" => 137.1393,
+          "I" => 113.1576,
+          "K" => 128.1723,
+          "L" => 113.1576,
+          "M" => 131.196,
+          "N" => 114.1026,
+          "O" => 237.2981,
+          "P" => 97.1152,
+          "Q" => 128.1292,
+          "R" => 156.1857,
+          "S" => 87.0773,
+          "T" => 101.1039,
+          "U" => 150.0379,
+          "V" => 99.131,
+          "W" => 186.2099,
+          "X" => 57.0513,
+          "Y" => 163.1732,
+          "Z" => 128.1292
         ];
 
         static::assertEquals($aAminosResidueMolWeightsExpected, $aAminosResidueMolWeights);

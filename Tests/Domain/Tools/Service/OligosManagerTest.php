@@ -22542,4 +22542,41 @@ class OligosManagerTest extends TestCase
             $this->assertFalse(is_nan($fZScore), "z-score at index $iIndex must not be NAN");
         }
     }
+
+    /**
+     * findOligos() counted the words in upper case only : a lower-case sequence, as GenBank and EMBL
+     * records hold, gave a count of 0 for every word, with no error.
+     */
+    public function testFindOligosIsCaseInsensitive()
+    {
+        $oligosManager = new OligosManager($this->apiNucleoMock);
+
+        foreach ([1, 2, 3] as $iLength) {
+            $this->assertEquals(
+                $oligosManager->findOligos("ACGTACGTAA", $iLength),
+                $oligosManager->findOligos("acgtacgtaa", $iLength)
+            );
+        }
+        $this->assertEquals(2, $oligosManager->findOligos("acgtacgt", 2)["AC"]);
+    }
+
+    /**
+     * findOligos() lists an absent dinucleotide with a count of 0, which findZScore() then divided
+     * by : a sequence missing one dinucleotide (any short or biased window) raised DivisionByZeroError.
+     */
+    public function testFindZScoreOnASequenceMissingDinucleotides()
+    {
+        $oligosManager = new OligosManager($this->apiNucleoMock);
+        $sSequence = "AAAAAAAAAACAAAAAAAAAA";
+
+        $aZScores = $oligosManager->findZScore(
+            $oligosManager->findOligos($sSequence, 2),
+            $oligosManager->findOligos($sSequence, 3),
+            $oligosManager->findOligos($sSequence, 4)
+        );
+
+        foreach ($aZScores as $iIndex => $fZScore) {
+            $this->assertFalse(is_nan($fZScore), "z-score at index $iIndex must not be NAN");
+        }
+    }
 }

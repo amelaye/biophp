@@ -3,8 +3,10 @@
  * Cuts the lines of a data file into its records
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 September 2026
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 use Amelaye\BioPHP\Domain\Database\Factory\DatabaseRecorderFactory;

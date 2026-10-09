@@ -3,8 +3,10 @@
  * @author Amélie DUVERNET aka Amelaye
  * Inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 September 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Api\DTO\ElementDTO;
@@ -13,7 +15,6 @@ use Amelaye\BioPHP\Api\Interfaces\ElementApiAdapter;
 use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
 use Amelaye\BioPHP\Domain\Sequence\Traits\FormatsTrait;
 use Amelaye\BioPHP\Domain\Sequence\Traits\SequenceTrait;
-use Amelaye\BioPHP\Domain\Tools\Service\GeneticsFunctions;
 
 /**
  * We use this class to manipulate Sequence() elements, most of the time taken from a database instance.
@@ -39,38 +40,45 @@ class SequenceManager
         'R'=>'C',
         'H'=>'C',
         '*'=>'*',
-        'X'=>'X'
+        'X'=>'X',
+        // J is I or L, both aliphatic ; B (D or N) and Z (E or Q) straddle two groups ; U
+        // (selenocysteine) and O (pyrrolysine) belong to none of the eight.
+        'J'=>'L',
+        'B'=>'X',
+        'Z'=>'X',
+        'U'=>'X',
+        'O'=>'X'
     ];
 
     /**
      * @var array
      */
-    private $elements;
+    private ?array $elements = null;
 
     /**
      * @var AminoApiAdapter
      */
-    private $aminoApi;
+    private ?AminoApiAdapter $aminoApi = null;
 
     /**
      * @var NucleotidApiAdapter
      */
-    private $nucleotidApi;
+    private ?NucleotidApiAdapter $nucleotidApi = null;
 
     /**
      * @var array
      */
-    private $nucleotids;
+    private ?array $nucleotids = null;
 
     /**
      * @var ElementDTO
      */
-    private $water;
+    private ?ElementDTO $water = null;
 
     /**
      * @var array
      */
-    private $aminos;
+    private ?array $aminos = null;
     
     /**
      * SequenceManager constructor.
@@ -119,7 +127,7 @@ class SequenceManager
         $aIupacComplements = [
             "Y" => "R", "R" => "Y", "W" => "W", "S" => "S",
             "K" => "M", "M" => "K", "D" => "H", "V" => "B",
-            "H" => "D", "B" => "V", "N" => "N",
+            "H" => "D", "B" => "V", "N" => "N", "X" => "X",
         ];
 
         $iSeqLength = strlen($sSequence);
@@ -169,8 +177,7 @@ class SequenceManager
      * @param   string    $string     A palindromic or mirror sequence containing the bridge.
      * @return  string
      */
-    public function getBridge(string $string)
-    {
+    public function getBridge(string $string) : string {
         if(strlen($string) % 2 != 0) { // odd
             $comp_len = (int) (strlen($string)/2);
             return substr($string, $comp_len, 1);
@@ -194,7 +201,7 @@ class SequenceManager
             "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/V/"
         ];
         $aReplacement = [
-            ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
+            ".", "[AG]", "[CTU]", "[GC]", "[ATU]", "[AC]", "[TGU]", "[CGTU]","[AGTU]", "[ACTU]", "[ACG]"
         ];
         $sExpansion = preg_replace($aPattern, $aReplacement, $sSequence);
         return $sExpansion;
@@ -207,6 +214,13 @@ class SequenceManager
      * The IUPAC ambiguity codes are resolved here into the lightest and the heaviest base they
      * stand for : that is what makes the lower and the upper limit differ. On a sequence holding
      * only canonical bases, both limits are equal.
+     * The reference is Biopython's Bio.SeqUtils.molecular_weight (average masses, single strand,
+     * linear) : on canonical bases the result equals it, and the tests pin values it computed.
+     * The weight is that of a neutral single strand carrying a 5' phosphate and a 3' hydroxyl, as a
+     * fragment cut by an enzyme does : the sum of its nucleoside monophosphates (dAMP 331.2218)
+     * less one water (18.0153) per phosphodiester bond, that is the sum of the nucleotide residues
+     * the database holds (dA 313.2065) plus one water. A synthetic oligonucleotide, which has a
+     * 5' hydroxyl, weighs 79.98 (HPO3) less.
      * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string        $sSequence    The sequence
      * @param   string        $sMolType     DNA or RNA
@@ -307,43 +321,72 @@ class SequenceManager
 
 
     /**
-     * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
-     * parsed record.
+     * Counts the number of codons (a trio of nucleotide base-pairs) in the first CDS feature of
+     * a parsed record.
      * @param   array     $aFeatures    The record's Feature objects, as returned by a database
-     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). Every row sharing the
-     * "CDS" key is expected to carry the same ftFrom/ftTo span - one per /qualifier read off the
-     * CDS feature - and, when present, a "codon_start" qualifier row gives the 1-based offset
-     * (1, 2 or 3) of the first complete codon within that span.
+     * parser's getFeatures() (e.g. ParseGenbankManager::getFeatures()). A feature comes as one row
+     * per /qualifier, sharing its key and location : the rows of the first CDS are those with the
+     * location of the first "CDS" row, and, when present, their "codon_start" qualifier gives the
+     * 1-based offset (1, 2 or 3) of the first complete codon within it - another CDS's is not. When the parser kept the location as
+     * written, only the bases of its segments are counted, not the introns between the exons of a
+     * join() ; otherwise the ftFrom..ftTo span is.
      * @return  int       The number of complete codons within the CDS, expressed as a
      * non-negative integer.
      * @throws  \Exception  When $aFeatures holds no "CDS" feature.
      */
     public function countCodons(array $aFeatures) : int
     {
-        $iCdsFrom = null;
-        $iCdsTo = null;
+        $iCdsLength = null;
         $iCodonStart = 1;
+        $aFirstCds = null;
 
         foreach ($aFeatures as $oFeature) {
             if ($oFeature->getFtKey() !== "CDS") {
                 continue;
             }
-            if ($iCdsFrom === null) {
-                $iCdsFrom = $oFeature->getFtFrom();
-                $iCdsTo = $oFeature->getFtTo();
+            $aLocation = [$oFeature->getFtFrom(), $oFeature->getFtTo(), $oFeature->getStrand(), $oFeature->getFtLocation()];
+            if ($iCdsLength === null) {
+                $aFirstCds = $aLocation;
+                $iCdsLength = $oFeature->getFtLocation() !== null
+                    ? $this->locationLength($oFeature->getFtLocation())
+                    : $oFeature->getFtTo() - $oFeature->getFtFrom() + 1;
+            }
+            if ($aLocation !== $aFirstCds) {
+                continue;
             }
             if ($oFeature->getFtQual() === "codon_start") {
                 $iCodonStart = (int) $oFeature->getFtValue();
             }
         }
 
-        if ($iCdsFrom === null) {
+        if ($iCdsLength === null) {
             throw new \Exception("No CDS feature found : cannot count codons.");
         }
 
-        $iCdsLength = $iCdsTo - $iCdsFrom + 1;
-        $codcount = (int) (($iCdsLength - $iCodonStart + 1) / 3);
-        return $codcount;
+        return max(0, intdiv($iCdsLength - $iCodonStart + 1, 3));
+    }
+
+    /**
+     * Returns the number of bases an INSDC location covers : the sum of its segments, a "a..b"
+     * range counting b - a + 1, a single base "a" or "a.b" (one base within a..b) one, and a
+     * "a^b" site between two bases none. complement(), join(), order() and the partial marks
+     * "<" and ">" change no length, and a segment of another entry ("J00194.1:100..202") counts.
+     * @param   string      $sLocation
+     * @return  int
+     */
+    private function locationLength(string $sLocation) : int
+    {
+        $sSegments = preg_replace('/complement\(|join\(|order\(|\)|<|>|\s/', "", $sLocation);
+        $iLength = 0;
+        foreach (explode(",", $sSegments) as $sSegment) {
+            $sSegment = preg_replace('/^[^:]*:/', "", $sSegment);
+            if (preg_match('/^(\d+)\.\.(\d+)$/', $sSegment, $aRange)) {
+                $iLength += abs((int) $aRange[2] - (int) $aRange[1]) + 1;
+            } elseif (preg_match('/^\d+(\.\d+)?$/', $sSegment)) {
+                $iLength += 1;
+            }
+        }
+        return $iLength;
     }
 
     /**
@@ -356,8 +399,7 @@ class SequenceManager
      * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq($iStart, $iCount, $sSequence) : string
-    {
+    public function subSeq(int $iStart, int $iCount, string $sSequence) : string {
         $newSeq = substr($sSequence, $iStart, $iCount);
         return $newSeq;
     }
@@ -373,27 +415,21 @@ class SequenceManager
      * @return      array                        Value example: ( "PAT1" => (0, 17), "PAT2" => (8, 29) )
      * @throws      \Exception
      */
-    public function patPos($sPattern, $sOptions = "I", $sSequence = null) : array
-    {
+    public function patPos(string $sPattern, string $sOptions = "I", ?string $sSequence = null) : array {
         $aOuter = [];
-        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
+        $bInsensitive = strtoupper($sOptions) == "I";
 
-        if (strtoupper($sOptions) == "I") {
-            $sSequence = strtoupper($sSequence);
-        }
+        // The offsets come from the very scan that counts the matches : looking each matched string
+        // up again with strpos() reported an occurrence the scan had skipped as overlapping.
+        preg_match_all(
+            "/" . $this->expandNa($bInsensitive ? strtoupper($sPattern) : $sPattern) . "/",
+            $bInsensitive ? strtoupper($sSequence) : $sSequence,
+            $aMatches,
+            PREG_OFFSET_CAPTURE
+        );
 
-        foreach($aPatFreq as $skey => $iValue) {
-            if ($sOptions == "I") {
-                $skey = strtoupper($skey);
-            }
-            $aInner = [];
-            $iStart = 0;
-            for($i = 0; $i < $iValue; $i++) {
-                $iLastPos = strpos($sSequence, $skey, $iStart);
-                array_push($aInner, $iLastPos);
-                $iStart = $iLastPos + strlen($skey);
-            }
-            $aOuter[$skey] = $aInner;
+        foreach ($aMatches[0] as [$sMatch, $iOffset]) {
+            $aOuter[$sMatch][] = $iOffset;
         }
         return $aOuter;
     }
@@ -406,53 +442,34 @@ class SequenceManager
      * @param       string     $sPattern        The pattern to locate
      * @param       string     $sOptions        If set to "I", pattern-matching will be case-insensitive.
      * Passing anything else would cause it to be case-sensitive.
-     * @param       int        $iCutPos         A non-negative integer specifying where search for the
+     * @param       int        $iCutPos         A positive integer specifying where search for the
      * next pattern will resume, relative to the current matching substring.
      * @return      array                       One-dimensional array of the form:
      * ( position1, position2, position3, ... )
      * where position is a zero-based index indicating the location of the substring within the
      * larger sequence.  Thus, if substring is found at the very beginning of sequence, its
      * position is equal to zero (0).
-     * @throws      \Exception
+     * @throws      \InvalidArgumentException   When $iCutPos is lower than 1
      */
-    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null)
-    {
-        $aAbsPos = [];
-        if (strtoupper($sOptions) == "I") {
-            $sSequence = strtoupper($sSequence);
+    public function patPoso(string $sPattern, string $sOptions = "I", int $iCutPos = 1, ?string $sSequence = null) : array {
+        if ($iCutPos < 1) {
+            // Resuming the search at the match itself would find that same match forever.
+            throw new \InvalidArgumentException(sprintf("patPoso() needs a cut position of at least 1, %d given.", $iCutPos));
         }
-        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
-        $iLastPos = -1 * $iCutPos;
-        $iCtr = 0;
-        $iRunSumStart = 0;
-        while(strlen($sSequence) >= strlen($sPattern)) {
-            $iCtr++;
-            if ($iCtr == 1) {
-                $iStart = 0;
-            } else {
-                $iStart = $iLastPos + $iCutPos;
-            }
-            $sSequence = substr($sSequence, $iStart);
-            $iRunSumStart += $iStart;
-            $iMinPos = 999999;
-            $bFoundFlag = false;
-            foreach($aPatFreq as $key => $value) {
-                $iCurrentPos = strpos($sSequence, $key);
-                if (gettype($iCurrentPos) == "integer") {
-                    $bFoundFlag = true;
-                    if ($iCurrentPos < $iMinPos) $iMinPos = $iCurrentPos;
-                }
-            }
-            if (!$bFoundFlag) {
-                break;
-            }
-            $iCurrentPos = $iMinPos;
-            if ($iCtr == 1) {
-                $aAbsPos[] = $iCurrentPos;
-            } else {
-                $aAbsPos[] = $iRunSumStart + $iCurrentPos;
-            }
-            $iLastPos = $iCurrentPos;
+        $bInsensitive = strtoupper($sOptions) == "I";
+        $sSequence = (string) $sSequence;
+        if ($bInsensitive) {
+            $sSequence = strtoupper($sSequence);
+            $sPattern = strtoupper($sPattern);
+        }
+        // The first match from each resume point, whatever the matches found before : a degenerate
+        // pattern is not tied to the strings an earlier, non-overlapping scan happened to find.
+        $sRegex = "/" . $this->expandNa($sPattern) . "/";
+        $aAbsPos = [];
+        $iOffset = 0;
+        while ($iOffset <= strlen($sSequence) && preg_match($sRegex, $sSequence, $aMatch, PREG_OFFSET_CAPTURE, $iOffset) === 1) {
+            $aAbsPos[] = $aMatch[0][1];
+            $iOffset = $aMatch[0][1] + $iCutPos;
         }
         return $aAbsPos;
     }
@@ -469,8 +486,7 @@ class SequenceManager
      * ( substring1 => frequency1, substring2 => frequency2, ... )
      * @throws  \Exception
      */
-    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I")
-    {
+    public function patFreq(string $sPattern, string $sSequence, string $sOptions = "I") : array {
         $sMatch = $this->findpattern($sPattern, $sSequence, $sOptions);
         return array_count_values($sMatch[0]);
     }
@@ -514,11 +530,13 @@ class SequenceManager
      */
     public function symFreq(string $sSymbol, string $sSequence) : int
     {
+        // Both sides upper-cased : symFreq("a", ...) used to count nothing.
         $iSymTally = count_chars(strtoupper($sSequence), 1);
-        if (!isset($iSymTally[ord($sSymbol)])) {
+        $iOrd = ord(strtoupper($sSymbol));
+        if (!isset($iSymTally[$iOrd])) {
             return 0;
         } else {
-            return $iSymTally[ord($sSymbol)];
+            return $iSymTally[$iOrd];
         }
     }
 
@@ -530,8 +548,7 @@ class SequenceManager
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, string $sSequence, int $iReadFrame)
-    {
+    public function getCodon(int $iIndex, string $sSequence, int $iReadFrame) : string {
         return strtoupper(substr($sSequence, ($iIndex * 3) + $iReadFrame, 3));
     }
 
@@ -562,7 +579,8 @@ class SequenceManager
         $sResult = "";
         while(1) {
             $sCodon = $this->getCodon($iCodonIndex, $sSequence, $iReadFrame);
-            if ($sCodon == "") {
+            // One or two bases left over at the end are no codon : they code for nothing.
+            if (strlen($sCodon) < 3) {
                 break;
             }
             if ($iFormat == 1) {
@@ -591,6 +609,7 @@ class SequenceManager
      */
     public function charge(string $sAminoSeq) : string
     {
+        $sAminoSeq = strtoupper($sAminoSeq);
         $sChargedSequence = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);
@@ -610,10 +629,16 @@ class SequenceManager
                     $sChargedSequence .= "*";
                     break;
                 case "X":
+                // B (D or N) and Z (E or Q) may or may not be acidic ; selenocysteine's selenol
+                // (pKa about 5.2) is not classed with the acidic side chains here.
+                case "B":
+                case "Z":
+                case "U":
                     $sChargedSequence .= "X";
                     break;
                 default:
-                    if (substr_count("GAVLISTNQFYWCMP", $sAminoLetter) >= 1) {
+                    // J is I or L ; pyrrolysine's side chain amine is engaged in an amide bond.
+                    if (substr_count("GAVLISTNQFYWCMPJO", $sAminoLetter) >= 1) {
                         $sChargedSequence .= "N";
                     } else {
                         throw new \Exception("Invalid amino acid symbol in input sequence.");
@@ -625,7 +650,8 @@ class SequenceManager
 
     /**
      * Returns a string of symbols from an 8-letter alphabet: A, L, M, R, C, H, I, S.
-     * Chemical groups: L - GAVLI, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *, X - X
+     * Chemical groups: L - GAVLIJ, H - ST, M - NQ, R - FYW, S - CM, I - P, A - DE, C - KRH, * - *,
+     * X - X and the residues of no single group (B, Z, U, O)
      * @param   string      $sAminoSeq      A string representing an amino acid chain (e.g. GAVLI).
      * If omitted, this is set to the sequence property of the "calling" Seq object. If the
      * latter is not set either, the function returns the boolean value of FALSE.
@@ -636,6 +662,7 @@ class SequenceManager
      */
     public function chemicalGroup(string $sAminoSeq) : string
     {
+        $sAminoSeq = strtoupper($sAminoSeq);
         $sChemgrpSeq = "";
         for($i = 0; $i < strlen($sAminoSeq); $i++) {
             $sAminoLetter = substr($sAminoSeq, $i, 1);
@@ -662,7 +689,10 @@ class SequenceManager
      * the output string. When omitted, $format is set to 3 by default.
      * @return  string                  When $format is passed a value of 1, the function returns a single letter.
      * When $format is passed a value of 3, the function returns a string of three letters. The return value
-     * represents a single amino acid residue.
+     * represents a single amino acid residue. A codon holding an ambiguous base (IUPAC R, Y, N...)
+     * translates into the residue every codon it stands for codes for - TAR (TAA, TAG) is a stop,
+     * YTR (CTA, CTG, TTA, TTG) a leucine - and into X (or XXX) only when they disagree, as
+     * Biopython does.
      * @throws  \Exception
      */
     public function translateCodon(string $sCodon, int $iFormat = 3) : string
@@ -681,6 +711,19 @@ class SequenceManager
 
         $sUpperCodon = strtoupper($sCodon);
         $sFormtdCodon = str_replace("T", "U", $sUpperCodon);
+
+        if (preg_match('/^[ACGU]{3}$/', $sFormtdCodon) !== 1
+            && preg_match('/^[ACGURYSWKMBDHVN]{3}$/', $sFormtdCodon) === 1) {
+            $aTranslations = [];
+            foreach ($this->expandCodon($sFormtdCodon) as $sExpandedCodon) {
+                $aTranslations[$this->translateCodon($sExpandedCodon, $iFormat)] = true;
+            }
+            if (count($aTranslations) === 1) {
+                return (string) array_key_first($aTranslations);
+            }
+            return ($iFormat == 3) ? "XXX" : "X";
+        }
+
         $sLetter1 = substr($sFormtdCodon, 0, 1);
         $sLetter2 = substr($sFormtdCodon, 1, 1);
         $sLetter3 = substr($sFormtdCodon, 2, 1);
@@ -703,6 +746,31 @@ class SequenceManager
                 $sTranslation = ($iFormat == 3) ? "XXX" : "X";
         }
         return $sTranslation;
+    }
+
+    /**
+     * Lists the codons an ambiguous codon stands for, its IUPAC symbols expanded (RNA alphabet).
+     * @param   string      $sCodon     Three symbols among ACGU and the IUPAC ambiguity codes
+     * @return  string[]
+     */
+    private function expandCodon(string $sCodon) : array
+    {
+        $aBases = [
+            "A" => "A", "C" => "C", "G" => "G", "U" => "U",
+            "R" => "AG", "Y" => "CU", "S" => "CG", "W" => "AU", "K" => "GU", "M" => "AC",
+            "B" => "CGU", "D" => "AGU", "H" => "ACU", "V" => "ACG", "N" => "ACGU",
+        ];
+        $aCodons = [""];
+        foreach (str_split($sCodon) as $sSymbol) {
+            $aNext = [];
+            foreach ($aCodons as $sPrefix) {
+                foreach (str_split($aBases[$sSymbol]) as $sBase) {
+                    $aNext[] = $sPrefix . $sBase;
+                }
+            }
+            $aCodons = $aNext;
+        }
+        return $aCodons;
     }
 
     /**
@@ -740,8 +808,7 @@ class SequenceManager
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2, string $sOptions)
-    {
+    public function findMirror(string $sSequence, int $iPallen1, int $iPallen2, string $sOptions) {
         $iSeqLength = strlen($sSequence);
 
         if ($iPallen2 == null) { // if third parameter (representing upper palindrome length) is missing
@@ -782,6 +849,8 @@ class SequenceManager
      * palindrome"). A "genetic palindrome" is one where the ends of a sequence are
      * reverse complements of each other.
      * For mirror repeats, we allow strings with both ODD and EVEN lengths.
+     * The comparison ignores case (a GenBank or EMBL record is in lower case) and an ambiguous
+     * symbol pairs with its IUPAC complement (R with Y, K with M...), as findPalindrome() does.
      * @param   string      $sSequence    A sequence which we want to test if it is a genetic palindrome or not.
      * @return  bool                      TRUE if the given string is a genetic palindrome, FALSE otherwise.
      * @throws  \Exception
@@ -792,17 +861,11 @@ class SequenceManager
         if (strlen($sSequence) % 2 != 0) {
             return false;
         }
+        $sSequence = strtoupper($sSequence);
         $sHalf1 = $this->halfSequence($sSequence, 0);
         $sHalf2 = $this->halfSequence($sSequence, 1);
 
-        $aComplements = $this->nucleotidApi::GetDNAComplement($this->nucleotids);
-        $sInverted = GeneticsFunctions::CreateInversion($sHalf2, $aComplements);
-
-        if ($sHalf1 == $sInverted) {
-            return true;
-        } else {
-            return false;
-        }
+        return $sHalf1 == $this->complement(strrev($sHalf2), "DNA");
     }
 
     /**
@@ -830,19 +893,24 @@ class SequenceManager
         if ($iPalLen == 0 && $iSeqLen == 0) {
             return FALSE;
         }
+        // Searched in upper case, a GenBank or EMBL record being in lower case, but each
+        // palindrome is returned as the sequence writes it.
+        $sUpperSequence = strtoupper($sSequence);
         // CASE 2) seqlen is set, pallen is set.
         if ($iSeqLen != 0 && $iPalLen != 0) {
-            $aOuter = $this->palindrSeqSetAndPallenSet($sSequence, $iSeqLen, $iPalLen);
+            $aOuter = $this->palindrSeqSetAndPallenSet($sUpperSequence, $iSeqLen, $iPalLen);
         }
         // CASE 3) seqlen is set, pallen is not set.
         elseif ($iSeqLen != 0 && $iPalLen == 0) {
-            $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sSequence, $iSeqLen);
+            $aOuter = $this->palindrSeqlenSetAndPalenNotSet($sUpperSequence, $iSeqLen);
         }
         // CASE 4) seqlen is not set, pallen is set.
         elseif ($iSeqLen == 0 && $iPalLen != 0) {
-            $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sSequence, $iPalLen);
+            $aOuter = $this->palindrSeqlenNotSetAndPalenSet($sUpperSequence, $iPalLen);
         }
-        return $aOuter;
+        return array_map(function (array $aFound) use ($sSequence) {
+            return [substr($sSequence, $aFound[1], strlen($aFound[0])), $aFound[1]];
+        }, $aOuter);
     }
 
     /**
@@ -891,8 +959,7 @@ class SequenceManager
      * @param   int     $format
      * @return  string
      */
-    private function adenineLetters($letter2, $letter3, $format) : string
-    {
+    private function adenineLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
@@ -952,8 +1019,7 @@ class SequenceManager
      * @param   int     $format
      * @return  string
      */
-    private function cytosineLetters($letter2, $letter3, $format) : string
-    {
+    private function cytosineLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":
@@ -992,8 +1058,7 @@ class SequenceManager
      * @param   int       $format
      * @return  string
      */
-    private function uracileLetters($letter2, $letter3, $format) : string
-    {
+    private function uracileLetters(string $letter2, string $letter3, int $format) : string {
         $aAminos = $this->aminoApi::GetAminosOnlyLetters($this->aminos);
         switch($letter2) {
             case "U":

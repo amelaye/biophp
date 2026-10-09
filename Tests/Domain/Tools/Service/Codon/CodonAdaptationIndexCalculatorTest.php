@@ -1,0 +1,209 @@
+<?php
+namespace Tests\Domain\Tools\Service\Codon;
+
+use Amelaye\BioPHP\Api\AminoApi;
+use Amelaye\BioPHP\Api\ElementApi;
+use Amelaye\BioPHP\Api\NucleotidApi;
+use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
+use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
+use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
+use Amelaye\BioPHP\Domain\Tools\Service\Codon\CodonAdaptationIndexCalculator;
+use Amelaye\BioPHP\Domain\Tools\ValueObject\CodonUsageTable;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * The main fixture's expected score was computed by hand : reference counts TTT=30/TTC=10 (Phe,
+ * max=30) and TAT=5/TAC=20 (Tyr, max=20), coding sequence ATG(Met, excluded) TTT(Phe, w=1)
+ * TAC(Tyr, w=1) TTC(Phe, w=10/30) TAA(stop, excluded) -> geometric mean of {1, 1, 1/3} over 3 scored
+ * codons = exp((ln(1)+ln(1)+ln(1/3))/3) = exp(ln(1/3)/3) = (1/3)^(1/3). Verified independently with a
+ * standalone PHP script using only built-in math functions before being written here.
+ */
+class CodonAdaptationIndexCalculatorTest extends TestCase
+{
+    private $calculator;
+
+    private $sequenceBuilder;
+
+    public function setUp(): void
+    {
+        require __DIR__ . '/../samples/Aminos.php';
+        require __DIR__ . '/../samples/Nucleotids.php';
+        require __DIR__ . '/../samples/Elements.php';
+
+        $clientMock = $this->getMockBuilder('GuzzleHttp\Client')->getMock();
+        $serializerMock = \JMS\Serializer\SerializerBuilder::create()->build();
+
+        $apiAminoMock = $this->getMockBuilder(AminoApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->onlyMethods(['getAminos'])
+            ->getMock();
+        $apiAminoMock->method("getAminos")->willReturn($aAminosObjects);
+
+        $apiNucleoMock = $this->getMockBuilder(NucleotidApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->onlyMethods(['getNucleotids'])
+            ->getMock();
+        $apiNucleoMock->method("getNucleotids")->willReturn($aNucleoObjects);
+
+        $apiElementsMock = $this->getMockBuilder(ElementApi::class)
+            ->setConstructorArgs([$clientMock, $serializerMock])
+            ->onlyMethods(['getElements', 'getElement'])
+            ->getMock();
+        $apiElementsMock->method("getElements")->willReturn($aElementsObjects);
+        $apiElementsMock->method("getElement")->willReturn($aElementsObjects[5]);
+
+        $sequenceManager = new SequenceManager($apiAminoMock, $apiNucleoMock, $apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $this->sequenceBuilder = $sequenceBuilder;
+        $this->calculator = new CodonAdaptationIndexCalculator($sequenceBuilder);
+    }
+
+    public function testExcludesStopAndSingleCodonAminoAcidsAndScoresTheRest()
+    {
+        $oTable = new CodonUsageTable([
+            "TTT" => 30, "TTC" => 10,
+            "TAT" => 5, "TAC" => 20,
+        ]);
+        $oCds = new DnaSequence("ATGTTTTACTTCTAA");
+
+        $oResult = $this->calculator->calculate($oCds, $oTable);
+
+        $this->assertEquals(3, $oResult->getCodonsScored());
+        $this->assertEqualsWithDelta(pow(1 / 3, 1 / 3), $oResult->getScore(), 0.0000001);
+    }
+
+    public function testAPerfectlyOptimalSequenceScoresOne()
+    {
+        $oTable = new CodonUsageTable([
+            "TTT" => 30, "TTC" => 10,
+            "TAT" => 5, "TAC" => 20,
+        ]);
+        // Only the most-used codon for each amino acid: w = 1 for every scored codon.
+        $oCds = new DnaSequence("TTTTAC");
+
+        $oResult = $this->calculator->calculate($oCds, $oTable);
+
+        $this->assertEqualsWithDelta(1.0, $oResult->getScore(), 0.0000001);
+        $this->assertEquals(2, $oResult->getCodonsScored());
+    }
+
+    public function testOnlyCompleteTrailingCodonsAreConsidered()
+    {
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+        // "TTTTT" is one complete codon (TTT) plus two leftover bases, which must be ignored.
+        $oCds = new DnaSequence("TTTTT");
+
+        $oResult = $this->calculator->calculate($oCds, $oTable);
+
+        $this->assertEquals(1, $oResult->getCodonsScored());
+    }
+
+    public function testThrowsWhenACodonHasNoUsableReferenceUsage()
+    {
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 0]);
+        $oCds = new DnaSequence("TTC");
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("TTC");
+
+        $this->calculator->calculate($oCds, $oTable);
+    }
+
+    public function testThrowsWhenNoCodonCanBeScoredAtAll()
+    {
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+        // Met and a stop codon only: nothing left to score.
+        $oCds = new DnaSequence("ATGTAA");
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("No scorable codon");
+
+        $this->calculator->calculate($oCds, $oTable);
+    }
+
+    /**
+     * "GGN" is Gly whatever the N, so it was scored, and the table (A, C, G, T codons only) has no
+     * usage for it : one N in a sequencing-derived CDS made the CAI throw.
+     */
+    public function testACodonHoldingAnAmbiguityCodeIsLeftOut()
+    {
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+
+        $oResult = $this->calculator->calculate(new DnaSequence("ATGGGNTTT"), $oTable);
+
+        $this->assertEquals(1, $oResult->getCodonsScored());
+        $this->assertEqualsWithDelta(1.0, $oResult->getScore(), 0.0000001);
+    }
+
+    /**
+     * A reference table built from a few genes never uses some codons : CAI was then not computable
+     * at all. A weight given to such codons (0.5 is CodonW's) makes it so ; without one, the strict
+     * behaviour stays.
+     */
+    public function testAMissingCodonGetsTheConfiguredWeight()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 0]);
+
+        $oResult = $oCalculator->calculate(new DnaSequence("TTC"), $oTable);
+        $this->assertEqualsWithDelta(0.5, $oResult->getScore(), 1e-12);
+        $this->assertEquals(1, $oResult->getCodonsScored());
+
+        // geometric mean of 1 (TTT, the most used) and 0.5 (TTC, missing) : sqrt(0.5)
+        $oResult = $oCalculator->calculate(new DnaSequence("TTTTTC"), $oTable);
+        $this->assertEqualsWithDelta(sqrt(0.5), $oResult->getScore(), 1e-12);
+    }
+
+    public function testTheMissingCodonWeightDoesNotChangeTheCodonsTheTableUses()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+
+        $oResult = $oCalculator->calculate(new DnaSequence("TTC"), $oTable);
+        $this->assertEqualsWithDelta(10 / 30, $oResult->getScore(), 1e-12);
+    }
+
+    public function testAMissingCodonStillThrowsWhenTheAminoAcidHasNoCodonInTheTableAtAll()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("TTT");
+        $oCalculator->calculate(new DnaSequence("TTT"), new CodonUsageTable(["GGG" => 10]));
+    }
+
+    public function testTheMissingCodonWeightMustBeInZeroExcludedToOne()
+    {
+        foreach ([0.0, -0.5, 1.5] as $fWeight) {
+            try {
+                new CodonAdaptationIndexCalculator($this->sequenceBuilder, $fWeight);
+                $this->fail("A weight of $fWeight should be refused.");
+            } catch (\InvalidArgumentException $ex) {
+                $this->assertStringContainsString("]0, 1]", $ex->getMessage());
+            }
+        }
+    }
+
+    /**
+     * ATA is Ile in the standard code, so synonymous with ATT and ATC ; in the vertebrate
+     * mitochondrial code (table 2) it is Met, synonymous with ATG alone.
+     */
+    public function testSynonymsFollowTheGeneticCode()
+    {
+        $oTable = new CodonUsageTable(["ATT" => 30, "ATC" => 10, "ATA" => 5, "ATG" => 10]);
+        $oCds = new DnaSequence("ATA");
+
+        $this->assertEqualsWithDelta(5 / 30, $this->calculator->calculate($oCds, $oTable)->getScore(), 1e-12);
+        $this->assertEqualsWithDelta(5 / 30, $this->calculator->calculate($oCds, $oTable, 1)->getScore(), 1e-12);
+        $this->assertEqualsWithDelta(5 / 10, $this->calculator->calculate($oCds, $oTable, 2)->getScore(), 1e-12);
+    }
+
+    public function testAnUnsupportedGeneticCodeIsRefused()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsupported genetic code table 28");
+
+        $this->calculator->calculate(new DnaSequence("TTT"), new CodonUsageTable(["TTT" => 1, "TTC" => 1]), 28);
+    }
+}

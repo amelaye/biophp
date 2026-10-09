@@ -3,8 +3,10 @@
  * Entrez genome record parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -30,92 +32,92 @@ final class ParseEntrezManager implements ParseDatabaseInterface
     /**
      * Subkeys of a REFERENCE block, indented under it.
      */
-    private const REFERENCE_SUBKEYS = ["AUTHORS", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK"];
+    private const REFERENCE_SUBKEYS = ["AUTHORS", "CONSRTM", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK"];
 
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $molType = "";
+    private string $molType = "";
 
     /**
      * @var int
      */
-    private $length = 0;
+    private int $length = 0;
 
     /**
      * @var string
      */
-    private $entryDate = "";
+    private string $entryDate = "";
 
     /**
      * @var string
      */
-    private $division = "";
+    private string $division = "";
 
     /**
      * @var string
      */
-    private $topology = "";
+    private string $topology = "";
 
     /**
      * @var string
      */
-    private $strands = "";
+    private string $strands = "";
 
     /**
      * @var string
      */
-    private $definition = "";
+    private string $definition = "";
 
     /**
      * @var string
      */
-    private $primAcc = "";
+    private string $primAcc = "";
 
     /**
      * @var array
      */
-    private $accession = [];
+    private array $accession = [];
 
     /**
      * @var string
      */
-    private $version = "";
+    private string $version = "";
 
     /**
      * @var string
      */
-    private $ncbiGiId = "";
+    private string $ncbiGiId = "";
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * @var string
      */
-    private $source = "";
+    private string $source = "";
 
     /**
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * @var array
      */
-    private $taxonomy = [];
+    private array $taxonomy = [];
 
     /**
      * @var EntrezReferenceInterface[]
      */
-    private $references = [];
+    private array $references = [];
 
     /**
      * Constructor.
@@ -189,8 +191,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aLines = new \ArrayIterator($aFlines);
 
         foreach ($aLines as $lineno => $linestr) {
@@ -204,9 +205,11 @@ final class ParseEntrezManager implements ParseDatabaseInterface
                     $this->definition = $this->accumulate($aLines, $aFlines);
                     break;
                 case "ACCESSION":
+                    // A record on a sub-range of its sequence follows its accession with
+                    // "REGION: from..to", which is no accession
                     $this->accession = preg_split(
                         "/\s+/",
-                        $this->accumulate($aLines, $aFlines),
+                        preg_replace('/\bREGION:\s*\S+/', "", $this->accumulate($aLines, $aFlines)),
                         -1,
                         PREG_SPLIT_NO_EMPTY
                     );
@@ -247,8 +250,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   bool            $bSkipFirstLine     Reads the continuation lines only
      * @return  string
      */
-    private function accumulate(\ArrayIterator $aLines, $aFlines, $bSkipFirstLine = false)
-    {
+    private function accumulate(\ArrayIterator $aLines, array $aFlines, bool $bSkipFirstLine = false) : string {
         $sResult = $bSkipFirstLine ? "" : trim(substr($aLines->current(), 12));
 
         while (true) {
@@ -269,8 +271,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function splitList($sText)
-    {
+    private function splitList(string $sText) : array {
         $sText = trim($sText);
         if ($sText == "" || $sText == ".") {
             return [];
@@ -282,32 +283,22 @@ final class ParseEntrezManager implements ParseDatabaseInterface
     }
 
     /**
-     * Parses the LOCUS line, whose fields sit at fixed columns.
-     * Columns : 13-28 entry name, 30-40 length, 45-47 strands, 48-53 molecule type,
-     * 56-63 topology, 65-67 division, 69-79 date.
+     * Parses the LOCUS line, GenBank's : its fixed columns shift when the name is longer than 16
+     * characters, so it is read word by word (see ParseGenbankManager::readLocusLine()).
      * @param   string      $sLine
      */
-    private function parseLocus($sLine)
-    {
-        $this->entryName = trim(substr($sLine, 12, 16));
-        $this->length    = (int) trim(substr($sLine, 29, 11));
-        $this->molType   = trim(substr($sLine, 47, 6));
+    private function parseLocus(string $sLine) {
+        $aLocus = ParseGenbankManager::readLocusLine($sLine);
 
-        switch (substr($sLine, 44, 3)) {
-            case "ss-":
-                $this->strands = "SINGLE";
-                break;
-            case "ds-":
-                $this->strands = "DOUBLE";
-                break;
-            case "ms-":
-                $this->strands = "MIXED";
-                break;
+        $this->entryName = $aLocus["name"];
+        $this->length    = $aLocus["length"];
+        $this->molType   = $aLocus["molType"];
+        if ($aLocus["strands"] !== null) {
+            $this->strands = $aLocus["strands"];
         }
-
-        $this->topology  = strtoupper(trim(substr($sLine, 55, 8)));
-        $this->division  = strtoupper(trim(substr($sLine, 64, 3)));
-        $this->entryDate = strtoupper(trim(substr($sLine, 68, 11)));
+        $this->topology  = $aLocus["topology"];
+        $this->division  = $aLocus["division"];
+        $this->entryDate = $aLocus["date"];
     }
 
     /**
@@ -315,8 +306,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * Format : VERSION     NC_001416.1  GI:9626243
      * @param   string      $sLine
      */
-    private function parseVersion($sLine)
-    {
+    private function parseVersion(string $sLine) {
         $aTokens = preg_split("/\s+/", trim(substr($sLine, 12)), -1, PREG_SPLIT_NO_EMPTY);
 
         $this->version  = $aTokens[0] ?? "";
@@ -329,8 +319,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   string      $sLine
      * @return  EntrezReferenceInterface
      */
-    private function startReference($sLine)
-    {
+    private function startReference(string $sLine) : EntrezReferenceInterface {
         $aTokens = preg_split("/\s+/", trim(substr($sLine, 12)), -1, PREG_SPLIT_NO_EMPTY);
 
         $oReference = new EntrezReference();
@@ -347,8 +336,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   \ArrayIterator  $aLines
      * @param   array           $aFlines
      */
-    private function fillReference($sSubkey, \ArrayIterator $aLines, $aFlines)
-    {
+    private function fillReference(string $sSubkey, \ArrayIterator $aLines, array $aFlines) {
         if ($this->references == []) {
             return;
         }
@@ -359,6 +347,13 @@ final class ParseEntrezManager implements ParseDatabaseInterface
         switch ($sSubkey) {
             case "AUTHORS":
                 $oReference->setAuthors($this->splitAuthors($sValue));
+                break;
+            case "CONSRTM":
+                // Each consortium is kept as an author, as the GenBank parser does
+                $oReference->setAuthors(array_merge(
+                    $oReference->getAuthors(),
+                    array_values(array_filter(array_map('trim', explode(";", $sValue)), fn($s) => $s !== ""))
+                ));
                 break;
             case "TITLE":
                 $oReference->setTitle($sValue);
@@ -386,8 +381,7 @@ final class ParseEntrezManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function splitAuthors($sText)
-    {
+    private function splitAuthors(string $sText) : array {
         $aAuthors = preg_split("/,\s/", trim($sText), -1, PREG_SPLIT_NO_EMPTY);
         if ($aAuthors == []) {
             return [];

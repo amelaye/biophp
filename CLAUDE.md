@@ -46,6 +46,8 @@ You are MY ASSISTANT. You know celluluar biology like a real specialist.
 - `data/`: local GenBank, Swiss-Prot, FASTA, and alignment samples used by tests.
 - `Legacy/`: original BioPHP source kept for reference and licence continuity.
   Do not modify or modernize it unless the task explicitly targets legacy code.
+- `migrations/`: SQL upgrade scripts for the Doctrine schema of the bundle's
+  entities, to be copied into a migration of the host application.
 - `docs/`: dated progress notes from the PHP 8 migration (not authoritative
   reference material; read `git log` and the code itself for current state).
 
@@ -99,9 +101,13 @@ do not add it.
   unless the task calls for it: four spaces, one class per file, explicit
   visibility, PHPDoc `@var`/`@param`/`@return`, and scalar parameter/return
   types where practical.
-- Keep the existing public API stable unless a breaking change is explicitly
-  requested. This includes method signatures, DTO accessors, adapter interfaces,
-  Symfony service IDs, and interface aliases.
+- BioPHP is a released, stable library (1.x tags) following semantic
+  versioning: a breaking change ships only in a major release. Keep the existing
+  public API stable unless a breaking change is explicitly requested. This
+  includes method signatures, DTO accessors, adapter interfaces (adding a method
+  to an interface breaks its implementers), Symfony service IDs, interface
+  aliases, and the Doctrine schema. Record every breaking change in
+  `CHANGELOG.md` marked "Breaking".
 - Keep domain calculations in managers/services. `SequenceBuilder` is the
   stateful facade that obtains defaults from a `Sequence` entity and delegates
   calculations to `SequenceManager`.
@@ -111,7 +117,11 @@ do not add it.
 - Doctrine mapping uses PHP 8 attributes (e.g. `#[ORM\Entity]`,
   `#[ORM\Column(...)]`), not docblock annotations. When changing an entity,
   keep its attributes, PHP types, accessors, and related parser behavior
-  consistent.
+  consistent. The bundle maps its entities into the host application, and the
+  library ships no Doctrine Migrations classes: a mapping change comes with SQL
+  upgrade scripts in `migrations/` (MySQL, PostgreSQL, SQLite), generated with
+  DBAL's schema `Comparator` from the former and the current mapping rather
+  than written by hand.
 - Supporting a new database format means writing one parser class in
   `Domain/Parser/` (declaring `getFormat()`, `isEntryStart()`, `isEntryEnd()`,
   `getEntryId()` and `parseDataFile()`) and adding it to
@@ -132,8 +142,23 @@ do not add it.
 - Parsing logic depends on exact source-file formatting and the fixtures in
   `data/`. Preserve whitespace, indexing, case, and biological notation unless
   the intended behavior explicitly changes them.
+- Molecular weights are fixed against one reference, Biopython's
+  `Bio.SeqUtils.molecular_weight` (average masses): `SequenceManager::molwt()`
+  (5'-phosphate, 3'-OH strand) and `ProteinManager::molwt()` equal it, the
+  weight tables in bioapi are Biopython's (`Bio.Data.IUPACData`), and the tests
+  pin values Biopython computed. Do not change these methods, their convention
+  or the weight data to follow another source (OligoCalc, ExPASy, Legacy); a
+  change is only legitimate when it makes them disagree less with Biopython,
+  and its expected values must come from running Biopython, not from a hand
+  calculation.
+- Reference data (bioapi's `DataFixtures`, mirrored by `Tests/**/samples`) is
+  reviewed like code: genetic codes against the NCBI tables, pK values,
+  reduced alphabets, masses. `Tests/Api/BiologicalReferenceDataTest.php` and
+  `ReferenceDataConsistencyTest.php` guard it; a correction goes to bioapi and
+  to every sample copy together.
 - Avoid broad cleanup in bug fixes. Some historical naming and formatting is
-  inconsistent; changing it can break consumers of this alpha library.
+  inconsistent; changing it can break consumers of this library (biotools and
+  host applications depend on it).
 
 ## Testing expectations
 
@@ -156,7 +181,9 @@ Before completing a change:
 1. Confirm the change remains compatible with PHP 8.2 (the minimum supported
    version) and current dependencies.
 2. Check whether an interface, service XML file, DTO, entity mapping, fixture, or
-   parser must change with the implementation.
+   parser must change with the implementation, and whether the change breaks
+   the public API or the schema (then it belongs to a major release, with a
+   "Breaking" CHANGELOG entry and, for the schema, a script in `migrations/`).
 3. Run `php -l` on changed PHP files.
 4. Run focused PHPUnit tests and then the full suite.
 5. Review the diff for accidental edits to `Legacy/`, generated `build/` output,

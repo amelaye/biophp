@@ -3,8 +3,10 @@
  * Replaces the .idx file
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 april 2019
- * Last modified 11 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -25,43 +27,39 @@ class Collection
     #[ORM\Column(type: "integer", length: 5, nullable: false, name: "id")]
     #[ORM\OneToMany(targetEntity: CollectionElement::class, mappedBy: "id_collection", cascade: ["persist"])]
     #[ORM\GeneratedValue]
-    private $id;
+    private ?int $id = null;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "string", length: 50, nullable: false)]
-    private $nomCollection;
+    private ?string $nomCollection = null;
 
     /**
-     * @return string
+     * @return int|null
      */
-    public function getId()
-    {
+    public function getId() : ?int {
         return $this->id;
     }
 
     /**
-     * @param string $id
+     * @param int $id
      */
-    public function setId($id)
-    {
+    public function setId(int $id) {
         $this->id = $id;
     }
 
     /**
      * @return string
      */
-    public function getNomCollection()
-    {
+    public function getNomCollection() : string {
         return $this->nomCollection;
     }
 
     /**
      * @param string $nomCollection
      */
-    public function setNomCollection($nomCollection)
-    {
+    public function setNomCollection(string $nomCollection) {
         $this->nomCollection = $nomCollection;
     }
 }

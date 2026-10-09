@@ -3,8 +3,10 @@
  * TRANSFAC factor.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -19,69 +21,69 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
     /**
      * @var string
      */
-    private $factorName = "";
+    private string $factorName = "";
 
     /**
      * @var array
      */
-    private $synonyms = [];
+    private array $synonyms = [];
 
     /**
      * Common name of the organism, e.g. "human".
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * Scientific name of the organism, e.g. "homo sapiens".
      * @var string
      */
-    private $species = "";
+    private string $species = "";
 
     /**
      * @var array
      */
-    private $taxClass = [];
+    private array $taxClass = [];
 
     /**
      * @var array
      */
-    private $homologs = [];
+    private array $homologs = [];
 
     /**
      * @var string
      */
-    private $classAccession = "";
+    private string $classAccession = "";
 
     /**
      * @var string
      */
-    private $classId = "";
+    private string $classId = "";
 
     /**
      * @var string
      */
-    private $classDecimalNo = "";
+    private string $classDecimalNo = "";
 
     /**
      * @var string
      */
-    private $sequence = "";
+    private string $sequence = "";
 
     /**
      * @var string
      */
-    private $sSynonyms = "";
+    private string $sSynonyms = "";
 
     /**
      * @var string
      */
-    private $sTaxonomy = "";
+    private string $sTaxonomy = "";
 
     /**
      * @var string
      */
-    private $sHomologs = "";
+    private string $sHomologs = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -97,8 +99,7 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);
@@ -130,7 +131,7 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
                     $this->parseClass($sData);
                     break;
                 case "SQ":
-                    $this->sequence = $this->append($this->sequence, $sData);
+                    $this->sequence = $this->appendSequence($this->sequence, $sData);
                     break;
             }
         }
@@ -145,8 +146,7 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
      * Format : OS  human, homo sapiens
      * @param   string      $sData
      */
-    private function parseOrganism($sData)
-    {
+    private function parseOrganism(string $sData) {
         $aTokens = $this->splitList($sData, ",");
 
         $this->organism = $aTokens[0] ?? "";
@@ -158,8 +158,7 @@ final class ParseTransfacFactorManager extends ParseTransfacAbstractManager
      * Format : CL  C0001; CH; 2.3.3.0.1.
      * @param   string      $sData
      */
-    private function parseClass($sData)
-    {
+    private function parseClass(string $sData) {
         $aTokens = $this->splitList($sData);
 
         $this->classAccession = $aTokens[0] ?? "";

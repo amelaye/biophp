@@ -103,4 +103,32 @@ class ParseAaindexManagerTest extends TestCase
         $this->assertEquals("TEST000001", $oParser->getAccession());
         $this->assertEquals([], $oParser->getLitRefs());
     }
+
+    /**
+     * The C and I fields, the correlated entries and the index values themselves, were never
+     * read : the entry gave its references but not its data.
+     */
+    public function testReadsTheCorrelationsAndTheIndexValues()
+    {
+        $oParser = new ParseAaindexManager();
+        $oParser->parseDataFile([
+            "H TEST000001\n",
+            "D A test index\n",
+            "C    BUNA790101    0.949  ZIMJ680102    0.917\n",
+            "     TEST000002   -0.812\n",
+            "I    A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V\n",
+            "      4.35    4.38    4.75    4.76    4.65    4.37    4.29    3.97    4.63    3.95\n",
+            "      4.17    4.36    4.52    4.66    4.44    4.50    4.35    4.70      NA    3.95\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals(["BUNA790101" => 0.949, "ZIMJ680102" => 0.917, "TEST000002" => -0.812], $oParser->getCorrelations());
+        $aIndex = $oParser->getIndex();
+        $this->assertCount(20, $aIndex);
+        $this->assertEquals(4.35, $aIndex["A"]);
+        $this->assertEquals(4.17, $aIndex["L"]);
+        $this->assertEquals(3.95, $aIndex["V"]);
+        $this->assertNull($aIndex["Y"]);
+        $this->assertEquals("A test index", $oParser->getDescription());
+    }
 }

@@ -1,0 +1,267 @@
+<?php
+namespace Tests\Domain\Phylogenetics\Service;
+
+use Amelaye\BioPHP\Domain\Phylogenetics\Exception\InvalidNewickException;
+use Amelaye\BioPHP\Domain\Phylogenetics\Service\NewickReader;
+use Amelaye\BioPHP\Domain\Phylogenetics\ValueObject\PhylogeneticNode;
+use PHPUnit\Framework\TestCase;
+
+class NewickReaderTest extends TestCase
+{
+    private $reader;
+
+    public function setUp(): void
+    {
+        $this->reader = new NewickReader();
+    }
+
+    public function testParsesALoneLeaf()
+    {
+        $oRoot = $this->reader->read("A;");
+
+        $this->assertTrue($oRoot->isLeaf());
+        $this->assertEquals("A", $oRoot->getName());
+        $this->assertNull($oRoot->getBranchLength());
+    }
+
+    public function testParsesALeafWithABranchLength()
+    {
+        $oRoot = $this->reader->read("A:1.5;");
+
+        $this->assertEquals("A", $oRoot->getName());
+        $this->assertEqualsWithDelta(1.5, $oRoot->getBranchLength(), 0.0001);
+    }
+
+    public function testParsesATwoLeafTree()
+    {
+        $oRoot = $this->reader->read("(A:1,B:2);");
+
+        $this->assertFalse($oRoot->isLeaf());
+        $this->assertNull($oRoot->getName());
+        $this->assertCount(2, $oRoot->getChildren());
+        $this->assertEquals("A", $oRoot->getChildren()[0]->getName());
+        $this->assertEquals(1.0, $oRoot->getChildren()[0]->getBranchLength());
+        $this->assertEquals("B", $oRoot->getChildren()[1]->getName());
+        $this->assertEquals(2.0, $oRoot->getChildren()[1]->getBranchLength());
+    }
+
+    public function testParsesATreeWithoutAnyBranchLength()
+    {
+        $oRoot = $this->reader->read("(A,B,C);");
+
+        $this->assertEquals(["A", "B", "C"], $oRoot->getLeafNames());
+        $this->assertNull($oRoot->getChildren()[0]->getBranchLength());
+    }
+
+    /**
+     * The original hand-built tree NeighborJoiningTreeBuilderTest's additive fixture was derived
+     * from (same topology and branch lengths, just written with (A,B)'s clade first rather than
+     * last - child order is not meaningful for an unrooted tree). Confirms reader and writer agree
+     * on the same tree shape.
+     */
+    public function testParsesANestedTreeMatchingTheNeighborJoiningFixture()
+    {
+        $oRoot = $this->reader->read("((A:1,B:2):1,C:3,D:4);");
+
+        $this->assertEquals(["A", "B", "C", "D"], $oRoot->getLeafNames());
+        $this->assertCount(3, $oRoot->getChildren());
+
+        $oInner = $oRoot->getChildren()[0];
+        $this->assertEquals(1.0, $oInner->getBranchLength());
+        $this->assertEquals("A", $oInner->getChildren()[0]->getName());
+        $this->assertEquals(1.0, $oInner->getChildren()[0]->getBranchLength());
+        $this->assertEquals("B", $oInner->getChildren()[1]->getName());
+        $this->assertEquals(2.0, $oInner->getChildren()[1]->getBranchLength());
+
+        $this->assertEquals("C", $oRoot->getChildren()[1]->getName());
+        $this->assertEquals(3.0, $oRoot->getChildren()[1]->getBranchLength());
+        $this->assertEquals("D", $oRoot->getChildren()[2]->getName());
+        $this->assertEquals(4.0, $oRoot->getChildren()[2]->getBranchLength());
+
+        $this->assertEquals("((A:1,B:2):1,C:3,D:4);", $oRoot->toNewick());
+    }
+
+    public function testRejectsAnEmptyString()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("must not be empty");
+
+        $this->reader->read("   ");
+    }
+
+    public function testRejectsAStringNotEndingWithASemicolon()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage('must end with ";"');
+
+        $this->reader->read("(A,B)");
+    }
+
+    public function testRejectsUnbalancedParentheses()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("Unbalanced parentheses");
+
+        $this->reader->read("(A,B;");
+    }
+
+    public function testRejectsAnInvalidBranchLength()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage('Invalid branch length "x"');
+
+        $this->reader->read("A:x;");
+    }
+
+    public function testRejectsTrailingContentAfterTheRootSubtree()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("trailing content");
+
+        $this->reader->read("(A,B))C;");
+    }
+
+    /**
+     * Blanks and newlines may appear anywhere but inside a label or a branch length : they used
+     * to end up in the names (" A ").
+     */
+    public function testIgnoresBlanksAndNewlinesBetweenTokens()
+    {
+        $oRoot = $this->reader->read("( A : 0.1 ,\n  B:0.2 ) ;\n");
+
+        $this->assertEquals(["A", "B"], $oRoot->getLeafNames());
+        $this->assertEquals(0.1, $oRoot->getChildren()[0]->getBranchLength());
+    }
+
+    /**
+     * Comments in square brackets, NHX annotations included, may appear wherever a blank may.
+     */
+    public function testSkipsCommentsAndNhxAnnotations()
+    {
+        $oRoot = $this->reader->read("[a tree](A:0.1[&&NHX:S=human],B[bootstrap]:0.2)95[root];");
+
+        $this->assertEquals(["A", "B"], $oRoot->getLeafNames());
+        $this->assertEquals(0.2, $oRoot->getChildren()[1]->getBranchLength());
+        $this->assertEquals("95", $oRoot->getName());
+    }
+
+    /**
+     * A quoted label may hold blanks and structural characters ; a quote in it is written twice.
+     * Underscores are kept, quoted or not.
+     */
+    public function testReadsQuotedLabels()
+    {
+        $oRoot = $this->reader->read("('Homo sapiens (human)':1,'O''Brien, sp.':2,seq_1:3);");
+
+        $this->assertEquals(["Homo sapiens (human)", "O'Brien, sp.", "seq_1"], $oRoot->getLeafNames());
+        $this->assertEquals(2.0, $oRoot->getChildren()[1]->getBranchLength());
+    }
+
+    /**
+     * toNewick() used to write such names bare, giving a Newick string that cannot be read back.
+     */
+    public function testWritesAndReadsBackNamesNeedingQuotes()
+    {
+        $sNewick = $this->reader->read("('Homo sapiens (human)':1,'O''Brien, sp.':2,seq_1:3,D:4);")->toNewick();
+
+        $this->assertEquals("('Homo sapiens (human)':1,'O''Brien, sp.':2,'seq_1':3,D:4);", $sNewick);
+        $this->assertEquals(
+            ["Homo sapiens (human)", "O'Brien, sp.", "seq_1", "D"],
+            $this->reader->read($sNewick)->getLeafNames()
+        );
+    }
+
+    public function testRejectsAnUnterminatedQuotedLabel()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("Unterminated quoted label");
+
+        $this->reader->read("('A,B);");
+    }
+
+    public function testRejectsAnUnterminatedComment()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("Unterminated comment");
+
+        $this->reader->read("(A[comment,B);");
+    }
+
+    /**
+     * An unnamed leaf, valid Newick, escaped as an InvalidPhylogeneticTreeException that a caller
+     * catching InvalidNewickException around read() missed.
+     */
+    public function testAnUnnamedLeafIsAnInvalidNewickString()
+    {
+        foreach (["(,A);", "(A,B,);", "('',A);"] as $sNewick) {
+            try {
+                $this->reader->read($sNewick);
+                $this->fail($sNewick . " was read.");
+            } catch (InvalidNewickException $oException) {
+                $this->assertStringContainsString("Unnamed leaf", $oException->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Comments are skipped everywhere : after the ";" as well, which used to be refused.
+     */
+    public function testACommentMayFollowTheTerminator()
+    {
+        $this->assertCount(2, $this->reader->read("(A,B);[comment]")->getChildren());
+        $this->assertCount(2, $this->reader->read("(A,B); [&W 1]\n")->getChildren());
+    }
+
+    /**
+     * An unquoted label holding a blank was reported as unbalanced parentheses.
+     */
+    public function testAnUnquotedLabelWithABlankIsReportedAsSuch()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("must be quoted");
+
+        $this->reader->read("(Homo sapiens:1,B:2);");
+    }
+
+    /**
+     * Branch lengths were written with 14 significant digits : a tree did not read back to the same
+     * lengths.
+     */
+    public function testBranchLengthsSurviveAWriteReadRoundTrip()
+    {
+        $oTree = $this->reader->read("(A:0.12345678901234567,B:1e-20,C:2);");
+        $oRead = $this->reader->read($oTree->toNewick());
+
+        $this->assertSame(
+            [0.12345678901234567, 1e-20, 2.0],
+            array_map(fn($o) => $o->getBranchLength(), $oRead->getChildren())
+        );
+        $this->assertStringContainsString("C:2)", $oTree->toNewick());
+    }
+
+    /**
+     * An internal node named "" was written '' but read back with no name (null).
+     */
+    public function testAnEmptyInternalNameSurvivesARoundTrip()
+    {
+        $oTree = new PhylogeneticNode("", null, [
+            new PhylogeneticNode("A", 1.0),
+            new PhylogeneticNode("B", 2.0),
+        ]);
+
+        $this->assertSame("", $this->reader->read($oTree->toNewick())->getName());
+        $this->assertNull($this->reader->read("(A,B);")->getName());
+    }
+
+    /**
+     * "1e400" is numeric and overflows to INF : the node then refused it with a tree exception, which a
+     * caller catching InvalidNewickException missed.
+     */
+    public function testAnOverflowingBranchLengthIsAnInvalidNewickString()
+    {
+        $this->expectException(InvalidNewickException::class);
+        $this->expectExceptionMessage("1e400");
+
+        (new NewickReader())->read("(A:1e400,B:1);");
+    }
+}

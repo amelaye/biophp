@@ -3,8 +3,10 @@
  * Dependency injections for the bundle
  * Freely inspired by BioPHP's project biophp.org
  * Created 19 january 2020
- * Last modified 25 August 2026
+ * Last modified 6 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -37,6 +39,24 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Sequence/Resources/config'));
         $loader->load('services.xml');
 
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Cloning/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Alignment/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Tools/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Sequencing/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Phylogenetics/Resources/config'));
+        $loader->load('services.xml');
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Domain/Variants/Resources/config'));
+        $loader->load('services.xml');
+
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
     }
@@ -67,6 +87,20 @@ class AmelayeBioPHPExtension extends Extension implements PrependExtensionInterf
                         'is_bundle' => false,
                         'prefix'    => 'Amelaye\BioPHP\Domain\Sequence\Entity',
                         'alias'     => 'BioPHPSeq',
+                    ],
+                    'Amelaye\BioPHP\Domain\Cloning\Entity' => [
+                        'type'      => 'attribute',
+                        'dir'       => __DIR__.'/../Domain/Cloning/Entity',
+                        'is_bundle' => false,
+                        'prefix'    => 'Amelaye\BioPHP\Domain\Cloning\Entity',
+                        'alias'     => 'BioPHPCloning',
+                    ],
+                    'Amelaye\BioPHP\Domain\Variants\Entity' => [
+                        'type'      => 'attribute',
+                        'dir'       => __DIR__.'/../Domain/Variants/Entity',
+                        'is_bundle' => false,
+                        'prefix'    => 'Amelaye\BioPHP\Domain\Variants\Entity',
+                        'alias'     => 'BioPHPVariants',
                     ],
                 ],
             ],

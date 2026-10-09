@@ -27,6 +27,7 @@ class TripletSpecieApiTest extends WebTestCase
             $aMembers[] = [
                 'id' => $triplet->getId(),
                 'nature' => $triplet->getNature(),
+                'ncbiTableId' => $triplet->getNcbiTableId(),
                 'tripletsGroups' => $triplet->getTripletsGroups(),
                 'triplets' => $triplet->getTriplets(),
             ];
@@ -36,7 +37,7 @@ class TripletSpecieApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -79,8 +80,8 @@ class TripletSpecieApiTest extends WebTestCase
           "vertebrate_mitochondrial" => [
             0 => "(TTT |TTC )",
             1 => "(TTA |TTG |CT. )",
-            2 => "(ATT |ATC |ATA )",
-            3 => "(ATG )",
+            2 => "(ATT |ATC )",
+            3 => "(ATG |ATA )",
             4 => "(GT. )",
             5 => "(TC. |AGT |AGC )",
             6 => "(CC. )",
@@ -463,7 +464,11 @@ class TripletSpecieApiTest extends WebTestCase
         ];
 
         $apiTriplets = new TripletSpecieApi($this->clientMock, $this->serializerMock);
-        static::assertEquals($aExpected, $apiTriplets::GetTripletsGroups($apiTriplets->getTriplets()));
+        // The 17 species below are the ones pinned here ; the NCBI codes added after them are checked
+        // against gc.prt in BiologicalReferenceDataTest
+        $aActual = $apiTriplets::GetTripletsGroups($apiTriplets->getTriplets());
+        static::assertEquals($aExpected, array_slice($aActual, 0, count($aExpected), true));
+        static::assertCount(count($aExpected) + 7, $aActual);
     }
 
     public function testGetTripletsArray()
@@ -573,7 +578,7 @@ class TripletSpecieApiTest extends WebTestCase
             4 => "GTN",
             5 => "WSN",
             6 => "CCN",
-            7 => "WSN",
+            7 => "ACN",
             8 => "GCN",
             9 => "TAY",
             10 => "TAR",
@@ -621,7 +626,7 @@ class TripletSpecieApiTest extends WebTestCase
             4 => "GTN",
             5 => "WSN",
             6 => "CCN",
-            7 => "WCN",
+            7 => "ACN",
             8 => "GCN",
             9 => "TAY",
             10 => "TAR",
@@ -747,7 +752,7 @@ class TripletSpecieApiTest extends WebTestCase
             10 => "TAG",
             11 => "CAY",
             12 => "CAR",
-            13 => "ATH",
+            13 => "AAH",
             14 => "AAG",
             15 => "GAY",
             16 => "GAR",
@@ -840,7 +845,7 @@ class TripletSpecieApiTest extends WebTestCase
             7 => "ACN",
             8 => "GCN",
             9 => "TAY",
-            10 => "TVR",
+            10 => "TVA",
             11 => "CAY",
             12 => "CAR",
             13 => "AAY",
@@ -880,7 +885,11 @@ class TripletSpecieApiTest extends WebTestCase
         ];
 
         $apiTriplets = new TripletSpecieApi($this->clientMock, $this->serializerMock);
-        static::assertEquals($aExpected, $apiTriplets::GetTripletsArray($apiTriplets->getTriplets()));
+        // The 17 species below are the ones pinned here ; the NCBI codes added after them are checked
+        // against gc.prt in BiologicalReferenceDataTest
+        $aActual = $apiTriplets::GetTripletsArray($apiTriplets->getTriplets());
+        static::assertEquals($aExpected, array_slice($aActual, 0, count($aExpected), true));
+        static::assertCount(count($aExpected) + 7, $aActual);
     }
 
     public function testGetTripletsCombinations()
@@ -937,6 +946,10 @@ class TripletSpecieApiTest extends WebTestCase
         ];
 
         $apiTriplets = new TripletSpecieApi($this->clientMock, $this->serializerMock);
-        static::assertEquals($aExpected, $apiTriplets::GetSpeciesNames($apiTriplets->getTriplets()));
+        // The 17 species below are the ones pinned here ; the NCBI codes added after them are checked
+        // against gc.prt in BiologicalReferenceDataTest
+        $aActual = $apiTriplets::GetSpeciesNames($apiTriplets->getTriplets());
+        static::assertEquals($aExpected, array_slice($aActual, 0, count($aExpected), true));
+        static::assertCount(count($aExpected) + 7, $aActual);
     }
 }

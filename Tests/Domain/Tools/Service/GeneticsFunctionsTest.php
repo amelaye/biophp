@@ -56,4 +56,34 @@ class GeneticsFunctionsTest extends TestCase
     {
         $this->assertEquals("ARN*DCE", GeneticsFunctions::RemoveNonCodingProt("ARN*DCE"));
     }
+
+    /**
+     * The complements are looked up in upper case : "aagg" used to be reversed and not complemented,
+     * and came back as "GGAA".
+     */
+    public function testCreateInversionOfALowerCaseSequence()
+    {
+        $dnaComplements = ['A' => 'T', 'T' => 'A', 'G' => 'C', 'C' => 'G'];
+        $this->assertEquals("CCTT", GeneticsFunctions::CreateInversion("aagg", $dnaComplements));
+    }
+
+    /**
+     * The ambiguity codes were left as they were : AR gave RT, whose real reverse complement is YT.
+     */
+    public function testCreateInversionComplementsTheAmbiguityCodes()
+    {
+        $dnaComplements = ['A' => 'T', 'T' => 'A', 'G' => 'C', 'C' => 'G'];
+        $this->assertEquals("YT", GeneticsFunctions::CreateInversion("AR", $dnaComplements));
+        $this->assertEquals("NVBHDKMSW", GeneticsFunctions::CreateInversion("WSKMHDVBN", $dnaComplements));
+        $this->assertEquals("TNRY", GeneticsFunctions::CreateInversion("RYNA", $dnaComplements));
+    }
+
+    /**
+     * Selenocysteine (U), pyrrolysine (O) and the ambiguities B, Z, J were removed with the noise,
+     * shortening the sequence and shifting every position after them.
+     */
+    public function testRemoveNonCodingProtKeepsTheRareAndAmbiguousResidues()
+    {
+        $this->assertEquals("MUKOBZJX", GeneticsFunctions::RemoveNonCodingProt("MUK-O1BZ J!X"));
+    }
 }

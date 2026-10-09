@@ -10,7 +10,7 @@
         <!-- API -->
         <service class="GuzzleHttp\Client" id="amelaye_biophp.guzzle.client.bioapi">
             <argument type="collection">
-                <argument key="base_uri">http://api.amelayes-biophp.net</argument>
+                <argument key="base_uri">https://api.amelayes-biophp.net</argument>
             </argument>
         </service>
 

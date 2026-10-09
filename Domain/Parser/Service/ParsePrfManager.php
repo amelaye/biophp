@@ -3,8 +3,10 @@
  * PRF/SEQDB database parsing (Protein Research Foundation)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -29,62 +31,62 @@ final class ParsePrfManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryCode = "";
+    private string $entryCode = "";
 
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $source = "";
+    private string $source = "";
 
     /**
      * @var string
      */
-    private $commonName = "";
+    private string $commonName = "";
 
     /**
      * @var array
      */
-    private $taxonomy = [];
+    private array $taxonomy = [];
 
     /**
      * @var string
      */
-    private $journal = "";
+    private string $journal = "";
 
     /**
      * @var array
      */
-    private $authors = [];
+    private array $authors = [];
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * @var string
      */
-    private $comment = "";
+    private string $comment = "";
 
     /**
      * @var array
      */
-    private $crossRefs = [];
+    private array $crossRefs = [];
 
     /**
      * @var string
      */
-    private $sequence = "";
+    private string $sequence = "";
 
     /**
      * Constructor.
@@ -139,8 +141,7 @@ final class ParsePrfManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aBuffers = [
             "JOURNAL" => "", "AUTHOR" => "", "TITLE" => "", "COMMENT" => "",
             "KEYWORD" => "", "SEQUENCE" => "", "taxon" => ""

@@ -3,8 +3,10 @@
  * Database of nucleotids - weigths included
  * Inspired by BioPHP's project biophp.org
  * Created 19 december 2019
- * Last modified 19 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,27 +19,27 @@ class NucleotidDTO
     /**
      * @var     int         Id of the nucleotid (auto-increment)
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * @var     string      A, T, G or C for example
      */
-    private $letter;
+    private ?string $letter = null;
 
     /**
      * @var     string      T for A ...
      */
-    private $complement;
+    private ?string $complement = null;
 
     /**
      * @var     string      DNA or RNA
      */
-    private $nature;
+    private ?string $nature = null;
 
     /**
      * @var     float       Weight of the nucleotid
      */
-    private $weight;
+    private ?float $weight = null;
 
     /**
      * @return int

@@ -3,8 +3,10 @@
  * Doctrine Entity Sequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -23,38 +25,38 @@ class Sequence
      * @var string
      */
     #[ORM\Id]
-    #[ORM\Column(type: "string", length: 8, nullable: false)]
-    private $primAcc = "";
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
+    private string $primAcc = "";
 
     /**
      * @var string
      */
-    #[ORM\Column(type: "string", length: 8, nullable: false)]
-    private $entryName = "";
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
+    private string $entryName = "";
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $seqLength;
+    private ?int $seqLength = null;
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $start;
+    private ?int $start = null;
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $end;
+    private ?int $end = null;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", length: 6, nullable: true)]
-    private $molType;
+    #[ORM\Column(type: "string", length: 20, nullable: true)]
+    private ?string $molType = null;
 
     /**
      * The date as its record writes it, e.g. "21-JUL-1986" : a flat-file date carries no time
@@ -63,37 +65,37 @@ class Sequence
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 11, nullable: true)]
-    private $date;
+    private ?string $date = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", nullable: true)]
-    private $source;
+    private ?string $source = null;
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text", nullable: false)]
-    private $sequence = "";
+    private string $sequence = "";
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: "string", nullable: true)]
-    private $description;
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $description = null;
 
     /**
      * @var array|null
      */
     #[ORM\Column(type: "json", nullable: true)]
-    private $organism;
+    private ?array $organism = null;
 
     /**
      * @var int|null
      */
     #[ORM\Column(type: "integer", length: 1, nullable: true)]
-    private $fragment;
+    private ?int $fragment = null;
 
     /**
      * @return string

@@ -3,8 +3,10 @@
  * Turns what a parser has read into plain data
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 September 2026
- * Last modified 20 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Service;
 
 /**
@@ -57,8 +59,7 @@ abstract class ParsedDataExtractor
      * @param   int         $iDepth
      * @return  mixed
      */
-    private static function normalize($mValue, array $aPath, int $iDepth)
-    {
+    private static function normalize(mixed $mValue, array $aPath, int $iDepth) {
         if ($mValue === null || is_bool($mValue) || is_int($mValue)) {
             return $mValue;
         }

@@ -3,8 +3,10 @@
  * Doctrine Entity GbFeatures
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -16,63 +18,87 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "feature")]
-#[ORM\UniqueConstraint(name: "uniq_feature", columns: ["prim_acc", "ft_key", "ft_qual"])]
+#[ORM\Index(name: "feature_prim_acc", columns: ["prim_acc"])]
 class Feature
 {
     /**
-     * @var string
+     * @var int|null
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+    private ?int $id = null;
+
+    /**
+     * The primary accession of the sequence this row belongs to : a plain column, so that a
+     * parsed record can be stored as the parser builds it, with its accession as a string.
+     * @var string
+     */
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
+    private string $primAcc = "";
 
     /**
      * @var string
      */
-    #[ORM\Id]
-    #[ORM\Column(type: "string", length: 15, nullable: false)]
-    private $ftKey = "";
+    #[ORM\Column(type: "string", length: 20, nullable: false)]
+    private string $ftKey = "";
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $ftFrom;
+    private ?int $ftFrom = null;
 
     /**
      * @var int
      */
     #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $ftTo;
+    private ?int $ftTo = null;
 
     /**
      * @var string
      */
-    #[ORM\Id]
     #[ORM\Column(type: "string", length: 60, nullable: false)]
-    private $ftQual = "";
+    private string $ftQual = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $ftValue = "";
+    private string $ftValue = "";
 
     /**
      * @var string
      */
     #[ORM\Column(type: "text")]
-    private $ftDesc = "";
+    private string $ftDesc = "";
 
     /**
      * The strand the feature was read from : "+" (direct/sense) or "-" (the location was wrapped
      * in "complement(...)"). Null when the format has no strand concept (e.g. Swiss-Prot, whose
-     * features are positions on a protein sequence) or none was recorded.
+     * features are positions on a protein sequence), when the feature lies on both strands (a
+     * trans-spliced join(complement(a..b),c..d)) or when none was recorded.
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 1, nullable: true)]
-    private $strand;
+    private ?string $strand = null;
+
+    /**
+     * The location exactly as the record wrote it (INSDC syntax, e.g. "join(94..300,401..1482)").
+     * ftFrom and ftTo only keep its outer bounds : this keeps the exons of a spliced feature, and
+     * any partial ("<", ">") mark. Null when the format has no such syntax or none was recorded.
+     * @var string|null
+     */
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $ftLocation = null;
+
+    /**
+     * @return int|null     Null until the row is stored
+     */
+    public function getId() : ?int
+    {
+        return $this->id;
+    }
 
     /**
      * @return string
@@ -200,5 +226,31 @@ class Feature
     public function setStrand(?string $strand) : void
     {
         $this->strand = $strand;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFtLocation() : ?string
+    {
+        return $this->ftLocation;
+    }
+
+    /**
+     * @param string|null $ftLocation
+     */
+    public function setFtLocation(?string $ftLocation) : void
+    {
+        $this->ftLocation = $ftLocation;
+    }
+
+    /**
+     * Tells whether the feature extends beyond the bases its location gives ("<1..206", the start
+     * lies before base 1 ; "1..>888", the end lies after base 888), as the location was written.
+     * @return bool     False as well when no location was recorded
+     */
+    public function isPartial() : bool
+    {
+        return $this->ftLocation !== null && strpbrk($this->ftLocation, "<>") !== false;
     }
 }

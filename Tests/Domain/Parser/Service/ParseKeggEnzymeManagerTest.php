@@ -120,4 +120,62 @@ class ParseKeggEnzymeManagerTest extends TestCase
     {
         $this->assertEquals(["1HKB", "1HKC", "1IG8"], $this->fetch()->getStructures());
     }
+
+    /**
+     * The 2008 format: no "PATH:" tag, ec/ko pathway identifiers of seven characters, ORTHOLOGY
+     * for ORTHOLOG, and a GENES line wrapped onto an indented one. The pathway was cut ten
+     * characters in ("ec00010  G", "lycolysis..."), the orthologs were lost, and the wrapped genes
+     * came out as an item with no organism.
+     */
+    public function testTheCurrentFormatWithWrappedGenes()
+    {
+        $oParser = new ParseKeggEnzymeManager();
+        $oParser->parseDataFile([
+            "ENTRY       EC 2.7.1.1                  Enzyme\n",
+            "ORTHOLOGY   K00844  hexokinase\n",
+            "PATHWAY     ec00010  Glycolysis / Gluconeogenesis\n",
+            "            ec00052  Galactose metabolism\n",
+            "GENES       HSA: 3098(HK1) 3099(HK2)\n",
+            "            ECO: b1234 b2345\n",
+            "                 b3456\n",
+            "///\n",
+        ]);
+
+        $this->assertEquals(
+            [["ec00010", "Glycolysis / Gluconeogenesis"], ["ec00052", "Galactose metabolism"]],
+            $oParser->getPathways()
+        );
+        $this->assertEquals(["K00844  hexokinase"], $oParser->getOrthologs());
+        $this->assertEquals(["HSA: 3098(HK1) 3099(HK2)", "ECO: b1234 b2345 b3456"], $oParser->getGenes());
+    }
+
+    /**
+     * A SUBSTRATE wrapped at the first column was cut into two substrates (a line only continued the item
+     * above when indented past it, and the ";" ending an item was ignored), and a "$" line was an item of
+     * its own, "$" included ; the capital map identifiers of the oldest files were all dropped.
+     */
+    public function testAWrappedSubstrateAndTheCapitalMapIdentifiers()
+    {
+        $oParser = new ParseKeggEnzymeManager();
+        $oParser->parseDataFile([
+            "ENTRY       EC 1.14.14.1                Enzyme\n",
+            "SUBSTRATE   a long substance name that wraps\n",
+            "            onto the next line [CPD:C00001];\n",
+            "            ATP [CPD:C00002];\n",
+            "            D-gluco\n",
+            "            \$se [CPD:C00031]\n",
+            "PATHWAY     PATH: MAP00010  Glycolysis / Gluconeogenesis\n",
+            "            PATH: map00052  Galactose metabolism\n",
+            "///\n",
+        ]);
+
+        $this->assertEquals(
+            ["a long substance name that wraps onto the next line [CPD:C00001]", "ATP [CPD:C00002]", "D-glucose [CPD:C00031]"],
+            $oParser->getSubstrates()
+        );
+        $this->assertEquals(
+            [["map00010", "Glycolysis / Gluconeogenesis"], ["map00052", "Galactose metabolism"]],
+            $oParser->getPathways()
+        );
+    }
 }

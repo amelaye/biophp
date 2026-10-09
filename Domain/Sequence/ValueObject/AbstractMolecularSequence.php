@@ -3,9 +3,13 @@
  * Immutable value object wrapping a biological sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * A molecular sequence is defined by its symbols only : two instances holding the same symbols are
@@ -30,7 +34,7 @@ abstract class AbstractMolecularSequence implements \Stringable
     /**
      * @var string
      */
-    private $value;
+    private ?string $value = null;
 
     /**
      * AbstractMolecularSequence constructor.
@@ -110,13 +114,16 @@ abstract class AbstractMolecularSequence implements \Stringable
     }
 
     /**
-     * Extracts a portion of the sequence, keeping the same kind of value object.
+     * Extracts a portion of the sequence, keeping the same kind of value object - except for a
+     * circular molecule, whose piece is a linear DnaSequence (see CircularDnaSequence) : the
+     * declared type is therefore this class, the object returned being a DnaSequence for a DNA, an
+     * RnaSequence for an RNA and an AminoAcidSequence for a protein, as before.
      * @param   int         $iStart         Zero-based position of the first symbol
      * @param   int|null    $iLength        Number of symbols, until the end when omitted
      * @return  static
      * @throws  InvalidSequenceException
      */
-    public function subSequence(int $iStart, ?int $iLength = null) : static
+    public function subSequence(int $iStart, ?int $iLength = null) : AbstractMolecularSequence
     {
         return new static(substr($this->value, $iStart, $iLength));
     }

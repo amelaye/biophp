@@ -3,8 +3,10 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 12 September 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Service;
 
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
@@ -24,52 +26,52 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
 {
     /**
      * Dependency injection for the Sequences Services
-     * @var SequenceManager
+     * @var SequenceBuilder
      */
-    private $sequenceManager;
+    private SequenceBuilder $sequenceManager;
 
     /**
      * Letters of the alphabet
      * @var array
      */
-    private $aAlphabet;
+    private ?array $aAlphabet = null;
 
     /**
      * The length of the longest sequence in the alignment set.
      * @var int
      */
-    private $iLength;
+    private ?int $iLength = null;
 
     /**
      * The total number of gaps ("-") in all sequences in the alignment set.
      * @var int
      */
-    private $iGapCount;
+    private ?int $iGapCount = null;
 
     /**
      * An array containing all the sequences in the alignment set.
      * As ArrayIterator I dropped the former next(), prev(), fetch(), last(), first() functions, easy pieceeeee <3
      * @var \ArrayIterator
      */
-    private $aSeqSet;
+    private ?\ArrayIterator $aSeqSet = null;
 
     /**
      * A boolean or logical value: TRUE if all the sequences in the alignment have the same length, FALSE otherwise.
      * @var bool
      */
-    private $bFlush;
+    private ?bool $bFlush = null;
 
     /**
      * Filename of the original parsed file.
      * @var string
      */
-    private $sFilename;
+    private ?string $sFilename = null;
 
     /**
      * Format of the original parsed file.
      * @var string
      */
-    private $sFormat;
+    private ?string $sFormat = null;
 
     /**
      * SequenceAlignmentManager constructor.
@@ -98,8 +100,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * Sets a specific filename : the file to parse
      * @param   string  $sFilename
      */
-    public function setFilename($sFilename)
-    {
+    public function setFilename(string $sFilename) {
         $this->sFilename = $sFilename;
     }
 
@@ -107,8 +108,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * Sets a specific format : FASTA or CLUSTAL
      * @param   string  $sFormat
      */
-    public function setFormat($sFormat)
-    {
+    public function setFormat(string $sFormat) {
         $this->sFormat = $sFormat;
     }
 
@@ -209,7 +209,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $sDescription = str_replace(">", "", trim($sLine));
 
                 $oSequence = new Sequence();
-                $oSequence->setPrimAcc($iPrevId);
+                $oSequence->setPrimAcc((string) $iPrevId);
                 $oSequence->setSeqlength($iSeqLength);
                 $oSequence->setSequence($sSequence);
                 $oSequence->setDescription($sPrevDesc);
@@ -217,7 +217,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $oSequence->setEnd($iSeqLength - 1);
                 if($sPrevDesc != "") {
                     $aDescription = explode(" ", $sPrevDesc);
-                    $oSequence->setOrganism(array($aDescription[1]));
+                    // A header may be the identifier alone (">id") : no organism then
+                    if (isset($aDescription[1])) {
+                        $oSequence->setOrganism(array($aDescription[1]));
+                    }
                     $oSequence->setEntryName($sPrevDesc);
                     $oSequence->setPrimAcc($aDescription[0]);
                 }
@@ -252,14 +255,16 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $iSeqLength = strlen($sSequence);
 
         $oSequence = new Sequence();
-        $oSequence->setPrimAcc($iPrevId);
+        $oSequence->setPrimAcc((string) $iPrevId);
         $oSequence->setSeqlength($iSeqLength);
         $oSequence->setSequence($sSequence);
         $oSequence->setDescription($sDescription);
         $oSequence->setStart(0);
         $oSequence->setEnd($iSeqLength - 1);
         $aDescription = explode(" ", $sPrevDesc);
-        $oSequence->setOrganism(array($aDescription[1]));
+        if (isset($aDescription[1])) {
+            $oSequence->setOrganism(array($aDescription[1]));
+        }
         $oSequence->setEntryName($sDescription);
         $oSequence->setPrimAcc($aDescription[0]);
 
@@ -388,8 +393,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      * @return  boolean | string        A single character representing an amino acid residue or a "gap".
      * @throws  \Exception
      */
-    public function charAtRes(int $iSeqIdx, int $iRes)
-    {
+    public function charAtRes(int $iSeqIdx, int $iRes) {
          $iNonGapCount = $iLength = 0;
          return $this->validationRes($iSeqIdx, $iRes, $iNonGapCount, $iLength, "charAtRes");
     }
@@ -406,8 +410,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
      *          an explicit exception when the value is missing, vs treat the absence as a
      *          valid business case).
      */
-    public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0)
-    {
+    public function substrBwRes(int $iSeqIdx, int $iResStart, int $iResEnd = 0) {
         $iNonGapCtr   = 0;
         $sSubSequence = "";
 
@@ -566,8 +569,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
 
         $aAllPos     = $aInvarPos = $aVarPos = [];
         $aGlobFreq   = array();
-        $oFirstSeq   = $this->aSeqSet->current();
-        $iSeqLength  = strlen($oFirstSeq->getSequence());
+        $iSeqLength  = $this->longestLength();
 
         for($i = 0; $i < count($this->aAlphabet); $i++) {
             $sCurrLet = $this->aAlphabet[$i];
@@ -601,8 +603,7 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $this->aSeqSet->rewind();
 
         $sResult     = "";
-        $oFirstSeq   = $this->aSeqSet->current();
-        $iSeqLength  = strlen($oFirstSeq->getSequence());
+        $iSeqLength  = $this->longestLength();
         $aGlobFreq   = [];
 
         for($i = 0; $i < count($this->aAlphabet); $i++) {
@@ -780,6 +781,18 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
     }
 
     /**
+     * @return  int     The length of the longest sequence of the set, whose columns are all scanned
+     */
+    private function longestLength() : int
+    {
+        $iLength = 0;
+        for ($j = 0; $j < $this->aSeqSet->count(); $j++) {
+            $iLength = max($iLength, strlen($this->aSeqSet->offsetGet($j)->getSequence()));
+        }
+        return $iLength;
+    }
+
+    /**
      * Calculates the max percentage of frequencies
      * @param   array       $aGlobFreq      Array of frequencies of the letters
      * @param   int         $i              Current iteration
@@ -791,7 +804,12 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $aFrequences = $aGlobFreq;
         for($j = 0; $j < $this->aSeqSet->count(); $j++) {
             $oCurrSeq = $this->aSeqSet->offsetGet($j);
-            $sCurrLet = substr($oCurrSeq->getSequence(), $i, 1);
+            // "a" and "A" are one residue (soft-masked FASTA), and a sequence shorter than the others
+            // holds none at all here : substr() returns "" past its end, which is not a symbol
+            $sCurrLet = strtoupper(substr($oCurrSeq->getSequence(), $i, 1));
+            if ($sCurrLet === "") {
+                continue;
+            }
             if(isset($aFrequences[$sCurrLet])) {
                 $aFrequences[$sCurrLet]++;
             } else {
@@ -802,8 +820,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         // A gap is not a residue: it must not win a column as "the" consensus symbol while any
         // sequence still carries a real character there. Only when every sequence has a gap at
         // this column is there nothing else to report, and "-" is kept as that (unanimous) result.
+        // $aGlobFreq lists every letter at a zero count : those letters are not in the column.
         $iGapCount = $aFrequences["-"] ?? 0;
         unset($aFrequences["-"]);
+        $aFrequences = array_filter($aFrequences);
         if (empty($aFrequences)) {
             $aKeys = ["-"];
             return ($iGapCount / $this->aSeqSet->count()) * 100;

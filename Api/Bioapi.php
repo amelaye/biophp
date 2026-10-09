@@ -2,8 +2,10 @@
 /**
  * Bioapi requests
  * Created 3 november 2019
- * Last modified 21 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api;
 
 use GuzzleHttp\Client;
@@ -21,17 +23,17 @@ abstract class Bioapi
     /**
      * @var Client
      */
-    protected $bioapiClient;
+    protected Client $bioapiClient;
 
     /**
      * @var Serializer
      */
-    protected $serializer;
+    protected ?Serializer $serializer = null;
 
     /**
      * @var string|null
      */
-    protected $apiKey;
+    protected ?string $apiKey = null;
 
     /**
      * Bioapi constructor.
@@ -39,8 +41,7 @@ abstract class Bioapi
      * @param Serializer    $serializer
      * @param string        $apiKey
      */
-    public function __construct(Client $bioapiClient, Serializer $serializer, $apiKey = null)
-    {
+    public function __construct(Client $bioapiClient, Serializer $serializer, ?string $apiKey = null) {
         $this->bioapiClient = $bioapiClient;
         $this->serializer   = $serializer;
         $this->apiKey       = $apiKey;

@@ -221,7 +221,7 @@ class DatabaseManagerTest extends TestCase
         $oParser = $databaseManager->fetch("1.14.14.1");
 
         $this->assertEquals("1.14.14.1", $oParser->getId());
-        $this->assertEquals("unspecific monooxygenase.", $oParser->getDescription());
+        $this->assertEquals("unspecific monooxygenase", $oParser->getDescription());
     }
 
     /**
@@ -246,6 +246,6 @@ class DatabaseManagerTest extends TestCase
         $oParser = $databaseManager->fetch("1.1.1.5");
 
         $this->assertEquals("1.1.1.5", $oParser->getId());
-        $this->assertEquals("Transferred entry: 1.1.1.303 and 1.1.1.304.", $oParser->getDescription());
+        $this->assertEquals("Transferred entry: 1.1.1.303 and 1.1.1.304", $oParser->getDescription());
     }
 }

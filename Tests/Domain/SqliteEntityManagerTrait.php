@@ -19,6 +19,8 @@ trait SqliteEntityManagerTrait
             [
                 dirname(__DIR__, 2) . "/Domain/Sequence/Entity",
                 dirname(__DIR__, 2) . "/Domain/Database/Entity",
+                dirname(__DIR__, 2) . "/Domain/Cloning/Entity",
+                dirname(__DIR__, 2) . "/Domain/Variants/Entity",
             ],
             true
         );

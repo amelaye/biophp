@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults public="false" />
+
+        <!-- Cloning -->
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\CircularRestrictionDigestManager" id="amelaye_biophp.cloning_digest" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\LinearRestrictionDigestManager" id="amelaye_biophp.cloning_linear_digest" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\RestrictionEndCompatibilityManager" id="amelaye_biophp.cloning_end_compat" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Mapper\GenbankPlasmidMapper" id="amelaye_biophp.cloning_genbank_mapper" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\FeatureOverlapManager" id="amelaye_biophp.cloning_feature_overlap" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Reader\GffFeatureReader" id="amelaye_biophp.cloning_gff_reader" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\GibsonAssemblyManager" id="amelaye_biophp.cloning_gibson_assembly" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Reader\BedFeatureReader" id="amelaye_biophp.cloning_bed_reader" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Writer\GffFeatureWriter" id="amelaye_biophp.cloning_gff_writer" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Writer\BedFeatureWriter" id="amelaye_biophp.cloning_bed_writer" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Writer\GenbankWriter" id="amelaye_biophp.cloning_genbank_writer" />
+        <service class="Amelaye\BioPHP\Domain\Cloning\Service\Mapper\PlasmidRecordMapper" id="amelaye_biophp.cloning_plasmid_record_mapper" />
+
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionDigestInterface" alias="amelaye_biophp.cloning_digest" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\LinearRestrictionDigestInterface" alias="amelaye_biophp.cloning_linear_digest" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\RestrictionEndCompatibilityInterface" alias="amelaye_biophp.cloning_end_compat" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankPlasmidMapperInterface" alias="amelaye_biophp.cloning_genbank_mapper" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\FeatureOverlapInterface" alias="amelaye_biophp.cloning_feature_overlap" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureReaderInterface" alias="amelaye_biophp.cloning_gff_reader" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GibsonAssemblyInterface" alias="amelaye_biophp.cloning_gibson_assembly" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureReaderInterface" alias="amelaye_biophp.cloning_bed_reader" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GffFeatureWriterInterface" alias="amelaye_biophp.cloning_gff_writer" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\BedFeatureWriterInterface" alias="amelaye_biophp.cloning_bed_writer" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\GenbankWriterInterface" alias="amelaye_biophp.cloning_genbank_writer" />
+        <service id="Amelaye\BioPHP\Domain\Cloning\Interfaces\PlasmidRecordMapperInterface" alias="amelaye_biophp.cloning_plasmid_record_mapper" />
+    </services>
+
+</container>

@@ -3,8 +3,10 @@
  * Sequence Alignment Managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 january 2020
- * Last modified 18 january 2020
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -30,13 +32,13 @@ interface SequenceAlignmentInterface
      * Sets a specific filename : the file to parse
      * @param   string  $sFilename
      */
-    public function setFilename($sFilename);
+    public function setFilename(string $sFilename) ;
 
     /**
      * Sets a specific format : FASTA or CLUSTAL
      * @param   string  $sFormat
      */
-    public function setFormat($sFormat);
+    public function setFormat(string $sFormat) ;
 
     /**
      * Parses Clustal Files and create Sequence object

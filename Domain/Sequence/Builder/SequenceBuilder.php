@@ -3,16 +3,18 @@
  * Factory for SequenceManager service
  * Inspired by BioPHP's project biophp.org
  * Created 13 december 2019
- * Last modified 12 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Builder;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Interfaces\SequenceInterface;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AbstractMolecularSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\MolecularSequenceFactory;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Factory\MolecularSequenceFactory;
 
 /**
  * This initialises whether the is a sequences object or not
@@ -24,12 +26,12 @@ class SequenceBuilder implements SequenceInterface
     /**
      * @var Sequence
      */
-    private $sequence;
+    private ?Sequence $sequence = null;
 
     /**
      * @var SequenceManager
      */
-    private $sequenceManager;
+    private SequenceManager $sequenceManager;
 
     /**
      * SequenceFactory constructor.
@@ -137,6 +139,9 @@ class SequenceBuilder implements SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * With no molecule type given, the record's own is read : GenBank writes it "mRNA", "ss-DNA",
+     * "rRNA"... and always spells the sequence with T, so any RNA type is weighed as RNA, its T
+     * read as U, and any DNA type as DNA.
      * @param   string        $sLimit       "lowerlimit" or "upperlimit"
      * @param   string|null   $sSequence    The sequence
      * @param   string|null   $sMolType     DNA or RNA
@@ -144,14 +149,19 @@ class SequenceBuilder implements SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float
-    {
+    public function molwt(string $sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
 
         if($sMolType == null) {
             $sMolType  = $this->sequence->getMoltype();
+            if ($sMolType !== null && stripos($sMolType, "RNA") !== false) {
+                $sMolType = "RNA";
+                $sSequence = $sSequence !== null ? str_ireplace("T", "U", $sSequence) : null;
+            } elseif ($sMolType !== null && stripos($sMolType, "DNA") !== false) {
+                $sMolType = "DNA";
+            }
         }
 
         if($iNALen == null) {
@@ -193,8 +203,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq(int $iStart, int $iCount, $sSequence = null) : string
-    {
+    public function subSeq(int $iStart, int $iCount, ?string $sSequence = null) : string {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -297,8 +306,7 @@ class SequenceBuilder implements SequenceInterface
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, ?string $sSequence = null, $sOptions = "I") : array
-    {
+    public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -338,8 +346,7 @@ class SequenceBuilder implements SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, ?string $sSequence = null, $iReadFrame = 0) : string
-    {
+    public function getCodon(int $iIndex, ?string $sSequence = null, int $iReadFrame = 0) : string {
         if($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
         }
@@ -395,8 +402,7 @@ class SequenceBuilder implements SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge(string $sAminoSeq)
-    {
+    public function charge(string $sAminoSeq) : string {
         return $this->sequenceManager->charge($sAminoSeq);
     }
 
@@ -469,8 +475,7 @@ class SequenceBuilder implements SequenceInterface
      * omitted, this is set to "E" by default.
      * @return  array | bool            3D assoc array: ( [2] => ( ("AA", 3), ("GG", 7) ), [4] => ( ("GAAG", 16) ) )
      */
-    public function findMirror(?string $sSequence = null, ?int $iPallen1 = null, ?int $iPallen2 = null, string $sOptions = "E")
-    {
+    public function findMirror(?string $sSequence = null, ?int $iPallen1 = null, ?int $iPallen2 = null, string $sOptions = "E") {
         if ($sSequence == null) {
             $sSequence = $this->sequence->getSequence();
             $iSeqLength = strlen($sSequence);

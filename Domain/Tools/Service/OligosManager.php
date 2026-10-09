@@ -4,8 +4,10 @@
  * Inspired by BioPHP's project biophp.org
  * Created 9 march 2019
  * RIP Pasha, gone 27 february 2019 =^._.^= ∫
- * Last modified 12 September 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Tools\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\NucleotidApiAdapter;
@@ -234,8 +236,8 @@ class OligosManager implements OligosInterface
      * @return      array
      * @throws      \Exception
      */
-    public function findOligos($sSequence, $iOligoLen)
-    {
+    public function findOligos(string $sSequence, int $iOligoLen) : array {
+        $sSequence      = strtoupper($sSequence);
         $i              = 0;
         $aOligos1Step   = [];
         $aOligos        = [];
@@ -293,8 +295,7 @@ class OligosManager implements OligosInterface
      * @param $oligos4
      * @return array
      */
-    public function findZScore($oligos2, $oligos3, $oligos4)
-    {
+    public function findZScore($oligos2, $oligos3, $oligos4) : array {
         $base_a = $base_b = $base_c = $base_d = $base_e = $base_f = $this->dnaComplements;
         $i = 0;
         $zscore = [];
@@ -314,6 +315,10 @@ class OligosManager implements OligosInterface
 
                         if(!isset($oligos2[$val_b.$val_c])) {
                             $oligos2[$val_b.$val_c] = null;
+                            $exp[$val_a.$val_b.$val_c.$val_d] = 0;
+                        } elseif ($oligos2[$val_b.$val_c] == 0) {
+                            // The dinucleotide is absent (findOligos() lists it with a count of 0) :
+                            // the expectation is undefined, and 0 as for an unlisted one
                             $exp[$val_a.$val_b.$val_c.$val_d] = 0;
                         } else {
                             $exp[$val_a.$val_b.$val_c.$val_d] = $atemp / $oligos2[$val_b.$val_c];

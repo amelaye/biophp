@@ -3,8 +3,10 @@
  * PAM 250 Matrix
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,12 +19,12 @@ class Pam250MatrixDigitDTO
     /**
      * @var     string         Index
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     int         Value
      */
-    private $value;
+    private ?int $value = null;
 
     /**
      * @return string

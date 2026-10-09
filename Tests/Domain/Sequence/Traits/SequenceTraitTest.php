@@ -141,7 +141,14 @@ class SequenceTraitTest extends TestCase
     public function testCleanSequenceInvalidProtein()
     {
         $object = $this->makeTraitObject();
-        $this->assertFalse($object->cleanSequence("GAVLIJ", "PROTEIN"));
+        $this->assertFalse($object->cleanSequence("GAVLI1", "PROTEIN"));
+        $this->assertFalse($object->cleanSequence("GAV-LI", "PROTEIN"));
+    }
+
+    public function testCleanSequenceAcceptsSelenocysteinePyrrolysineAndAmbiguityCodes()
+    {
+        $object = $this->makeTraitObject();
+        $this->assertTrue($object->cleanSequence("MKUOBZJ", "PROTEIN"));
     }
 
     /**

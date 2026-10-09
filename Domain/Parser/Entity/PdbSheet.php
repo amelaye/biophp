@@ -3,8 +3,10 @@
  * One SHEET secondary-structure strand record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 
 use Amelaye\BioPHP\Domain\Parser\Interfaces\PdbSheetInterface;
@@ -19,42 +21,54 @@ class PdbSheet implements PdbSheetInterface
     /**
      * @var string
      */
-    private $sheetId = "";
+    private string $sheetId = "";
 
     /**
      * @var int
      */
-    private $strand = 0;
+    private int $strand = 0;
 
     /**
      * @var string
      */
-    private $initResName = "";
+    private string $initResName = "";
 
     /**
      * @var string
      */
-    private $initChainId = "";
+    private string $initChainId = "";
 
     /**
      * @var int
      */
-    private $initSeqNum = 0;
+    private int $initSeqNum = 0;
 
     /**
      * @var string
      */
-    private $endResName = "";
+    private string $endResName = "";
 
     /**
      * @var string
      */
-    private $endChainId = "";
+    private string $endChainId = "";
 
     /**
      * @var int
      */
-    private $endSeqNum = 0;
+    private int $endSeqNum = 0;
+
+    /**
+     * Insertion code of the first residue (column 27), empty for most residues.
+     * @var string
+     */
+    private string $initICode = "";
+
+    /**
+     * Insertion code of the last residue (column 38), empty for most residues.
+     * @var string
+     */
+    private string $endICode = "";
 
     /**
      * @return string
@@ -182,5 +196,37 @@ class PdbSheet implements PdbSheetInterface
     public function setEndSeqNum(int $endSeqNum): void
     {
         $this->endSeqNum = $endSeqNum;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInitICode(): string
+    {
+        return $this->initICode;
+    }
+
+    /**
+     * @param string $initICode
+     */
+    public function setInitICode(string $initICode): void
+    {
+        $this->initICode = $initICode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndICode(): string
+    {
+        return $this->endICode;
+    }
+
+    /**
+     * @param string $endICode
+     */
+    public function setEndICode(string $endICode): void
+    {
+        $this->endICode = $endICode;
     }
 }

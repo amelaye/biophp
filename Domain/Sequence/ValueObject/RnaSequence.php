@@ -3,9 +3,13 @@
  * Immutable value object wrapping an RNA sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
+
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 
 /**
  * Accepts the four ribonucleotides and the IUPAC degenerated symbols already tolerated by
@@ -14,7 +18,7 @@ namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class RnaSequence extends AbstractNucleicSequence
+final class RnaSequence extends AbstractNucleicSequence
 {
     /**
      * @inheritDoc

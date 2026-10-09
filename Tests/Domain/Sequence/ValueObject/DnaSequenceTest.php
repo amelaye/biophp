@@ -2,7 +2,7 @@
 namespace Tests\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\RnaSequence;
 use PHPUnit\Framework\TestCase;
 
@@ -104,6 +104,22 @@ class DnaSequenceTest extends TestCase
         $this->assertEquals(0.0, (new DnaSequence("AT"))->getGcContent());
     }
 
+    /**
+     * The library computed the GC content three ways : N counted in the length here, left out by
+     * the skew calculator, S counted here but not for primers. "GCNN" gave 50 % or 100 %, "GCSS"
+     * 100 % or 50 %. N tells nothing about G/C : it is left out, as Biopython's gc_fraction does.
+     */
+    public function testEveryGcContentUsesTheSameDefinition()
+    {
+        $this->assertEquals(100.0, (new DnaSequence("GCNN"))->getGcContent());
+        $this->assertEquals(75.0, (new DnaSequence("GCSW"))->getGcContent());
+        $this->assertEquals(0.0, (new DnaSequence("NNNN"))->getGcContent());
+        $this->assertEquals(0.5, DnaSequence::gcFraction("gcau"));
+
+        $oSkew = (new \Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator())->calculate("GCSWNN");
+        $this->assertEquals(0.75, $oSkew->getGcContent());
+    }
+
     public function testGcContentOfAnEmptySequenceIsZero()
     {
         $this->assertEquals(0.0, (new DnaSequence(""))->getGcContent());
@@ -142,5 +158,24 @@ class DnaSequenceTest extends TestCase
 
         $this->assertInstanceOf(RnaSequence::class, $oRna);
         $this->assertEquals("AUGCUU", $oRna->getValue());
+    }
+
+    /**
+     * Four classes answer to getGcContent() on two scales : the sequence in percent, SkewResult and
+     * CpGIsland as a fraction. getGcPercent() and getGcFraction() say which one they mean.
+     */
+    public function testTheGcContentCanBeAskedOnAnExplicitScale()
+    {
+        $oSequence = new DnaSequence("GGCCAATT");
+
+        $this->assertEqualsWithDelta(50.0, $oSequence->getGcContent(), 1e-12);
+        $this->assertEqualsWithDelta(50.0, $oSequence->getGcPercent(), 1e-12);
+        $this->assertEqualsWithDelta(0.5, $oSequence->getGcFraction(), 1e-12);
+
+        $oSkew = (new \Amelaye\BioPHP\Domain\Tools\Service\SkewCalculator())->calculate("GGCCAATT");
+        $this->assertEqualsWithDelta(0.5, $oSkew->getGcContent(), 1e-12);
+        $this->assertEqualsWithDelta(0.5, $oSkew->getGcFraction(), 1e-12);
+        $this->assertEqualsWithDelta(50.0, $oSkew->getGcPercent(), 1e-12);
+        $this->assertEqualsWithDelta($oSequence->getGcPercent(), $oSkew->getGcPercent(), 1e-12);
     }
 }

@@ -3,8 +3,10 @@
  * PROSITE motif database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -28,67 +30,67 @@ final class ParsePrositeManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $entryType = "";
+    private string $entryType = "";
 
     /**
      * @var string
      */
-    private $accession = "";
+    private string $accession = "";
 
     /**
      * @var array
      */
-    private $dates = [];
+    private array $dates = [];
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $pattern = "";
+    private string $pattern = "";
 
     /**
      * @var string
      */
-    private $matrix = "";
+    private string $matrix = "";
 
     /**
      * @var array
      */
-    private $numericalResults = [];
+    private array $numericalResults = [];
 
     /**
      * @var array
      */
-    private $comments = [];
+    private array $comments = [];
 
     /**
      * @var string
      */
-    private $rule = "";
+    private string $rule = "";
 
     /**
      * @var array
      */
-    private $pdbXrefs = [];
+    private array $pdbXrefs = [];
 
     /**
      * @var PrositeDbRefInterface[]
      */
-    private $dbRefs = [];
+    private array $dbRefs = [];
 
     /**
      * @var string
      */
-    private $docXref = "";
+    private string $docXref = "";
 
     /**
      * Constructor.
@@ -151,8 +153,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aLines = new \ArrayIterator($aFlines);
 
         foreach ($aLines as $lineno => $linestr) {
@@ -206,8 +207,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string          $sJoiner
      * @return  string
      */
-    private function accumulate(\ArrayIterator $aLines, $aFlines, $sTag, $sJoiner)
-    {
+    private function accumulate(\ArrayIterator $aLines, array $aFlines, string $sTag, string $sJoiner) : string {
         $sResult = trim(substr($aLines->current(), 5));
         while (true) {
             $sNextLine = $aFlines[$aLines->key() + 1] ?? "";
@@ -225,42 +225,49 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * Format : ID   ENTRYNAME; TYPE.
      * @param   string      $sLine
      */
-    private function parseId($sLine)
-    {
+    private function parseId(string $sLine) {
         $aParts = array_map('trim', explode(";", trim(substr($sLine, 5))));
         $this->entryName = $aParts[0];
         $this->entryType = rtrim($aParts[1] ?? "", ".");
     }
 
     /**
-     * Parses the DT line.
-     * Format : DT   MMM-YEAR (CREATED); MMM-YEAR (DATA UPDATE); MMM-YEAR (INFO UPDATE).
+     * Parses the DT line, in either of its layouts.
+     * Format : DT   01-APR-1990 CREATED; 01-NOV-1997 DATA UPDATE; 01-MAY-2017 INFO UPDATE.
+     *          DT   MMM-YEAR (CREATED); MMM-YEAR (DATA UPDATE); MMM-YEAR (INFO UPDATE).   (older)
      * @param   string      $sLine
      */
-    private function parseDate($sLine)
-    {
+    private function parseDate(string $sLine) {
         $sData = rtrim(trim(substr($sLine, 5)), ".");
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sData))));
         foreach ($aItems as $sItem) {
-            if (preg_match('/^(.*)\s+\((.*)\)$/', $sItem, $aMatches)) {
+            if (preg_match('/^(.*)\s+\((.*)\)$/', $sItem, $aMatches)
+                || preg_match('/^(\S+)\s+(.+)$/', $sItem, $aMatches)) {
                 $this->dates[trim($aMatches[2])] = trim($aMatches[1]);
             }
         }
     }
 
     /**
-     * Turns a "/qualifier=value; /qualifier=value;" string into an associative array.
+     * Turns a "/qualifier=value; /qualifier=value;" string into an associative array. A qualifier
+     * written several times (/SITE, one per site of the pattern) keeps all its values, as a list
+     * in the order given ; one written once keeps its value as a string.
      * @param   string      $sText
      * @return  array
      */
-    private function parseQualifiers($sText)
-    {
+    private function parseQualifiers(string $sText) : array {
         $aResult = [];
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {
             $aKeyValue = explode("=", ltrim($sItem, "/"), 2);
-            if (isset($aKeyValue[1])) {
-                $aResult[$aKeyValue[0]] = $aKeyValue[1];
+            if (!isset($aKeyValue[1])) {
+                continue;
+            }
+            [$sKey, $sValue] = $aKeyValue;
+            if (!array_key_exists($sKey, $aResult)) {
+                $aResult[$sKey] = $sValue;
+            } else {
+                $aResult[$sKey] = array_merge((array) $aResult[$sKey], [$sValue]);
             }
         }
         return $aResult;
@@ -271,19 +278,19 @@ final class ParsePrositeManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseList($sText)
-    {
+    private function parseList(string $sText) : array {
         return array_values(array_filter(array_map('trim', explode(";", $sText))));
     }
 
     /**
      * Turns the DR field into a list of PrositeDbRef.
-     * Format : DR   ACCESSION, ENTRY_NAME, T|F|N; ACCESSION, ENTRY_NAME, T|F|N; ...
+     * Format : DR   ACCESSION, ENTRY_NAME, CODE; ACCESSION, ENTRY_NAME, CODE; ...
+     * CODE is T (true positive), N (false negative : a member the motif misses), P (potential : a
+     * member known from a fragment lacking the motif's region), ? (unknown) or F (false positive).
      * @param   string      $sText
      * @return  PrositeDbRefInterface[]
      */
-    private function parseDbRefs($sText)
-    {
+    private function parseDbRefs(string $sText) : array {
         $aResult = [];
         $aItems = array_values(array_filter(array_map('trim', explode(";", $sText))));
         foreach ($aItems as $sItem) {
@@ -295,6 +302,7 @@ final class ParsePrositeManager implements ParseDatabaseInterface
             $oDbRef->setAccession($aFields[0]);
             $oDbRef->setEntryName($aFields[1]);
             $oDbRef->setTruePositive($aFields[2] == "T");
+            $oDbRef->setCategory($aFields[2]);
             $aResult[] = $oDbRef;
         }
         return $aResult;

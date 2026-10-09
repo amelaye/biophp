@@ -38,7 +38,7 @@ class ProteinReductionApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -110,7 +110,7 @@ class ProteinReductionApiTest extends WebTestCase
           "3IMG" =>  [
             "pattern" => [
               0 => "/D|N|E|Q|K|R/",
-              1 => "/G|T|S|Y|P|M/",
+              1 => "/G|T|S|Y|P|H/",
               2 => "/I|V|L|F|C|M|A|W/",
             ],
             "reduction" => [

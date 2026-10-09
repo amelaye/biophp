@@ -34,7 +34,7 @@ class VendorApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -52,8 +52,8 @@ class VendorApiTest extends WebTestCase
         $apiVendors = new VendorApi($this->clientMock, $this->serializerMock);
         $aResult = $apiVendors::GetVendorsArray($apiVendors->getVendors());
 
-        $this->assertEquals("F", $aResult["AanI"]);
-        $this->assertEquals("FIKMNR", $aResult["AatII"]);
+        $this->assertEquals("B", $aResult["AanI"]);
+        $this->assertEquals("BINRV", $aResult["AatII"]);
         $this->assertCount(count($this->vendorsObjects), $aResult);
     }
 }

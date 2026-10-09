@@ -3,8 +3,10 @@
  * PDBSTR database parsing (structural families derived from PDB)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,32 +25,32 @@ final class ParsePdbstrManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryId = "";
+    private string $entryId = "";
 
     /**
      * @var string
      */
-    private $molType = "";
+    private string $molType = "";
 
     /**
      * @var int
      */
-    private $length = 0;
+    private int $length = 0;
 
     /**
      * @var string
      */
-    private $entryGroup = "";
+    private string $entryGroup = "";
 
     /**
      * @var string
      */
-    private $createDate = "";
+    private string $createDate = "";
 
     /**
      * @var string
      */
-    private $updDate = "";
+    private string $updDate = "";
 
     /**
      * Constructor.
@@ -106,8 +108,7 @@ final class ParsePdbstrManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach($aFlines as $sLine) {
             $sLabel = trim(substr($sLine, 0, 12));
             $sData  = trim(substr($sLine, 12));

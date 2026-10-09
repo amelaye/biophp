@@ -3,8 +3,10 @@
  * SeqMatch managing
  * Freely inspired by BioPHP's project biophp.org
  * Created 20 january 2020
- * Last modified 12 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\SubMatrix;

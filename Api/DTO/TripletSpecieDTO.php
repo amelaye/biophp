@@ -3,8 +3,10 @@
  * Database of Triplets
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,23 +19,29 @@ class TripletSpecieDTO
     /**
      * @var     int     The id (auto-increment)
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * Standard, Vertebrate mitochondrial ...
      * @var     string
      */
-    private $nature;
+    private ?string $nature = null;
+
+    /**
+     * The NCBI genetic code table (transl_table) of the species, null when the API does not say.
+     * @var     int|null
+     */
+    private ?int $ncbiTableId = null;
 
     /**
      * @var     array
      */
-    private $triplets;
+    private ?array $triplets = null;
 
     /**
      * @var     array
      */
-    private $tripletsGroups;
+    private ?array $tripletsGroups = null;
 
     /**
      * @return int
@@ -65,6 +73,22 @@ class TripletSpecieDTO
     public function setNature(string $nature): void
     {
         $this->nature = $nature;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getNcbiTableId(): ?int
+    {
+        return $this->ncbiTableId;
+    }
+
+    /**
+     * @param int|null $ncbiTableId
+     */
+    public function setNcbiTableId(?int $ncbiTableId): void
+    {
+        $this->ncbiTableId = $ncbiTableId;
     }
 
     /**

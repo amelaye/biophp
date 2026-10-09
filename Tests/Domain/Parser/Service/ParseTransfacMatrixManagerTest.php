@@ -104,4 +104,24 @@ class ParseTransfacMatrixManagerTest extends TestCase
 
         $this->assertCount(1, $oParser->getMatrix());
     }
+
+    /**
+     * A frequency matrix holds fractions : the (int) cast turned every one of them into 0.
+     */
+    public function testAFrequencyMatrixKeepsItsFractions()
+    {
+        $oParser = new ParseTransfacMatrixManager();
+        $oParser->parseDataFile([
+            "AC  M00001",
+            "01      0.25   0.25   0.5    0      S",
+            "02      3      0      1      0      A",
+            "//"
+        ]);
+
+        $this->assertSame(
+            [["A" => 0.25, "C" => 0.25, "G" => 0.5, "T" => 0, "consensus" => "S"],
+             ["A" => 3, "C" => 0, "G" => 1, "T" => 0, "consensus" => "A"]],
+            $oParser->getMatrix()
+        );
+    }
 }

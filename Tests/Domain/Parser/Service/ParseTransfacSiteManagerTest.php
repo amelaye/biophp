@@ -83,4 +83,15 @@ class ParseTransfacSiteManagerTest extends TestCase
     {
         $this->assertEquals("-1195", $this->fetch()->getFirstPosition());
     }
+
+    /**
+     * A site sequence over two SQ lines gained a blank between them.
+     */
+    public function testASiteSequenceOverTwoLinesIsJoinedWithoutBlanks()
+    {
+        $oParser = new ParseTransfacSiteManager();
+        $oParser->parseDataFile(["AC  R00001", "SQ  CCCCAACACC", "SQ  TGCTGCCTGA.", "//"]);
+
+        $this->assertEquals("CCCCAACACCTGCTGCCTGA", $oParser->getSequence());
+    }
 }

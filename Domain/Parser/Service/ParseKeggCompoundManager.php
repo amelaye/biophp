@@ -3,8 +3,10 @@
  * KEGG COMPOUND parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -19,28 +21,28 @@ final class ParseKeggCompoundManager extends ParseKeggAbstractManager
     /**
      * @var string
      */
-    private $formula = "";
+    private string $formula = "";
 
     /**
      * @var array
      */
-    private $reactions = [];
+    private array $reactions = [];
 
     /**
      * @var array
      */
-    private $pathways = [];
+    private array $pathways = [];
 
     /**
      * EC numbers of the enzymes acting on the compound.
      * @var array
      */
-    private $enzymes = [];
+    private array $enzymes = [];
 
     /**
      * @var array
      */
-    private $dbLinks = [];
+    private array $dbLinks = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -56,8 +58,7 @@ final class ParseKeggCompoundManager extends ParseKeggAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aFields = $this->readFields($aFlines);
 
         $this->formula   = isset($aFields["FORMULA"]) ? $this->joinLines($aFields["FORMULA"]) : "";

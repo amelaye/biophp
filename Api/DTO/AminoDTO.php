@@ -3,8 +3,10 @@
  * Database of elements - Amino acids
  * Inspired by BioPHP's project biophp.org
  * Created 1st December 2019
- * Last modified 1st December 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,37 +19,37 @@ class AminoDTO
     /**
      * @var     string      Id of the amino acid (auto-increment)
      */
-    private $id;
+    private ?string $id = null;
 
     /**
      * @var     string      Name of the amino
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * @var     string      Name in 1 letter (A, L, S ...)
      */
-    private $name1Letter;
+    private ?string $name1Letter = null;
 
     /**
      * @var string          Name in 3 letters (Ser, Leu ...)
      */
-    private $name3Letters;
+    private ?string $name3Letters = null;
 
     /**
      * @var float
      */
-    private $weight1;
+    private ?float $weight1 = null;
 
     /**
      * @var float
      */
-    private $weight2;
+    private ?float $weight2 = null;
 
     /**
      * @var float
      */
-    private $residueMolWeight;
+    private ?float $residueMolWeight = null;
 
     /**
      * @return string

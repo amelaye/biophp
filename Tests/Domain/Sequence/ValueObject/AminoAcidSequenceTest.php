@@ -2,7 +2,7 @@
 namespace Tests\Domain\Sequence\ValueObject;
 
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\AminoAcidSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use PHPUnit\Framework\TestCase;
 
 class AminoAcidSequenceTest extends TestCase
@@ -34,9 +34,18 @@ class AminoAcidSequenceTest extends TestCase
     public function testRejectsASymbolOutsideTheAlphabet()
     {
         $this->expectException(InvalidSequenceException::class);
-        $this->expectExceptionMessage('Invalid PROTEIN symbol "J" at position 2.');
+        $this->expectExceptionMessage('Invalid PROTEIN symbol "1" at position 2.');
 
-        new AminoAcidSequence("GAJVL");
+        new AminoAcidSequence("GA1VL");
+    }
+
+    public function testAcceptsSelenocysteinePyrrolysineAndAmbiguityCodes()
+    {
+        // Selenoproteins (U, as in glutathione peroxidase) and archaeal pyrrolysine (O) are
+        // genetically encoded ; B, Z and J are the IUPAC codes for D/N, E/Q and I/L.
+        $oAmino = new AminoAcidSequence("MKUOBZJ");
+
+        $this->assertEquals("MKUOBZJ", $oAmino->getValue());
     }
 
     public function testHasStop()
@@ -93,6 +102,7 @@ class AminoAcidSequenceTest extends TestCase
     public function testIsValid()
     {
         $this->assertTrue(AminoAcidSequence::isValid("GAVLI"));
-        $this->assertFalse(AminoAcidSequence::isValid("GAVLIJ"));
+        $this->assertTrue(AminoAcidSequence::isValid("GAVLIJ"));
+        $this->assertFalse(AminoAcidSequence::isValid("GAVLI1"));
     }
 }

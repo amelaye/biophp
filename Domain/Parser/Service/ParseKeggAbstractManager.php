@@ -3,8 +3,10 @@
  * Shared reading of the KEGG flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -27,12 +29,19 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    protected $entry = "";
+    protected string $entry = "";
 
     /**
      * @var array
      */
-    protected $names = [];
+    protected array $names = [];
+
+    /**
+     * The lines of each field as readFields() gathered them, but with the indentation past the
+     * thirteenth column kept : it tells a wrapped line from a new item.
+     * @var array
+     */
+    protected array $rawFields = [];
 
     /**
      * Constructor.
@@ -80,9 +89,9 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
     }
 
     /**
-     * Reads the identifier out of an ENTRY line. Its last word names the kind of record rather
-     * than the record itself - "C00031  Compound", "EC 2.7.1.1  Enzyme" - so the identifier is
-     * what comes before it, which for an enzyme is the two words "EC" and its number.
+     * Reads the identifier out of an ENTRY line. The words after it name the kind of record rather
+     * than the record itself - "C00031  Compound", "T01001  Complete  Genome" - so the identifier
+     * is the first word, or for an enzyme the two words "EC" and its number ("EC 2.7.1.1  Enzyme").
      * @param   string      $sData
      * @return  string
      */
@@ -92,13 +101,11 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
         if ($aWords == []) {
             return "";
         }
-        if (count($aWords) == 1) {
-            return $aWords[0];
+        if ($aWords[0] == "EC" && count($aWords) > 1) {
+            return "EC " . $aWords[1];
         }
 
-        array_pop($aWords);
-
-        return implode(" ", $aWords);
+        return $aWords[0];
     }
 
     /**
@@ -127,9 +134,9 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @return  array
      */
-    protected function readFields($aFlines)
-    {
+    protected function readFields(array $aFlines) : array {
         $aFields  = [];
+        $this->rawFields = [];
         $sCurrent = "";
 
         foreach ($aFlines as $sLine) {
@@ -146,6 +153,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
             }
 
             $aFields[$sCurrent][] = self::readData($sLine);
+            $this->rawFields[$sCurrent][] = rtrim(substr($sLine, 12));
         }
 
         $this->entry = isset($aFields["ENTRY"]) ? self::readEntryId($aFields["ENTRY"][0]) : "";
@@ -160,8 +168,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    private function readNames($aLines)
-    {
+    private function readNames(array $aLines) : array {
         return array_values(array_filter(array_map(
             'trim',
             explode(";", implode(" ", $aLines))
@@ -174,8 +181,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  string
      */
-    protected function joinLines($aLines)
-    {
+    protected function joinLines(array $aLines) : string {
         $sResult = "";
         foreach ($aLines as $sLine) {
             if (substr($sLine, 0, 1) == '$') {
@@ -193,26 +199,71 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    protected function splitTokens($aLines)
-    {
+    protected function splitTokens(array $aLines) : array {
         return preg_split("/\s+/", trim(implode(" ", $aLines)), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     }
 
     /**
-     * Reads a PATHWAY field into pairs of map identifier and pathway name.
+     * Reads a field listing one item per line, a trailing ";" dropped. A long item wraps onto a
+     * line indented past the column the items start at, which continues it.
+     * Format : GENES       HSA: 3098(HK1) 3099(HK2)
+     *                      ECO: b1234 b2345
+     *                           b3456
+     * A line opening with "$" continues the word the line above broke off. In a field whose items all
+     * end with ";" (SUBSTRATE, PRODUCT), an item wrapped at the first column is told by the missing
+     * ";" on the line above.
+     * @param   string      $sField         The field label
+     * @param   bool        $bTerminated    Every item of the field ends with ";"
+     * @return  array
+     */
+    protected function readItems(string $sField, bool $bTerminated = false) : array {
+        $aItems = [];
+        $bOpen = false;
+        foreach ($this->rawFields[$sField] ?? [] as $sLine) {
+            $sItem = rtrim(trim($sLine), ";");
+            if ($sItem == "") {
+                continue;
+            }
+            $bClosed = substr(rtrim($sLine), -1) === ";";
+            if ($aItems != [] && substr($sLine, 0, 1) === '$') {
+                $aItems[count($aItems) - 1] .= substr($sItem, 1);
+                $bOpen = !$bClosed;
+                continue;
+            }
+            if ($aItems != [] && (preg_match('/^\s/', $sLine) || ($bTerminated && $bOpen))) {
+                $aItems[count($aItems) - 1] .= " " . $sItem;
+                $bOpen = !$bClosed;
+                continue;
+            }
+            $aItems[] = $sItem;
+            $bOpen = !$bClosed;
+        }
+
+        return $aItems;
+    }
+
+    /**
+     * Reads a PATHWAY field into pairs of map identifier and pathway name, one per line : the
+     * identifier is the first word (map00010, ec00010, ko00010...), behind a "PATH:" tag in the
+     * files before 2008. A line not opening on an identifier continues the name above it.
      * Format : PATHWAY     PATH: map00010  Glycolysis / Gluconeogenesis
+     *          PATHWAY     ec00010  Glycolysis / Gluconeogenesis
      * @param   array       $aLines
      * @return  array
      */
-    protected function parsePathways($aLines)
-    {
+    protected function parsePathways(array $aLines) : array {
         $aPathways = [];
-        foreach (preg_split("/PATH:/", implode(" ", $aLines), -1, PREG_SPLIT_NO_EMPTY) as $sPath) {
-            $sPath = trim($sPath);
-            if ($sPath == "") {
+        foreach ($aLines as $sLine) {
+            $sLine = trim(preg_replace('/^\s*PATH:/', "", $sLine));
+            if ($sLine == "") {
                 continue;
             }
-            $aPathways[] = [trim(substr($sPath, 0, 10)), trim(substr($sPath, 10))];
+            // The oldest files write the map identifier in capitals ("PATH: MAP00010")
+            if (preg_match('/^([a-zA-Z]{2,4}\d{5})\s*(.*)$/', $sLine, $aMatch)) {
+                $aPathways[] = [strtolower($aMatch[1]), trim($aMatch[2])];
+            } elseif ($aPathways != []) {
+                $aPathways[count($aPathways) - 1][1] = trim($aPathways[count($aPathways) - 1][1] . " " . $sLine);
+            }
         }
 
         return $aPathways;
@@ -224,8 +275,7 @@ abstract class ParseKeggAbstractManager implements ParseDatabaseInterface
      * @param   array       $aLines
      * @return  array
      */
-    protected function parseDbLinks($aLines)
-    {
+    protected function parseDbLinks(array $aLines) : array {
         $aLinks = [];
         foreach ($aLines as $sLine) {
             $aTokens = preg_split("/:\s/", trim($sLine), 2, PREG_SPLIT_NO_EMPTY);

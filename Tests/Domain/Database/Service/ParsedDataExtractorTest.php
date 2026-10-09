@@ -14,9 +14,10 @@ class ParsedDataExtractorTest extends TestCase
         $oRef->setAccession("P12345");
         $oRef->setEntryName("TEST_HUMAN");
         $oRef->setTruePositive(true);
+        $oRef->setCategory("T");
 
         $this->assertSame(
-            ["accession" => "P12345", "entryName" => "TEST_HUMAN", "truePositive" => true],
+            ["accession" => "P12345", "entryName" => "TEST_HUMAN", "truePositive" => true, "category" => "T", "familyMember" => true],
             ParsedDataExtractor::extract($oRef)
         );
     }

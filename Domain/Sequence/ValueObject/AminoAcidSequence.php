@@ -3,24 +3,28 @@
  * Immutable value object wrapping an amino acid sequence string
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 25 August 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\ValueObject;
 
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
+
 /**
- * Accepts the twenty amino acids in single-letter format, plus the two symbols already handled by
- * SequenceManager::charge() and SequenceManager::chemicalGroup() : X for an unknown residue and
- * the asterisk for a stop codon.
+ * Accepts the twenty amino acids in single-letter format, the two genetically encoded ones
+ * (U selenocysteine, O pyrrolysine), the IUPAC ambiguity codes (B : D or N, Z : E or Q, J : I or L),
+ * X for an unknown residue and the asterisk for a stop codon.
  * Class AminoAcidSequence
  * @package Amelaye\BioPHP\Domain\Sequence\ValueObject
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class AminoAcidSequence extends AbstractMolecularSequence
+final class AminoAcidSequence extends AbstractMolecularSequence
 {
     /**
      * @inheritDoc
      */
-    protected const ALPHABET = "ACDEFGHIKLMNPQRSTVWYX*";
+    protected const ALPHABET = "ACDEFGHIKLMNPQRSTVWYBZJUOX*";
 
     /**
      * @inheritDoc

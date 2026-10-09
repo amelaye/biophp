@@ -3,8 +3,10 @@
  * PDB (Protein Data Bank) database parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -30,8 +32,11 @@ use Amelaye\BioPHP\Domain\Parser\Interfaces\PdbSheetInterface;
 final class ParsePdbManager implements ParseDatabaseInterface
 {
     /**
-     * 3-letter to 1-letter amino acid code table, for turning SEQRES residues into
-     * a usable protein sequence. Unknown residues (including HETATM-only ones) map to "X".
+     * Residue name to one-letter code table, for turning SEQRES residues into a usable sequence.
+     * Besides the twenty amino acids : selenocysteine (SEC, U) and pyrrolysine (PYL, O), the
+     * ambiguous ASX (B) and GLX (Z), selenomethionine (MSE), the methionine substitute of
+     * SAD/MAD-phased structures, read as its parent M, and the nucleotides of a DNA (DA, DC, DG,
+     * DT) or RNA (A, C, G, U) chain. Other residues (a modified one, a ligand) map to "X".
      * @var array
      */
     private static $aminoAcidCodes = [
@@ -39,109 +44,112 @@ final class ParsePdbManager implements ParseDatabaseInterface
         "GLN" => "Q", "GLU" => "E", "GLY" => "G", "HIS" => "H", "ILE" => "I",
         "LEU" => "L", "LYS" => "K", "MET" => "M", "PHE" => "F", "PRO" => "P",
         "SER" => "S", "THR" => "T", "TRP" => "W", "TYR" => "Y", "VAL" => "V",
+        "SEC" => "U", "PYL" => "O", "ASX" => "B", "GLX" => "Z", "MSE" => "M",
+        "DA" => "A", "DC" => "C", "DG" => "G", "DT" => "T",
+        "A" => "A", "C" => "C", "G" => "G", "U" => "U",
     ];
 
     /**
      * @var string
      */
-    private $idCode = "";
+    private string $idCode = "";
 
     /**
      * @var string
      */
-    private $classification = "";
+    private string $classification = "";
 
     /**
      * @var string
      */
-    private $depositionDate = "";
+    private string $depositionDate = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * One block per molecule, keyed by token : MOL_ID, MOLECULE, CHAIN...
      * @var array
      */
-    private $compounds = [];
+    private array $compounds = [];
 
     /**
      * One block per molecule, keyed by token : MOL_ID, ORGANISM_SCIENTIFIC, STRAIN...
      * @var array
      */
-    private $sources = [];
+    private array $sources = [];
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * @var string
      */
-    private $experimentalTechnique = "";
+    private string $experimentalTechnique = "";
 
     /**
      * @var array
      */
-    private $authors = [];
+    private array $authors = [];
 
     /**
      * @var array
      */
-    private $seqRes = [];
+    private array $seqRes = [];
 
     /**
      * @var array
      */
-    private $helices = [];
+    private array $helices = [];
 
     /**
      * @var array
      */
-    private $sheets = [];
+    private array $sheets = [];
 
     /**
      * @var array
      */
-    private $cryst1 = [];
+    private array $cryst1 = [];
 
     /**
      * @var array
      */
-    private $atoms = [];
+    private array $atoms = [];
 
     /**
      * @var array
      */
-    private $hetAtoms = [];
+    private array $hetAtoms = [];
 
     /**
      * @var string
      */
-    private $sCompnd = "";
+    private string $sCompnd = "";
 
     /**
      * @var string
      */
-    private $sSource = "";
+    private string $sSource = "";
 
     /**
      * @var string
      */
-    private $sKeywds = "";
+    private string $sKeywds = "";
 
     /**
      * @var string
      */
-    private $sAuthor = "";
+    private string $sAuthor = "";
 
     /**
      * @var array
      */
-    private $aSeqResCodes = [];
+    private array $aSeqResCodes = [];
 
     /**
      * Constructor.
@@ -195,11 +203,15 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
+        // An NMR structure holds several models of the same atoms, each between MODEL n and ENDMDL.
+        $iModel = 1;
         foreach ($aFlines as $sLine) {
             $sRecord = trim(substr($sLine, 0, 6));
             switch ($sRecord) {
+                case "MODEL":
+                    $iModel = (int) trim(substr($sLine, 10, 4));
+                    break;
                 case "HEADER":
                     $this->parseHeader($sLine);
                     break;
@@ -234,10 +246,10 @@ final class ParsePdbManager implements ParseDatabaseInterface
                     $this->parseCryst1($sLine);
                     break;
                 case "ATOM":
-                    $this->atoms[] = $this->parseAtom($sLine);
+                    $this->atoms[] = $this->parseAtom($sLine, $iModel);
                     break;
                 case "HETATM":
-                    $this->hetAtoms[] = $this->parseAtom($sLine);
+                    $this->hetAtoms[] = $this->parseAtom($sLine, $iModel);
                     break;
             }
         }
@@ -265,8 +277,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * @param   string      $sText
      * @return  array
      */
-    private function parseSpecificationList($sText)
-    {
+    private function parseSpecificationList(string $sText) : array {
         $aBlocks  = [];
         $aCurrent = [];
 
@@ -302,8 +313,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * Columns : 11-50 classification, 51-59 deposition date, 63-66 idCode.
      * @param   string      $sLine
      */
-    private function parseHeader($sLine)
-    {
+    private function parseHeader(string $sLine) {
         $this->classification = trim(substr($sLine, 10, 40));
         $this->depositionDate = trim(substr($sLine, 50, 9));
         $this->idCode = trim(substr($sLine, 62, 4));
@@ -314,8 +324,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * Columns : 12 chainID, 20- residues (3-letter codes, space-separated).
      * @param   string      $sLine
      */
-    private function parseSeqRes($sLine)
-    {
+    private function parseSeqRes(string $sLine) {
         $sChainId = trim(substr($sLine, 11, 1));
         $aCodes = array_values(array_filter(preg_split("/\s+/", trim(substr($sLine, 19)))));
 
@@ -327,21 +336,22 @@ final class ParsePdbManager implements ParseDatabaseInterface
 
     /**
      * Parses one HELIX line.
-     * Columns : 12-14 helixID, 16-18 initResName, 20 initChainID, 22-25 initSeqNum,
-     * 28-30 endResName, 32 endChainID, 34-37 endSeqNum, 39-40 helixClass, 72-76 length.
+     * Columns : 12-14 helixID, 16-18 initResName, 20 initChainID, 22-25 initSeqNum, 26 initICode,
+     * 28-30 endResName, 32 endChainID, 34-37 endSeqNum, 38 endICode, 39-40 helixClass, 72-76 length.
      * @param   string      $sLine
      * @return  PdbHelixInterface
      */
-    private function parseHelix($sLine)
-    {
+    private function parseHelix(string $sLine) : PdbHelixInterface {
         $oHelix = new PdbHelix();
         $oHelix->setHelixId(trim(substr($sLine, 11, 3)));
         $oHelix->setInitResName(trim(substr($sLine, 15, 3)));
         $oHelix->setInitChainId(trim(substr($sLine, 19, 1)));
         $oHelix->setInitSeqNum((int) trim(substr($sLine, 21, 4)));
+        $oHelix->setInitICode(trim(substr($sLine, 25, 1)));
         $oHelix->setEndResName(trim(substr($sLine, 27, 3)));
         $oHelix->setEndChainId(trim(substr($sLine, 31, 1)));
         $oHelix->setEndSeqNum((int) trim(substr($sLine, 33, 4)));
+        $oHelix->setEndICode(trim(substr($sLine, 37, 1)));
         $oHelix->setHelixClass((int) trim(substr($sLine, 38, 2)));
         $oHelix->setLength((int) trim(substr($sLine, 71, 5)));
         return $oHelix;
@@ -350,21 +360,22 @@ final class ParsePdbManager implements ParseDatabaseInterface
     /**
      * Parses one SHEET line.
      * Columns : 8-10 strand, 12-14 sheetID, 18-20 initResName, 22 initChainID,
-     * 23-26 initSeqNum, 29-31 endResName, 33 endChainID, 34-37 endSeqNum.
+     * 23-26 initSeqNum, 27 initICode, 29-31 endResName, 33 endChainID, 34-37 endSeqNum, 38 endICode.
      * @param   string      $sLine
      * @return  PdbSheetInterface
      */
-    private function parseSheet($sLine)
-    {
+    private function parseSheet(string $sLine) : PdbSheetInterface {
         $oSheet = new PdbSheet();
         $oSheet->setStrand((int) trim(substr($sLine, 7, 3)));
         $oSheet->setSheetId(trim(substr($sLine, 11, 3)));
         $oSheet->setInitResName(trim(substr($sLine, 17, 3)));
         $oSheet->setInitChainId(trim(substr($sLine, 21, 1)));
         $oSheet->setInitSeqNum((int) trim(substr($sLine, 22, 4)));
+        $oSheet->setInitICode(trim(substr($sLine, 26, 1)));
         $oSheet->setEndResName(trim(substr($sLine, 28, 3)));
         $oSheet->setEndChainId(trim(substr($sLine, 32, 1)));
         $oSheet->setEndSeqNum((int) trim(substr($sLine, 33, 4)));
+        $oSheet->setEndICode(trim(substr($sLine, 37, 1)));
         return $oSheet;
     }
 
@@ -374,8 +385,7 @@ final class ParsePdbManager implements ParseDatabaseInterface
      * 56-66 space group, 67-70 Z.
      * @param   string      $sLine
      */
-    private function parseCryst1($sLine)
-    {
+    private function parseCryst1(string $sLine) {
         $this->cryst1 = [
             "a"          => (float) trim(substr($sLine, 6, 9)),
             "b"          => (float) trim(substr($sLine, 15, 9)),
@@ -391,12 +401,13 @@ final class ParsePdbManager implements ParseDatabaseInterface
     /**
      * Parses one ATOM or HETATM line.
      * Columns : 7-11 serial, 13-16 name, 17 altLoc, 18-20 resName, 22 chainID,
-     * 23-26 resSeq, 31-38 x, 39-46 y, 47-54 z, 55-60 occupancy, 61-66 tempFactor, 77-78 element.
+     * 23-26 resSeq, 27 iCode, 31-38 x, 39-46 y, 47-54 z, 55-60 occupancy, 61-66 tempFactor,
+     * 77-78 element.
      * @param   string      $sLine
+     * @param   int         $iModel     The MODEL the line belongs to
      * @return  PdbAtomInterface
      */
-    private function parseAtom($sLine)
-    {
+    private function parseAtom(string $sLine, int $iModel) : PdbAtomInterface {
         $oAtom = new PdbAtom();
         $oAtom->setSerial((int) trim(substr($sLine, 6, 5)));
         $oAtom->setName(trim(substr($sLine, 12, 4)));
@@ -404,6 +415,8 @@ final class ParsePdbManager implements ParseDatabaseInterface
         $oAtom->setResName(trim(substr($sLine, 17, 3)));
         $oAtom->setChainId(trim(substr($sLine, 21, 1)));
         $oAtom->setResSeq((int) trim(substr($sLine, 22, 4)));
+        $oAtom->setICode(trim(substr($sLine, 26, 1)));
+        $oAtom->setModel($iModel);
         $oAtom->setX((float) trim(substr($sLine, 30, 8)));
         $oAtom->setY((float) trim(substr($sLine, 38, 8)));
         $oAtom->setZ((float) trim(substr($sLine, 46, 8)));

@@ -3,8 +3,10 @@
  * Contract for one HELIX secondary-structure record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 September 2026
- * Last modified 18 September 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Interfaces;
 
 /**
@@ -103,4 +105,26 @@ interface PdbHelixInterface
      * @param int $length
      */
     public function setLength(int $length): void;
+
+    /**
+     * Insertion code of the first residue (column 26), empty for most residues.
+     * @return string
+     */
+    public function getInitICode(): string;
+
+    /**
+     * @param string $initICode
+     */
+    public function setInitICode(string $initICode): void;
+
+    /**
+     * Insertion code of the last residue (column 38), empty for most residues.
+     * @return string
+     */
+    public function getEndICode(): string;
+
+    /**
+     * @param string $endICode
+     */
+    public function setEndICode(string $endICode): void;
 }

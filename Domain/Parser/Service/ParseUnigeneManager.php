@@ -3,8 +3,10 @@
  * UniGene database parsing (clusters of expressed sequence tags)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,27 +25,27 @@ final class ParseUnigeneManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $clusterId = "";
+    private string $clusterId = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var array
      */
-    private $expression = [];
+    private array $expression = [];
 
     /**
      * @var array
      */
-    private $protSims = [];
+    private array $protSims = [];
 
     /**
      * @var int
      */
-    private $seqCount = 0;
+    private int $seqCount = 0;
 
     /**
      * Constructor.
@@ -97,8 +99,7 @@ final class ParseUnigeneManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $sTitle = "";
 
         foreach($aFlines as $sLine) {

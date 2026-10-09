@@ -40,7 +40,7 @@ class Pam250MatrixDigitTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -205,7 +205,7 @@ class Pam250MatrixDigitTest extends WebTestCase
           "HS" => -1,
           "HT" => -1,
           "HV" => -2,
-          "HW" => 3,
+          "HW" => -3,
           "HY" => 0,
           "IA" => -1,
           "IC" => -2,
@@ -433,7 +433,7 @@ class Pam250MatrixDigitTest extends WebTestCase
           "WE" => -7,
           "WF" => 0,
           "WG" => -7,
-          "WH" => 3,
+          "WH" => -3,
           "WI" => -5,
           "WK" => -3,
           "WL" => -2,

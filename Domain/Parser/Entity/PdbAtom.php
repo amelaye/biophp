@@ -3,8 +3,10 @@
  * One ATOM/HETATM coordinate record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 August 2026
- * Last modified 18 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Entity;
 
 use Amelaye\BioPHP\Domain\Parser\Interfaces\PdbAtomInterface;
@@ -19,62 +21,75 @@ class PdbAtom implements PdbAtomInterface
     /**
      * @var int
      */
-    private $serial = 0;
+    private int $serial = 0;
 
     /**
      * @var string
      */
-    private $name = "";
+    private string $name = "";
 
     /**
      * @var string
      */
-    private $altLoc = "";
+    private string $altLoc = "";
 
     /**
      * @var string
      */
-    private $resName = "";
+    private string $resName = "";
 
     /**
      * @var string
      */
-    private $chainId = "";
+    private string $chainId = "";
 
     /**
      * @var int
      */
-    private $resSeq = 0;
+    private int $resSeq = 0;
+
+    /**
+     * Insertion code (column 27) : with the chain and resSeq, it names the residue ("52A" follows
+     * "52" in Kabat-numbered antibodies). Empty for most residues.
+     * @var string
+     */
+    private string $iCode = "";
+
+    /**
+     * The MODEL the atom belongs to (an NMR ensemble holds several) ; 1 when the file has none.
+     * @var int
+     */
+    private int $model = 1;
 
     /**
      * @var float
      */
-    private $x = 0.0;
+    private float $x = 0.0;
 
     /**
      * @var float
      */
-    private $y = 0.0;
+    private float $y = 0.0;
 
     /**
      * @var float
      */
-    private $z = 0.0;
+    private float $z = 0.0;
 
     /**
      * @var float
      */
-    private $occupancy = 0.0;
+    private float $occupancy = 0.0;
 
     /**
      * @var float
      */
-    private $tempFactor = 0.0;
+    private float $tempFactor = 0.0;
 
     /**
      * @var string
      */
-    private $element = "";
+    private string $element = "";
 
     /**
      * @return int
@@ -170,6 +185,38 @@ class PdbAtom implements PdbAtomInterface
     public function setResSeq(int $resSeq): void
     {
         $this->resSeq = $resSeq;
+    }
+
+    /**
+     * @return string
+     */
+    public function getICode(): string
+    {
+        return $this->iCode;
+    }
+
+    /**
+     * @param string $iCode
+     */
+    public function setICode(string $iCode): void
+    {
+        $this->iCode = $iCode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getModel(): int
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param int $model
+     */
+    public function setModel(int $model): void
+    {
+        $this->model = $model;
     }
 
     /**

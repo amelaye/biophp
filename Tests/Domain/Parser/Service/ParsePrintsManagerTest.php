@@ -97,4 +97,25 @@ class ParsePrintsManagerTest extends TestCase
 
         $this->assertEquals("a conserved motif found in a fictitious family", $oParser->getDescription());
     }
+
+    /**
+     * A record fetched from a file of several entries runs to the end of the file, PRINTS having no
+     * end-of-entry marker : the next entry's name replaced this one's and its description was
+     * appended to it.
+     */
+    public function testOnlyTheFirstOfSeveralEntriesIsRead()
+    {
+        $oParser = new ParsePrintsManager();
+        $oParser->parseDataFile([
+            "gc; FIRSTPRINT",
+            "gd; the first family",
+            "gc; SECONDPRINT",
+            "gn; COMPOUND(5)",
+            "gd; the second family",
+        ]);
+
+        $this->assertEquals("FIRSTPRINT", $oParser->getEntryName());
+        $this->assertEquals("the first family", $oParser->getDescription());
+        $this->assertSame("", $oParser->getEntryType());
+    }
 }

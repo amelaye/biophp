@@ -3,8 +3,10 @@
  * TRANSFAC site.dat parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -21,50 +23,50 @@ final class ParseTransfacSiteManager extends ParseTransfacAbstractManager
      * Sequence type, e.g. "D" for a DNA element taken from a gene.
      * @var string
      */
-    private $seqType = "";
+    private string $seqType = "";
 
     /**
      * @var string
      */
-    private $description = "";
+    private string $description = "";
 
     /**
      * @var string
      */
-    private $geneRegion = "";
+    private string $geneRegion = "";
 
     /**
      * The sequence of the element itself.
      * @var string
      */
-    private $sequence = "";
+    private string $sequence = "";
 
     /**
      * Position of the first base, counted from the transcription start site, so a site sitting
      * upstream of it reads negative.
      * @var string
      */
-    private $firstPosition = "";
+    private string $firstPosition = "";
 
     /**
      * @var array
      */
-    private $bindingFactors = [];
+    private array $bindingFactors = [];
 
     /**
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * @var string
      */
-    private $method = "";
+    private string $method = "";
 
     /**
      * @var string
      */
-    private $comments = "";
+    private string $comments = "";
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -80,8 +82,7 @@ final class ParseTransfacSiteManager extends ParseTransfacAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         foreach ($aFlines as $sLine) {
             $sLabel = self::readLabel($sLine);
             $sData  = self::readData($sLine);
@@ -104,7 +105,7 @@ final class ParseTransfacSiteManager extends ParseTransfacAbstractManager
                     $this->geneRegion = $this->append($this->geneRegion, $sData);
                     break;
                 case "SQ":
-                    $this->sequence = $this->append($this->sequence, $sData);
+                    $this->sequence = $this->appendSequence($this->sequence, $sData);
                     break;
                 case "SF":
                     $this->firstPosition = $sData;

@@ -11,7 +11,8 @@ class SchemaGenerationTest extends TestCase
 
     private const EXPECTED_TABLES = [
         "accession", "author", "collection", "collection_element", "feature", "gb_sequence",
-        "keyword", "parsed_record", "reference", "sequence", "sp_databank", "src_form",
+        "keyword", "parsed_record", "plasmid", "plasmid_feature", "reference", "sequence",
+        "sp_databank", "src_form", "vcf_variant",
     ];
 
     public function testEveryEntityProducesATable()

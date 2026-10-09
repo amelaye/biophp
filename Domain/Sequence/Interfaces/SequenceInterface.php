@@ -3,8 +3,10 @@
  * Sequence Interface
  * Freely inspired by BioPHP's project biophp.org
  * Created 10 january 2020
- * Last modified 12 August 2026
+ * Last modified 9 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Interfaces;
 
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
@@ -68,6 +70,13 @@ interface SequenceInterface
 
     /**
      * Computes the molecular weight of a particular sequence.
+     * The reference is Biopython's Bio.SeqUtils.molecular_weight (average masses, single strand,
+     * linear) : on canonical bases the result equals it, and the tests pin values it computed.
+     * The weight is that of a neutral single strand carrying a 5' phosphate and a 3' hydroxyl, as a
+     * fragment cut by an enzyme does : the sum of its nucleoside monophosphates (dAMP 331.2218)
+     * less one water (18.0153) per phosphodiester bond, that is the sum of the nucleotide residues
+     * the database holds (dA 313.2065) plus one water. A synthetic oligonucleotide, which has a
+     * 5' hydroxyl, weighs 79.98 (HPO3) less.
      * @param   string        $sSequence    The sequence
      * @param   string        $sMolType     DNA or RNA
      * @param   int           $iNALen       Length of the sequence
@@ -75,7 +84,7 @@ interface SequenceInterface
      * @return  float                       The molecular weight, upper or lower limit
      * @throws  \Exception
      */
-    public function molwt($sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float;
+    public function molwt(string $sLimit = "upperlimit", ?string $sSequence = null, ?string $sMolType = null, ?int $iNALen = null) : float ;
 
     /**
      * Counts the number of codons (a trio of nucleotide base-pairs) in the CDS feature of a
@@ -98,7 +107,7 @@ interface SequenceInterface
      * @return  string      String sequence.
      * @throws  \Exception
      */
-    public function subSeq(int $iStart, int $iCount, $sSequence = null) : string;
+    public function subSeq(int $iStart, int $iCount, ?string $sSequence = null) : string ;
 
     /**
      * Returns a two-dimensional associative array where each key is a substring matching a
@@ -158,7 +167,7 @@ interface SequenceInterface
      * @return  array                      A one-dimensional array
      * @throws  \Exception
      */
-    public function findPattern(string $sPattern, ?string $sSequence = null, $sOptions = "I") : array;
+    public function findPattern(string $sPattern, ?string $sSequence = null, string $sOptions = "I") : array ;
 
     /**
      * Returns the frequency of a given symbol in the sequence property string. Note that you
@@ -179,7 +188,7 @@ interface SequenceInterface
      * is set to 0 by default.
      * @return  string                  The n-th codon in the sequence.
      */
-    public function getCodon(int $iIndex, ?string $sSequence = null, $iReadFrame = 0) : string;
+    public function getCodon(int $iIndex, ?string $sSequence = null, int $iReadFrame = 0) : string ;
 
     /**
      * Translates a particular DNA sequence into its protein product sequence, using the given substitution matrix.
@@ -216,7 +225,7 @@ interface SequenceInterface
      * (if amino acid is acidic), C (if amino acid is basic), or N (if amino acid is neutral), e.g. ACNNCCNANCCNA.
      * @throws  \Exception
      */
-    public function charge(string $sAminoSeq);
+    public function charge(string $sAminoSeq) : string ;
 
     /**
      * Returns a string of symbols from an 8-letter alphabet: A, L, M, R, C, H, I, S.

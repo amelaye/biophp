@@ -3,8 +3,10 @@
  * Database of elements - PK Values
  * Inspired by BioPHP's project biophp.org
  * Created 20 december 2019
- * Last modified 20 december 2019
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Api\DTO;
 
 /**
@@ -17,37 +19,37 @@ class ProteinReductionDTO
     /**
      * @var     int       Id of the row
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * @var     string  Name of the Alphabet (Murphy etc ...)
      */
-    private $alphabet;
+    private ?string $alphabet = null;
 
     /**
      * @var     string  Letters of the alphabet
      */
-    private $letters;
+    private ?string $letters = null;
 
     /**
      * @var     string  Patterns of reduction
      */
-    private $pattern;
+    private ?string $pattern = null;
 
     /**
      * @var     string  Nature of the pattern (Aliphatic, Aromatic ...)
      */
-    private $nature;
+    private ?string $nature = null;
 
     /**
      * @var     string  Corresponding letter
      */
-    private $reduction;
+    private ?string $reduction = null;
 
     /**
      * @var     string  Description of the pattern (original alphabet)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @return int

@@ -3,8 +3,10 @@
  * Doctrine Entity GbSequence
  * Freely inspired by BioPHP's project biophp.org
  * Created 23 march 2019
- * Last modified 20 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -16,58 +18,56 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "gb_sequence")]
-#[ORM\UniqueConstraint(name: "uniq_gb_sequence", columns: ["prim_acc"])]
 class GbSequence
 {
     /**
      * @var string
      */
     #[ORM\Id]
-    #[ORM\OneToOne(targetEntity: Sequence::class)]
-    #[ORM\JoinColumn(name: "prim_acc", referencedColumnName: "prim_acc")]
-    private $primAcc = "";
-
-    /**
-     * @var string|null
-     */
-    #[ORM\Column(type: "string", length: 2, nullable: true)]
-    private $strands;
-
-    /**
-     * @var string|null
-     */
-    #[ORM\Column(type: "string", length: 1, nullable: true)]
-    private $topology;
-
-    /**
-     * @var string|null
-     */
-    #[ORM\Column(type: "string", length: 3, nullable: true)]
-    private $division;
-
-    /**
-     * @var int|null
-     */
-    #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $segmentNo;
-
-    /**
-     * @var int|null
-     */
-    #[ORM\Column(type: "integer", length: 11, nullable: true)]
-    private $segmentCount;
+    #[ORM\Column(type: "string", length: 50, nullable: false)]
+    private string $primAcc = "";
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 10, nullable: true)]
-    private $version;
+    private ?string $strands = null;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(type: "string", length: 10, nullable: true)]
+    private ?string $topology = null;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(type: "string", length: 10, nullable: true)]
+    private ?string $division = null;
+
+    /**
+     * @var int|null
+     */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
+    private ?int $segmentNo = null;
+
+    /**
+     * @var int|null
+     */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
+    private ?int $segmentCount = null;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(type: "string", length: 50, nullable: true)]
+    private ?string $version = null;
 
     /**
      * @var string|null
      */
     #[ORM\Column(type: "string", length: 30, nullable: true)]
-    private $ncbiGiId;
+    private ?string $ncbiGiId = null;
 
     /**
      * @return string

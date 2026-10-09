@@ -5,7 +5,7 @@ use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence;
-use Amelaye\BioPHP\Domain\Sequence\ValueObject\InvalidSequenceException;
+use Amelaye\BioPHP\Domain\Sequence\Exception\InvalidSequenceException;
 use PHPUnit\Framework\TestCase;
 
 class SequenceBuilderTest extends TestCase

@@ -831,6 +831,26 @@ class SequenceAlignmentManagerTest extends TestCase
     }
 
     /**
+     * A column of gaps only : the zero-count letters every column starts with were taken as
+     * residues, so the column gave "A" at threshold 0 and "?" above it, and was reported variant.
+     */
+    public function testAColumnOfGapsOnlyIsAGapAndInvariant()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["A-C", "A-C"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(3);
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("A-C", $sequenceAlignmentManager->consensus());
+        $this->assertEquals("A-C", $sequenceAlignmentManager->consensus(0));
+        $this->assertEquals(["INVARIANT" => [0, 1, 2], "VARIANT" => []], $sequenceAlignmentManager->resVar());
+    }
+
+    /**
      * ClustalW closes each line with the count of residues written so far, where Clustal Omega
      * writes none. Both forms have to read the same, and the count must not end up inside the
      * sequence : here the two haemoglobin alpha chains, human and mouse, over two blocks.
@@ -885,5 +905,70 @@ class SequenceAlignmentManagerTest extends TestCase
         $iCount = count($sequenceAlignmentManager->getSeqSet());
 
         $this->assertEquals(33, $iCount);
+    }
+
+    /**
+     * "a" and "A" counted as two residues : a column of a, A, A scored 66.7% and gave "?" at the
+     * default threshold, and was reported variant, in a soft-masked FASTA alignment.
+     */
+    public function testConsensusAndVariabilityIgnoreTheCaseOfTheResidues()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["a", "A", "A"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(1);
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("A", $sequenceAlignmentManager->consensus());
+        $this->assertEquals(["INVARIANT" => [0], "VARIANT" => []], $sequenceAlignmentManager->resVar());
+    }
+
+    /**
+     * The columns were those of the first sequence, and a sequence shorter than the others counted
+     * "" as a symbol past its end : "AC" over "A" lost the second column.
+     */
+    public function testConsensusOfASetOfDifferentLengthsCoversTheLongestSequence()
+    {
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+
+        foreach (["A", "AC", "AC"] as $sSeq) {
+            $oSequence = new Sequence();
+            $oSequence->setSequence($sSeq);
+            $oSequence->setSeqlength(strlen($sSeq));
+            $sequenceAlignmentManager->addSequence($oSequence);
+        }
+
+        $this->assertEquals("AC", $sequenceAlignmentManager->consensus(60));
+    }
+
+    /**
+     * A header made of the identifier alone (">id") used to raise "Undefined array key 1" (the
+     * organism is the header's second word), and so did a file with no header at all.
+     */
+    public function testParseFastaReadsHeadersMadeOfAnIdentifierAlone()
+    {
+        $sFile = tempnam(sys_get_temp_dir(), "fasta");
+        file_put_contents($sFile, ">a\nAC-GT\n>b\nACAGT\n");
+
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename($sFile);
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+
+        $this->assertCount(2, $sequenceAlignmentManager->getSeqSet());
+        $this->assertEquals("AC-GT", $sequenceAlignmentManager->getSeqSet()[0]->getSequence());
+        $this->assertEquals("ACAGT", $sequenceAlignmentManager->getSeqSet()[1]->getSequence());
+
+        file_put_contents($sFile, "");
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename($sFile);
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        $this->assertCount(0, $sequenceAlignmentManager->getSeqSet());
+
+        unlink($sFile);
     }
 }

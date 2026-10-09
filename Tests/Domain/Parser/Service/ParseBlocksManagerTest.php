@@ -86,4 +86,27 @@ class ParseBlocksManagerTest extends TestCase
         $this->assertEquals(0, $oParser->getDistMin());
         $this->assertEquals(0, $oParser->getDistMax());
     }
+
+    /**
+     * A sequence line opens on its protein name in the first column : IDHP_HUMAN was taken for
+     * an ID line, opening a new entry and replacing the identifier, and ACON_YEAST for an AC line.
+     */
+    public function testASequenceLineIsNoFieldWhateverItsProteinName()
+    {
+        $aLines = [
+            "ID   TEST_FAMILY; BLOCK\n",
+            "AC   IPB002128C; distance from previous block=(30,31)\n",
+            "BL   RDG;  width=55; seqs=2\n",
+            "IDHP_HUMAN|P48735  (   12) GVRFIGFLSA  27\n",
+            "ACON_YEAST|P19414  (   40) GVRFIGFLSA  31\n",
+            "//\n",
+        ];
+        $oParser = new ParseBlocksManager();
+        $oParser->parseDataFile($aLines);
+
+        $this->assertEquals("TEST_FAMILY", $oParser->getId());
+        $this->assertFalse(ParseBlocksManager::isEntryStart($aLines[3]));
+        $this->assertEquals("IPB002128C", $oParser->getAccession());
+        $this->assertEquals("", ParseBlocksManager::getEntryId([$aLines[4]], ""));
+    }
 }

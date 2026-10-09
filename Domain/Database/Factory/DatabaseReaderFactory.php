@@ -3,8 +3,10 @@
  * Factory reading different databases format
  * Freely inspired by BioPHP's project biophp.org
  * Created 24 november 2019
- * Last modified 25 August 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Factory;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -23,8 +25,7 @@ abstract class DatabaseReaderFactory
      * @return  ParseDatabaseInterface
      * @throws  \Exception
      */
-    public static function readDatabase($sType, $aFlines)
-    {
+    public static function readDatabase(string $sType, array $aFlines) : ParseDatabaseInterface {
         $oService = DatabaseParserFactory::createParser($sType);
         $oService->parseDataFile($aFlines);
 

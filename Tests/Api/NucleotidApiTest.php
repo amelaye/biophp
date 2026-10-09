@@ -40,7 +40,7 @@ class NucleotidApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -98,10 +98,10 @@ class NucleotidApiTest extends WebTestCase
     public function testGetDNAWeight()
     {
         $weightsExpected = [
-          "A" => 313.245,
-          "T" => 304.225,
-          "G" => 329.245,
-          "C" => 289.215
+          "A" => 313.2065,
+          "T" => 304.1932,
+          "G" => 329.2059,
+          "C" => 289.1818
         ];
         $apiNucleo = new NucleotidApi($this->clientMock, $this->serializerMock);
         $weights = $apiNucleo::GetDNAWeight($apiNucleo->getNucleotids());
@@ -111,10 +111,10 @@ class NucleotidApiTest extends WebTestCase
     public function testGetRNAWeight()
     {
         $weightsExpected = [
-            "A" => 329.245,
-            "U" => 306.195,
-            "G" => 345.245,
-            "C" => 305.215
+            "A" => 329.2059,
+            "U" => 306.166,
+            "G" => 345.2053,
+            "C" => 305.1812
         ];
         $apiNucleo = new NucleotidApi($this->clientMock, $this->serializerMock);
         $weights = $apiNucleo::GetRNAWeight($apiNucleo->getNucleotids());

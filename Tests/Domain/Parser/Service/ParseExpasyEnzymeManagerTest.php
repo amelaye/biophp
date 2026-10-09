@@ -40,7 +40,7 @@ class ParseExpasyEnzymeManagerTest extends TestCase
         $oParseExpasyEnzymeManager = $databaseManager->fetch("1.1.1.2");
 
         $this->assertEquals("1.1.1.2", $oParseExpasyEnzymeManager->getId());
-        $this->assertEquals("Alcohol dehydrogenase (NADP+).", $oParseExpasyEnzymeManager->getDescription());
+        $this->assertEquals("Alcohol dehydrogenase (NADP+)", $oParseExpasyEnzymeManager->getDescription());
         $this->assertEquals(["Aldehyde reductase (NADPH)"], $oParseExpasyEnzymeManager->getAlternateNames());
         $this->assertEquals(
             ["An alcohol + NADP(+) = an aldehyde + NADPH"],
@@ -68,6 +68,29 @@ class ParseExpasyEnzymeManagerTest extends TestCase
     }
 
     /**
+     * Each AN name ends with a period : a name too long for one line goes on over the next AN
+     * line, and was split into two invented synonyms.
+     */
+    public function testAnAlternateNameWrappedOverTwoLinesIsOneName()
+    {
+        $oParser = new ParseExpasyEnzymeManager();
+        $oParser->parseDataFile([
+            "ID   2.7.11.1",
+            "DE   non-specific serine/threonine protein kinase.",
+            "AN   A-kinase.",
+            "AN   cAMP-dependent protein kinase catalytic subunit alpha and beta",
+            "AN   isoforms.",
+            "AN   PKA.",
+            "//",
+        ]);
+
+        $this->assertEquals(
+            ["A-kinase", "cAMP-dependent protein kinase catalytic subunit alpha and beta isoforms", "PKA"],
+            $oParser->getAlternateNames()
+        );
+    }
+
+    /**
      * Consecutive AN lines each name the enzyme once more, where a DE wrapping over two lines
      * is a single name : the two fields cannot be accumulated the same way.
      */
@@ -90,7 +113,8 @@ class ParseExpasyEnzymeManagerTest extends TestCase
             ["Constitutive NOS", "Endothelial NOS", "NOS"],
             $oParser->getAlternateNames()
         );
-        $this->assertEquals("Nitric-oxide synthase (NADPH).", $oParser->getDescription());
+        // The period closing DE is no part of the name, as for AN : it used to be kept on DE alone.
+        $this->assertEquals("Nitric-oxide synthase (NADPH)", $oParser->getDescription());
     }
 
     /**

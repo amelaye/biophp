@@ -3,8 +3,10 @@
  * KEGG GENOME parsing
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 /**
@@ -20,18 +22,18 @@ final class ParseKeggGenomeManager extends ParseKeggAbstractManager
     /**
      * @var string
      */
-    private $definition = "";
+    private string $definition = "";
 
     /**
      * NCBI taxonomy identifier, read out of the "TAX:" prefix the field writes it with.
      * @var string
      */
-    private $taxonomy = "";
+    private string $taxonomy = "";
 
     /**
      * @var array
      */
-    private $lineage = [];
+    private array $lineage = [];
 
     /**
      * The name this format is known by in the collection records and in DatabaseParserFactory.
@@ -47,8 +49,7 @@ final class ParseKeggGenomeManager extends ParseKeggAbstractManager
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aFields = $this->readFields($aFlines);
 
         $this->definition = isset($aFields["DEFINITION"]) ? $this->joinLines($aFields["DEFINITION"]) : "";
@@ -65,8 +66,7 @@ final class ParseKeggGenomeManager extends ParseKeggAbstractManager
      * @param   string      $sData
      * @return  string
      */
-    private function readTaxonomy($sData)
-    {
+    private function readTaxonomy(string $sData) : string {
         $aTokens = preg_split("/:/", trim($sData), -1, PREG_SPLIT_NO_EMPTY);
 
         return trim($aTokens[1] ?? ($aTokens[0] ?? ""));

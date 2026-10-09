@@ -3,8 +3,10 @@
  * Traits for sequences formatting
  * Freely inspired by BioPHP's project biophp.org
  * Created 22 july 2019
- * Last modified 12 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Traits;
 
 /**
@@ -20,8 +22,7 @@ trait SequenceTrait
      * @return  string
      * @throws  \Exception
      */
-    public function compDNA($sSequence)
-    {
+    public function compDNA(string $sSequence) : string {
         $sSequence = strtoupper($sSequence);
         $original   = ["(A)","(T)","(G)","(C)","(Y)","(R)","(W)","(S)","(K)","(M)","(D)","(V)","(H)","(B)"];
         $complement = ["t","a","c","g","r","y","w","s","m","k","h","b","d","v"];
@@ -36,8 +37,7 @@ trait SequenceTrait
      * @return  string
      * @throws \Exception
      */
-    public function revCompDNA($sSequence)
-    {
+    public function revCompDNA(string $sSequence) : string {
         $sSequence = strrev($sSequence);
         $sSequence = $this->compDNA($sSequence);
         return $sSequence;
@@ -52,12 +52,11 @@ trait SequenceTrait
      * @return  bool                        TRUE when every symbol is known, FALSE when one of them
      * is not, and FALSE as well when the molecule type itself cannot be checked
      */
-    public function cleanSequence($sSequence, $sMolType)
-    {
+    public function cleanSequence(string $sSequence, string $sMolType) : bool {
         $aAlphabets = [
             "DNA"     => "/[^ACGTMRWSYKVHDBXN]/",
             "RNA"     => "/[^ACGUMRWSYKVHDBXN]/",
-            "PROTEIN" => "/[^ACDEFGHIKLMNPQRSTVWYX*]/"
+            "PROTEIN" => "/[^ACDEFGHIKLMNPQRSTVWYBZJUOX*]/"
         ];
 
         $sMolType = strtoupper((string) $sMolType);

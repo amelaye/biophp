@@ -35,7 +35,7 @@ class TripletApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -112,7 +112,7 @@ class TripletApiTest extends WebTestCase
           58 => "GAA ",
           59 => "GAG ",
           60 => "GGT ",
-          61 => "GCG ",
+          61 => "GGC ",
           62 => "GGA ",
           63 => "GGG "
         ];

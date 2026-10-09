@@ -3,8 +3,10 @@
  * Contract for one SHEET secondary-structure strand record from a PDB file
  * Freely inspired by BioPHP's project biophp.org
  * Created 18 September 2026
- * Last modified 18 September 2026
+ * Last modified 8 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Interfaces;
 
 /**
@@ -93,4 +95,26 @@ interface PdbSheetInterface
      * @param int $endSeqNum
      */
     public function setEndSeqNum(int $endSeqNum): void;
+
+    /**
+     * Insertion code of the first residue (column 27), empty for most residues.
+     * @return string
+     */
+    public function getInitICode(): string;
+
+    /**
+     * @param string $initICode
+     */
+    public function setInitICode(string $initICode): void;
+
+    /**
+     * Insertion code of the last residue (column 38), empty for most residues.
+     * @return string
+     */
+    public function getEndICode(): string;
+
+    /**
+     * @param string $endICode
+     */
+    public function setEndICode(string $endICode): void;
 }

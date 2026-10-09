@@ -147,4 +147,46 @@ class ParseEntrezManagerTest extends TestCase
         $this->assertEquals("CIRCULAR", $oParser->getTopology());
         $this->assertEquals(5386, $oParser->getLength());
     }
+
+    /**
+     * A name longer than 16 characters shifts every LOCUS field : the fixed columns read the
+     * length as 1 and lost the rest.
+     */
+    public function testALocusLineWithALongNameIsReadWordByWord()
+    {
+        $oParser = new ParseEntrezManager();
+        $oParser->parseDataFile([
+            "LOCUS       NZ_JAAXYZ010000001     123456 bp    DNA     linear   CON 01-JAN-2020\n",
+            "//\n",
+        ]);
+
+        $this->assertEquals("NZ_JAAXYZ010000001", $oParser->getEntryName());
+        $this->assertEquals(123456, $oParser->getLength());
+        $this->assertEquals("LINEAR", $oParser->getTopology());
+        $this->assertEquals("CON", $oParser->getDivision());
+    }
+
+    /**
+     * "REGION: 1..1000" follows the accession of a record on a sub-range of its sequence : it was read
+     * as two more accessions, and the consortium of a CONSRTM line was dropped, as GenBank no longer does.
+     */
+    public function testAccessionRegionIsNoAccessionAndConsortiaAreAuthors()
+    {
+        $oParser = new ParseEntrezManager();
+        $oParser->parseDataFile([
+            "LOCUS       NC_000913               1000 bp    DNA     circular BCT 01-JAN-2020",
+            "ACCESSION   NC_000913 REGION: 1..1000",
+            "REFERENCE   1  (bases 1 to 1000)",
+            "  AUTHORS   Blattner,F.R. and Plunkett,G.",
+            "  CONSRTM   The E. coli Genome Project; Another Consortium",
+            "  TITLE     The complete genome sequence",
+            "//",
+        ]);
+
+        $this->assertEquals(["NC_000913"], $oParser->getAccession());
+        $this->assertContains("The E. coli Genome Project", $oParser->getReferences()[0]->getAuthors());
+        $this->assertContains("Another Consortium", $oParser->getReferences()[0]->getAuthors());
+        $this->assertContains("Blattner,F.R.", $oParser->getReferences()[0]->getAuthors());
+        $this->assertEquals("The complete genome sequence", $oParser->getReferences()[0]->getTitle());
+    }
 }

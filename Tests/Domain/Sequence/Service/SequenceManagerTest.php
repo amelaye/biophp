@@ -5,6 +5,7 @@ use Amelaye\BioPHP\Api\AminoApi;
 use Amelaye\BioPHP\Api\ElementApi;
 use Amelaye\BioPHP\Api\NucleotidApi;
 use Amelaye\BioPHP\Domain\Parser\Service\ParseGenbankManager;
+use Amelaye\BioPHP\Domain\Sequence\Entity\Feature;
 use Amelaye\BioPHP\Domain\Sequence\Entity\Sequence;
 use Amelaye\BioPHP\Domain\Sequence\Service\SequenceManager;
 use Amelaye\BioPHP\Domain\Sequence\Builder\SequenceBuilder;
@@ -192,7 +193,7 @@ class SequenceManagerTest extends TestCase
         $sequenceBuilder = new SequenceBuilder($sequenceManager);
         $sExpandNa = $sequenceBuilder->expandNa("GATTAGSW");
 
-        $sExpected = "GATTAG[GC][AT]";
+        $sExpected = "GATTAG[GC][ATU]";
 
         $this->assertEquals($sExpandNa, $sExpected);
     }
@@ -211,14 +212,14 @@ class SequenceManagerTest extends TestCase
             "N" => ".",
             "X" => ".",
             "R" => "[AG]",
-            "Y" => "[CT]",
+            "Y" => "[CTU]",
             "S" => "[GC]",
-            "W" => "[AT]",
+            "W" => "[ATU]",
             "M" => "[AC]",
-            "K" => "[TG]",
-            "B" => "[CGT]",
-            "D" => "[AGT]",
-            "H" => "[ACT]",
+            "K" => "[TGU]",
+            "B" => "[CGTU]",
+            "D" => "[AGTU]",
+            "H" => "[ACTU]",
             "V" => "[ACG]",
         ];
         foreach ($aExpected as $sCode => $sExpansion) {
@@ -230,20 +231,45 @@ class SequenceManagerTest extends TestCase
         }
     }
 
+    /**
+     * The ambiguity codes standing for T also stand for U : a pattern of Y, W, K, B, D or H finds
+     * its match in an RNA sequence, which no match was found in before.
+     */
+    public function testAmbiguityPatternsMatchRna()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals([0, 2], $sequenceManager->patPoso("YY", "I", 2, "CUCU"));
+        $this->assertEquals(["CU" => [0, 2]], $sequenceManager->patPos("YY", "I", "CUCU"));
+    }
+
+    /**
+     * A degenerate pattern is searched for in every place it matches, overlaps included : only
+     * the strings found by the non-overlapping scan were looked for, so GA (position 1) of AGAA
+     * was never found by RR.
+     */
+    public function testPatPosoFindsOverlappingMatchesOfADegeneratePattern()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals([0, 1, 2], $sequenceManager->patPoso("RR", "I", 1, "AGAA"));
+        $this->assertEquals([0, 2], $sequenceManager->patPoso("RR", "I", 2, "AGAA"));
+        $this->assertEquals([0, 1, 2], $sequenceManager->patPoso("rr", "I", 1, "agaa"));
+        $this->assertEquals([], $sequenceManager->patPoso("RR", "I", 1, "CCCC"));
+    }
+
     public function testMolWT()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
         $sequenceBuilder = new SequenceBuilder($sequenceManager);
         $sequenceBuilder->setSequence($this->sequence);
-        $fMolWt = round($sequenceBuilder->molwt("upperlimit"),1);
-
-        $fExpected = 379669.7;
-        $this->assertEquals($fExpected, $fMolWt);
+        // Bio.SeqUtils.molecular_weight(sequence, "DNA"), Biopython 1.88
+        $this->assertEqualsWithDelta(379625.8051, $sequenceBuilder->molwt("upperlimit"), 0.0001);
     }
 
     /**
-     * An unknown symbol used to be weighed as zero : molwt("ATGZ") quietly returned 964.73 instead
-     * of the 1253.945 of "ATGC", a result wrong by one whole base.
+     * An unknown symbol used to be weighed as zero : molwt("ATGZ") quietly returned 964.6209 instead
+     * of the 1253.8027 of "ATGC", a result wrong by one whole base.
      */
     public function testMolWtThrowsOnAnUnrecognizedSymbolInsteadOfWeighingItZero()
     {
@@ -259,9 +285,15 @@ class SequenceManagerTest extends TestCase
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        // A + T + G + C + water, both limits equal since no symbol is degenerated
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 3));
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 3));
+        // Bio.SeqUtils.molecular_weight("ATGC", "DNA"), Biopython 1.88 ; both limits are equal since
+        // no symbol is degenerated
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.0001);
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("lowerlimit", "ATGC", "DNA", 4), 0.0001);
+        // The convention : a 5'-phosphate, 3'-OH strand. One dA weighs dAMP itself (331.2218), and
+        // ATGC is OligoCalc's synthetic 5'-OH weight (313.21 + 304.2 + 329.21 + 289.18 - 61.96 = 1173.84)
+        // plus HPO3 (79.98), within OligoCalc's rounding.
+        $this->assertEqualsWithDelta(331.2218, $sequenceManager->molwt("upperlimit", "A", "DNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(1173.84 + 79.98, $sequenceManager->molwt("upperlimit", "ATGC", "DNA", 4), 0.05);
     }
 
     /**
@@ -272,8 +304,31 @@ class SequenceManagerTest extends TestCase
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        $this->assertEquals(307.23, round($sequenceManager->molwt("lowerlimit", "N", "DNA", 1), 3));
-        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "N", "DNA", 1), 3));
+        $this->assertEqualsWithDelta(307.1971, $sequenceManager->molwt("lowerlimit", "N", "DNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceManager->molwt("upperlimit", "N", "DNA", 1), 0.0001);
+    }
+
+    /**
+     * With no molecule type given, the record's own was passed on as is : "mRNA" was rejected
+     * ("Unrecognized MRNA symbol"), and a GenBank mRNA, spelt with T, would have failed as RNA.
+     */
+    public function testMolWtOfAParsedMrnaRecord()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $oSequence = new Sequence();
+        $oSequence->setMoltype("mRNA");
+        $oSequence->setSequence("acgt");
+        $oSequence->setSeqlength(4);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+        $sequenceBuilder->setSequence($oSequence);
+
+        $this->assertEquals(
+            $sequenceManager->molwt("upperlimit", "ACGU", "RNA", 4),
+            $sequenceBuilder->molwt("upperlimit")
+        );
+
+        $oSequence->setMoltype("ss-DNA");
+        $this->assertEquals($sequenceManager->molwt("upperlimit", "ACGT", "DNA", 4), $sequenceBuilder->molwt("upperlimit"));
     }
 
     public function testMolWtResolvesDegeneratedSymbolsForRna()
@@ -281,15 +336,15 @@ class SequenceManagerTest extends TestCase
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
         // W is A or U : in RNA uracil is the lighter of the two
-        $this->assertEquals(324.21, round($sequenceManager->molwt("lowerlimit", "W", "RNA", 1), 3));
-        $this->assertEquals(347.26, round($sequenceManager->molwt("upperlimit", "W", "RNA", 1), 3));
+        $this->assertEqualsWithDelta(324.1813, $sequenceManager->molwt("lowerlimit", "W", "RNA", 1), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceManager->molwt("upperlimit", "W", "RNA", 1), 0.0001);
     }
 
     public function testMolWtAcceptsASequenceAsWrittenInAGenbankRecord()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
 
-        $this->assertEquals(1253.945, round($sequenceManager->molwt("upperlimit", "at gc", "DNA", 4), 3));
+        $this->assertEqualsWithDelta(1253.8027, $sequenceManager->molwt("upperlimit", "at gc", "DNA", 4), 0.0001);
     }
 
     public function testMolWtThrowsOnAnUnknownLimit()
@@ -327,8 +382,8 @@ class SequenceManagerTest extends TestCase
         $oSequence->setSeqlength(1);
         $sequenceBuilder->setSequence($oSequence);
 
-        $this->assertEquals(307.23, round($sequenceBuilder->molwt("lowerlimit"), 3));
-        $this->assertEquals(347.26, round($sequenceBuilder->molwt("upperlimit"), 3));
+        $this->assertEqualsWithDelta(307.1971, $sequenceBuilder->molwt("lowerlimit"), 0.0001);
+        $this->assertEqualsWithDelta(347.2212, $sequenceBuilder->molwt("upperlimit"), 0.0001);
     }
 
     /**
@@ -411,6 +466,16 @@ class SequenceManagerTest extends TestCase
         ];
 
         $this->assertEquals($aExpected, $aPattern);
+    }
+
+    public function testPatposoRejectsACutPositionThatWouldNeverAdvance()
+    {
+        // Resuming at offset 0 of the match just found used to find it again, forever.
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $sequenceManager->patPoso("GATC", "I", 0, "AAGATCAA");
     }
 
     public function testPatposo()
@@ -499,11 +564,32 @@ class SequenceManagerTest extends TestCase
         $sExpected.= "HGPPLLTPLAGSPFAV*PPCCRLNPFAPALPLQRERREEQAARDAGEGG*GPWG*AGVNQAPFPLQVRSPAVQSPAKVQV*GWT*WVPGPS";
         $sExpected.= "PLTLVPQSHSPTPATSCLAIRKASLLPT*SSQTQSHLMPAPLLHSLCVQAGGQRGSEETQALPVSMAGVREKAELGQGPASPGWSVGELQQ";
         $sExpected.= "GVASLGCGGGTGSLPWWAPWSPMCRERRDGHFARGLMPPRRVSQSPSPLPGSPGAQEGGV*AQSGL*RVG*PHRLSGGLSALLRPGLGCRS";
-        $sExpected.= "AGLAGNPSSAPLQAPFFPLPLALALTSQPYGCGVPIIPAAPK*TPEX";
+        // 1231 bases : the last one is no codon and translates to nothing, not to "X".
+        $sExpected.= "AGLAGNPSSAPLQAPFFPLPLALALTSQPYGCGVPIIPAAPK*TPE";
 
         $translate = $sequenceBuilder->translate();
 
         $this->assertEquals($translate, $sExpected);
+    }
+
+    /**
+     * An ambiguous codon whose every reading codes for one same residue gave X : TAR, a common
+     * degenerate stop, left a translated ORF without its end.
+     */
+    public function testAnAmbiguousCodonOfACertainResidueIsTranslated()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals("*", $sequenceManager->translateCodon("TAR", 1));   // TAA, TAG
+        $this->assertEquals("*", $sequenceManager->translateCodon("TRA", 1));   // TAA, TGA
+        $this->assertEquals("E", $sequenceManager->translateCodon("GAR", 1));
+        $this->assertEquals("N", $sequenceManager->translateCodon("AAY", 1));
+        $this->assertEquals("I", $sequenceManager->translateCodon("AUH", 1));
+        $this->assertEquals("L", $sequenceManager->translateCodon("YTR", 1));   // CTA/CTG/TTA/TTG
+        $this->assertEquals("Arg", $sequenceManager->translateCodon("MGR", 3)); // AGA/AGG/CGA/CGG
+        $this->assertEquals("G", $sequenceManager->translateCodon("GGN", 1));
+        $this->assertEquals("X", $sequenceManager->translateCodon("GAN", 1));   // Asp or Glu
+        $this->assertEquals("X", $sequenceManager->translateCodon("AUN", 1));   // Ile or Met
     }
 
     /**
@@ -552,6 +638,69 @@ class SequenceManagerTest extends TestCase
         $this->assertEquals(463, $sequenceManager->countCodons($oParser->getFeatures()));
     }
 
+    /**
+     * A spliced CDS used to be counted over its outer bounds, introns included : data/demo.seq's
+     * join() of 8 exons spans 265..2855 (2591 bases, 863 codons) but holds 1452 coding bases,
+     * 484 codons - its 483-residue /translation plus the stop codon.
+     */
+    public function testCountCodonsCountsOnlyTheExonsOfAJoinedCds()
+    {
+        $oParser = new ParseGenbankManager();
+        $aLines = file('data/demo.seq');
+        $iFeatures = 0;
+        foreach ($aLines as $i => $sLine) {
+            if (str_starts_with($sLine, "FEATURES")) {
+                $iFeatures = $i;
+                break;
+            }
+        }
+        $oParser->parseDataFile(array_slice($aLines, $iFeatures));
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $this->assertEquals(484, $sequenceManager->countCodons($oParser->getFeatures()));
+    }
+
+    /**
+     * The length came from the first CDS but the codon_start from the last one read : a record
+     * holding several CDS mixed the two.
+     */
+    public function testCountCodonsReadsTheCodonStartOfTheFirstCdsOnly()
+    {
+        $fCds = function (int $iFrom, int $iTo, string $sQual, string $sValue) {
+            $oCds = new Feature();
+            $oCds->setFtKey("CDS");
+            $oCds->setFtQual($sQual);
+            $oCds->setFtValue($sValue);
+            $oCds->setFtFrom($iFrom);
+            $oCds->setFtTo($iTo);
+            $oCds->setFtLocation($iFrom . ".." . $iTo);
+            return $oCds;
+        };
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        // First CDS : 1..30, codon_start 1, ten codons. The second's codon_start 3 is not its own.
+        $this->assertEquals(10, $sequenceManager->countCodons([
+            $fCds(1, 30, "codon_start", "1"),
+            $fCds(1, 30, "product", "first"),
+            $fCds(101, 160, "codon_start", "3"),
+        ]));
+    }
+
+    public function testCountCodonsOfAJoinedCdsHonoursCodonStartAndPartialMarks()
+    {
+        $oCds = new Feature();
+        $oCds->setFtKey("CDS");
+        $oCds->setFtQual("codon_start");
+        $oCds->setFtValue("2");
+        $oCds->setFtFrom(1);
+        $oCds->setFtTo(130);
+        $oCds->setFtLocation("complement(join(<1..31,101..>130))");
+
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        // 31 + 30 = 61 coding bases, the first one skipped : 60 / 3 = 20, not (130 - 1) / 3 = 43.
+        $this->assertEquals(20, $sequenceManager->countCodons([$oCds]));
+    }
+
     public function testCountCodonsRequiresACdsFeature()
     {
         $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
@@ -569,6 +718,16 @@ class SequenceManagerTest extends TestCase
         $sExpected = "NNNNNNNNCCC";
 
         $this->assertEquals($charge, $sExpected);
+    }
+
+    public function testChargeAndChemicalGroupOfSelenocysteinePyrrolysineAndAmbiguityCodes()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        // J (I or L) and O (pyrrolysine) are neutral ; B (D or N), Z (E or Q) and U undetermined.
+        $this->assertEquals("NNXXX", $sequenceManager->charge("JOBZU"));
+        // J (I or L) is aliphatic ; B, Z, U and O belong to no single group.
+        $this->assertEquals("LXXXX", $sequenceManager->chemicalGroup("JBZUO"));
     }
 
     public function testFindPalindrome()
@@ -1205,6 +1364,34 @@ class SequenceManagerTest extends TestCase
 
         $this->assertEquals([["GAATTC", 0]], $aWithoutFlank);
         $this->assertEquals([["GAATTC", 0]], $aWithFlank);
+    }
+
+    /**
+     * Only the input was left in its case : a GenBank or EMBL record, in lower case, never held a
+     * palindrome. isPalindrome() also ignored the ambiguity codes findPalindrome() handles.
+     */
+    public function testPalindromesIgnoreCaseAndPairAmbiguousSymbols()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+        $sequenceBuilder = new SequenceBuilder($sequenceManager);
+
+        $this->assertTrue($sequenceBuilder->isPalindrome("gaattc"));
+        $this->assertTrue($sequenceBuilder->isPalindrome("ACRYGT"));
+        $this->assertFalse($sequenceBuilder->isPalindrome("ACRRGT"));
+        $this->assertEquals([["gaattc", 2]], $sequenceBuilder->findPalindrome("aagaattcaa", 6, 3));
+    }
+
+    /**
+     * complement() threw on X, which cleanSequence() and DnaSequence accept ; symFreq("a") counted
+     * nothing, the sequence alone being upper-cased.
+     */
+    public function testComplementOfXAndSymbolFrequencyIgnoringCase()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals("TXGC", $sequenceManager->complement("AXCG", "DNA"));
+        $this->assertEquals(2, $sequenceManager->symFreq("a", "AaGT"));
+        $this->assertEquals(2, $sequenceManager->symFreq("A", "aAGT"));
     }
 
     public function testFindPalindromeWitPalenAndLen()
@@ -2053,5 +2240,29 @@ class SequenceManagerTest extends TestCase
         ];
 
         $this->assertEquals($aMirrors, $aExpected);
+    }
+
+    /**
+     * The positions came from a second search for each matched string, from the start : "AR" in
+     * "AAGCAG" is found as AA at 0 and AG at 4, and AG was reported at 1, overlapping AA.
+     */
+    public function testPatPosReportsThePositionsOfTheMatchesTheScanFound()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals(["AA" => [0], "AG" => [4]], $sequenceManager->patPos("AR", "I", "AAGCAG"));
+        $this->assertEquals(["TT" => [0, 3]], $sequenceManager->patPos("tt", "I", "TTATTA"));
+    }
+
+    /**
+     * charge() and chemicalGroup() refused lower case, as the other amino acid functions do not.
+     */
+    public function testChargeAndChemicalGroupAcceptLowerCase()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals($sequenceManager->charge("DKRG"), $sequenceManager->charge("dkrg"));
+        $this->assertEquals("ACCN", $sequenceManager->charge("dkrg"));
+        $this->assertEquals($sequenceManager->chemicalGroup("GAVLIFYWKRH"), $sequenceManager->chemicalGroup("gavlifywkrh"));
     }
 }

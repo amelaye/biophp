@@ -3,8 +3,10 @@
  * PIR database parsing (Protein Information Resource)
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -27,67 +29,67 @@ final class ParsePirManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    private $entryName = "";
+    private string $entryName = "";
 
     /**
      * @var string
      */
-    private $entryType = "";
+    private string $entryType = "";
 
     /**
      * @var string
      */
-    private $title = "";
+    private string $title = "";
 
     /**
      * @var array
      */
-    private $accessions = [];
+    private array $accessions = [];
 
     /**
      * @var string
      */
-    private $organism = "";
+    private string $organism = "";
 
     /**
      * @var string
      */
-    private $species = "";
+    private string $species = "";
 
     /**
      * @var string
      */
-    private $createDate = "";
+    private string $createDate = "";
 
     /**
      * @var string
      */
-    private $seqrevDate = "";
+    private string $seqrevDate = "";
 
     /**
      * @var string
      */
-    private $txtchgDate = "";
+    private string $txtchgDate = "";
 
     /**
      * @var int
      */
-    private $length = 0;
+    private int $length = 0;
 
     /**
      * @var float
      */
-    private $molwt = 0.0;
+    private float $molwt = 0.0;
 
     /**
      * @var string
      */
-    private $checksum = "";
+    private string $checksum = "";
 
     /**
      * @var array
      */
-    private $keywords = [];
+    private array $keywords = [];
 
     /**
      * Constructor.
@@ -179,8 +181,7 @@ final class ParsePirManager implements ParseDatabaseInterface
      * @param   array       $aFlines        The lines the script has to parse
      * @throws  \Exception
      */
-    public function parseDataFile($aFlines)
-    {
+    public function parseDataFile(array $aFlines) {
         $aBuffers = [
             "ENTRY" => "", "TITLE" => "", "ORGANISM" => "", "DATE" => "",
             "ACCESSIONS" => "", "KEYWORDS" => "", "SUMMARY" => ""

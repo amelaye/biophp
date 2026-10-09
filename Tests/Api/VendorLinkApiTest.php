@@ -35,7 +35,7 @@ class VendorLinkApiTest extends WebTestCase
             new Response(200, [], json_encode(['hydra:member' => $aMembers])),
         ]);
         $this->clientMock = new GuzzleHttp\Client([
-            'base_uri' => 'http://api.amelayes-biophp.net',
+            'base_uri' => 'https://api.amelayes-biophp.net',
             'handler' => HandlerStack::create($oMockHandler),
         ]);
         $this->serializerMock = \JMS\Serializer\SerializerBuilder::create()
@@ -54,8 +54,8 @@ class VendorLinkApiTest extends WebTestCase
         $aResult = $apiVendorLinks::GetVendorLinksArray($apiVendorLinks->getVendorLinks());
 
         $this->assertEquals(
-            ["name" => "Minotech Biotechnology", "url" => "http://www.minotech.gr"],
-            $aResult["C"]
+            ["name" => "New England Biolabs", "url" => "http://www.neb.com"],
+            $aResult["N"]
         );
         $this->assertCount(count($this->vendorLinksObjects), $aResult);
     }
@@ -75,5 +75,41 @@ class VendorLinkApiTest extends WebTestCase
         }, $this->vendorLinksObjects);
 
         $this->assertEquals($aExpectedOrder, array_keys($aResult));
+    }
+
+    /**
+     * Every supplier code the enzymes refer to has a link, and every link is one REBASE lists : the
+     * suppliers of v610 (2026) are B E I J K M N O Q R S V X. The older codes (A, C, F, H, P, U, Y,
+     * and a different B and E) were dropped with the old snapshot of the enzymes they were attached to.
+     */
+    public function testEverySupplierCodeOfTheEnzymesHasALinkAndEveryLinkIsASupplierOfRebase()
+    {
+        require 'samples/Vendors.php';
+
+        $aCodes = [];
+        foreach ($vendors as $sCodes) {
+            foreach (str_split($sCodes) as $sCode) {
+                $aCodes[$sCode] = true;
+            }
+        }
+        $aLinked = array_map(fn($oLink) => $oLink->getId(), $this->vendorLinksObjects);
+
+        $this->assertSame([], array_values(array_diff(array_keys($aCodes), $aLinked)));
+        $this->assertSame(str_split("BEIJKMNOQRSVX"), $aLinked);
+    }
+
+    /**
+     * Rows read off REBASE v610's bairoch file (the CR line of each enzyme), not off the old snapshot.
+     */
+    public function testTheEnzymesCarryTheSuppliersOfRebase()
+    {
+        require 'samples/Vendors.php';
+
+        $this->assertSame("BIJNQRSVX", $vendors["EcoRI"]);
+        $this->assertSame("BIJNQRSVX", $vendors["HindIII"]);
+        $this->assertSame("BJNQRSVX", $vendors["NotI"]);
+        $this->assertSame("BJNQRVX", $vendors["XhoI"]);
+        $this->assertSame("I", $vendors["AgsI"]);
+        $this->assertCount(587, $vendors);
     }
 }

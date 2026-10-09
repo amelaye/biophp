@@ -3,8 +3,10 @@
  * Shared reading of the TRANSFAC flat files
  * Freely inspired by BioPHP's project biophp.org
  * Created 12 September 2026
- * Last modified 18 September 2026
+ * Last modified 7 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Parser\Service;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
@@ -27,22 +29,22 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
     /**
      * @var string
      */
-    protected $accession = "";
+    protected string $accession = "";
 
     /**
      * @var string
      */
-    protected $id = "";
+    protected string $id = "";
 
     /**
      * @var string
      */
-    protected $dateCreated = "";
+    protected string $dateCreated = "";
 
     /**
      * @var string
      */
-    protected $dateUpdated = "";
+    protected string $dateUpdated = "";
 
     /**
      * Constructor.
@@ -115,8 +117,7 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
      * @param   string      $sData
      * @return  bool
      */
-    protected function parseCommonField($sLabel, $sData)
-    {
+    protected function parseCommonField(string $sLabel, string $sData) : bool {
         switch ($sLabel) {
             case "AC":
                 $this->accession = $sData;
@@ -138,8 +139,7 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
      * Format : DT  20.06.90 11:00:03 (created); ewi.
      * @param   string      $sData
      */
-    protected function parseDate($sData)
-    {
+    protected function parseDate(string $sData) {
         $aTokens = preg_split("/\s+/", $sData, -1, PREG_SPLIT_NO_EMPTY);
 
         $sMarker = "";
@@ -166,9 +166,19 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
      * @param   string      $sData
      * @return  string
      */
-    protected function append($sBuffer, $sData)
-    {
+    protected function append(string $sBuffer, string $sData) : string {
         return trim($sBuffer . " " . $sData);
+    }
+
+    /**
+     * Appends the data of an SQ line to a sequence written over several of them : the residues
+     * join with no blank between them, and the period closing the sequence is not a residue.
+     * @param   string      $sBuffer
+     * @param   string      $sData
+     * @return  string
+     */
+    protected function appendSequence(string $sBuffer, string $sData) : string {
+        return $sBuffer . rtrim(preg_replace('/\s+/', "", $sData), ".");
     }
 
     /**
@@ -178,8 +188,7 @@ abstract class ParseTransfacAbstractManager implements ParseDatabaseInterface
      * @param   string      $sSeparator
      * @return  array
      */
-    protected function splitList($sText, $sSeparator = ";")
-    {
+    protected function splitList(string $sText, string $sSeparator = ";") : array {
         $sText = rtrim(trim($sText), ".");
         if ($sText == "") {
             return [];

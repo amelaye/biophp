@@ -3,8 +3,10 @@
  * Protein Entity
  * Freely inspired by BioPHP's project biophp.org
  * Created 11 february 2019
- * Last modified 25 july 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Sequence\Entity;
 
 /**
@@ -22,18 +24,18 @@ class Protein
      * A string that uniquely identifies a protein.
      * @var string
      */
-    private $id = "";
+    private string $id = "";
 
     /**
      * The long name used to refer to this protein.
      * @var string
      */
-    private $name = "";
+    private string $name = "";
 
     /**
      * @var string
      */
-    private $sequence = "";
+    private string $sequence = "";
 
     /**
      * @return string

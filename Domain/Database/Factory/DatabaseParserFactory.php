@@ -3,8 +3,10 @@
  * Resolves a database format name to the parser that knows it
  * Freely inspired by BioPHP's project biophp.org
  * Created 25 August 2026
- * Last modified 18 September 2026
+ * Last modified 2 October 2026
  */
+declare(strict_types=1);
+
 namespace Amelaye\BioPHP\Domain\Database\Factory;
 
 use Amelaye\BioPHP\Domain\Database\Interfaces\ParseDatabaseInterface;
