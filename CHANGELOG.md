@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Changes on `develop` since `master`.
 
 ### Added
+- Genetic codes : `TripletSpecieDTO::getNcbiTableId()` gives the NCBI table number (transl_table) of
+  a species ; its `getId()` is only an auto-increment (echinoderm mitochondrial is 7, table 9 at
+  NCBI). Null when the API does not send it. Seven NCBI codes join the 17 already there, taken from
+  gc.prt 4.6 : 24 (Rhabdopleuridae mitochondrial), 25 (SR1 and Gracilibacteria), 26 (Pachysolen
+  tannophilus), 29 (Mesodinium), 30 (Peritrich), 32 (Balanophoraceae plastid), 33 (Cephalodiscidae
+  mitochondrial). Tables 27, 28 and 31 are left out : their UGA is a stop or a sense codon
+  according to the context, which one group per amino acid cannot express. Needs bioapi's
+  `ncbi_table_id` column (migration Version20261009130000) and a fixtures reload.
+- `MathematicsFunctions::Mean()` and `Variance()` take an optional precision : 3 decimals by
+  default as before, `null` for the unrounded value. The default rounds a frequency-scale result
+  (a mean of 1e-4, a variance of 1e-8) to 0.
 - AAINDEX : the correlated entries (C, `getCorrelations()`) and the index values themselves (I,
   `getIndex()`, one per amino acid, null for "NA") are read ; they used to be left aside.
 - Swiss-Prot : `getTaxonomyId()`, the NCBI taxonomy identifier of the OX line.
@@ -66,6 +77,10 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+- Vendor links : supplier B (Thermo Fisher Scientific) had no link ; E was named "Minotech
+  Stratagene" (a copy of C), it is Agilent Technologies in REBASE ; V was "MRC-Holland", it is
+  Vivantis Technologies. Supplier Y is still without a link : the current REBASE list no longer has
+  it.
 - FASTA (`parseFasta()`) : a header made of the identifier alone (">id") or an empty file raised
   "Undefined array key 1".
 - FASTQ : a quality shorter than its sequence no longer swallows the next record's "@" header ;

@@ -76,4 +76,24 @@ class VendorLinkApiTest extends WebTestCase
 
         $this->assertEquals($aExpectedOrder, array_keys($aResult));
     }
+
+    /**
+     * Every supplier code the enzymes refer to has a link, but Y : REBASE no longer lists it (the
+     * current supplier list, v610, is B E I J K M N O Q R S V X), so its name and address cannot
+     * be sourced.
+     */
+    public function testEverySupplierCodeOfTheEnzymesHasALink()
+    {
+        require 'samples/Vendors.php';
+
+        $aCodes = [];
+        foreach ($vendors as $sCodes) {
+            foreach (str_split($sCodes) as $sCode) {
+                $aCodes[$sCode] = true;
+            }
+        }
+        $aLinked = array_map(fn($oLink) => $oLink->getId(), $this->vendorLinksObjects);
+
+        $this->assertSame(["Y"], array_values(array_diff(array_keys($aCodes), $aLinked)));
+    }
 }

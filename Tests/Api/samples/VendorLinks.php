@@ -8,6 +8,12 @@ use Amelaye\BioPHP\Api\DTO\VendorLinkDTO;
 $vendorLinksObjects = [];
 
 $link = new VendorLinkDTO();
+$link->setId("B");
+$link->setName("Thermo Fisher Scientific");
+$link->setLink("https://www.thermofisher.com");
+$vendorLinksObjects[] = $link;
+
+$link = new VendorLinkDTO();
 $link->setId("C");
 $link->setName("Minotech Biotechnology");
 $link->setLink("http://www.minotech.gr");
@@ -15,8 +21,8 @@ $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
 $link->setId("E");
-$link->setName("Minotech Stratagene");
-$link->setLink("http://www.stratagene.com");
+$link->setName("Agilent Technologies");
+$link->setLink("https://www.agilent.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
@@ -99,8 +105,8 @@ $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
 $link->setId("V");
-$link->setName("MRC-Holland");
-$link->setLink("http://www.mrc-holland.com");
+$link->setName("Vivantis Technologies");
+$link->setLink("https://vivantechnologies.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();

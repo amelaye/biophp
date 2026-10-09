@@ -41,6 +41,31 @@ class BiologicalReferenceDataTest extends TestCase
         "trematode mitochondrial" => "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
         "scenedesmus obliquus mitochondrial" => "FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "thraustochytrium mitochondrial code" => "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "rhabdopleuridae mitochondrial" => "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+        "candidate division sr1 and gracilibacteria" => "FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "pachysolen tannophilus nuclear" => "FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "mesodinium nuclear" => "FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "peritrich nuclear" => "FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "balanophoraceae plastid" => "FFLLSSSSYY*WCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "cephalodiscidae mitochondrial" => "FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+    ];
+
+    /**
+     * The NCBI table number (transl_table) of each species, from gc.prt (version 4.6). Tables 27
+     * (Karyorelict), 28 (Condylostoma) and 31 (Blastocrithidia) are not listed : their UGA is a
+     * stop or a sense codon according to the context, which one group per amino acid cannot express.
+     */
+    private const NCBI_TABLE_IDS = [
+        "standard" => 1, "vertebrate mitochondrial" => 2, "yeast mitochondrial" => 3,
+        "mold protozoan coelenterate mitochondrial" => 4, "invertebrate mitochondrial" => 5,
+        "ciliate dasycladacean hexamita nuclear" => 6, "echinoderm mitochondrial" => 9,
+        "euplotid nuclear" => 10, "bacterial plant plastid" => 11, "alternative yeast nuclear" => 12,
+        "ascidian mitochondria" => 13, "flatworm mitochondrial" => 14, "blepharisma macronuclear" => 15,
+        "chlorophycean mitochondrial" => 16, "trematode mitochondrial" => 21,
+        "scenedesmus obliquus mitochondrial" => 22, "thraustochytrium mitochondrial code" => 23,
+        "rhabdopleuridae mitochondrial" => 24, "candidate division sr1 and gracilibacteria" => 25,
+        "pachysolen tannophilus nuclear" => 26, "mesodinium nuclear" => 29, "peritrich nuclear" => 30,
+        "balanophoraceae plastid" => 32, "cephalodiscidae mitochondrial" => 33,
     ];
 
     private const IUPAC = [
@@ -99,6 +124,19 @@ class BiologicalReferenceDataTest extends TestCase
     public function testEverySpeciesIsListed()
     {
         $this->assertEqualsCanonicalizing(array_keys(self::NCBI_TABLES), array_keys(self::species()));
+    }
+
+    /**
+     * The id of a species is an auto-increment (echinoderm mitochondrial is 7, NCBI table 9) : the
+     * NCBI table number is what tells which genetic code a species stands for.
+     */
+    public function testEverySpeciesCarriesItsNcbiTableNumber()
+    {
+        $this->assertCount(count(self::NCBI_TABLE_IDS), self::species());
+        foreach (self::species() as $sNature => $oSpecies) {
+            $this->assertSame(self::NCBI_TABLE_IDS[$sNature], $oSpecies->getNcbiTableId(), $sNature);
+        }
+        $this->assertCount(count(self::NCBI_TABLE_IDS), array_unique(self::NCBI_TABLE_IDS));
     }
 
     public function testEveryCodonFallsInTheGroupOfItsNcbiAminoAcid()
@@ -274,5 +312,29 @@ class BiologicalReferenceDataTest extends TestCase
 
         require __DIR__ . '/samples/Elements.php';
         $this->assertEquals(18.0153, $aElementsObjects[5]->getWeight(), "water");
+    }
+
+    /**
+     * The PAM250 matrix is Dayhoff's 1978 Atlas one. NCBI's PAM250 file (the one Biopython loads :
+     * Bio.Align.substitution_matrices.load("PAM250"), 1.88, checked) is a later recomputation that
+     * differs from it at exactly four pairs, G-P and N-P (0 there) and F-A and F-N (-3 there).
+     * Neither is a transcription error ; this pins the variant, so that switching to NCBI's is a
+     * decision and not an accident.
+     */
+    public function testPam250IsDayhoffsAndDiffersFromNcbiAtFourPairs()
+    {
+        require __DIR__ . '/samples/Pam250Matrix.php';
+        $aValues = [];
+        foreach ($aPam250Matrix as $oDigit) {
+            $aValues[$oDigit->getId()] = $oDigit->getValue();
+        }
+
+        $aNcbi = ["GP" => 0, "NP" => 0, "FA" => -3, "FN" => -3];
+        foreach ($aNcbi as $sPair => $iNcbi) {
+            $this->assertSame($aValues[$sPair], $aValues[strrev($sPair)], "$sPair is symmetric");
+            $this->assertNotSame($iNcbi, $aValues[$sPair], "$sPair : Dayhoff differs from NCBI here");
+        }
+        $this->assertSame([-1, -1, -4, -4], [$aValues["GP"], $aValues["NP"], $aValues["FA"], $aValues["FN"]]);
+        $this->assertSame(400, count($aValues));
     }
 }

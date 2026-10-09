@@ -3,7 +3,7 @@
  * Database of elements - Triplets species
  * Inspired by BioPHP's project biophp.org
  * Created 21 December 2019
- * Last modified 2 October 2026
+ * Last modified 9 October 2026
  */
 declare(strict_types=1);
 
@@ -34,6 +34,7 @@ class TripletSpecieApi extends Bioapi implements TripletSpecieApiAdapter
             $triplet = new TripletSpecieDTO();
             $triplet->setId($elem['id']);
             $triplet->setNature($elem['nature']);
+            $triplet->setNcbiTableId($elem['ncbiTableId'] ?? null);
             $triplet->setTripletsGroups($elem['tripletsGroups']);
             $triplet->setTriplets($elem['triplets']);
             $aTriplets[] = $triplet;
