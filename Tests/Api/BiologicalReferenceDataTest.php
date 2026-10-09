@@ -277,12 +277,18 @@ class BiologicalReferenceDataTest extends TestCase
     }
 
     /**
-     * A residue is its free amino acid less one water (18.0153, Biopython's average water).
+     * A residue is its free amino acid less one water (18.0153, Biopython's average water). That
+     * holds for the ambiguity codes B, Z and X as for the twenty : their "free" weight is the lower
+     * bound of the weights they may stand for (B is N or D, Z is Q or E, X any of the twenty, so
+     * glycine's 75.0666), and their residue weight that bound less one water. Biopython has no
+     * weight for them (Bio.Data.IUPACData.protein_weights stops at the 20 and U, O) : this is the
+     * library's own convention, kept consistent. The three-letter codes N/A, N/A and XXX stay as
+     * they are, XXX being what translate() writes for an unknown codon.
      */
     public function testResidueWeightsAreFreeWeightsLessOneWater()
     {
         foreach (self::aminos() as $sId => $oAmino) {
-            if (strpos(self::AMINO_ACIDS . "OU", $sId) !== false) {
+            if (strpos(self::AMINO_ACIDS . "OUBZX", $sId) !== false) {
                 $this->assertEqualsWithDelta($oAmino->getWeight1() - 18.0153, $oAmino->getResidueMolWeight(), 0.00005, $sId);
             }
         }

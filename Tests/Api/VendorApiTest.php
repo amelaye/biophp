@@ -52,8 +52,8 @@ class VendorApiTest extends WebTestCase
         $apiVendors = new VendorApi($this->clientMock, $this->serializerMock);
         $aResult = $apiVendors::GetVendorsArray($apiVendors->getVendors());
 
-        $this->assertEquals("F", $aResult["AanI"]);
-        $this->assertEquals("FIKMNR", $aResult["AatII"]);
+        $this->assertEquals("B", $aResult["AanI"]);
+        $this->assertEquals("BINRV", $aResult["AatII"]);
         $this->assertCount(count($this->vendorsObjects), $aResult);
     }
 }

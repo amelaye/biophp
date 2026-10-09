@@ -14,27 +14,9 @@ $link->setLink("https://www.thermofisher.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
-$link->setId("C");
-$link->setName("Minotech Biotechnology");
-$link->setLink("http://www.minotech.gr");
-$vendorLinksObjects[] = $link;
-
-$link = new VendorLinkDTO();
 $link->setId("E");
 $link->setName("Agilent Technologies");
 $link->setLink("https://www.agilent.com");
-$vendorLinksObjects[] = $link;
-
-$link = new VendorLinkDTO();
-$link->setId("F");
-$link->setName("Fermentas AB");
-$link->setLink("http://www.fermentas.com");
-$vendorLinksObjects[] = $link;
-
-$link = new VendorLinkDTO();
-$link->setId("H");
-$link->setName("American Allied Biochemical, Inc.");
-$link->setLink("http://www.aablabs.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
@@ -51,13 +33,13 @@ $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
 $link->setId("K");
-$link->setName("Takara Shuzo Co. Ltd.");
-$link->setLink("http://www.takarashuzo.co.jp/english/index.htm");
+$link->setName("Takara Bio Inc.");
+$link->setLink("https://www.takarabio.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
 $link->setId("M");
-$link->setName("Roche Applied Science");
+$link->setName("Roche Custom Biotech");
 $link->setLink("http://www.roche.com");
 $vendorLinksObjects[] = $link;
 
@@ -71,12 +53,6 @@ $link = new VendorLinkDTO();
 $link->setId("O");
 $link->setName("Toyobo Biochemicals");
 $link->setLink("http://www.toyobo.co.jp/e/");
-$vendorLinksObjects[] = $link;
-
-$link = new VendorLinkDTO();
-$link->setId("P");
-$link->setName("Megabase Research Products");
-$link->setLink("http://www.cvienzymes.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
@@ -95,12 +71,6 @@ $link = new VendorLinkDTO();
 $link->setId("S");
 $link->setName("Sigma Chemical Corporation");
 $link->setLink("http://www.sigmaaldrich.com");
-$vendorLinksObjects[] = $link;
-
-$link = new VendorLinkDTO();
-$link->setId("U");
-$link->setName("Bangalore Genei");
-$link->setLink("http://www.bangaloregenei.com");
 $vendorLinksObjects[] = $link;
 
 $link = new VendorLinkDTO();
