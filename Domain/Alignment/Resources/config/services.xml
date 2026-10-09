@@ -12,6 +12,7 @@
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\SmithWatermanAligner" id="amelaye_biophp.alignment_smith_waterman" />
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\SemiGlobalAligner" id="amelaye_biophp.alignment_semi_global" />
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\SimpleMatchMismatchScoring" id="amelaye_biophp.alignment_simple_scoring" />
+        <service class="Amelaye\BioPHP\Domain\Alignment\Service\NucleotideAmbiguityScoring" id="amelaye_biophp.alignment_nucleotide_ambiguity_scoring" />
         <service class="Amelaye\BioPHP\Domain\Alignment\Service\Pam250Scoring" id="amelaye_biophp.alignment_pam250_scoring">
             <argument type="service" id="Amelaye\BioPHP\Api\Interfaces\Pam250MatrixDigitApiAdapter" />
         </service>

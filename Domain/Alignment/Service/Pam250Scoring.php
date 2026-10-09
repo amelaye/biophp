@@ -11,6 +11,7 @@ namespace Amelaye\BioPHP\Domain\Alignment\Service;
 
 use Amelaye\BioPHP\Api\Interfaces\Pam250MatrixDigitApiAdapter;
 use Amelaye\BioPHP\Domain\Alignment\Exception\InvalidAlignmentInputException;
+use Amelaye\BioPHP\Domain\Alignment\Interfaces\MoleculeAwareScoringInterface;
 use Amelaye\BioPHP\Domain\Alignment\Interfaces\SubstitutionScoringInterface;
 
 /**
@@ -24,7 +25,7 @@ use Amelaye\BioPHP\Domain\Alignment\Interfaces\SubstitutionScoringInterface;
  * @package Amelaye\BioPHP\Domain\Alignment\Service
  * @author Amélie DUVERNET aka Amelaye <amelieonline@gmail.com>
  */
-class Pam250Scoring implements SubstitutionScoringInterface
+class Pam250Scoring implements SubstitutionScoringInterface, MoleculeAwareScoringInterface
 {
     /**
      * @var     int[]       Flattened matrix, keyed by the two-letter residue pair code
@@ -38,6 +39,17 @@ class Pam250Scoring implements SubstitutionScoringInterface
     public function __construct(Pam250MatrixDigitApiAdapter $oPam250Adapter)
     {
         $this->matrix = $oPam250Adapter::GetPam250MatrixArray($oPam250Adapter->getPam250Matrix());
+    }
+
+    /**
+     * PAM250 scores amino acids : on DNA, A, C, G and T would be read as alanine, cysteine, glycine
+     * and threonine.
+     * @param   string      $sMolType
+     * @return  bool
+     */
+    public function supportsMolType(string $sMolType): bool
+    {
+        return $sMolType === "PROTEIN";
     }
 
     /**

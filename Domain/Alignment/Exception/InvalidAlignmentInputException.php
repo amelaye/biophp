@@ -57,6 +57,32 @@ class InvalidAlignmentInputException extends \InvalidArgumentException
     }
 
     /**
+     * Builds the exception raised when the two sequences to align are not the same molecule.
+     * @param   string      $sFirstMolType
+     * @param   string      $sSecondMolType
+     * @return  InvalidAlignmentInputException
+     */
+    public static function mismatchedMoleculeTypes(string $sFirstMolType, string $sSecondMolType): self
+    {
+        return new self(
+            sprintf('Cannot align a %s sequence against a %s sequence.', $sFirstMolType, $sSecondMolType)
+        );
+    }
+
+    /**
+     * Builds the exception raised when the scoring is made for another molecule than the sequences.
+     * @param   string      $sScoringClass
+     * @param   string      $sMolType
+     * @return  InvalidAlignmentInputException
+     */
+    public static function scoringNotMadeForMolecule(string $sScoringClass, string $sMolType): self
+    {
+        return new self(
+            sprintf('%s is not made for %s sequences.', $sScoringClass, $sMolType)
+        );
+    }
+
+    /**
      * Builds the exception raised when a substitution matrix (e.g. PAM250) has no entry for a pair of
      * symbols, typically an ambiguous or stop-codon symbol the matrix was never defined for.
      * @param   string      $sFirstSymbol

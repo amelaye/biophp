@@ -83,4 +83,30 @@ class Pam250ScoringTest extends TestCase
 
         $oScoring->score("A", "X");
     }
+
+    /**
+     * PAM250 scores amino acids : on DNA it read A, C, G and T as alanine, cysteine, glycine and
+     * threonine.
+     */
+    public function testItIsMadeForProteinsOnly()
+    {
+        $oScoring = new Pam250Scoring($this->makeAdapter());
+
+        $this->assertTrue($oScoring->supportsMolType("PROTEIN"));
+        $this->assertFalse($oScoring->supportsMolType("DNA"));
+        $this->assertFalse($oScoring->supportsMolType("RNA"));
+    }
+
+    public function testAnAlignerRefusesItOnDna()
+    {
+        $this->expectException(InvalidAlignmentInputException::class);
+        $this->expectExceptionMessage("Pam250Scoring is not made for DNA sequences.");
+
+        (new \Amelaye\BioPHP\Domain\Alignment\Service\NeedlemanWunschAligner())->align(
+            new \Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence("ACGT"),
+            new \Amelaye\BioPHP\Domain\Sequence\ValueObject\DnaSequence("ACGT"),
+            new Pam250Scoring($this->makeAdapter()),
+            -2
+        );
+    }
 }

@@ -22,6 +22,8 @@ class CodonAdaptationIndexCalculatorTest extends TestCase
 {
     private $calculator;
 
+    private $sequenceBuilder;
+
     public function setUp(): void
     {
         require __DIR__ . '/../samples/Aminos.php';
@@ -53,6 +55,7 @@ class CodonAdaptationIndexCalculatorTest extends TestCase
         $sequenceManager = new SequenceManager($apiAminoMock, $apiNucleoMock, $apiElementsMock);
         $sequenceBuilder = new SequenceBuilder($sequenceManager);
 
+        $this->sequenceBuilder = $sequenceBuilder;
         $this->calculator = new CodonAdaptationIndexCalculator($sequenceBuilder);
     }
 
@@ -131,5 +134,54 @@ class CodonAdaptationIndexCalculatorTest extends TestCase
 
         $this->assertEquals(1, $oResult->getCodonsScored());
         $this->assertEqualsWithDelta(1.0, $oResult->getScore(), 0.0000001);
+    }
+
+    /**
+     * A reference table built from a few genes never uses some codons : CAI was then not computable
+     * at all. A weight given to such codons (0.5 is CodonW's) makes it so ; without one, the strict
+     * behaviour stays.
+     */
+    public function testAMissingCodonGetsTheConfiguredWeight()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 0]);
+
+        $oResult = $oCalculator->calculate(new DnaSequence("TTC"), $oTable);
+        $this->assertEqualsWithDelta(0.5, $oResult->getScore(), 1e-12);
+        $this->assertEquals(1, $oResult->getCodonsScored());
+
+        // geometric mean of 1 (TTT, the most used) and 0.5 (TTC, missing) : sqrt(0.5)
+        $oResult = $oCalculator->calculate(new DnaSequence("TTTTTC"), $oTable);
+        $this->assertEqualsWithDelta(sqrt(0.5), $oResult->getScore(), 1e-12);
+    }
+
+    public function testTheMissingCodonWeightDoesNotChangeTheCodonsTheTableUses()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+        $oTable = new CodonUsageTable(["TTT" => 30, "TTC" => 10]);
+
+        $oResult = $oCalculator->calculate(new DnaSequence("TTC"), $oTable);
+        $this->assertEqualsWithDelta(10 / 30, $oResult->getScore(), 1e-12);
+    }
+
+    public function testAMissingCodonStillThrowsWhenTheAminoAcidHasNoCodonInTheTableAtAll()
+    {
+        $oCalculator = new CodonAdaptationIndexCalculator($this->sequenceBuilder, 0.5);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("TTT");
+        $oCalculator->calculate(new DnaSequence("TTT"), new CodonUsageTable(["GGG" => 10]));
+    }
+
+    public function testTheMissingCodonWeightMustBeInZeroExcludedToOne()
+    {
+        foreach ([0.0, -0.5, 1.5] as $fWeight) {
+            try {
+                new CodonAdaptationIndexCalculator($this->sequenceBuilder, $fWeight);
+                $this->fail("A weight of $fWeight should be refused.");
+            } catch (\InvalidArgumentException $ex) {
+                $this->assertStringContainsString("]0, 1]", $ex->getMessage());
+            }
+        }
     }
 }

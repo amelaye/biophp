@@ -41,6 +41,13 @@ Changes on `develop` since `master`.
 - Needleman-Wunsch global pairwise alignment.
 - Smith-Waterman local alignment with PAM250 substitution scoring.
 - Semi-global (overlap) pairwise alignment.
+- The three aligners refuse sequences of different molecules (a DNA against an RNA, a nucleic acid
+  against a protein) and a scoring made for another molecule (PAM250 on DNA), with an
+  `InvalidAlignmentInputException`, where they scored them silently. A scoring says which molecules
+  it suits through `MoleculeAwareScoringInterface`, which `SubstitutionScoringInterface` leaves alone.
+- `NucleotideAmbiguityScoring` : IUPAC-aware scoring for DNA and RNA. An ambiguity code scores 0 (by
+  default) against a base it may stand for and as a mismatch against one it cannot ; U is read as T.
+  `SimpleMatchMismatchScoring` still compares symbols letter by letter.
 - `PairwiseAlignmentResult::getIdentityOverLength()`, the identity BLAST and EMBOSS report (gap
   columns counted) ; `getIdentity()` keeps its over-aligned-positions convention, now documented.
 
@@ -53,7 +60,9 @@ Changes on `develop` since `master`.
 - UPGMA tree construction, reusing `DistanceMatrix`.
 
 #### Sequence tools
-- Codon Adaptation Index calculator.
+- Codon Adaptation Index calculator. A reference table built from few genes leaves some codons
+  unused, which made the CAI not computable : an optional weight for such codons (0.5 is CodonW's)
+  is given to the constructor, the strict behaviour staying the default.
 - Codon usage table builder and codon optimizer.
 - Coordinate-returning ORF finder.
 - Primer GC% and nearest-neighbor melting temperature (Tm) calculation.

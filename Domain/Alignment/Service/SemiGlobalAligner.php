@@ -53,6 +53,7 @@ class SemiGlobalAligner implements SemiGlobalAlignerInterface
         if ($iGapPenalty >= 0) {
             throw InvalidAlignmentInputException::nonNegativeGapPenalty($iGapPenalty);
         }
+        AlignmentInputGuard::assertCompatible($oFirst, $oSecond, $oScoring);
 
         $sFirst = $oFirst->getValue();
         $sSecond = $oSecond->getValue();

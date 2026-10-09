@@ -40,12 +40,27 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
     private SequenceInterface $sequenceManager;
 
     /**
+     * @var     float|null
+     */
+    private ?float $missingCodonWeight;
+
+    /**
      * CodonAdaptationIndexCalculator constructor.
      * @param   SequenceInterface   $oSequenceManager
+     * @param   float|null          $fMissingCodonWeight    The relative adaptiveness given to a codon the
+     * reference table never uses, the usual remedy for a table built from few genes (0.5 is a common
+     * choice, CodonW's). Null, the default, keeps the strict behaviour : such a codon is an error.
+     * @throws  \InvalidArgumentException  When the weight is not in ]0, 1]
      */
-    public function __construct(SequenceInterface $oSequenceManager)
+    public function __construct(SequenceInterface $oSequenceManager, ?float $fMissingCodonWeight = null)
     {
+        if ($fMissingCodonWeight !== null && ($fMissingCodonWeight <= 0.0 || $fMissingCodonWeight > 1.0)) {
+            throw new \InvalidArgumentException(
+                sprintf('The weight of a missing codon must be in ]0, 1], %s given.', $fMissingCodonWeight)
+            );
+        }
         $this->sequenceManager = $oSequenceManager;
+        $this->missingCodonWeight = $fMissingCodonWeight;
     }
 
     /**
@@ -83,7 +98,8 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
             $iMax = $this->maxReferenceCount($sAminoAcid, $oReferenceTable);
             $iCount = $oReferenceTable->getCount($sCodon);
 
-            if ($iMax === 0 || $iCount === 0) {
+            // No synonym of the amino acid in the table : nothing to be relative to, whatever the weight
+            if ($iMax === 0 || ($iCount === 0 && $this->missingCodonWeight === null)) {
                 throw new \InvalidArgumentException(
                     sprintf(
                         'Codon "%s" has no usable reference usage (relative adaptiveness would be zero); cannot compute CAI.',
@@ -92,7 +108,7 @@ class CodonAdaptationIndexCalculator implements CodonAdaptationIndexInterface
                 );
             }
 
-            $fLogSum += log($iCount / $iMax);
+            $fLogSum += $iCount === 0 ? log($this->missingCodonWeight) : log($iCount / $iMax);
             $iScored++;
         }
 
