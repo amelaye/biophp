@@ -193,7 +193,7 @@ class SequenceManagerTest extends TestCase
         $sequenceBuilder = new SequenceBuilder($sequenceManager);
         $sExpandNa = $sequenceBuilder->expandNa("GATTAGSW");
 
-        $sExpected = "GATTAG[GC][AT]";
+        $sExpected = "GATTAG[GC][ATU]";
 
         $this->assertEquals($sExpandNa, $sExpected);
     }
@@ -212,14 +212,14 @@ class SequenceManagerTest extends TestCase
             "N" => ".",
             "X" => ".",
             "R" => "[AG]",
-            "Y" => "[CT]",
+            "Y" => "[CTU]",
             "S" => "[GC]",
-            "W" => "[AT]",
+            "W" => "[ATU]",
             "M" => "[AC]",
-            "K" => "[TG]",
-            "B" => "[CGT]",
-            "D" => "[AGT]",
-            "H" => "[ACT]",
+            "K" => "[TGU]",
+            "B" => "[CGTU]",
+            "D" => "[AGTU]",
+            "H" => "[ACTU]",
             "V" => "[ACG]",
         ];
         foreach ($aExpected as $sCode => $sExpansion) {
@@ -229,6 +229,33 @@ class SequenceManagerTest extends TestCase
                 "expandNa(\"$sCode\") should expand to \"$sExpansion\""
             );
         }
+    }
+
+    /**
+     * The ambiguity codes standing for T also stand for U : a pattern of Y, W, K, B, D or H finds
+     * its match in an RNA sequence, which no match was found in before.
+     */
+    public function testAmbiguityPatternsMatchRna()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals([0, 2], $sequenceManager->patPoso("YY", "I", 2, "CUCU"));
+        $this->assertEquals(["CU" => [0, 2]], $sequenceManager->patPos("YY", "I", "CUCU"));
+    }
+
+    /**
+     * A degenerate pattern is searched for in every place it matches, overlaps included : only
+     * the strings found by the non-overlapping scan were looked for, so GA (position 1) of AGAA
+     * was never found by RR.
+     */
+    public function testPatPosoFindsOverlappingMatchesOfADegeneratePattern()
+    {
+        $sequenceManager = new SequenceManager($this->apiAminoMock, $this->apiNucleoMock, $this->apiElementsMock);
+
+        $this->assertEquals([0, 1, 2], $sequenceManager->patPoso("RR", "I", 1, "AGAA"));
+        $this->assertEquals([0, 2], $sequenceManager->patPoso("RR", "I", 2, "AGAA"));
+        $this->assertEquals([0, 1, 2], $sequenceManager->patPoso("rr", "I", 1, "agaa"));
+        $this->assertEquals([], $sequenceManager->patPoso("RR", "I", 1, "CCCC"));
     }
 
     public function testMolWT()

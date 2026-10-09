@@ -238,6 +238,9 @@ final class ParseEmblManager extends ParseDbAbstractManager
     {
         $sLineData = trim(substr($this->aLines->current(), 5));
         $aWords = preg_split("/\(/", $sLineData);
+        if (!isset($aWords[1])) {
+            return; // no "(Rel. XX, Created)" : nothing tells which date this is
+        }
         $iFirstComma = strpos($aWords[1], ",");
         $sComment = strtoupper(trim(substr($aWords[1], $iFirstComma + 1)));
 

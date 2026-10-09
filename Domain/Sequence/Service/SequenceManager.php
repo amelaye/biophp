@@ -201,7 +201,7 @@ class SequenceManager
             "/N|X/", "/R/", "/Y/", "/S/", "/W/", "/M/", "/K/", "/B/", "/D/", "/H/", "/V/"
         ];
         $aReplacement = [
-            ".", "[AG]", "[CT]", "[GC]", "[AT]", "[AC]", "[TG]", "[CGT]","[AGT]", "[ACT]", "[ACG]"
+            ".", "[AG]", "[CTU]", "[GC]", "[ATU]", "[AC]", "[TGU]", "[CGTU]","[AGTU]", "[ACTU]", "[ACG]"
         ];
         $sExpansion = preg_replace($aPattern, $aReplacement, $sSequence);
         return $sExpansion;
@@ -456,42 +456,20 @@ class SequenceManager
             // Resuming the search at the match itself would find that same match forever.
             throw new \InvalidArgumentException(sprintf("patPoso() needs a cut position of at least 1, %d given.", $iCutPos));
         }
-        $aAbsPos = [];
-        if (strtoupper($sOptions) == "I") {
+        $bInsensitive = strtoupper($sOptions) == "I";
+        $sSequence = (string) $sSequence;
+        if ($bInsensitive) {
             $sSequence = strtoupper($sSequence);
+            $sPattern = strtoupper($sPattern);
         }
-        $aPatFreq = $this->patFreq($sPattern, $sSequence, $sOptions);
-        $iLastPos = -1 * $iCutPos;
-        $iCtr = 0;
-        $iRunSumStart = 0;
-        while(strlen($sSequence) >= strlen($sPattern)) {
-            $iCtr++;
-            if ($iCtr == 1) {
-                $iStart = 0;
-            } else {
-                $iStart = $iLastPos + $iCutPos;
-            }
-            $sSequence = substr($sSequence, $iStart);
-            $iRunSumStart += $iStart;
-            $iMinPos = 999999;
-            $bFoundFlag = false;
-            foreach($aPatFreq as $key => $value) {
-                $iCurrentPos = strpos($sSequence, $key);
-                if (gettype($iCurrentPos) == "integer") {
-                    $bFoundFlag = true;
-                    if ($iCurrentPos < $iMinPos) $iMinPos = $iCurrentPos;
-                }
-            }
-            if (!$bFoundFlag) {
-                break;
-            }
-            $iCurrentPos = $iMinPos;
-            if ($iCtr == 1) {
-                $aAbsPos[] = $iCurrentPos;
-            } else {
-                $aAbsPos[] = $iRunSumStart + $iCurrentPos;
-            }
-            $iLastPos = $iCurrentPos;
+        // The first match from each resume point, whatever the matches found before : a degenerate
+        // pattern is not tied to the strings an earlier, non-overlapping scan happened to find.
+        $sRegex = "/" . $this->expandNa($sPattern) . "/";
+        $aAbsPos = [];
+        $iOffset = 0;
+        while ($iOffset <= strlen($sSequence) && preg_match($sRegex, $sSequence, $aMatch, PREG_OFFSET_CAPTURE, $iOffset) === 1) {
+            $aAbsPos[] = $aMatch[0][1];
+            $iOffset = $aMatch[0][1] + $iCutPos;
         }
         return $aAbsPos;
     }

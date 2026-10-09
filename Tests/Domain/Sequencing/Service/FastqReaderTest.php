@@ -227,4 +227,21 @@ class FastqReaderTest extends TestCase
         $this->assertSame([], $oResult->getWarnings());
         $this->assertEquals([93, 93, 93, 31], $oResult->getRecords()[0]->getPhredScores());
     }
+
+    /**
+     * A quality line shorter than its sequence took the next record's "@" header for the rest of
+     * its quality, and the sequence line after it was skipped with the record : one truncated read
+     * made the next valid one vanish.
+     */
+    public function testATruncatedQualityDoesNotSwallowTheNextRecord()
+    {
+        $oResult = $this->reader->read([
+            "@read1\n", "ACGTACGTAC\n", "+\n", "IIII\n",
+            "@read2\n", "GGGG\n", "+\n", "IIII\n",
+        ]);
+
+        $this->assertCount(1, $oResult->getRecords());
+        $this->assertEquals("read2", $oResult->getRecords()[0]->getIdentifier());
+        $this->assertCount(1, $oResult->getWarnings());
+    }
 }

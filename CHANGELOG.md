@@ -66,6 +66,19 @@ Changes on `develop` since `master`.
   `ftTo` only keep its outer bounds. Filled by the GenBank and EMBL parsers.
 
 ### Fixed
+- FASTA (`parseFasta()`) : a header made of the identifier alone (">id") or an empty file raised
+  "Undefined array key 1".
+- FASTQ : a quality shorter than its sequence no longer swallows the next record's "@" header ;
+  that record is read, and only the truncated one is reported.
+- `RestrictionEnzymeManager::parseEnzyme()` of an unknown enzyme throws the documented exception
+  instead of a TypeError.
+- `expandNa()` : Y, W, K, B, D and H also stand for U (`[CTU]`, `[ATU]`...), so degenerate patterns
+  (`findPattern`, `patPos`, `patFreq`, `patPoso`) match RNA. DNA matching is unchanged.
+- `patPoso()` finds the overlapping matches of a degenerate pattern (`RR` in `AGAA` : 0, 1, 2).
+- `GeneticsFunctions::CreateInversion()` complements the IUPAC ambiguity codes (`AR` gives `YT`).
+- `GeneticsFunctions::RemoveNonCodingProt()` keeps U, O, B, Z and J.
+- VCF : a POS past the integer range is skipped with a warning instead of saturating.
+- EMBL : a DT line without its "(Rel. XX, Created)" part no longer raises a TypeError.
 - GenBank : a record whose LOCUS name differs from its accession (LOCUS SCU49845, ACCESSION
   U49845) is keyed by the accession on every row. `GbSequence` kept the LOCUS name and was orphaned
   from its `Sequence`. `getEntryId()` now returns the primary accession (the LOCUS name only when

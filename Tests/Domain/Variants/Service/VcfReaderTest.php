@@ -184,4 +184,20 @@ class VcfReaderTest extends TestCase
         $this->assertCount(1, $oResult->getWarnings());
         $this->assertStringContainsString("ALT", $oResult->getWarnings()[0]);
     }
+
+    /**
+     * (int) saturates silently at PHP_INT_MAX : a position past it was read as the largest integer.
+     */
+    public function testAPositionPastTheIntegerRangeIsSkippedAndWarnedAbout()
+    {
+        $oResult = $this->reader->read([
+            "chr1\t99999999999999999999\t.\tA\tG\t.\t.\t.\n",
+            "chr1\t000123\t.\tA\tG\t.\t.\t.\n",
+        ]);
+
+        $this->assertCount(1, $oResult->getVariants());
+        $this->assertEquals(123, $oResult->getVariants()[0]->getPosition());
+        $this->assertCount(1, $oResult->getWarnings());
+        $this->assertStringContainsString("POS out of range", $oResult->getWarnings()[0]);
+    }
 }

@@ -70,13 +70,15 @@ class GeneticsFunctions
      */
     public static function CreateInversion($sSequence, $dnaComplements): string
     {
-        $seqRevert = strrev(strtoupper($sSequence));
-        $sNewSequence = "";
+        // The IUPAC ambiguity codes pair up as well (R/Y, K/M, B/V, D/H), the table given taking
+        // precedence. strtr() replaces in one pass, so a complement is never complemented again.
+        $aComplements = ["R" => "Y", "Y" => "R", "K" => "M", "M" => "K", "B" => "V", "V" => "B",
+            "D" => "H", "H" => "D", "S" => "S", "W" => "W", "N" => "N"];
         foreach ($dnaComplements as $nucleotide => $complement) {
-            $seqRevert = str_replace($nucleotide, strtolower($complement), $seqRevert);
+            $aComplements[strtoupper((string) $nucleotide)] = strtoupper((string) $complement);
         }
-        $sNewSequence .= strtoupper($seqRevert);
-        return $sNewSequence;
+
+        return strtr(strrev(strtoupper($sSequence)), $aComplements);
     }
 
     /**
@@ -87,8 +89,9 @@ class GeneticsFunctions
      */
     public static function RemoveNonCodingProt(string $sSequence) : string {
         $sSequence = strtoupper($sSequence);
-        // remove non-coding characters([^ARNDCEQGHILKMFPSTWYVX\*])
-        $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVX\*])", "", $sSequence);
+        // remove non-coding characters : what is neither one of the 20 amino acids, an ambiguity
+        // (B, Z, J, X), selenocysteine (U), pyrrolysine (O) nor a stop (*)
+        $sSequence = preg_replace("([^ARNDCEQGHILKMFPSTWYVXBZJUO\*])", "", $sSequence);
         return $sSequence;
     }
 }

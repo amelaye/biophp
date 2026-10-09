@@ -421,4 +421,19 @@ class ParseEmblManagerTest extends TestCase
             array_map(fn($oKeyword) => $oKeyword->getKeywords(), $oParser->getKeywords())
         );
     }
+
+    /**
+     * A DT line without its "(Rel. XX, Created)" part raised a TypeError.
+     */
+    public function testADateLineWithoutReleaseDoesNotCrash()
+    {
+        $oParser = new ParseEmblManager();
+        $oParser->parseDataFile([
+            "ID   X56734; SV 1; linear; mRNA; STD; PLN; 20 BP.\n",
+            "DT   15-JAN-2020\n",
+            "DT   16-JAN-2020 (Rel. 1, Created)\n",
+        ]);
+
+        $this->assertEquals("16-JAN-2020", $oParser->getSequence()->getDate());
+    }
 }

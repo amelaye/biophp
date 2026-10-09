@@ -943,4 +943,32 @@ class SequenceAlignmentManagerTest extends TestCase
 
         $this->assertEquals("AC", $sequenceAlignmentManager->consensus(60));
     }
+
+    /**
+     * A header made of the identifier alone (">id") used to raise "Undefined array key 1" (the
+     * organism is the header's second word), and so did a file with no header at all.
+     */
+    public function testParseFastaReadsHeadersMadeOfAnIdentifierAlone()
+    {
+        $sFile = tempnam(sys_get_temp_dir(), "fasta");
+        file_put_contents($sFile, ">a\nAC-GT\n>b\nACAGT\n");
+
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename($sFile);
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+
+        $this->assertCount(2, $sequenceAlignmentManager->getSeqSet());
+        $this->assertEquals("AC-GT", $sequenceAlignmentManager->getSeqSet()[0]->getSequence());
+        $this->assertEquals("ACAGT", $sequenceAlignmentManager->getSeqSet()[1]->getSequence());
+
+        file_put_contents($sFile, "");
+        $sequenceAlignmentManager = new SequenceAlignmentManager($this->sequenceManager);
+        $sequenceAlignmentManager->setFilename($sFile);
+        $sequenceAlignmentManager->setFormat("FASTA");
+        $sequenceAlignmentManager->parseFile();
+        $this->assertCount(0, $sequenceAlignmentManager->getSeqSet());
+
+        unlink($sFile);
+    }
 }

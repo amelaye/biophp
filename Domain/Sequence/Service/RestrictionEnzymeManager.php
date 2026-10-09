@@ -115,7 +115,7 @@ class RestrictionEnzymeManager implements RestrictionEnzymeInterface
         } else {
             // Look for given endonuclease in the aRestEnzimDB array.
             $this->enzyme->setName($sName);
-            $temp = $this->getPattern($this->enzyme->getName());
+            $temp = isset($this->aRestEnzimDB[$sName]) ? $this->getPattern($sName) : "";
             if (!$temp) {
                 throw new \Exception("Cannot find entry in restriction endonuclease database.");
             } else {

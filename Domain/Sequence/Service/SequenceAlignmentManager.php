@@ -217,7 +217,10 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
                 $oSequence->setEnd($iSeqLength - 1);
                 if($sPrevDesc != "") {
                     $aDescription = explode(" ", $sPrevDesc);
-                    $oSequence->setOrganism(array($aDescription[1]));
+                    // A header may be the identifier alone (">id") : no organism then
+                    if (isset($aDescription[1])) {
+                        $oSequence->setOrganism(array($aDescription[1]));
+                    }
                     $oSequence->setEntryName($sPrevDesc);
                     $oSequence->setPrimAcc($aDescription[0]);
                 }
@@ -259,7 +262,9 @@ class SequenceAlignmentManager implements SequenceAlignmentInterface
         $oSequence->setStart(0);
         $oSequence->setEnd($iSeqLength - 1);
         $aDescription = explode(" ", $sPrevDesc);
-        $oSequence->setOrganism(array($aDescription[1]));
+        if (isset($aDescription[1])) {
+            $oSequence->setOrganism(array($aDescription[1]));
+        }
         $oSequence->setEntryName($sDescription);
         $oSequence->setPrimAcc($aDescription[0]);
 

@@ -115,7 +115,8 @@ class FastqReader implements FastqReaderInterface
             $sQuality = "";
             $bFirstLine = true;
             while ($i < $iTotalLines && strlen($sQuality) < strlen($sSequence)
-                && ($bFirstLine || strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence))) {
+                && ($bFirstLine || (strlen($sQuality) + strlen($aLines[$i]) <= strlen($sSequence)
+                    && !$this->opensARecord($aLines, $i)))) {
                 $sQuality .= $aLines[$i];
                 $i++;
                 if ($bFirstLine && $sQuality === "") {
@@ -151,6 +152,31 @@ class FastqReader implements FastqReaderInterface
         }
 
         return new FastqImportResult($aRecords, $aWarnings);
+    }
+
+    /**
+     * Tells whether a line opening on "@" is the header of the next record rather than a quality
+     * line that happens to start with "@" : a header is followed by sequence lines, then by the
+     * "+" line. A quality too short for its sequence would otherwise swallow that header.
+     * @param   array       $aLines
+     * @param   int         $i          The index of the line to examine
+     * @return  bool
+     */
+    private function opensARecord(array $aLines, int $i): bool
+    {
+        if (substr($aLines[$i], 0, 1) !== "@") {
+            return false;
+        }
+        for ($j = $i + 1; $j < count($aLines); $j++) {
+            if (substr($aLines[$j], 0, 1) === "+") {
+                return $j > $i + 1;
+            }
+            if (!preg_match('/^[A-Za-z\-.*]*$/', $aLines[$j])) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**

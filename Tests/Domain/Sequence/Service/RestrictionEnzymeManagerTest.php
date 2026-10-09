@@ -567,4 +567,17 @@ class RestrictionEnzymeManagerTest extends TestCase
         $this->assertEquals(4, $restrictionEnzymeManager->getLength("AciI"));
         $this->assertEquals(4, $restrictionEnzymeManager->getEnzyme()->getLength());
     }
+
+    /**
+     * An enzyme missing from the database raised a TypeError instead of the exception that says so.
+     */
+    public function testParseEnzymeOfAnUnknownNameThrowsAnException()
+    {
+        $restrictionEnzymeManager = new RestrictionEnzymeManager($this->apiNucleolMock, new Enzyme());
+        $restrictionEnzymeManager->setEnzyme();
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Cannot find entry in restriction endonuclease database.");
+        $restrictionEnzymeManager->parseEnzyme("Foo", null, null, "inner");
+    }
 }

@@ -81,6 +81,10 @@ class VcfReader implements VcfReaderInterface
         if (!ctype_digit($sPos)) {
             throw new \InvalidArgumentException(sprintf('non-numeric POS ("%s").', $sPos));
         }
+        // (int) saturates silently past PHP_INT_MAX : such a position is not one
+        if ((string) (int) $sPos !== (ltrim($sPos, "0") ?: "0")) {
+            throw new \InvalidArgumentException(sprintf('POS out of range ("%s").', $sPos));
+        }
 
         if ($sQual !== self::MISSING_VALUE && !is_numeric($sQual)) {
             throw new \InvalidArgumentException(sprintf('non-numeric QUAL ("%s").', $sQual));
